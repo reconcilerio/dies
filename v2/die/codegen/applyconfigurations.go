@@ -56,44 +56,28 @@ func ReleaseApplyConfigurationE[AC any](d base.Die) (*AC, error) {
 // configuration's: each value it sets becomes intent, over the die's value.
 // A nil apply configuration clears the intent. The die is mutable, and
 // changed in place.
-func FeedApplyConfiguration[M base.MutableDie](d M, ac any) M {
-	return core.Must(FeedApplyConfigurationE(d, ac))
-}
-
-// FeedApplyConfigurationE is [FeedApplyConfiguration], returning an error
-// rather than panicking.
-func FeedApplyConfigurationE[M base.MutableDie](d M, ac any) (M, error) {
-	var zero M
+func FeedApplyConfiguration(d base.MutableDie, ac any) error {
 	h, at := dies.MustStateOf(d)
 	data, err := json.Marshal(ac)
 	if err != nil {
-		return zero, core.Errorf("die: encoding a %T: %w", ac, err)
+		return core.Errorf("die: encoding a %T: %w", ac, err)
 	}
 	var raw any
 	// numbers decode as int64 where they can, as unstructured values hold them
 	if err := utiljson.Unmarshal(data, &raw); err != nil {
-		return zero, core.Errorf("die: decoding a %T: %w", ac, err)
+		return core.Errorf("die: decoding a %T: %w", ac, err)
 	}
-	if _, err := core.FeedIntent(h, at, raw); err != nil {
-		return zero, err
-	}
-	return d, nil
+	_, err = core.FeedIntent(h, at, raw)
+	return err
 }
 
 // StampApplyConfiguration passes a die's intent, as an apply configuration,
 // to fn, and feeds back what fn makes of it.
-func StampApplyConfiguration[AC any, M base.MutableDie](d M, fn func(ac *AC)) M {
-	return core.Must(StampApplyConfigurationE(d, fn))
-}
-
-// StampApplyConfigurationE is [StampApplyConfiguration], returning an error
-// rather than panicking.
-func StampApplyConfigurationE[AC any, M base.MutableDie](d M, fn func(ac *AC)) (M, error) {
+func StampApplyConfiguration[AC any](d base.MutableDie, fn func(ac *AC)) error {
 	ac, err := ReleaseApplyConfigurationE[AC](d)
 	if err != nil {
-		var zero M
-		return zero, err
+		return err
 	}
 	fn(ac)
-	return FeedApplyConfigurationE(d, ac)
+	return FeedApplyConfiguration(d, ac)
 }

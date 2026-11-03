@@ -17,21 +17,28 @@ limitations under the License.
 package harness
 
 import (
+	"errors"
+
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 
 	dieapiextensionsv1 "reconciler.io/dies/v2/apis/apiextensions/v1"
+	"reconciler.io/dies/v2/die"
 )
 
 // CRDs are the CRDs the suites install, built with dies.
-func CRDs() []*apiextensionsv1.CustomResourceDefinition {
-	return []*apiextensionsv1.CustomResourceDefinition{WidgetCRD()}
+func CRDs() ([]*apiextensionsv1.CustomResourceDefinition, error) {
+	widget, err := WidgetCRD()
+	if err != nil {
+		return nil, err
+	}
+	return []*apiextensionsv1.CustomResourceDefinition{widget}, nil
 }
 
 // WidgetCRD is the CRD for examples/widget/v1, with the list maps its markers
 // declare, so the server merges them as the dies do.
-func WidgetCRD() *apiextensionsv1.CustomResourceDefinition {
-	schema := dieapiextensionsv1.JSONSchemaPropsBlank.DieWith(func(d *dieapiextensionsv1.JSONSchemaPropsDieMut) {
-		d.DieFeedYAML([]byte(`
+func WidgetCRD() (*apiextensionsv1.CustomResourceDefinition, error) {
+	schema, err := dieapiextensionsv1.JSONSchemaPropsBlank.DieStampE(func(d *dieapiextensionsv1.JSONSchemaPropsDieMut) error {
+		return die.FeedYAML(d, []byte(`
 type: object
 properties:
   spec:
@@ -74,24 +81,37 @@ properties:
             type: {type: string}
             status: {type: string}
 `))
-	}).DieRelease()
-	version := dieapiextensionsv1.CustomResourceDefinitionVersionBlank.DieWith(func(d *dieapiextensionsv1.CustomResourceDefinitionVersionDieMut) {
-		d.Name().Set("v1")
-		d.Served().Set(true)
-		d.Storage().Set(true)
-		d.Schema().OpenAPIV3Schema().DieFeed(schema)
-		d.Subresources().Status().DieFeed(apiextensionsv1.CustomResourceSubresourceStatus{})
-	}).DieRelease()
-	return dieapiextensionsv1.CustomResourceDefinitionBlank.DieWith(func(d *dieapiextensionsv1.CustomResourceDefinitionDieMut) {
-		d.Metadata().Name().Set("widgets.example.dev")
-		d.Spec().Group().Set("example.dev")
-		d.Spec().Scope().Set(dieapiextensionsv1.NamespaceScoped)
-		d.Spec().Names().DieWith(func(n *dieapiextensionsv1.CustomResourceDefinitionNamesDieMut) {
-			n.Kind().Set("Widget")
-			n.ListKind().Set("WidgetList")
-			n.Plural().Set("widgets")
-			n.Singular().Set("widget")
-		})
-		d.Spec().Versions().Set([]apiextensionsv1.CustomResourceDefinitionVersion{version})
-	}).DieReleasePtr()
+	})
+	if err != nil {
+		return nil, err
+	}
+	version, err := dieapiextensionsv1.CustomResourceDefinitionVersionBlank.DieStampE(func(d *dieapiextensionsv1.CustomResourceDefinitionVersionDieMut) error {
+		return errors.Join(
+			d.Name().Set("v1"),
+			d.Served().Set(true),
+			d.Storage().Set(true),
+			d.Schema().OpenAPIV3Schema().DieFeed(schema.DieRelease()),
+			d.Subresources().Status().DieFeed(&apiextensionsv1.CustomResourceSubresourceStatus{}),
+		)
+	})
+	if err != nil {
+		return nil, err
+	}
+	crd, err := dieapiextensionsv1.CustomResourceDefinitionBlank.DieStampE(func(d *dieapiextensionsv1.CustomResourceDefinitionDieMut) error {
+		names := d.Spec().Names()
+		return errors.Join(
+			d.Metadata().Name().Set("widgets.example.dev"),
+			d.Spec().Group().Set("example.dev"),
+			d.Spec().Scope().Set(dieapiextensionsv1.NamespaceScoped),
+			names.Kind().Set("Widget"),
+			names.ListKind().Set("WidgetList"),
+			names.Plural().Set("widgets"),
+			names.Singular().Set("widget"),
+			d.Spec().Versions().Set([]apiextensionsv1.CustomResourceDefinitionVersion{*version.DieRelease()}),
+		)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return crd.DieRelease(), nil
 }

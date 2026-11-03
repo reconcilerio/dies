@@ -38,7 +38,7 @@ import (
 // treated as informative, best-effort, supplemental data.
 //
 // EventDie is immutable: it reads.
-// [EventDieMut], its mutable die, also writes, as DieWith passes it.
+// [EventDieMut], its mutable die, also writes, as DieStamp passes it.
 type EventDie struct {
 	diebase.DieObjectBase[Event, *EventDie, *EventDieMut]
 }
@@ -87,26 +87,14 @@ func (d *EventDieMut) DieReleaseApplyConfigurationE() (*EventApplyConfiguration,
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *EventDieMut) DieFeedApplyConfiguration(ac *EventApplyConfiguration) *EventDieMut {
+func (d *EventDieMut) DieFeedApplyConfiguration(ac *EventApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *EventDieMut) DieStampApplyConfiguration(fn func(ac *EventApplyConfiguration)) *EventDieMut {
+func (d *EventDieMut) DieStampApplyConfiguration(fn func(ac *EventApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [EventDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EventDieMut) DieFeedApplyConfigurationE(ac *EventApplyConfiguration) (*EventDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [EventDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EventDieMut) DieStampApplyConfigurationE(fn func(ac *EventApplyConfiguration)) (*EventDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type eventFieldsTable struct {
@@ -258,7 +246,7 @@ func (d *EventDie) DeprecatedCount() diefields.Value[int32] {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *EventDieMut) Kind() diefields.ValueMut[string, *EventDieMut] {
+func (d *EventDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, eventFields.Get().Kind)
 }
 
@@ -266,7 +254,7 @@ func (d *EventDieMut) Kind() diefields.ValueMut[string, *EventDieMut] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *EventDieMut) APIVersion() diefields.ValueMut[string, *EventDieMut] {
+func (d *EventDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, eventFields.Get().APIVersion)
 }
 
@@ -277,7 +265,7 @@ func (d *EventDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
 }
 
 // eventTime is the time when this Event was first observed. It is required.
-func (d *EventDieMut) EventTime() diefields.ValueMut[diemetav1.MicroTime, *EventDieMut] {
+func (d *EventDieMut) EventTime() diefields.ValueMut[diemetav1.MicroTime] {
 	return diefields.ValueMutOf(d, eventFields.Get().EventTime)
 }
 
@@ -288,25 +276,25 @@ func (d *EventDieMut) Series() *EventSeriesDieMut {
 
 // reportingController is the name of the controller that emitted this Event, e.g. `kubernetes.io/kubelet`.
 // This field cannot be empty for new Events.
-func (d *EventDieMut) ReportingController() diefields.ValueMut[string, *EventDieMut] {
+func (d *EventDieMut) ReportingController() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, eventFields.Get().ReportingController)
 }
 
 // reportingInstance is the ID of the controller instance, e.g. `kubelet-xyzf`.
 // This field cannot be empty for new Events and it can have at most 128 characters.
-func (d *EventDieMut) ReportingInstance() diefields.ValueMut[string, *EventDieMut] {
+func (d *EventDieMut) ReportingInstance() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, eventFields.Get().ReportingInstance)
 }
 
 // action is what action was taken/failed regarding to the regarding object. It is machine-readable.
 // This field cannot be empty for new Events and it can have at most 128 characters.
-func (d *EventDieMut) Action() diefields.ValueMut[string, *EventDieMut] {
+func (d *EventDieMut) Action() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, eventFields.Get().Action)
 }
 
 // reason is why the action was taken. It is human-readable.
 // This field cannot be empty for new Events and it can have at most 128 characters.
-func (d *EventDieMut) Reason() diefields.ValueMut[string, *EventDieMut] {
+func (d *EventDieMut) Reason() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, eventFields.Get().Reason)
 }
 
@@ -326,14 +314,14 @@ func (d *EventDieMut) Related() *diecorev1.ObjectReferenceDieMut {
 // note is a human-readable description of the status of this operation.
 // Maximal length of the note is 1kB, but libraries should be prepared to
 // handle values up to 64kB.
-func (d *EventDieMut) Note() diefields.ValueMut[string, *EventDieMut] {
+func (d *EventDieMut) Note() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, eventFields.Get().Note)
 }
 
 // type is the type of this event (Normal, Warning), new types could be added in the future.
 // It is machine-readable.
 // This field cannot be empty for new Events.
-func (d *EventDieMut) Type() diefields.ValueMut[string, *EventDieMut] {
+func (d *EventDieMut) Type() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, eventFields.Get().Type)
 }
 
@@ -343,17 +331,17 @@ func (d *EventDieMut) DeprecatedSource() *diecorev1.EventSourceDieMut {
 }
 
 // deprecatedFirstTimestamp is the deprecated field assuring backward compatibility with core.v1 Event type.
-func (d *EventDieMut) DeprecatedFirstTimestamp() diefields.ValueMut[diemetav1.Time, *EventDieMut] {
+func (d *EventDieMut) DeprecatedFirstTimestamp() diefields.ValueMut[diemetav1.Time] {
 	return diefields.ValueMutOf(d, eventFields.Get().DeprecatedFirstTimestamp)
 }
 
 // deprecatedLastTimestamp is the deprecated field assuring backward compatibility with core.v1 Event type.
-func (d *EventDieMut) DeprecatedLastTimestamp() diefields.ValueMut[diemetav1.Time, *EventDieMut] {
+func (d *EventDieMut) DeprecatedLastTimestamp() diefields.ValueMut[diemetav1.Time] {
 	return diefields.ValueMutOf(d, eventFields.Get().DeprecatedLastTimestamp)
 }
 
 // deprecatedCount is the deprecated field assuring backward compatibility with core.v1 Event type.
-func (d *EventDieMut) DeprecatedCount() diefields.ValueMut[int32, *EventDieMut] {
+func (d *EventDieMut) DeprecatedCount() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, eventFields.Get().DeprecatedCount)
 }
 
@@ -361,8 +349,6 @@ func (d *EventDieMut) DeprecatedCount() diefields.ValueMut[int32, *EventDieMut] 
 type EventListDie struct {
 	dielists.List[*EventDieMut]
 }
-
-var _ dielists.DieListOf[*EventDieMut] = (*EventListDie)(nil)
 
 // NewEventList returns a list with items.
 func NewEventList(items ...*EventDieMut) *EventListDie {
@@ -380,7 +366,7 @@ func (l *EventListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 // how this struct is updated on heartbeats and can guide customized reporter implementations.
 //
 // EventSeriesDie is immutable: it reads.
-// [EventSeriesDieMut], its mutable die, also writes, as DieWith passes it.
+// [EventSeriesDieMut], its mutable die, also writes, as DieStamp passes it.
 type EventSeriesDie struct {
 	diebase.DieBase[EventSeries, *EventSeriesDie, *EventSeriesDieMut]
 }
@@ -429,26 +415,14 @@ func (d *EventSeriesDieMut) DieReleaseApplyConfigurationE() (*EventSeriesApplyCo
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *EventSeriesDieMut) DieFeedApplyConfiguration(ac *EventSeriesApplyConfiguration) *EventSeriesDieMut {
+func (d *EventSeriesDieMut) DieFeedApplyConfiguration(ac *EventSeriesApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *EventSeriesDieMut) DieStampApplyConfiguration(fn func(ac *EventSeriesApplyConfiguration)) *EventSeriesDieMut {
+func (d *EventSeriesDieMut) DieStampApplyConfiguration(fn func(ac *EventSeriesApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [EventSeriesDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EventSeriesDieMut) DieFeedApplyConfigurationE(ac *EventSeriesApplyConfiguration) (*EventSeriesDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [EventSeriesDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EventSeriesDieMut) DieStampApplyConfigurationE(fn func(ac *EventSeriesApplyConfiguration)) (*EventSeriesDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type eventSeriesFieldsTable struct {
@@ -474,12 +448,12 @@ func (d *EventSeriesDie) LastObservedTime() diefields.Value[diemetav1.MicroTime]
 }
 
 // count is the number of occurrences in this series up to the last heartbeat time.
-func (d *EventSeriesDieMut) Count() diefields.ValueMut[int32, *EventSeriesDieMut] {
+func (d *EventSeriesDieMut) Count() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, eventSeriesFields.Get().Count)
 }
 
 // lastObservedTime is the time when last Event from the series was seen before last heartbeat.
-func (d *EventSeriesDieMut) LastObservedTime() diefields.ValueMut[diemetav1.MicroTime, *EventSeriesDieMut] {
+func (d *EventSeriesDieMut) LastObservedTime() diefields.ValueMut[diemetav1.MicroTime] {
 	return diefields.ValueMutOf(d, eventSeriesFields.Get().LastObservedTime)
 }
 

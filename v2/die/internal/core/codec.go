@@ -272,7 +272,7 @@ func (h *Holder) goStepPresent(root reflect.Type, p Path, i int) (bool, error) {
 			return false, nil
 		}
 		v := parent.MapIndex(reflect.ValueOf(s.name).Convert(parent.Type().Key()))
-		return v.IsValid() && !(v.Kind() == reflect.Interface && v.IsNil()), nil
+		return v.IsValid() && (v.Kind() != reflect.Interface || !v.IsNil()), nil
 	case parent.Kind() == reflect.Struct:
 		fd := Describe(parent.Type()).Field(s.name)
 		fv, _ := parent.FieldByIndexErr(fd.index)

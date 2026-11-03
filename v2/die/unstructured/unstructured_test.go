@@ -28,6 +28,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
+	"reconciler.io/dies/v2/die"
+	"reconciler.io/dies/v2/die/dietest"
 	dieunstructured "reconciler.io/dies/v2/die/unstructured"
 )
 
@@ -48,7 +50,7 @@ func assertJSON(t *testing.T, got []byte, err error, want string) {
 	}
 }
 
-func assertPanics(t *testing.T, want string, fn func()) {
+func assertPanicsWith(t *testing.T, want string, fn func()) {
 	t.Helper()
 	defer func() {
 		t.Helper()
@@ -57,6 +59,14 @@ func assertPanics(t *testing.T, want string, fn func()) {
 		}
 	}()
 	fn()
+}
+
+func assertErrorsWith(t *testing.T, want string, fn func() error) {
+	t.Helper()
+	err := fn()
+	if err == nil || !strings.Contains(err.Error(), want) {
+		t.Errorf("expected an error containing %q, got %v", want, err)
+	}
 }
 
 // the state of an object of a kind with no Go types, as read from a server
@@ -78,16 +88,16 @@ func server() *unstructured.Unstructured {
 }
 
 func TestUnstructuredDieTraversal(t *testing.T) {
-	d := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieWith(func(d *dieunstructured.ObjectMut) {
-		d.Node().Field("metadata").Field("name").Set("web")
+	d := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieStamp(func(d *dieunstructured.ObjectMut) {
+		dietest.NoError(t, d.Node().Field("metadata").Field("name").Set("web"))
 		spec := d.Node().Field("spec")
 		// an explicit zero is intent, as on a typed die
-		spec.Field("replicas").Set(0)
-		spec.Field("containers").Item("name", "app").Field("image").Set("app:1")
-		spec.Field("volumes").EmptyList()
+		dietest.NoError(t, spec.Field("replicas").Set(0))
+		dietest.NoError(t, spec.Field("containers").Item("name", "app").Field("image").Set("app:1"))
+		dietest.NoError(t, spec.Field("volumes").EmptyList())
 	})
 
-	got, err := d.DieReleaseApplyPatchE()
+	got, err := die.ReleaseApplyPatchE(d)
 	assertJSON(t, got, err, `{
 		"apiVersion": "acme.dev/v1", "kind": "Workload",
 		"metadata": {"name": "web"},
@@ -105,11 +115,12 @@ func TestUnstructuredDieTraversal(t *testing.T) {
 }
 
 func TestUnstructuredDieIsAnObject(t *testing.T) {
-	var obj runtime.Object = dieunstructured.Blank.DieWith(func(d *dieunstructured.ObjectMut) { d.DieFeedUnstructured(server()) })
+	var obj runtime.Object = dieunstructured.Blank.DieStamp(func(d *dieunstructured.ObjectMut) { dietest.NoError(t, die.FeedUnstructured(d, server())) })
 	if gvk := obj.GetObjectKind().GroupVersionKind(); gvk != (schema.GroupVersionKind{Group: "acme.dev", Version: "v1", Kind: "Workload"}) {
 		t.Errorf("gvk %v", gvk)
 	}
-	d := dieunstructured.Blank.DieMutable().DieFeedUnstructured(server())
+	d := dieunstructured.Blank.DieMutable()
+	dietest.NoError(t, die.FeedUnstructured(d, server()))
 	accessor, err := meta.Accessor(d)
 	if err != nil {
 		t.Fatal(err)
@@ -126,21 +137,21 @@ func TestUnstructuredDieIsAnObject(t *testing.T) {
 // Fed from a server, only what is written is intent, and everything else,
 // known or not, is kept.
 func TestUnstructuredDiePatches(t *testing.T) {
-	d := dieunstructured.Blank.DieWith(func(d *dieunstructured.ObjectMut) { d.DieFeedUnstructured(server()) }).DieWith(func(d *dieunstructured.ObjectMut) {
+	d := dieunstructured.Blank.DieStamp(func(d *dieunstructured.ObjectMut) { dietest.NoError(t, die.FeedUnstructured(d, server())) }).DieStamp(func(d *dieunstructured.ObjectMut) {
 		app := d.Node().Field("spec").Field("containers").Item("name", "app")
-		app.Field("env").Item("name", "MODE").Field("value").Set("full")
-		d.Node().Field("metadata").Field("labels").Field("team").Clear()
+		dietest.NoError(t, app.Field("env").Item("name", "MODE").Field("value").Set("full"))
+		dietest.NoError(t, d.Node().Field("metadata").Field("labels").Field("team").Clear())
 	})
 
 	// an object's field is a map entry to an unstructured die, which an apply
 	// can't remove: it's left out
-	got, err := d.DieReleaseApplyPatchE()
+	got, err := die.ReleaseApplyPatchE(d)
 	assertJSON(t, got, err, `{
 		"apiVersion": "acme.dev/v1", "kind": "Workload",
 		"metadata": {"name": "web", "namespace": "default"},
 		"spec": {"containers": [{"name": "app", "env": [{"name": "MODE", "value": "full"}]}]}
 	}`)
-	got, err = d.DieReleaseMergePatchE()
+	got, err = die.ReleaseMergePatchE(d)
 	assertJSON(t, got, err, `{
 		"metadata": {"labels": {"team": null}},
 		"spec": {"containers": [
@@ -148,7 +159,7 @@ func TestUnstructuredDiePatches(t *testing.T) {
 			{"name": "proxy", "image": "proxy:1"}
 		]}
 	}`)
-	u := d.DieReleaseUnstructured()
+	u := die.ReleaseUnstructured(d)
 	if strategy, _, _ := unstructured.NestedString(u.Object, "spec", "rollout", "strategy"); strategy != "canary" {
 		t.Errorf("unknown fields lost: %v", u.Object["spec"])
 	}
@@ -160,18 +171,18 @@ func TestUnstructuredDieKeysMustBeUnique(t *testing.T) {
 	u := server()
 	containers, _, _ := unstructured.NestedSlice(u.Object, "spec", "containers")
 	_ = unstructured.SetNestedSlice(u.Object, append(containers, map[string]any{"name": "app"}), "spec", "containers")
-	d := dieunstructured.Blank.DieWith(func(d *dieunstructured.ObjectMut) { d.DieFeedUnstructured(u) })
-	assertPanics(t, "more than once", func() {
+	d := dieunstructured.Blank.DieStamp(func(d *dieunstructured.ObjectMut) { dietest.NoError(t, die.FeedUnstructured(d, u)) })
+	assertPanicsWith(t, "more than once", func() {
 		d.Node().Field("spec").Field("containers").Item("name", "app").Get()
 	})
 }
 
 func TestUnstructuredDieLists(t *testing.T) {
-	list := dieunstructured.BlankFor("acme.dev/v1", "WorkloadList").DieWith(func(d *dieunstructured.ObjectMut) {
-		d.Node().Field("items").Set([]any{
+	list := dieunstructured.BlankFor("acme.dev/v1", "WorkloadList").DieStamp(func(d *dieunstructured.ObjectMut) {
+		dietest.NoError(t, d.Node().Field("items").Set([]any{
 			map[string]any{"apiVersion": "acme.dev/v1", "kind": "Workload", "metadata": map[string]any{"name": "a"}},
 			map[string]any{"apiVersion": "acme.dev/v1", "kind": "Workload", "metadata": map[string]any{"name": "b"}},
-		})
+		}))
 	})
 	if !list.IsList() {
 		t.Fatal("expected a list")
@@ -186,12 +197,12 @@ func TestUnstructuredDieLists(t *testing.T) {
 	}
 
 	// items are presented by the list, so a change to one changes the list
-	list = list.DieWith(func(d *dieunstructured.ObjectMut) {
+	list = list.DieStamp(func(d *dieunstructured.ObjectMut) {
 		err := meta.EachListItem(d, func(obj runtime.Object) error {
 			item := obj.(*dieunstructured.ObjectMut)
 			item.SetName(item.GetName() + "-changed")
-			item.Node().Field("spec").Field("replicas").Set(2)
-			item.DieStamp(func(m *map[string]any) { (*m)["stamped"] = true })
+			dietest.NoError(t, item.Node().Field("spec").Field("replicas").Set(2))
+			dietest.NoError(t, die.StampValue(item, func(m *map[string]any) { (*m)["stamped"] = true }))
 			return nil
 		})
 		if err != nil {
@@ -214,12 +225,12 @@ func TestUnstructuredDieLists(t *testing.T) {
 		if !strings.HasSuffix(item.GetName(), "-changed") {
 			t.Errorf("name %q", item.GetName())
 		}
-		assertPanics(t, "immutable", func() { item.SetName("x") })
+		assertPanicsWith(t, "immutable", func() { item.SetName("x") })
 		return nil
 	})
 
 	// allocated items are copies, so a change to one leaves the list as it was
-	list = list.DieWith(func(d *dieunstructured.ObjectMut) {
+	list = list.DieStamp(func(d *dieunstructured.ObjectMut) {
 		_ = meta.EachListItemWithAlloc(d, func(obj runtime.Object) error {
 			obj.(*dieunstructured.ObjectMut).SetName("copy")
 			return nil
@@ -230,7 +241,7 @@ func TestUnstructuredDieLists(t *testing.T) {
 	}
 
 	// a copy of an item is unlinked from the list
-	list = list.DieWith(func(d *dieunstructured.ObjectMut) {
+	list = list.DieStamp(func(d *dieunstructured.ObjectMut) {
 		_ = d.EachListItem(func(obj runtime.Object) error {
 			obj.(*dieunstructured.ObjectMut).DeepCopy().SetName("copy")
 			return nil
@@ -240,15 +251,15 @@ func TestUnstructuredDieLists(t *testing.T) {
 		t.Errorf("names %v", got)
 	}
 
-	object := dieunstructured.Blank.DieWith(func(d *dieunstructured.ObjectMut) { d.DieFeedUnstructured(server()) })
+	object := dieunstructured.Blank.DieStamp(func(d *dieunstructured.ObjectMut) { dietest.NoError(t, die.FeedUnstructured(d, server())) })
 	if object.IsList() {
 		t.Error("an object is not a list")
 	}
 	if err := object.EachListItem(func(runtime.Object) error { return nil }); err == nil || !strings.Contains(err.Error(), "not a list") {
 		t.Errorf("error %v", err)
 	}
-	bad := dieunstructured.BlankFor("acme.dev/v1", "WorkloadList").DieWith(func(d *dieunstructured.ObjectMut) {
-		d.Node().Field("items").Set([]any{"not an object"})
+	bad := dieunstructured.BlankFor("acme.dev/v1", "WorkloadList").DieStamp(func(d *dieunstructured.ObjectMut) {
+		dietest.NoError(t, d.Node().Field("items").Set([]any{"not an object"}))
 	})
 	if err := bad.EachListItem(func(runtime.Object) error { return nil }); err == nil || !strings.Contains(err.Error(), "not an object") {
 		t.Errorf("error %v", err)
@@ -256,13 +267,13 @@ func TestUnstructuredDieLists(t *testing.T) {
 }
 
 func TestUnstructuredDieIndex(t *testing.T) {
-	d := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieWith(func(d *dieunstructured.ObjectMut) {
-		d.Node().Field("spec").Field("args").Set([]any{"serve", "--port", "8080"})
-		d.Node().Field("spec").Field("rules").Set([]any{
+	d := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieStamp(func(d *dieunstructured.ObjectMut) {
+		dietest.NoError(t, d.Node().Field("spec").Field("args").Set([]any{"serve", "--port", "8080"}))
+		dietest.NoError(t, d.Node().Field("spec").Field("rules").Set([]any{
 			map[string]any{"hosts": []any{"a.dev"}},
 			map[string]any{"hosts": []any{"b.dev"}},
-		})
-	}).DieCommit()
+		}))
+	}).DieTare()
 
 	args := d.Node().Field("spec").Field("args")
 	if got := args.Index(1).Get(); got != "--port" {
@@ -275,29 +286,29 @@ func TestUnstructuredDieIndex(t *testing.T) {
 		t.Errorf("host %v", got)
 	}
 
-	d = d.DieWith(func(d *dieunstructured.ObjectMut) {
-		d.Node().Field("spec").Field("args").Index(2).Set("9090")
-		d.Node().Field("spec").Field("rules").Index(0).Field("hosts").Index(0).Set("c.dev")
-		d.Node().Field("spec").Field("rules").Index(1).Field("paths").Set([]any{"/"})
-		d.Node().Field("spec").Field("args").Index(0).Clear()
-		assertPanics(t, "out of range", func() { d.Node().Field("spec").Field("args").Index(5).Set("x") })
+	d = d.DieStamp(func(d *dieunstructured.ObjectMut) {
+		dietest.NoError(t, d.Node().Field("spec").Field("args").Index(2).Set("9090"))
+		dietest.NoError(t, d.Node().Field("spec").Field("rules").Index(0).Field("hosts").Index(0).Set("c.dev"))
+		dietest.NoError(t, d.Node().Field("spec").Field("rules").Index(1).Field("paths").Set([]any{"/"}))
+		dietest.NoError(t, d.Node().Field("spec").Field("args").Index(0).Clear())
+		assertErrorsWith(t, "out of range", func() error { return d.Node().Field("spec").Field("args").Index(5).Set("x") })
 	})
 
 	// a write through an index sets the whole list
-	got, err := d.DieReleaseMergePatchE()
+	got, err := die.ReleaseMergePatchE(d)
 	assertJSON(t, got, err, `{"spec": {
 		"args": ["--port", "9090"],
 		"rules": [{"hosts": ["c.dev"]}, {"hosts": ["b.dev"], "paths": ["/"]}]
 	}}`)
 
 	// an index sees what was written by key, and the reverse
-	keyed := dieunstructured.Blank.DieWith(func(d *dieunstructured.ObjectMut) { d.DieFeedUnstructured(server()) }).DieWith(func(d *dieunstructured.ObjectMut) {
+	keyed := dieunstructured.Blank.DieStamp(func(d *dieunstructured.ObjectMut) { dietest.NoError(t, die.FeedUnstructured(d, server())) }).DieStamp(func(d *dieunstructured.ObjectMut) {
 		containers := d.Node().Field("spec").Field("containers")
-		containers.Item("name", "proxy").Field("image").Set("proxy:2")
+		dietest.NoError(t, containers.Item("name", "proxy").Field("image").Set("proxy:2"))
 		if got := containers.Index(1).Field("image").Get(); got != "proxy:2" {
 			t.Errorf("image %v", got)
 		}
-		containers.Index(0).Field("image").Set("app:2")
+		dietest.NoError(t, containers.Index(0).Field("image").Set("app:2"))
 		if got := containers.Item("name", "app").Field("image").Get(); got != "app:2" {
 			t.Errorf("image %v", got)
 		}
@@ -308,13 +319,13 @@ func TestUnstructuredDieIndex(t *testing.T) {
 }
 
 func TestUnstructuredNodeType(t *testing.T) {
-	d := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieWith(func(d *dieunstructured.ObjectMut) {
+	d := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieStamp(func(d *dieunstructured.ObjectMut) {
 		spec := d.Node().Field("spec")
-		spec.Field("args").Set([]string{"serve"})
-		spec.Field("replicas").Set(3)
-		spec.Field("ratio").Set(0.5)
-		spec.Field("paused").Set(false)
-		spec.Field("cleared").Clear()
+		dietest.NoError(t, spec.Field("args").Set([]string{"serve"}))
+		dietest.NoError(t, spec.Field("replicas").Set(3))
+		dietest.NoError(t, spec.Field("ratio").Set(0.5))
+		dietest.NoError(t, spec.Field("paused").Set(false))
+		dietest.NoError(t, spec.Field("cleared").Clear())
 	})
 	spec := d.Node().Field("spec")
 	for node, want := range map[*dieunstructured.Node]dieunstructured.Type{
@@ -336,8 +347,8 @@ func TestUnstructuredNodeType(t *testing.T) {
 
 func TestUnstructuredListDie(t *testing.T) {
 	workload := func(name string) *dieunstructured.ObjectMut {
-		return dieunstructured.BlankFor("acme.dev/v1", "Workload").DieWith(func(d *dieunstructured.ObjectMut) {
-			d.Node().Field("metadata").Field("name").Set(name)
+		return dieunstructured.BlankFor("acme.dev/v1", "Workload").DieStamp(func(d *dieunstructured.ObjectMut) {
+			dietest.NoError(t, d.Node().Field("metadata").Field("name").Set(name))
 		}).DieMutable()
 	}
 	list := dieunstructured.NewList("acme.dev/v1", "WorkloadList", workload("a"), workload("b"))
@@ -390,13 +401,13 @@ func TestUnstructuredListDie(t *testing.T) {
 }
 
 func TestUnstructuredDieToList(t *testing.T) {
-	if _, ok := dieunstructured.Blank.DieWith(func(d *dieunstructured.ObjectMut) { d.DieFeedUnstructured(server()) }).ToList(); ok {
+	if _, ok := dieunstructured.Blank.DieStamp(func(d *dieunstructured.ObjectMut) { dietest.NoError(t, die.FeedUnstructured(d, server())) }).ToList(); ok {
 		t.Error("an object is not a list")
 	}
 
-	d := dieunstructured.BlankFor("acme.dev/v1", "WorkloadList").DieWith(func(d *dieunstructured.ObjectMut) {
-		d.Node().Field("metadata").Field("resourceVersion").Set("7")
-		d.Node().Field("items").Set([]any{map[string]any{"metadata": map[string]any{"name": "a"}}})
+	d := dieunstructured.BlankFor("acme.dev/v1", "WorkloadList").DieStamp(func(d *dieunstructured.ObjectMut) {
+		dietest.NoError(t, d.Node().Field("metadata").Field("resourceVersion").Set("7"))
+		dietest.NoError(t, d.Node().Field("items").Set([]any{map[string]any{"metadata": map[string]any{"name": "a"}}}))
 	})
 	list, ok := d.ToList()
 	if !ok {

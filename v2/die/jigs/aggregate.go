@@ -46,8 +46,6 @@ func (v *Jig[V, VD, VDM]) bindingsFor(t reflect.Type) ([]Binding, bool) {
 	return b, ok
 }
 
-func (v *Jig[V, VD, VDM]) viewType() reflect.Type { return reflect.TypeFor[V]() }
-
 // Each is a source list whose elements are the aggregate's elements.
 func Each[X any](source base.LocatedAs[[]X]) Member[X] {
 	root, err := core.RootOf(source)

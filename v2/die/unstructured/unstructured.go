@@ -19,6 +19,7 @@ limitations under the License.
 package unstructured
 
 import (
+	"errors"
 	"reflect"
 	"slices"
 
@@ -68,33 +69,9 @@ var Blank = base.Blank[map[string]any, *Object, *ObjectMut]()
 // BlankFor returns an immutable, empty unstructured die of a kind: a blank,
 // with only its type metadata, and no mold. [Molds] makes blanks in a mold.
 func BlankFor(apiVersion, kind string) *Object {
-	return Blank.DieWith(func(d *ObjectMut) {
-		d.Node().Field("apiVersion").Set(apiVersion)
-		d.Node().Field("kind").Set(kind)
-	}).DieCommit()
-}
-
-// DieFeedUnstructured feeds an unstructured object. Unlike other object dies,
-// which decode it, an unstructured die copies its content, so its numbers
-// stay int64 where they are.
-func (d *ObjectMut) DieFeedUnstructured(u *unstructured.Unstructured) *ObjectMut {
-	return d.DieFeed(u.DeepCopy().Object)
-}
-
-// DieFeedUnstructuredE is [ObjectMut.DieFeedUnstructured], returning an error
-// rather than panicking.
-func (d *ObjectMut) DieFeedUnstructuredE(u *unstructured.Unstructured) (*ObjectMut, error) {
-	return d.DieFeedE(u.DeepCopy().Object)
-}
-
-// DieReleaseUnstructured releases the object as an unstructured object.
-func (d *Object) DieReleaseUnstructured() *unstructured.Unstructured {
-	return &unstructured.Unstructured{Object: d.DieRelease()}
-}
-
-// DieReleaseUnstructured releases the object as an unstructured object.
-func (d *ObjectMut) DieReleaseUnstructured() *unstructured.Unstructured {
-	return &unstructured.Unstructured{Object: d.DieRelease()}
+	return core.Must(Blank.DieStampE(func(d *ObjectMut) error {
+		return errors.Join(d.Node().Field("apiVersion").Set(apiVersion), d.Node().Field("kind").Set(kind))
+	})).DieTare()
 }
 
 // An unstructured die is a [runtime.Unstructured], so clients and libraries
@@ -123,12 +100,12 @@ func newEmptyInstance(d runtime.Object) *ObjectMut {
 
 // UnstructuredContent returns a copy of the object's content. Unlike an
 // unstructured.Unstructured's, changing it does not change the die.
-func (d *Object) UnstructuredContent() map[string]any { return d.DieRelease() }
+func (d *Object) UnstructuredContent() map[string]any { return *d.DieRelease() }
 
 // UnstructuredContent returns a copy of the object's content. Unlike an
 // unstructured.Unstructured's, changing it does not change the die; write
 // through the die instead.
-func (d *ObjectMut) UnstructuredContent() map[string]any { return d.DieRelease() }
+func (d *ObjectMut) UnstructuredContent() map[string]any { return *d.DieRelease() }
 
 // SetUnstructuredContent panics with ErrImmutable: the die is immutable.
 func (d *Object) SetUnstructuredContent(map[string]any) {
@@ -178,13 +155,13 @@ func (d *ObjectMut) ToList() (*ObjectList, bool) { return toList(d) }
 
 func toList(d interface {
 	Location
-	DieRelease() map[string]any
+	DieRelease() *map[string]any
 }) (*ObjectList, bool) {
 	if !isList(d) {
 		return nil, false
 	}
 	l := &ObjectList{}
-	l.SetUnstructuredContent(d.DieRelease())
+	l.SetUnstructuredContent(*d.DieRelease())
 	return l, true
 }
 
@@ -237,10 +214,11 @@ func eachListItem(h *core.Holder, at base.Path, alloc bool, fn func(runtime.Obje
 		var obj runtime.Object
 		switch {
 		case alloc:
-			var err error
-			if obj, err = Blank.DieMutable().DieFeedE(m); err != nil {
+			o := Blank.DieMutable()
+			if err := o.DieFeed(&m); err != nil {
 				return err
 			}
+			obj = o
 		case h.Mutable:
 			obj = dies.WrapDieMut[map[string]any, *Object](h, itemAt(at, i))
 		default:
@@ -360,8 +338,8 @@ func (l *ObjectList) setContent(content map[string]any) error {
 	l.Items = make([]*ObjectMut, 0, len(raw))
 	for _, item := range raw {
 		if m, ok := item.(map[string]any); ok {
-			obj, err := Blank.DieMutable().DieFeedE(runtime.DeepCopyJSON(m))
-			if err != nil {
+			obj := Blank.DieMutable()
+			if err := obj.DieFeed(new(runtime.DeepCopyJSON(m))); err != nil {
 				return err
 			}
 			l.Items = append(l.Items, obj)
@@ -649,49 +627,28 @@ func (n *node) HasE() (bool, error) { return n.h.Has(n.at) }
 
 // Set records the value as intent. Typed values, such as structs, are
 // converted to unstructured form.
-func (n *NodeMut) Set(v any) *NodeMut { return core.Must(n.SetE(v)) }
-
-// SetE is [NodeMut.Set], returning an error rather than panicking.
-func (n *NodeMut) SetE(v any) (*NodeMut, error) {
-	if _, err := n.h.Write(n.at, nil, core.SetOp(core.OpSet, reflect.ValueOf(&v).Elem()), false); err != nil {
-		return nil, err
-	}
-	return n, nil
+func (n *NodeMut) Set(v any) error {
+	_, err := n.h.Write(n.at, nil, core.SetOp(core.OpSet, reflect.ValueOf(&v).Elem()), false)
+	return err
 }
 
 // Clear records that the value is absent: null in patches, or a removed
 // list element.
-func (n *NodeMut) Clear() *NodeMut { return core.Must(n.ClearE()) }
-
-// ClearE is [NodeMut.Clear], returning an error rather than panicking.
-func (n *NodeMut) ClearE() (*NodeMut, error) {
-	if _, err := n.h.Write(n.at, nil, core.SetOp(core.OpClear, reflect.Value{}), false); err != nil {
-		return nil, err
-	}
-	return n, nil
+func (n *NodeMut) Clear() error {
+	_, err := n.h.Write(n.at, nil, core.SetOp(core.OpClear, reflect.Value{}), false)
+	return err
 }
 
 // EmptyObject records that the value is present and an empty object.
-func (n *NodeMut) EmptyObject() *NodeMut { return core.Must(n.EmptyObjectE()) }
-
-// EmptyObjectE is [NodeMut.EmptyObject], returning an error rather than
-// panicking.
-func (n *NodeMut) EmptyObjectE() (*NodeMut, error) {
-	if _, err := n.h.Write(n.at, nil, core.SetOp(core.OpEmpty, reflect.ValueOf(map[string]any{})), false); err != nil {
-		return nil, err
-	}
-	return n, nil
+func (n *NodeMut) EmptyObject() error {
+	_, err := n.h.Write(n.at, nil, core.SetOp(core.OpEmpty, reflect.ValueOf(map[string]any{})), false)
+	return err
 }
 
 // EmptyList records that the value is present and an empty list.
-func (n *NodeMut) EmptyList() *NodeMut { return core.Must(n.EmptyListE()) }
-
-// EmptyListE is [NodeMut.EmptyList], returning an error rather than panicking.
-func (n *NodeMut) EmptyListE() (*NodeMut, error) {
-	if _, err := n.h.Write(n.at, nil, core.SetOp(core.OpEmpty, reflect.ValueOf([]any{})), false); err != nil {
-		return nil, err
-	}
-	return n, nil
+func (n *NodeMut) EmptyList() error {
+	_, err := n.h.Write(n.at, nil, core.SetOp(core.OpEmpty, reflect.ValueOf([]any{})), false)
+	return err
 }
 
 // Keys returns the fields of this object, sorted.

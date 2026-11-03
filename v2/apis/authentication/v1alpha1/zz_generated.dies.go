@@ -34,7 +34,7 @@ import (
 // request header authentication is used, any extra keys will have their case ignored and returned as lowercase.
 //
 // SelfSubjectReviewDie is immutable: it reads.
-// [SelfSubjectReviewDieMut], its mutable die, also writes, as DieWith passes it.
+// [SelfSubjectReviewDieMut], its mutable die, also writes, as DieStamp passes it.
 type SelfSubjectReviewDie struct {
 	diebase.DieObjectBase[SelfSubjectReview, *SelfSubjectReviewDie, *SelfSubjectReviewDieMut]
 }
@@ -103,7 +103,7 @@ func (d *SelfSubjectReviewDie) Status() *SelfSubjectReviewStatusDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *SelfSubjectReviewDieMut) Kind() diefields.ValueMut[string, *SelfSubjectReviewDieMut] {
+func (d *SelfSubjectReviewDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, selfSubjectReviewFields.Get().Kind)
 }
 
@@ -111,7 +111,7 @@ func (d *SelfSubjectReviewDieMut) Kind() diefields.ValueMut[string, *SelfSubject
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *SelfSubjectReviewDieMut) APIVersion() diefields.ValueMut[string, *SelfSubjectReviewDieMut] {
+func (d *SelfSubjectReviewDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, selfSubjectReviewFields.Get().APIVersion)
 }
 
@@ -129,7 +129,7 @@ func (d *SelfSubjectReviewDieMut) Status() *SelfSubjectReviewStatusDieMut {
 // SelfSubjectReviewStatus is filled by the kube-apiserver and sent back to a user.
 //
 // SelfSubjectReviewStatusDie is immutable: it reads.
-// [SelfSubjectReviewStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [SelfSubjectReviewStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type SelfSubjectReviewStatusDie struct {
 	diebase.DieBase[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut]
 }

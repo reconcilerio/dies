@@ -17,14 +17,10 @@ limitations under the License.
 package base
 
 import (
-	"reflect"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
-	utiljson "k8s.io/apimachinery/pkg/util/json"
 
 	"reconciler.io/dies/v2/die/internal/core"
 )
@@ -58,9 +54,6 @@ type DieObject interface {
 	DieTyped
 	metav1.Object
 	metav1.ObjectMetaAccessor
-
-	DieReleaseUnstructured() *unstructured.Unstructured
-	DieReleaseUnstructuredE() (*unstructured.Unstructured, error)
 }
 
 func immutable(method string) error { return core.Errorf("die: %s: %w", method, core.ErrImmutable) }
@@ -139,64 +132,6 @@ func AsObject[T any, D DieOf[T, D, M], M DieMutOf[T, D, M]](b DieBase[T, D, M]) 
 // AsObjectMut wraps the state of a die in a [DieObjectMutBase].
 func AsObjectMut[T any, D DieOf[T, D, M], M DieMutOf[T, D, M]](b DieMutBase[T, D, M]) DieObjectMutBase[T, D, M] {
 	return DieObjectMutBase[T, D, M]{DieTypedMutBase: AsTypedMut(b)}
-}
-
-// DieFeedUnstructured feeds an unstructured object, as decoding it would: the
-// values it has are present, zero or not, and fields T doesn't have are kept,
-// to be encoded again. As with [DieMutBase.DieFeed], a root die
-// discards its intent and a die within another sets the value as intent. It
-// panics if the object doesn't decode as a T.
-func (b *DieObjectMutBase[T, D, M]) DieFeedUnstructured(u *unstructured.Unstructured) M {
-	return core.Must(b.DieFeedUnstructuredE(u))
-}
-
-// DieFeedUnstructuredE is [DieObjectMutBase.DieFeedUnstructured], returning
-// an error rather than panicking.
-func (b *DieObjectMutBase[T, D, M]) DieFeedUnstructuredE(u *unstructured.Unstructured) (M, error) {
-	data, err := u.MarshalJSON()
-	if err != nil {
-		var zero M
-		return zero, core.Errorf("die: encoding an unstructured object: %w", err)
-	}
-	return b.DieFeedJSONE(data)
-}
-
-// DieReleaseUnstructured releases the object as an unstructured object,
-// encoded as [DieObjectBase.MarshalJSON] encodes it: fields T doesn't have
-// that were fed included, and absent values omitted.
-func (b *DieObjectBase[T, D, M]) DieReleaseUnstructured() *unstructured.Unstructured {
-	return core.Must(b.DieReleaseUnstructuredE())
-}
-
-// DieReleaseUnstructuredE is [DieObjectBase.DieReleaseUnstructured],
-// returning an error rather than panicking.
-func (b *DieObjectBase[T, D, M]) DieReleaseUnstructuredE() (*unstructured.Unstructured, error) {
-	return releaseUnstructured[T](&b.state)
-}
-
-// DieReleaseUnstructured releases the object as an unstructured object: see
-// [DieObjectBase.DieReleaseUnstructured].
-func (b *DieObjectMutBase[T, D, M]) DieReleaseUnstructured() *unstructured.Unstructured {
-	return core.Must(b.DieReleaseUnstructuredE())
-}
-
-// DieReleaseUnstructuredE is [DieObjectMutBase.DieReleaseUnstructured],
-// returning an error rather than panicking.
-func (b *DieObjectMutBase[T, D, M]) DieReleaseUnstructuredE() (*unstructured.Unstructured, error) {
-	return releaseUnstructured[T](&b.state)
-}
-
-func releaseUnstructured[T any](d interface{ DieReleaseJSONE() ([]byte, error) }) (*unstructured.Unstructured, error) {
-	data, err := d.DieReleaseJSONE()
-	if err != nil {
-		return nil, err
-	}
-	u := &unstructured.Unstructured{Object: map[string]any{}}
-	// numbers decode as int64 where they can, as unstructured objects hold them
-	if err := utiljson.Unmarshal(data, &u.Object); err != nil {
-		return nil, core.Errorf("die: decoding %s as an unstructured object: %w", reflect.TypeFor[T](), err)
-	}
-	return u, nil
 }
 
 // The metav1.Object methods of immutable object dies, whose setters panic.

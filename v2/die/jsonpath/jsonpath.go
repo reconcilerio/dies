@@ -106,7 +106,7 @@ func matches[CD base.Die](d base.Die, expr string) ([]CD, error) {
 	for i, p := range paths {
 		cd := dies.Wrap[CD](h, p)
 		have, want := core.TypeAt(h.Base.Type(), p), core.ValueTypeOf(cd)
-		if core.Deref(have) != want && !(have.Kind() == reflect.Interface && want == reflect.TypeFor[map[string]any]()) {
+		if core.Deref(have) != want && (have.Kind() != reflect.Interface || want != reflect.TypeFor[map[string]any]()) {
 			return nil, core.Errorf("die: JSONPath %q: the value at %s is a %s, not a %s", expr, p, have, want)
 		}
 		out[i] = cd
@@ -136,19 +136,18 @@ func ValuesE[V any](d base.Die, expr string) ([]fields.Value[V], error) {
 }
 
 // ValuesMut returns the matches of an expression as handles to values of
-// type V within a mutable die, whose writes return d. It fails if a match
-// isn't a V.
-func ValuesMut[V any, M base.MutableDie](d M, expr string) []fields.ValueMut[V, M] {
+// type V within a mutable die. It fails if a match isn't a V.
+func ValuesMut[V any](d base.MutableDie, expr string) []fields.ValueMut[V] {
 	return core.Must(ValuesMutE[V](d, expr))
 }
 
 // ValuesMutE is [ValuesMut], returning an error rather than panicking.
-func ValuesMutE[V any, M base.MutableDie](d M, expr string) ([]fields.ValueMut[V, M], error) {
+func ValuesMutE[V any](d base.MutableDie, expr string) ([]fields.ValueMut[V], error) {
 	paths, err := valuePaths[V](d, expr)
 	if err != nil {
 		return nil, err
 	}
-	out := make([]fields.ValueMut[V, M], len(paths))
+	out := make([]fields.ValueMut[V], len(paths))
 	for i, p := range paths {
 		if out[i], err = fields.ValueMutAtE[V](d, p); err != nil {
 			return nil, err

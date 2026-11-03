@@ -121,7 +121,8 @@ func TestDiesConformToServerSchema(t *testing.T) {
 		if !ok || strings.HasSuffix(gvk.Kind, "List") {
 			continue
 		}
-		goType := release.Type.Out(0)
+		// DieRelease returns a pointer to a copy of the value
+		goType := release.Type.Out(0).Elem()
 		def := defs[definitionName(goType)]
 		if def == nil {
 			// not served, such as AdmissionReview, which is only a request

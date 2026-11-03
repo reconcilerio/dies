@@ -60,7 +60,7 @@ func (d *ObjectMetaDie) Name() die.Value[string] {
 	return fields.ValueOf(d, objectMetaFields.Name)
 }
 
-func (d *ObjectMetaDieMut) Name() die.ValueMut[string, *ObjectMetaDieMut] {
+func (d *ObjectMetaDieMut) Name() die.ValueMut[string] {
 	return fields.ValueMutOf(d, objectMetaFields.Name)
 }
 
@@ -68,7 +68,7 @@ func (d *ObjectMetaDie) Namespace() die.Value[string] {
 	return fields.ValueOf(d, objectMetaFields.Namespace)
 }
 
-func (d *ObjectMetaDieMut) Namespace() die.ValueMut[string, *ObjectMetaDieMut] {
+func (d *ObjectMetaDieMut) Namespace() die.ValueMut[string] {
 	return fields.ValueMutOf(d, objectMetaFields.Namespace)
 }
 
@@ -76,7 +76,7 @@ func (d *ObjectMetaDie) Generation() die.Value[int64] {
 	return fields.ValueOf(d, objectMetaFields.Generation)
 }
 
-func (d *ObjectMetaDieMut) Generation() die.ValueMut[int64, *ObjectMetaDieMut] {
+func (d *ObjectMetaDieMut) Generation() die.ValueMut[int64] {
 	return fields.ValueMutOf(d, objectMetaFields.Generation)
 }
 
@@ -134,7 +134,7 @@ func (d *ConditionDie) Type() die.Value[string] {
 	return fields.ValueOf(d, conditionFields.Type)
 }
 
-func (d *ConditionDieMut) Type() die.ValueMut[string, *ConditionDieMut] {
+func (d *ConditionDieMut) Type() die.ValueMut[string] {
 	return fields.ValueMutOf(d, conditionFields.Type)
 }
 
@@ -142,7 +142,7 @@ func (d *ConditionDie) Status() die.Value[string] {
 	return fields.ValueOf(d, conditionFields.Status)
 }
 
-func (d *ConditionDieMut) Status() die.ValueMut[string, *ConditionDieMut] {
+func (d *ConditionDieMut) Status() die.ValueMut[string] {
 	return fields.ValueMutOf(d, conditionFields.Status)
 }
 
@@ -150,7 +150,7 @@ func (d *ConditionDie) ObservedGeneration() die.Value[int64] {
 	return fields.ValueOf(d, conditionFields.ObservedGeneration)
 }
 
-func (d *ConditionDieMut) ObservedGeneration() die.ValueMut[int64, *ConditionDieMut] {
+func (d *ConditionDieMut) ObservedGeneration() die.ValueMut[int64] {
 	return fields.ValueMutOf(d, conditionFields.ObservedGeneration)
 }
 
@@ -158,7 +158,7 @@ func (d *ConditionDie) Reason() die.Value[string] {
 	return fields.ValueOf(d, conditionFields.Reason)
 }
 
-func (d *ConditionDieMut) Reason() die.ValueMut[string, *ConditionDieMut] {
+func (d *ConditionDieMut) Reason() die.ValueMut[string] {
 	return fields.ValueMutOf(d, conditionFields.Reason)
 }
 
@@ -166,11 +166,14 @@ func (d *ConditionDie) Message() die.Value[string] {
 	return fields.ValueOf(d, conditionFields.Message)
 }
 
-func (d *ConditionDieMut) Message() die.ValueMut[string, *ConditionDieMut] {
+func (d *ConditionDieMut) Message() die.ValueMut[string] {
 	return fields.ValueMutOf(d, conditionFields.Message)
 }
 
 // True sets the condition to "True" with a reason.
-func (d *ConditionDieMut) True(reason string) *ConditionDieMut {
-	return d.Status().Set("True").Reason().Set(reason)
+func (d *ConditionDieMut) True(reason string) error {
+	if err := d.Status().Set("True"); err != nil {
+		return err
+	}
+	return d.Reason().Set(reason)
 }

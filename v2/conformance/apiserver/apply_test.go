@@ -25,27 +25,28 @@ import (
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
-	"reconciler.io/dies/v2/die/base"
+	"reconciler.io/dies/v2/die"
+	"reconciler.io/dies/v2/die/dietest"
 )
 
 // Server-side apply: what a die sends is what its manager owns.
 
 // deployment is a minimal valid Deployment, with one container, app.
-func deployment(namespace string) *dieappsv1.DeploymentDie {
-	return dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Namespace().Set(namespace)
-		d.Metadata().Name().Set("web")
-		d.Spec().Selector().MatchLabels().Set("app", "web")
-		d.Spec().Template().Metadata().Labels().Set("app", "web")
-		d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1")
+func deployment(t testing.TB, namespace string) *dieappsv1.DeploymentDie {
+	return dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Namespace().Set(namespace))
+		dietest.NoError(t, d.Metadata().Name().Set("web"))
+		dietest.NoError(t, d.Spec().Selector().MatchLabels().Set("app", "web"))
+		dietest.NoError(t, d.Spec().Template().Metadata().Labels().Set("app", "web"))
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
 	})
 }
 
 // identity is a Deployment with only its identity, to apply nothing else.
-func identity(namespace string) *dieappsv1.DeploymentDie {
-	return dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Namespace().Set(namespace)
-		d.Metadata().Name().Set("web")
+func identity(t testing.TB, namespace string) *dieappsv1.DeploymentDie {
+	return dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Namespace().Set(namespace))
+		dietest.NoError(t, d.Metadata().Name().Set("web"))
 	})
 }
 
@@ -53,7 +54,7 @@ func identity(namespace string) *dieappsv1.DeploymentDie {
 // server has after.
 func apply(t *testing.T, d *dieappsv1.DeploymentDie, manager string) *dieappsv1.DeploymentDie {
 	t.Helper()
-	body, err := d.DieReleaseApplyPatchE()
+	body, err := die.ReleaseApplyPatchE(d)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +67,7 @@ func apply(t *testing.T, d *dieappsv1.DeploymentDie, manager string) *dieappsv1.
 
 func TestApplyOwnsOnlyWhatWasSet(t *testing.T) {
 	ns := namespace(t)
-	got := apply(t, deployment(ns), "conformance")
+	got := apply(t, deployment(t, ns), "conformance")
 
 	assertOwned(t, got, "conformance", "",
 		".spec.selector",
@@ -84,9 +85,9 @@ func TestApplyOwnsOnlyWhatWasSet(t *testing.T) {
 // defaulted.
 func TestApplySendsExplicitZeroValues(t *testing.T) {
 	ns := namespace(t)
-	got := apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Spec().Replicas().Set(0)
-		d.Spec().Paused().Set(false)
+	got := apply(t, deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Spec().Replicas().Set(0))
+		dietest.NoError(t, d.Spec().Paused().Set(false))
 	}), "conformance")
 
 	if !got.Spec().Replicas().Has() || got.Spec().Replicas().Get() != 0 {
@@ -99,10 +100,10 @@ func TestApplySendsExplicitZeroValues(t *testing.T) {
 // element its manager no longer applies is removed.
 func TestApplyMergesListMapsByKey(t *testing.T) {
 	ns := namespace(t)
-	apply(t, deployment(ns), "app")
-	sidecar := deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Spec().Template().Spec().Containers().Remove("app")
-		d.Spec().Template().Spec().Containers().At("sidecar").Image().Set("sidecar:1")
+	apply(t, deployment(t, ns), "app")
+	sidecar := deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().Remove("app"))
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("sidecar").Image().Set("sidecar:1"))
 	})
 	got := apply(t, sidecar, "sidecar")
 	if keys := got.Spec().Template().Spec().Containers().Keys(); len(keys) != 2 {
@@ -110,13 +111,13 @@ func TestApplyMergesListMapsByKey(t *testing.T) {
 	}
 
 	// app applies again, without sidecar, which it doesn't own: it stays
-	got = apply(t, deployment(ns), "app")
+	got = apply(t, deployment(t, ns), "app")
 	if !got.Spec().Template().Spec().Containers().Has("sidecar") {
 		t.Errorf("app's apply removed sidecar, which it doesn't own")
 	}
 
 	// sidecar applies without its container: it's removed
-	got = apply(t, identity(ns), "sidecar")
+	got = apply(t, identity(t, ns), "sidecar")
 	if got.Spec().Template().Spec().Containers().Has("sidecar") {
 		t.Errorf("sidecar's container stayed after sidecar stopped applying it")
 	}
@@ -129,8 +130,8 @@ func TestApplyMergesListMapsByKey(t *testing.T) {
 // port set without a protocol is the TCP one, on the die and on the server.
 func TestApplyDefaultedListMapKeys(t *testing.T) {
 	ns := namespace(t)
-	withPort := deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Spec().Template().Spec().Containers().At("app").Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("http")
+	withPort := deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("http"))
 	})
 	first := apply(t, withPort, "app")
 	again := apply(t, withPort, "app")
@@ -138,8 +139,8 @@ func TestApplyDefaultedListMapKeys(t *testing.T) {
 		t.Errorf("applying the same port again changed the object")
 	}
 
-	udp := deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Spec().Template().Spec().Containers().At("app").Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080, Protocol: diecorev1.ProtocolUDP}).Name().Set("dns")
+	udp := deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080, Protocol: diecorev1.ProtocolUDP}).Name().Set("dns"))
 	})
 	got := apply(t, udp, "dns")
 	ports := got.Spec().Template().Spec().Containers().At("app").Ports()
@@ -147,7 +148,7 @@ func TestApplyDefaultedListMapKeys(t *testing.T) {
 		t.Fatalf("ports %v, want TCP and UDP", ports.Keys())
 	}
 	if ports.At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Get() != "http" {
-		t.Errorf("the TCP port is %+v", ports.At(diecorev1.ContainerPortKey{ContainerPort: 8080}).DieRelease())
+		t.Errorf("the TCP port is %+v", *ports.At(diecorev1.ContainerPortKey{ContainerPort: 8080}).DieRelease())
 	}
 }
 
@@ -156,38 +157,38 @@ func TestApplyDefaultedListMapKeys(t *testing.T) {
 // what the server has, keeps its name.
 func TestApplySendsAtomicStructsWhole(t *testing.T) {
 	ns := namespace(t)
-	withEnv := deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
+	withEnv := deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
 		ref := d.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef()
-		ref.Name().Set("settings")
-		ref.Key().Set("color")
-		ref.Optional().Set(true)
+		dietest.NoError(t, ref.Name().Set("settings"))
+		dietest.NoError(t, ref.Key().Set("color"))
+		dietest.NoError(t, ref.Optional().Set(true))
 	})
 	actual := apply(t, withEnv, "app")
 
 	// from the server's state, change only the key, as another manager: an
 	// apply is all of a manager's intent, so app applying only this would
 	// drop the rest of what it owns
-	changed := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.DieFeed(actual.DieRelease())
-		d.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef().Key().Set("colour")
+	changed := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.DieFeed(actual.DieRelease()))
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef().Key().Set("colour"))
 	})
 	got := apply(t, changed, "localizer")
 	assertOwns(t, got, "localizer", "", `.spec.template.spec.containers[name="app"].env[name="COLOR"].valueFrom.configMapKeyRef`)
 	ref := got.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef()
 	if ref.Name().Get() != "settings" || ref.Key().Get() != "colour" || !ref.Optional().Get() {
-		t.Errorf("configMapKeyRef %+v, want settings/colour, optional", ref.DieRelease())
+		t.Errorf("configMapKeyRef %+v, want settings/colour, optional", *ref.DieRelease())
 	}
 }
 
 // Clear on a field sends null: the manager owns it, and it's absent.
 func TestApplyClearRemovesAField(t *testing.T) {
 	ns := namespace(t)
-	apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Spec().MinReadySeconds().Set(5)
+	apply(t, deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Spec().MinReadySeconds().Set(5))
 	}), "rollout")
 
-	got := apply(t, identity(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Spec().MinReadySeconds().Clear()
+	got := apply(t, identity(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Spec().MinReadySeconds().Clear())
 	}), "app")
 	if got.Spec().MinReadySeconds().Has() {
 		t.Errorf("minReadySeconds %d, want it removed", got.Spec().MinReadySeconds().Get())
@@ -201,18 +202,18 @@ func TestApplyClearRemovesAField(t *testing.T) {
 // longer applying it.
 func TestApplyRemovingAMapEntry(t *testing.T) {
 	ns := namespace(t)
-	apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Labels().Set("tier", "web")
+	apply(t, deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Labels().Set("tier", "web"))
 	}), "labeler")
 
-	got := apply(t, identity(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Labels().Remove("tier")
+	got := apply(t, identity(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Labels().Remove("tier"))
 	}), "app")
 	if tier := got.GetLabels()["tier"]; tier != "web" {
 		t.Errorf("tier %q, want labeler's label untouched", tier)
 	}
 
-	got = apply(t, deployment(ns), "labeler")
+	got = apply(t, deployment(t, ns), "labeler")
 	if got.Metadata().Labels().Has("tier") {
 		t.Errorf("labels %v, want tier removed once labeler stopped applying it", got.GetLabels())
 	}
@@ -221,8 +222,8 @@ func TestApplyRemovingAMapEntry(t *testing.T) {
 // Empty sends []: the manager owns a list that's present and empty.
 func TestApplyEmptyOwnsAnEmptyList(t *testing.T) {
 	ns := namespace(t)
-	got := apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Spec().Template().Spec().Tolerations().Empty()
+	got := apply(t, deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Spec().Template().Spec().Tolerations().Empty())
 	}), "app")
 	assertOwns(t, got, "app", "", ".spec.template.spec.tolerations")
 }
@@ -231,16 +232,16 @@ func TestApplyEmptyOwnsAnEmptyList(t *testing.T) {
 // the spec is untouched, and the manager owns only the status it set.
 func TestApplyStatusSubresource(t *testing.T) {
 	ns := namespace(t)
-	apply(t, deployment(ns), "app")
+	apply(t, deployment(t, ns), "app")
 
-	status := identity(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Status().ObservedGeneration().Set(1)
-		d.Status().Conditions().At(dieappsv1.DeploymentAvailable).DieWith(func(c *dieappsv1.DeploymentConditionDieMut) {
-			c.Status().Set(diecorev1.ConditionTrue)
-			c.Reason().Set("Reconciled")
+	status := identity(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Status().ObservedGeneration().Set(1))
+		d.Status().Conditions().At(dieappsv1.DeploymentAvailable).DieStamp(func(c *dieappsv1.DeploymentConditionDieMut) {
+			dietest.NoError(t, c.Status().Set(diecorev1.ConditionTrue))
+			dietest.NoError(t, c.Reason().Set("Reconciled"))
 		})
-	}).DieSubresource("status")
-	body, err := status.DieReleaseApplyPatchE()
+	})
+	body, err := die.ReleaseApplyPatchE(status, die.Subresource("status"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -249,10 +250,10 @@ func TestApplyStatusSubresource(t *testing.T) {
 		t.Fatal(err)
 	}
 	if got.Status().Conditions().At(dieappsv1.DeploymentAvailable).Reason().Get() != "Reconciled" {
-		t.Errorf("status %+v", got.Status().DieRelease())
+		t.Errorf("status %+v", *got.Status().DieRelease())
 	}
 	if got.Spec().Template().Spec().Containers().At("app").Image().Get() != "app:1" {
-		t.Errorf("spec %+v", got.Spec().DieRelease())
+		t.Errorf("spec %+v", *got.Spec().DieRelease())
 	}
 	assertOwned(t, got, "controller", "status",
 		".status.observedGeneration",
@@ -269,17 +270,17 @@ func TestApplyConfigurations(t *testing.T) {
 	ns := namespace(t)
 	ctx := context.Background()
 
-	if err := dies.Apply(ctx, deployment(ns).DieReleaseApplyConfiguration(), client.FieldOwner("typed")); err != nil {
+	if err := dies.Apply(ctx, deployment(t, ns).DieReleaseApplyConfiguration(), client.FieldOwner("typed")); err != nil {
 		t.Fatal(err)
 	}
 
-	ac := base.ApplyConfigurationOf(deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Spec().Replicas().Set(3)
+	ac := die.ApplyConfigurationOf(deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Spec().Replicas().Set(3))
 	}))
 	if err := dies.Apply(ctx, ac, client.FieldOwner("adapted"), client.ForceOwnership); err != nil {
 		t.Fatal(err)
 	}
-	got := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) { d.DieFeedJSON(ac.Result()) })
+	got := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietest.NoError(t, die.FeedJSON(d, ac.Result())) })
 	if got.Spec().Replicas().Get() != 3 {
 		t.Errorf("replicas %v", got.Spec().Replicas().Ptr())
 	}

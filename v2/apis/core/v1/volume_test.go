@@ -20,21 +20,22 @@ import (
 	"testing"
 
 	corev1 "reconciler.io/dies/v2/apis/core/v1"
+	"reconciler.io/dies/v2/die/dietest"
 )
 
 // The hand-written VolumeSource alias declares a union, which applies to the
 // members flattened into Volume.
 func TestVolumeSourceUnionOverride(t *testing.T) {
-	v := corev1.VolumeBlank.DieWith(func(d *corev1.VolumeDieMut) {
-		d.DieFeed(corev1.Volume{
+	v := corev1.VolumeBlank.DieStamp(func(d *corev1.VolumeDieMut) {
+		dietest.NoError(t, d.DieFeed(&corev1.Volume{
 			Name:         "creds",
 			VolumeSource: corev1.VolumeSource{Secret: &corev1.SecretVolumeSource{SecretName: "creds"}},
-		})
-	}).DieWith(func(d *corev1.VolumeDieMut) {
-		d.EmptyDir().Medium().Set(corev1.StorageMediumMemory)
+		}))
+	}).DieStamp(func(d *corev1.VolumeDieMut) {
+		dietest.NoError(t, d.EmptyDir().Medium().Set(corev1.StorageMediumMemory))
 	})
 
-	got := v.DieRelease()
+	got := *v.DieRelease()
 	if got.Secret != nil {
 		t.Errorf("setting emptyDir should clear secret, got %+v", got.Secret)
 	}

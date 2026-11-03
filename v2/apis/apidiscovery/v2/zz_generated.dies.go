@@ -34,7 +34,7 @@ import (
 // Versions are in descending order of preference, with the first version being the preferred entry.
 //
 // APIGroupDiscoveryDie is immutable: it reads.
-// [APIGroupDiscoveryDieMut], its mutable die, also writes, as DieWith passes it.
+// [APIGroupDiscoveryDieMut], its mutable die, also writes, as DieStamp passes it.
 type APIGroupDiscoveryDie struct {
 	diebase.DieObjectBase[APIGroupDiscovery, *APIGroupDiscoveryDie, *APIGroupDiscoveryDieMut]
 }
@@ -107,7 +107,7 @@ func (d *APIGroupDiscoveryDie) Versions() *diefields.ListMap[APIVersionDiscovery
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *APIGroupDiscoveryDieMut) Kind() diefields.ValueMut[string, *APIGroupDiscoveryDieMut] {
+func (d *APIGroupDiscoveryDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, aPIGroupDiscoveryFields.Get().Kind)
 }
 
@@ -115,7 +115,7 @@ func (d *APIGroupDiscoveryDieMut) Kind() diefields.ValueMut[string, *APIGroupDis
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *APIGroupDiscoveryDieMut) APIVersion() diefields.ValueMut[string, *APIGroupDiscoveryDieMut] {
+func (d *APIGroupDiscoveryDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, aPIGroupDiscoveryFields.Get().APIVersion)
 }
 
@@ -142,8 +142,6 @@ type APIGroupDiscoveryListDie struct {
 	dielists.List[*APIGroupDiscoveryDieMut]
 }
 
-var _ dielists.DieListOf[*APIGroupDiscoveryDieMut] = (*APIGroupDiscoveryListDie)(nil)
-
 // NewAPIGroupDiscoveryList returns a list with items.
 func NewAPIGroupDiscoveryList(items ...*APIGroupDiscoveryDieMut) *APIGroupDiscoveryListDie {
 	return &APIGroupDiscoveryListDie{dielists.NewList("apidiscovery.k8s.io/v2", "APIGroupDiscoveryList", items...)}
@@ -159,7 +157,7 @@ func (l *APIGroupDiscoveryListDie) DeepCopyObject() runtime.Object { return l.De
 // APIResourceDiscovery provides information about an API resource for discovery.
 //
 // APIResourceDiscoveryDie is immutable: it reads.
-// [APIResourceDiscoveryDieMut], its mutable die, also writes, as DieWith passes it.
+// [APIResourceDiscoveryDieMut], its mutable die, also writes, as DieStamp passes it.
 type APIResourceDiscoveryDie struct {
 	diebase.DieBase[APIResourceDiscovery, *APIResourceDiscoveryDie, *APIResourceDiscoveryDieMut]
 }
@@ -258,7 +256,7 @@ func (d *APIResourceDiscoveryDie) Subresources() *diefields.ListMap[APISubresour
 // for this resource across all versions in the API group.
 // Resources with non-empty groups are located at /apis/<APIGroupDiscovery.objectMeta.name>/<APIVersionDiscovery.version>/<APIResourceDiscovery.Resource>
 // Resources with empty groups are located at /api/v1/<APIResourceDiscovery.Resource>
-func (d *APIResourceDiscoveryDieMut) Resource() diefields.ValueMut[string, *APIResourceDiscoveryDieMut] {
+func (d *APIResourceDiscoveryDieMut) Resource() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, aPIResourceDiscoveryFields.Get().Resource)
 }
 
@@ -270,7 +268,7 @@ func (d *APIResourceDiscoveryDieMut) ResponseKind() *diemetav1.GroupVersionKindD
 }
 
 // scope indicates the scope of a resource, either Cluster or Namespaced
-func (d *APIResourceDiscoveryDieMut) Scope() diefields.ValueMut[ResourceScope, *APIResourceDiscoveryDieMut] {
+func (d *APIResourceDiscoveryDieMut) Scope() diefields.ValueMut[ResourceScope] {
 	return diefields.ValueMutOf(d, aPIResourceDiscoveryFields.Get().Scope)
 }
 
@@ -278,25 +276,25 @@ func (d *APIResourceDiscoveryDieMut) Scope() diefields.ValueMut[ResourceScope, *
 // For many clients the singular form of the resource will be more understandable to users reading messages and should be used when integrating the name of the resource into a sentence.
 // The command line tool kubectl, for example, allows use of the singular resource name in place of plurals.
 // The singular form of a resource should always be an optional element - when in doubt use the canonical resource name.
-func (d *APIResourceDiscoveryDieMut) SingularResource() diefields.ValueMut[string, *APIResourceDiscoveryDieMut] {
+func (d *APIResourceDiscoveryDieMut) SingularResource() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, aPIResourceDiscoveryFields.Get().SingularResource)
 }
 
 // verbs is a list of supported API operation types (this includes
 // but is not limited to get, list, watch, create, update, patch,
 // delete, deletecollection, and proxy).
-func (d *APIResourceDiscoveryDieMut) Verbs() diefields.ValueMut[[]string, *APIResourceDiscoveryDieMut] {
+func (d *APIResourceDiscoveryDieMut) Verbs() diefields.ValueMut[[]string] {
 	return diefields.ValueMutOf(d, aPIResourceDiscoveryFields.Get().Verbs)
 }
 
 // shortNames is a list of suggested short names of the resource.
-func (d *APIResourceDiscoveryDieMut) ShortNames() diefields.ValueMut[[]string, *APIResourceDiscoveryDieMut] {
+func (d *APIResourceDiscoveryDieMut) ShortNames() diefields.ValueMut[[]string] {
 	return diefields.ValueMutOf(d, aPIResourceDiscoveryFields.Get().ShortNames)
 }
 
 // categories is a list of the grouped resources this resource belongs to (e.g. 'all').
 // Clients may use this to simplify acting on multiple resource types at once.
-func (d *APIResourceDiscoveryDieMut) Categories() diefields.ValueMut[[]string, *APIResourceDiscoveryDieMut] {
+func (d *APIResourceDiscoveryDieMut) Categories() diefields.ValueMut[[]string] {
 	return diefields.ValueMutOf(d, aPIResourceDiscoveryFields.Get().Categories)
 }
 
@@ -308,7 +306,7 @@ func (d *APIResourceDiscoveryDieMut) Subresources() *diefields.ListMapMut[APISub
 // APISubresourceDiscovery provides information about an API subresource for discovery.
 //
 // APISubresourceDiscoveryDie is immutable: it reads.
-// [APISubresourceDiscoveryDieMut], its mutable die, also writes, as DieWith passes it.
+// [APISubresourceDiscoveryDieMut], its mutable die, also writes, as DieStamp passes it.
 type APISubresourceDiscoveryDie struct {
 	diebase.DieBase[APISubresourceDiscovery, *APISubresourceDiscoveryDie, *APISubresourceDiscoveryDieMut]
 }
@@ -378,7 +376,7 @@ func (d *APISubresourceDiscoveryDie) Verbs() diefields.Value[[]string] {
 
 // subresource is the name of the subresource.  This is used in the URL path and is the unique identifier
 // for this resource across all versions.
-func (d *APISubresourceDiscoveryDieMut) Subresource() diefields.ValueMut[string, *APISubresourceDiscoveryDieMut] {
+func (d *APISubresourceDiscoveryDieMut) Subresource() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, aPISubresourceDiscoveryFields.Get().Subresource)
 }
 
@@ -402,14 +400,14 @@ func (d *APISubresourceDiscoveryDieMut) AcceptedTypes() *diefields.ListMapMut[di
 // custom verbs outside the standard Kubernetes verb set. Clients
 // should expect the behavior of standard verbs to align with
 // Kubernetes interaction conventions.
-func (d *APISubresourceDiscoveryDieMut) Verbs() diefields.ValueMut[[]string, *APISubresourceDiscoveryDieMut] {
+func (d *APISubresourceDiscoveryDieMut) Verbs() diefields.ValueMut[[]string] {
 	return diefields.ValueMutOf(d, aPISubresourceDiscoveryFields.Get().Verbs)
 }
 
 // APIVersionDiscovery holds a list of APIResourceDiscovery types that are served for a particular version within an API Group.
 //
 // APIVersionDiscoveryDie is immutable: it reads.
-// [APIVersionDiscoveryDieMut], its mutable die, also writes, as DieWith passes it.
+// [APIVersionDiscoveryDieMut], its mutable die, also writes, as DieStamp passes it.
 type APIVersionDiscoveryDie struct {
 	diebase.DieBase[APIVersionDiscovery, *APIVersionDiscoveryDie, *APIVersionDiscoveryDieMut]
 }
@@ -465,7 +463,7 @@ func (d *APIVersionDiscoveryDie) Freshness() diefields.Value[DiscoveryFreshness]
 }
 
 // version is the name of the version within a group version.
-func (d *APIVersionDiscoveryDieMut) Version() diefields.ValueMut[string, *APIVersionDiscoveryDieMut] {
+func (d *APIVersionDiscoveryDieMut) Version() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, aPIVersionDiscoveryFields.Get().Version)
 }
 
@@ -481,7 +479,7 @@ func (d *APIVersionDiscoveryDieMut) Resources() *diefields.ListMapMut[APIResourc
 // significantly out of date. Clients that require the latest
 // version of the discovery information be retrieved before
 // performing an operation should not use the aggregated document
-func (d *APIVersionDiscoveryDieMut) Freshness() diefields.ValueMut[DiscoveryFreshness, *APIVersionDiscoveryDieMut] {
+func (d *APIVersionDiscoveryDieMut) Freshness() diefields.ValueMut[DiscoveryFreshness] {
 	return diefields.ValueMutOf(d, aPIVersionDiscoveryFields.Get().Freshness)
 }
 

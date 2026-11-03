@@ -33,7 +33,7 @@ import (
 // Widget runs a pod template with named ports.
 //
 // WidgetDie is immutable: it reads.
-// [WidgetDieMut], its mutable die, also writes, as DieWith passes it.
+// [WidgetDieMut], its mutable die, also writes, as DieStamp passes it.
 type WidgetDie struct {
 	diebase.DieObjectBase[Widget, *WidgetDie, *WidgetDieMut]
 }
@@ -101,7 +101,7 @@ func (d *WidgetDie) Status() *WidgetStatusDie { return diefields.Child(d, widget
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *WidgetDieMut) Kind() diefields.ValueMut[string, *WidgetDieMut] {
+func (d *WidgetDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, widgetFields.Get().Kind)
 }
 
@@ -109,7 +109,7 @@ func (d *WidgetDieMut) Kind() diefields.ValueMut[string, *WidgetDieMut] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *WidgetDieMut) APIVersion() diefields.ValueMut[string, *WidgetDieMut] {
+func (d *WidgetDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, widgetFields.Get().APIVersion)
 }
 
@@ -126,7 +126,7 @@ func (d *WidgetDieMut) Status() *WidgetStatusDieMut {
 }
 
 // WidgetGadgetDie is immutable: it reads.
-// [WidgetGadgetDieMut], its mutable die, also writes, as DieWith passes it.
+// [WidgetGadgetDieMut], its mutable die, also writes, as DieStamp passes it.
 type WidgetGadgetDie struct {
 	diebase.DieBase[WidgetGadget, *WidgetGadgetDie, *WidgetGadgetDieMut]
 }
@@ -166,11 +166,11 @@ func (d *WidgetGadgetDie) Parts() diefields.Value[[]gadgetv1.GadgetPart] {
 	return diefields.ValueOf(d, widgetGadgetFields.Get().Parts)
 }
 
-func (d *WidgetGadgetDieMut) Label() diefields.ValueMut[string, *WidgetGadgetDieMut] {
+func (d *WidgetGadgetDieMut) Label() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, widgetGadgetFields.Get().Label)
 }
 
-func (d *WidgetGadgetDieMut) Parts() diefields.ValueMut[[]gadgetv1.GadgetPart, *WidgetGadgetDieMut] {
+func (d *WidgetGadgetDieMut) Parts() diefields.ValueMut[[]gadgetv1.GadgetPart] {
 	return diefields.ValueMutOf(d, widgetGadgetFields.Get().Parts)
 }
 
@@ -178,7 +178,7 @@ func (d *WidgetGadgetDieMut) Parts() diefields.ValueMut[[]gadgetv1.GadgetPart, *
 // collides with the die method that compares dies, so it is renamed.
 //
 // WidgetMatchDie is immutable: it reads.
-// [WidgetMatchDieMut], its mutable die, also writes, as DieWith passes it.
+// [WidgetMatchDieMut], its mutable die, also writes, as DieStamp passes it.
 type WidgetMatchDie struct {
 	diebase.DieBase[WidgetMatch, *WidgetMatchDie, *WidgetMatchDieMut]
 }
@@ -220,18 +220,18 @@ func (d *WidgetMatchDie) Note() diefields.Optional[string] {
 	return diefields.OptionalOf(d, widgetMatchFields.Get().Note)
 }
 
-func (d *WidgetMatchDieMut) Exact() diefields.ValueMut[bool, *WidgetMatchDieMut] {
+func (d *WidgetMatchDieMut) Exact() diefields.ValueMut[bool] {
 	return diefields.ValueMutOf(d, widgetMatchFields.Get().Exact)
 }
 
 // Note accepts null, so an apply clears it with null, as a custom
 // resource's validation rejects null for fields that don't.
-func (d *WidgetMatchDieMut) Note() diefields.OptionalMut[string, *WidgetMatchDieMut] {
+func (d *WidgetMatchDieMut) Note() diefields.OptionalMut[string] {
 	return diefields.OptionalMutOf(d, widgetMatchFields.Get().Note)
 }
 
 // WidgetPortDie is immutable: it reads.
-// [WidgetPortDieMut], its mutable die, also writes, as DieWith passes it.
+// [WidgetPortDieMut], its mutable die, also writes, as DieStamp passes it.
 type WidgetPortDie struct {
 	diebase.DieBase[WidgetPort, *WidgetPortDie, *WidgetPortDieMut]
 }
@@ -271,16 +271,16 @@ func (d *WidgetPortDie) Port() diefields.Value[int32] {
 	return diefields.ValueOf(d, widgetPortFields.Get().Port)
 }
 
-func (d *WidgetPortDieMut) Name() diefields.ValueMut[string, *WidgetPortDieMut] {
+func (d *WidgetPortDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, widgetPortFields.Get().Name)
 }
 
-func (d *WidgetPortDieMut) Port() diefields.ValueMut[int32, *WidgetPortDieMut] {
+func (d *WidgetPortDieMut) Port() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, widgetPortFields.Get().Port)
 }
 
 // WidgetSpecDie is immutable: it reads.
-// [WidgetSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [WidgetSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type WidgetSpecDie struct {
 	diebase.DieBase[WidgetSpec, *WidgetSpecDie, *WidgetSpecDieMut]
 }
@@ -357,7 +357,7 @@ func (d *WidgetSpecDieMut) Match() *WidgetMatchDieMut {
 }
 
 // WidgetStatusDie is immutable: it reads.
-// [WidgetStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [WidgetStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type WidgetStatusDie struct {
 	diebase.DieBase[WidgetStatus, *WidgetStatusDie, *WidgetStatusDieMut]
 }
@@ -397,7 +397,7 @@ func (d *WidgetStatusDie) Conditions() *diefields.ListMap[diemetav1.Condition, *
 	return diefields.ListMapOf(d, widgetStatusFields.Get().Conditions)
 }
 
-func (d *WidgetStatusDieMut) ObservedGeneration() diefields.ValueMut[int64, *WidgetStatusDieMut] {
+func (d *WidgetStatusDieMut) ObservedGeneration() diefields.ValueMut[int64] {
 	return diefields.ValueMutOf(d, widgetStatusFields.Get().ObservedGeneration)
 }
 

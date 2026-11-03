@@ -34,7 +34,7 @@ import (
 // integer value. The value can be any valid integer.
 //
 // PriorityClassDie is immutable: it reads.
-// [PriorityClassDieMut], its mutable die, also writes, as DieWith passes it.
+// [PriorityClassDieMut], its mutable die, also writes, as DieStamp passes it.
 type PriorityClassDie struct {
 	diebase.DieObjectBase[PriorityClass, *PriorityClassDie, *PriorityClassDieMut]
 }
@@ -83,26 +83,14 @@ func (d *PriorityClassDieMut) DieReleaseApplyConfigurationE() (*PriorityClassApp
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *PriorityClassDieMut) DieFeedApplyConfiguration(ac *PriorityClassApplyConfiguration) *PriorityClassDieMut {
+func (d *PriorityClassDieMut) DieFeedApplyConfiguration(ac *PriorityClassApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *PriorityClassDieMut) DieStampApplyConfiguration(fn func(ac *PriorityClassApplyConfiguration)) *PriorityClassDieMut {
+func (d *PriorityClassDieMut) DieStampApplyConfiguration(fn func(ac *PriorityClassApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [PriorityClassDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PriorityClassDieMut) DieFeedApplyConfigurationE(ac *PriorityClassApplyConfiguration) (*PriorityClassDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [PriorityClassDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PriorityClassDieMut) DieStampApplyConfigurationE(fn func(ac *PriorityClassApplyConfiguration)) (*PriorityClassDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type priorityClassFieldsTable struct {
@@ -183,7 +171,7 @@ func (d *PriorityClassDie) PreemptionPolicy() diefields.Optional[diecorev1.Preem
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *PriorityClassDieMut) Kind() diefields.ValueMut[string, *PriorityClassDieMut] {
+func (d *PriorityClassDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, priorityClassFields.Get().Kind)
 }
 
@@ -191,7 +179,7 @@ func (d *PriorityClassDieMut) Kind() diefields.ValueMut[string, *PriorityClassDi
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *PriorityClassDieMut) APIVersion() diefields.ValueMut[string, *PriorityClassDieMut] {
+func (d *PriorityClassDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, priorityClassFields.Get().APIVersion)
 }
 
@@ -203,7 +191,7 @@ func (d *PriorityClassDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
 
 // value represents the integer value of this priority class. This is the actual priority that pods
 // receive when they have the name of this class in their pod spec.
-func (d *PriorityClassDieMut) Value() diefields.ValueMut[int32, *PriorityClassDieMut] {
+func (d *PriorityClassDieMut) Value() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, priorityClassFields.Get().Value)
 }
 
@@ -212,20 +200,20 @@ func (d *PriorityClassDieMut) Value() diefields.ValueMut[int32, *PriorityClassDi
 // Only one PriorityClass can be marked as `globalDefault`. However, if more than
 // one PriorityClasses exists with their `globalDefault` field set to true,
 // the smallest value of such global default PriorityClasses will be used as the default priority.
-func (d *PriorityClassDieMut) GlobalDefault() diefields.ValueMut[bool, *PriorityClassDieMut] {
+func (d *PriorityClassDieMut) GlobalDefault() diefields.ValueMut[bool] {
 	return diefields.ValueMutOf(d, priorityClassFields.Get().GlobalDefault)
 }
 
 // description is an arbitrary string that usually provides guidelines on
 // when this priority class should be used.
-func (d *PriorityClassDieMut) Description() diefields.ValueMut[string, *PriorityClassDieMut] {
+func (d *PriorityClassDieMut) Description() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, priorityClassFields.Get().Description)
 }
 
 // preemptionPolicy is the Policy for preempting pods with lower priority.
 // One of Never, PreemptLowerPriority.
 // Defaults to PreemptLowerPriority if unset.
-func (d *PriorityClassDieMut) PreemptionPolicy() diefields.OptionalMut[diecorev1.PreemptionPolicy, *PriorityClassDieMut] {
+func (d *PriorityClassDieMut) PreemptionPolicy() diefields.OptionalMut[diecorev1.PreemptionPolicy] {
 	return diefields.OptionalMutOf(d, priorityClassFields.Get().PreemptionPolicy)
 }
 
@@ -233,8 +221,6 @@ func (d *PriorityClassDieMut) PreemptionPolicy() diefields.OptionalMut[diecorev1
 type PriorityClassListDie struct {
 	dielists.List[*PriorityClassDieMut]
 }
-
-var _ dielists.DieListOf[*PriorityClassDieMut] = (*PriorityClassListDie)(nil)
 
 // NewPriorityClassList returns a list with items.
 func NewPriorityClassList(items ...*PriorityClassDieMut) *PriorityClassListDie {

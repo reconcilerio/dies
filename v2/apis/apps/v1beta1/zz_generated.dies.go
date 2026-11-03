@@ -44,7 +44,7 @@ import (
 // depend on its stability. It is primarily for internal use by controllers.
 //
 // ControllerRevisionDie is immutable: it reads.
-// [ControllerRevisionDieMut], its mutable die, also writes, as DieWith passes it.
+// [ControllerRevisionDieMut], its mutable die, also writes, as DieStamp passes it.
 type ControllerRevisionDie struct {
 	diebase.DieObjectBase[ControllerRevision, *ControllerRevisionDie, *ControllerRevisionDieMut]
 }
@@ -93,26 +93,14 @@ func (d *ControllerRevisionDieMut) DieReleaseApplyConfigurationE() (*ControllerR
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ControllerRevisionDieMut) DieFeedApplyConfiguration(ac *ControllerRevisionApplyConfiguration) *ControllerRevisionDieMut {
+func (d *ControllerRevisionDieMut) DieFeedApplyConfiguration(ac *ControllerRevisionApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ControllerRevisionDieMut) DieStampApplyConfiguration(fn func(ac *ControllerRevisionApplyConfiguration)) *ControllerRevisionDieMut {
+func (d *ControllerRevisionDieMut) DieStampApplyConfiguration(fn func(ac *ControllerRevisionApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ControllerRevisionDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ControllerRevisionDieMut) DieFeedApplyConfigurationE(ac *ControllerRevisionApplyConfiguration) (*ControllerRevisionDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ControllerRevisionDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ControllerRevisionDieMut) DieStampApplyConfigurationE(fn func(ac *ControllerRevisionApplyConfiguration)) (*ControllerRevisionDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type controllerRevisionFieldsTable struct {
@@ -171,7 +159,7 @@ func (d *ControllerRevisionDie) Revision() diefields.Value[int64] {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *ControllerRevisionDieMut) Kind() diefields.ValueMut[string, *ControllerRevisionDieMut] {
+func (d *ControllerRevisionDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, controllerRevisionFields.Get().Kind)
 }
 
@@ -179,7 +167,7 @@ func (d *ControllerRevisionDieMut) Kind() diefields.ValueMut[string, *Controller
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *ControllerRevisionDieMut) APIVersion() diefields.ValueMut[string, *ControllerRevisionDieMut] {
+func (d *ControllerRevisionDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, controllerRevisionFields.Get().APIVersion)
 }
 
@@ -190,12 +178,12 @@ func (d *ControllerRevisionDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
 }
 
 // data is the serialized representation of the state.
-func (d *ControllerRevisionDieMut) Data() diefields.ValueMut[runtime.RawExtension, *ControllerRevisionDieMut] {
+func (d *ControllerRevisionDieMut) Data() diefields.ValueMut[runtime.RawExtension] {
 	return diefields.ValueMutOf(d, controllerRevisionFields.Get().Data)
 }
 
 // revision indicates the revision of the state represented by Data.
-func (d *ControllerRevisionDieMut) Revision() diefields.ValueMut[int64, *ControllerRevisionDieMut] {
+func (d *ControllerRevisionDieMut) Revision() diefields.ValueMut[int64] {
 	return diefields.ValueMutOf(d, controllerRevisionFields.Get().Revision)
 }
 
@@ -203,8 +191,6 @@ func (d *ControllerRevisionDieMut) Revision() diefields.ValueMut[int64, *Control
 type ControllerRevisionListDie struct {
 	dielists.List[*ControllerRevisionDieMut]
 }
-
-var _ dielists.DieListOf[*ControllerRevisionDieMut] = (*ControllerRevisionListDie)(nil)
 
 // NewControllerRevisionList returns a list with items.
 func NewControllerRevisionList(items ...*ControllerRevisionDieMut) *ControllerRevisionListDie {
@@ -223,7 +209,7 @@ func (l *ControllerRevisionListDie) DeepCopyObject() runtime.Object { return l.D
 // Deployment enables declarative updates for Pods and ReplicaSets.
 //
 // DeploymentDie is immutable: it reads.
-// [DeploymentDieMut], its mutable die, also writes, as DieWith passes it.
+// [DeploymentDieMut], its mutable die, also writes, as DieStamp passes it.
 type DeploymentDie struct {
 	diebase.DieObjectBase[Deployment, *DeploymentDie, *DeploymentDieMut]
 }
@@ -272,26 +258,14 @@ func (d *DeploymentDieMut) DieReleaseApplyConfigurationE() (*DeploymentApplyConf
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *DeploymentDieMut) DieFeedApplyConfiguration(ac *DeploymentApplyConfiguration) *DeploymentDieMut {
+func (d *DeploymentDieMut) DieFeedApplyConfiguration(ac *DeploymentApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *DeploymentDieMut) DieStampApplyConfiguration(fn func(ac *DeploymentApplyConfiguration)) *DeploymentDieMut {
+func (d *DeploymentDieMut) DieStampApplyConfiguration(fn func(ac *DeploymentApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [DeploymentDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeploymentDieMut) DieFeedApplyConfigurationE(ac *DeploymentApplyConfiguration) (*DeploymentDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [DeploymentDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeploymentDieMut) DieStampApplyConfigurationE(fn func(ac *DeploymentApplyConfiguration)) (*DeploymentDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type deploymentFieldsTable struct {
@@ -349,7 +323,7 @@ func (d *DeploymentDie) Status() *DeploymentStatusDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *DeploymentDieMut) Kind() diefields.ValueMut[string, *DeploymentDieMut] {
+func (d *DeploymentDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, deploymentFields.Get().Kind)
 }
 
@@ -357,7 +331,7 @@ func (d *DeploymentDieMut) Kind() diefields.ValueMut[string, *DeploymentDieMut] 
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *DeploymentDieMut) APIVersion() diefields.ValueMut[string, *DeploymentDieMut] {
+func (d *DeploymentDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, deploymentFields.Get().APIVersion)
 }
 
@@ -379,7 +353,7 @@ func (d *DeploymentDieMut) Status() *DeploymentStatusDieMut {
 // DeploymentCondition describes the state of a deployment at a certain point.
 //
 // DeploymentConditionDie is immutable: it reads.
-// [DeploymentConditionDieMut], its mutable die, also writes, as DieWith passes it.
+// [DeploymentConditionDieMut], its mutable die, also writes, as DieStamp passes it.
 type DeploymentConditionDie struct {
 	diebase.DieBase[DeploymentCondition, *DeploymentConditionDie, *DeploymentConditionDieMut]
 }
@@ -428,26 +402,14 @@ func (d *DeploymentConditionDieMut) DieReleaseApplyConfigurationE() (*Deployment
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *DeploymentConditionDieMut) DieFeedApplyConfiguration(ac *DeploymentConditionApplyConfiguration) *DeploymentConditionDieMut {
+func (d *DeploymentConditionDieMut) DieFeedApplyConfiguration(ac *DeploymentConditionApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *DeploymentConditionDieMut) DieStampApplyConfiguration(fn func(ac *DeploymentConditionApplyConfiguration)) *DeploymentConditionDieMut {
+func (d *DeploymentConditionDieMut) DieStampApplyConfiguration(fn func(ac *DeploymentConditionApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [DeploymentConditionDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeploymentConditionDieMut) DieFeedApplyConfigurationE(ac *DeploymentConditionApplyConfiguration) (*DeploymentConditionDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [DeploymentConditionDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeploymentConditionDieMut) DieStampApplyConfigurationE(fn func(ac *DeploymentConditionApplyConfiguration)) (*DeploymentConditionDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type deploymentConditionFieldsTable struct {
@@ -501,32 +463,32 @@ func (d *DeploymentConditionDie) Message() diefields.Value[string] {
 }
 
 // Type of deployment condition.
-func (d *DeploymentConditionDieMut) Type() diefields.ValueMut[DeploymentConditionType, *DeploymentConditionDieMut] {
+func (d *DeploymentConditionDieMut) Type() diefields.ValueMut[DeploymentConditionType] {
 	return diefields.ValueMutOf(d, deploymentConditionFields.Get().Type)
 }
 
 // Status of the condition, one of True, False, Unknown.
-func (d *DeploymentConditionDieMut) Status() diefields.ValueMut[diecorev1.ConditionStatus, *DeploymentConditionDieMut] {
+func (d *DeploymentConditionDieMut) Status() diefields.ValueMut[diecorev1.ConditionStatus] {
 	return diefields.ValueMutOf(d, deploymentConditionFields.Get().Status)
 }
 
 // The last time this condition was updated.
-func (d *DeploymentConditionDieMut) LastUpdateTime() diefields.ValueMut[diemetav1.Time, *DeploymentConditionDieMut] {
+func (d *DeploymentConditionDieMut) LastUpdateTime() diefields.ValueMut[diemetav1.Time] {
 	return diefields.ValueMutOf(d, deploymentConditionFields.Get().LastUpdateTime)
 }
 
 // Last time the condition transitioned from one status to another.
-func (d *DeploymentConditionDieMut) LastTransitionTime() diefields.ValueMut[diemetav1.Time, *DeploymentConditionDieMut] {
+func (d *DeploymentConditionDieMut) LastTransitionTime() diefields.ValueMut[diemetav1.Time] {
 	return diefields.ValueMutOf(d, deploymentConditionFields.Get().LastTransitionTime)
 }
 
 // The reason for the condition's last transition.
-func (d *DeploymentConditionDieMut) Reason() diefields.ValueMut[string, *DeploymentConditionDieMut] {
+func (d *DeploymentConditionDieMut) Reason() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, deploymentConditionFields.Get().Reason)
 }
 
 // A human readable message indicating details about the transition.
-func (d *DeploymentConditionDieMut) Message() diefields.ValueMut[string, *DeploymentConditionDieMut] {
+func (d *DeploymentConditionDieMut) Message() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, deploymentConditionFields.Get().Message)
 }
 
@@ -534,8 +496,6 @@ func (d *DeploymentConditionDieMut) Message() diefields.ValueMut[string, *Deploy
 type DeploymentListDie struct {
 	dielists.List[*DeploymentDieMut]
 }
-
-var _ dielists.DieListOf[*DeploymentDieMut] = (*DeploymentListDie)(nil)
 
 // NewDeploymentList returns a list with items.
 func NewDeploymentList(items ...*DeploymentDieMut) *DeploymentListDie {
@@ -551,7 +511,7 @@ func (l *DeploymentListDie) DeepCopyObject() runtime.Object { return l.DeepCopy(
 // DeploymentRollback stores the information required to rollback a deployment.
 //
 // DeploymentRollbackDie is immutable: it reads.
-// [DeploymentRollbackDieMut], its mutable die, also writes, as DieWith passes it.
+// [DeploymentRollbackDieMut], its mutable die, also writes, as DieStamp passes it.
 type DeploymentRollbackDie struct {
 	diebase.DieTypedBase[DeploymentRollback, *DeploymentRollbackDie, *DeploymentRollbackDieMut]
 }
@@ -626,7 +586,7 @@ func (d *DeploymentRollbackDie) RollbackTo() *RollbackConfigDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *DeploymentRollbackDieMut) Kind() diefields.ValueMut[string, *DeploymentRollbackDieMut] {
+func (d *DeploymentRollbackDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, deploymentRollbackFields.Get().Kind)
 }
 
@@ -634,12 +594,12 @@ func (d *DeploymentRollbackDieMut) Kind() diefields.ValueMut[string, *Deployment
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *DeploymentRollbackDieMut) APIVersion() diefields.ValueMut[string, *DeploymentRollbackDieMut] {
+func (d *DeploymentRollbackDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, deploymentRollbackFields.Get().APIVersion)
 }
 
 // Required: This must match the Name of a deployment.
-func (d *DeploymentRollbackDieMut) Name() diefields.ValueMut[string, *DeploymentRollbackDieMut] {
+func (d *DeploymentRollbackDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, deploymentRollbackFields.Get().Name)
 }
 
@@ -656,7 +616,7 @@ func (d *DeploymentRollbackDieMut) RollbackTo() *RollbackConfigDieMut {
 // DeploymentSpec is the specification of the desired behavior of the Deployment.
 //
 // DeploymentSpecDie is immutable: it reads.
-// [DeploymentSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [DeploymentSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type DeploymentSpecDie struct {
 	diebase.DieBase[DeploymentSpec, *DeploymentSpecDie, *DeploymentSpecDieMut]
 }
@@ -705,26 +665,14 @@ func (d *DeploymentSpecDieMut) DieReleaseApplyConfigurationE() (*DeploymentSpecA
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *DeploymentSpecDieMut) DieFeedApplyConfiguration(ac *DeploymentSpecApplyConfiguration) *DeploymentSpecDieMut {
+func (d *DeploymentSpecDieMut) DieFeedApplyConfiguration(ac *DeploymentSpecApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *DeploymentSpecDieMut) DieStampApplyConfiguration(fn func(ac *DeploymentSpecApplyConfiguration)) *DeploymentSpecDieMut {
+func (d *DeploymentSpecDieMut) DieStampApplyConfiguration(fn func(ac *DeploymentSpecApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [DeploymentSpecDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeploymentSpecDieMut) DieFeedApplyConfigurationE(ac *DeploymentSpecApplyConfiguration) (*DeploymentSpecDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [DeploymentSpecDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeploymentSpecDieMut) DieStampApplyConfigurationE(fn func(ac *DeploymentSpecApplyConfiguration)) (*DeploymentSpecDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type deploymentSpecFieldsTable struct {
@@ -812,7 +760,7 @@ func (d *DeploymentSpecDie) ProgressDeadlineSeconds() diefields.Optional[int32] 
 
 // replicas is the number of desired pods. This is a pointer to distinguish between explicit
 // zero and not specified. Defaults to 1.
-func (d *DeploymentSpecDieMut) Replicas() diefields.OptionalMut[int32, *DeploymentSpecDieMut] {
+func (d *DeploymentSpecDieMut) Replicas() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, deploymentSpecFields.Get().Replicas)
 }
 
@@ -836,19 +784,19 @@ func (d *DeploymentSpecDieMut) Strategy() *DeploymentStrategyDieMut {
 // minReadySeconds is the minimum number of seconds for which a newly created pod should be ready
 // without any of its container crashing, for it to be considered available.
 // Defaults to 0 (pod will be considered available as soon as it is ready)
-func (d *DeploymentSpecDieMut) MinReadySeconds() diefields.ValueMut[int32, *DeploymentSpecDieMut] {
+func (d *DeploymentSpecDieMut) MinReadySeconds() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, deploymentSpecFields.Get().MinReadySeconds)
 }
 
 // revisionHistoryLimit is the number of old ReplicaSets to retain to allow rollback.
 // This is a pointer to distinguish between explicit zero and not specified.
 // Defaults to 2.
-func (d *DeploymentSpecDieMut) RevisionHistoryLimit() diefields.OptionalMut[int32, *DeploymentSpecDieMut] {
+func (d *DeploymentSpecDieMut) RevisionHistoryLimit() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, deploymentSpecFields.Get().RevisionHistoryLimit)
 }
 
 // paused indicates that the deployment is paused.
-func (d *DeploymentSpecDieMut) Paused() diefields.ValueMut[bool, *DeploymentSpecDieMut] {
+func (d *DeploymentSpecDieMut) Paused() diefields.ValueMut[bool] {
 	return diefields.ValueMutOf(d, deploymentSpecFields.Get().Paused)
 }
 
@@ -863,14 +811,14 @@ func (d *DeploymentSpecDieMut) RollbackTo() *RollbackConfigDieMut {
 // process failed deployments and a condition with a ProgressDeadlineExceeded
 // reason will be surfaced in the deployment status. Note that progress will
 // not be estimated during the time a deployment is paused. Defaults to 600s.
-func (d *DeploymentSpecDieMut) ProgressDeadlineSeconds() diefields.OptionalMut[int32, *DeploymentSpecDieMut] {
+func (d *DeploymentSpecDieMut) ProgressDeadlineSeconds() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, deploymentSpecFields.Get().ProgressDeadlineSeconds)
 }
 
 // DeploymentStatus is the most recently observed status of the Deployment.
 //
 // DeploymentStatusDie is immutable: it reads.
-// [DeploymentStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [DeploymentStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type DeploymentStatusDie struct {
 	diebase.DieBase[DeploymentStatus, *DeploymentStatusDie, *DeploymentStatusDieMut]
 }
@@ -919,26 +867,14 @@ func (d *DeploymentStatusDieMut) DieReleaseApplyConfigurationE() (*DeploymentSta
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *DeploymentStatusDieMut) DieFeedApplyConfiguration(ac *DeploymentStatusApplyConfiguration) *DeploymentStatusDieMut {
+func (d *DeploymentStatusDieMut) DieFeedApplyConfiguration(ac *DeploymentStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *DeploymentStatusDieMut) DieStampApplyConfiguration(fn func(ac *DeploymentStatusApplyConfiguration)) *DeploymentStatusDieMut {
+func (d *DeploymentStatusDieMut) DieStampApplyConfiguration(fn func(ac *DeploymentStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [DeploymentStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeploymentStatusDieMut) DieFeedApplyConfigurationE(ac *DeploymentStatusApplyConfiguration) (*DeploymentStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [DeploymentStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeploymentStatusDieMut) DieStampApplyConfigurationE(fn func(ac *DeploymentStatusApplyConfiguration)) (*DeploymentStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type deploymentStatusFieldsTable struct {
@@ -1020,34 +956,34 @@ func (d *DeploymentStatusDie) CollisionCount() diefields.Optional[int32] {
 }
 
 // The generation observed by the deployment controller.
-func (d *DeploymentStatusDieMut) ObservedGeneration() diefields.ValueMut[int64, *DeploymentStatusDieMut] {
+func (d *DeploymentStatusDieMut) ObservedGeneration() diefields.ValueMut[int64] {
 	return diefields.ValueMutOf(d, deploymentStatusFields.Get().ObservedGeneration)
 }
 
 // Total number of non-terminating pods targeted by this deployment (their labels match the selector).
-func (d *DeploymentStatusDieMut) Replicas() diefields.ValueMut[int32, *DeploymentStatusDieMut] {
+func (d *DeploymentStatusDieMut) Replicas() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, deploymentStatusFields.Get().Replicas)
 }
 
 // Total number of non-terminating pods targeted by this deployment that have the desired template spec.
-func (d *DeploymentStatusDieMut) UpdatedReplicas() diefields.ValueMut[int32, *DeploymentStatusDieMut] {
+func (d *DeploymentStatusDieMut) UpdatedReplicas() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, deploymentStatusFields.Get().UpdatedReplicas)
 }
 
 // Total number of non-terminating pods targeted by this Deployment with a Ready Condition.
-func (d *DeploymentStatusDieMut) ReadyReplicas() diefields.ValueMut[int32, *DeploymentStatusDieMut] {
+func (d *DeploymentStatusDieMut) ReadyReplicas() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, deploymentStatusFields.Get().ReadyReplicas)
 }
 
 // Total number of available non-terminating pods (ready for at least minReadySeconds) targeted by this deployment.
-func (d *DeploymentStatusDieMut) AvailableReplicas() diefields.ValueMut[int32, *DeploymentStatusDieMut] {
+func (d *DeploymentStatusDieMut) AvailableReplicas() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, deploymentStatusFields.Get().AvailableReplicas)
 }
 
 // Total number of unavailable pods targeted by this deployment. This is the total number of
 // pods that are still required for the deployment to have 100% available capacity. They may
 // either be pods that are running but not yet available or pods that still have not been created.
-func (d *DeploymentStatusDieMut) UnavailableReplicas() diefields.ValueMut[int32, *DeploymentStatusDieMut] {
+func (d *DeploymentStatusDieMut) UnavailableReplicas() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, deploymentStatusFields.Get().UnavailableReplicas)
 }
 
@@ -1055,7 +991,7 @@ func (d *DeploymentStatusDieMut) UnavailableReplicas() diefields.ValueMut[int32,
 // .metadata.deletionTimestamp and have not yet reached the Failed or Succeeded .status.phase.
 //
 // This is a beta field and requires enabling DeploymentReplicaSetTerminatingReplicas feature (enabled by default).
-func (d *DeploymentStatusDieMut) TerminatingReplicas() diefields.OptionalMut[int32, *DeploymentStatusDieMut] {
+func (d *DeploymentStatusDieMut) TerminatingReplicas() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, deploymentStatusFields.Get().TerminatingReplicas)
 }
 
@@ -1067,14 +1003,14 @@ func (d *DeploymentStatusDieMut) Conditions() *diefields.ListMapMut[DeploymentCo
 // collisionCount is the count of hash collisions for the Deployment. The Deployment controller uses this
 // field as a collision avoidance mechanism when it needs to create the name for the
 // newest ReplicaSet.
-func (d *DeploymentStatusDieMut) CollisionCount() diefields.OptionalMut[int32, *DeploymentStatusDieMut] {
+func (d *DeploymentStatusDieMut) CollisionCount() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, deploymentStatusFields.Get().CollisionCount)
 }
 
 // DeploymentStrategy describes how to replace existing pods with new ones.
 //
 // DeploymentStrategyDie is immutable: it reads.
-// [DeploymentStrategyDieMut], its mutable die, also writes, as DieWith passes it.
+// [DeploymentStrategyDieMut], its mutable die, also writes, as DieStamp passes it.
 type DeploymentStrategyDie struct {
 	diebase.DieBase[DeploymentStrategy, *DeploymentStrategyDie, *DeploymentStrategyDieMut]
 }
@@ -1123,26 +1059,14 @@ func (d *DeploymentStrategyDieMut) DieReleaseApplyConfigurationE() (*DeploymentS
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *DeploymentStrategyDieMut) DieFeedApplyConfiguration(ac *DeploymentStrategyApplyConfiguration) *DeploymentStrategyDieMut {
+func (d *DeploymentStrategyDieMut) DieFeedApplyConfiguration(ac *DeploymentStrategyApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *DeploymentStrategyDieMut) DieStampApplyConfiguration(fn func(ac *DeploymentStrategyApplyConfiguration)) *DeploymentStrategyDieMut {
+func (d *DeploymentStrategyDieMut) DieStampApplyConfiguration(fn func(ac *DeploymentStrategyApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [DeploymentStrategyDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeploymentStrategyDieMut) DieFeedApplyConfigurationE(ac *DeploymentStrategyApplyConfiguration) (*DeploymentStrategyDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [DeploymentStrategyDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeploymentStrategyDieMut) DieStampApplyConfigurationE(fn func(ac *DeploymentStrategyApplyConfiguration)) (*DeploymentStrategyDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type deploymentStrategyFieldsTable struct {
@@ -1172,7 +1096,7 @@ func (d *DeploymentStrategyDie) RollingUpdate() *RollingUpdateDeploymentDie {
 }
 
 // Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
-func (d *DeploymentStrategyDieMut) Type() diefields.ValueMut[DeploymentStrategyType, *DeploymentStrategyDieMut] {
+func (d *DeploymentStrategyDieMut) Type() diefields.ValueMut[DeploymentStrategyType] {
 	return diefields.ValueMutOf(d, deploymentStrategyFields.Get().Type)
 }
 
@@ -1188,7 +1112,7 @@ func (d *DeploymentStrategyDieMut) RollingUpdate() *RollingUpdateDeploymentDieMu
 // DEPRECATED.
 //
 // RollbackConfigDie is immutable: it reads.
-// [RollbackConfigDieMut], its mutable die, also writes, as DieWith passes it.
+// [RollbackConfigDieMut], its mutable die, also writes, as DieStamp passes it.
 type RollbackConfigDie struct {
 	diebase.DieBase[RollbackConfig, *RollbackConfigDie, *RollbackConfigDieMut]
 }
@@ -1237,26 +1161,14 @@ func (d *RollbackConfigDieMut) DieReleaseApplyConfigurationE() (*RollbackConfigA
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *RollbackConfigDieMut) DieFeedApplyConfiguration(ac *RollbackConfigApplyConfiguration) *RollbackConfigDieMut {
+func (d *RollbackConfigDieMut) DieFeedApplyConfiguration(ac *RollbackConfigApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *RollbackConfigDieMut) DieStampApplyConfiguration(fn func(ac *RollbackConfigApplyConfiguration)) *RollbackConfigDieMut {
+func (d *RollbackConfigDieMut) DieStampApplyConfiguration(fn func(ac *RollbackConfigApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [RollbackConfigDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *RollbackConfigDieMut) DieFeedApplyConfigurationE(ac *RollbackConfigApplyConfiguration) (*RollbackConfigDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [RollbackConfigDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *RollbackConfigDieMut) DieStampApplyConfigurationE(fn func(ac *RollbackConfigApplyConfiguration)) (*RollbackConfigDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type rollbackConfigFieldsTable struct {
@@ -1275,14 +1187,14 @@ func (d *RollbackConfigDie) Revision() diefields.Value[int64] {
 }
 
 // The revision to rollback to. If set to 0, rollback to the last revision.
-func (d *RollbackConfigDieMut) Revision() diefields.ValueMut[int64, *RollbackConfigDieMut] {
+func (d *RollbackConfigDieMut) Revision() diefields.ValueMut[int64] {
 	return diefields.ValueMutOf(d, rollbackConfigFields.Get().Revision)
 }
 
 // Spec to control the desired behavior of rolling update.
 //
 // RollingUpdateDeploymentDie is immutable: it reads.
-// [RollingUpdateDeploymentDieMut], its mutable die, also writes, as DieWith passes it.
+// [RollingUpdateDeploymentDieMut], its mutable die, also writes, as DieStamp passes it.
 type RollingUpdateDeploymentDie struct {
 	diebase.DieBase[RollingUpdateDeployment, *RollingUpdateDeploymentDie, *RollingUpdateDeploymentDieMut]
 }
@@ -1331,26 +1243,14 @@ func (d *RollingUpdateDeploymentDieMut) DieReleaseApplyConfigurationE() (*Rollin
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *RollingUpdateDeploymentDieMut) DieFeedApplyConfiguration(ac *RollingUpdateDeploymentApplyConfiguration) *RollingUpdateDeploymentDieMut {
+func (d *RollingUpdateDeploymentDieMut) DieFeedApplyConfiguration(ac *RollingUpdateDeploymentApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *RollingUpdateDeploymentDieMut) DieStampApplyConfiguration(fn func(ac *RollingUpdateDeploymentApplyConfiguration)) *RollingUpdateDeploymentDieMut {
+func (d *RollingUpdateDeploymentDieMut) DieStampApplyConfiguration(fn func(ac *RollingUpdateDeploymentApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [RollingUpdateDeploymentDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *RollingUpdateDeploymentDieMut) DieFeedApplyConfigurationE(ac *RollingUpdateDeploymentApplyConfiguration) (*RollingUpdateDeploymentDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [RollingUpdateDeploymentDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *RollingUpdateDeploymentDieMut) DieStampApplyConfigurationE(fn func(ac *RollingUpdateDeploymentApplyConfiguration)) (*RollingUpdateDeploymentDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type rollingUpdateDeploymentFieldsTable struct {
@@ -1404,7 +1304,7 @@ func (d *RollingUpdateDeploymentDie) MaxSurge() diefields.Optional[intstr.IntOrS
 // can be scaled down further, followed by scaling up the new ReplicaSet, ensuring
 // that the total number of pods available at all times during the update is at
 // least 70% of desired pods.
-func (d *RollingUpdateDeploymentDieMut) MaxUnavailable() diefields.OptionalMut[intstr.IntOrString, *RollingUpdateDeploymentDieMut] {
+func (d *RollingUpdateDeploymentDieMut) MaxUnavailable() diefields.OptionalMut[intstr.IntOrString] {
 	return diefields.OptionalMutOf(d, rollingUpdateDeploymentFields.Get().MaxUnavailable)
 }
 
@@ -1419,14 +1319,14 @@ func (d *RollingUpdateDeploymentDieMut) MaxUnavailable() diefields.OptionalMut[i
 // 130% of desired pods. Once old pods have been killed,
 // new ReplicaSet can be scaled up further, ensuring that total number of pods running
 // at any time during the update is at most 130% of desired pods.
-func (d *RollingUpdateDeploymentDieMut) MaxSurge() diefields.OptionalMut[intstr.IntOrString, *RollingUpdateDeploymentDieMut] {
+func (d *RollingUpdateDeploymentDieMut) MaxSurge() diefields.OptionalMut[intstr.IntOrString] {
 	return diefields.OptionalMutOf(d, rollingUpdateDeploymentFields.Get().MaxSurge)
 }
 
 // RollingUpdateStatefulSetStrategy is used to communicate parameter for RollingUpdateStatefulSetStrategyType.
 //
 // RollingUpdateStatefulSetStrategyDie is immutable: it reads.
-// [RollingUpdateStatefulSetStrategyDieMut], its mutable die, also writes, as DieWith passes it.
+// [RollingUpdateStatefulSetStrategyDieMut], its mutable die, also writes, as DieStamp passes it.
 type RollingUpdateStatefulSetStrategyDie struct {
 	diebase.DieBase[RollingUpdateStatefulSetStrategy, *RollingUpdateStatefulSetStrategyDie, *RollingUpdateStatefulSetStrategyDieMut]
 }
@@ -1475,26 +1375,14 @@ func (d *RollingUpdateStatefulSetStrategyDieMut) DieReleaseApplyConfigurationE()
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *RollingUpdateStatefulSetStrategyDieMut) DieFeedApplyConfiguration(ac *RollingUpdateStatefulSetStrategyApplyConfiguration) *RollingUpdateStatefulSetStrategyDieMut {
+func (d *RollingUpdateStatefulSetStrategyDieMut) DieFeedApplyConfiguration(ac *RollingUpdateStatefulSetStrategyApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *RollingUpdateStatefulSetStrategyDieMut) DieStampApplyConfiguration(fn func(ac *RollingUpdateStatefulSetStrategyApplyConfiguration)) *RollingUpdateStatefulSetStrategyDieMut {
+func (d *RollingUpdateStatefulSetStrategyDieMut) DieStampApplyConfiguration(fn func(ac *RollingUpdateStatefulSetStrategyApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [RollingUpdateStatefulSetStrategyDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *RollingUpdateStatefulSetStrategyDieMut) DieFeedApplyConfigurationE(ac *RollingUpdateStatefulSetStrategyApplyConfiguration) (*RollingUpdateStatefulSetStrategyDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [RollingUpdateStatefulSetStrategyDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *RollingUpdateStatefulSetStrategyDieMut) DieStampApplyConfigurationE(fn func(ac *RollingUpdateStatefulSetStrategyApplyConfiguration)) (*RollingUpdateStatefulSetStrategyDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type rollingUpdateStatefulSetStrategyFieldsTable struct {
@@ -1532,7 +1420,7 @@ func (d *RollingUpdateStatefulSetStrategyDie) MaxUnavailable() diefields.Optiona
 // for updates. During a rolling update, all pods from ordinal Replicas-1 to
 // Partition are updated. All pods from ordinal Partition-1 to 0 remain untouched.
 // This is helpful in being able to do a canary based deployment. The default value is 0.
-func (d *RollingUpdateStatefulSetStrategyDieMut) Partition() diefields.OptionalMut[int32, *RollingUpdateStatefulSetStrategyDieMut] {
+func (d *RollingUpdateStatefulSetStrategyDieMut) Partition() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, rollingUpdateStatefulSetStrategyFields.Get().Partition)
 }
 
@@ -1543,14 +1431,14 @@ func (d *RollingUpdateStatefulSetStrategyDieMut) Partition() diefields.OptionalM
 // Replicas-1. That means if there is any unavailable pod in the range 0 to Replicas-1, it
 // will be counted towards MaxUnavailable.
 // This setting might not be effective for the OrderedReady podManagementPolicy. That policy ensures pods are created and become ready one at a time.
-func (d *RollingUpdateStatefulSetStrategyDieMut) MaxUnavailable() diefields.OptionalMut[intstr.IntOrString, *RollingUpdateStatefulSetStrategyDieMut] {
+func (d *RollingUpdateStatefulSetStrategyDieMut) MaxUnavailable() diefields.OptionalMut[intstr.IntOrString] {
 	return diefields.OptionalMutOf(d, rollingUpdateStatefulSetStrategyFields.Get().MaxUnavailable)
 }
 
 // Scale represents a scaling request for a resource.
 //
 // ScaleDie is immutable: it reads.
-// [ScaleDieMut], its mutable die, also writes, as DieWith passes it.
+// [ScaleDieMut], its mutable die, also writes, as DieStamp passes it.
 type ScaleDie struct {
 	diebase.DieObjectBase[Scale, *ScaleDie, *ScaleDieMut]
 }
@@ -1621,7 +1509,7 @@ func (d *ScaleDie) Status() *ScaleStatusDie { return diefields.Child(d, scaleFie
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *ScaleDieMut) Kind() diefields.ValueMut[string, *ScaleDieMut] {
+func (d *ScaleDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, scaleFields.Get().Kind)
 }
 
@@ -1629,7 +1517,7 @@ func (d *ScaleDieMut) Kind() diefields.ValueMut[string, *ScaleDieMut] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *ScaleDieMut) APIVersion() diefields.ValueMut[string, *ScaleDieMut] {
+func (d *ScaleDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, scaleFields.Get().APIVersion)
 }
 
@@ -1649,7 +1537,7 @@ func (d *ScaleDieMut) Status() *ScaleStatusDieMut {
 // ScaleSpec describes the attributes of a scale subresource
 //
 // ScaleSpecDie is immutable: it reads.
-// [ScaleSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [ScaleSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type ScaleSpecDie struct {
 	diebase.DieBase[ScaleSpec, *ScaleSpecDie, *ScaleSpecDieMut]
 }
@@ -1685,14 +1573,14 @@ func (d *ScaleSpecDie) Replicas() diefields.Value[int32] {
 }
 
 // replicas is the number of observed instances of the scaled object.
-func (d *ScaleSpecDieMut) Replicas() diefields.ValueMut[int32, *ScaleSpecDieMut] {
+func (d *ScaleSpecDieMut) Replicas() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, scaleSpecFields.Get().Replicas)
 }
 
 // ScaleStatus represents the current status of a scale subresource.
 //
 // ScaleStatusDie is immutable: it reads.
-// [ScaleStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [ScaleStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type ScaleStatusDie struct {
 	diebase.DieBase[ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut]
 }
@@ -1747,7 +1635,7 @@ func (d *ScaleStatusDie) TargetSelector() diefields.Value[string] {
 }
 
 // replias is the actual number of observed instances of the scaled object.
-func (d *ScaleStatusDieMut) Replicas() diefields.ValueMut[int32, *ScaleStatusDieMut] {
+func (d *ScaleStatusDieMut) Replicas() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, scaleStatusFields.Get().Replicas)
 }
 
@@ -1762,7 +1650,7 @@ func (d *ScaleStatusDieMut) Selector() *diefields.MapMut[string, string] {
 // query-param syntax. If the target type only supports map-based selectors, both this
 // field and map-based selector field are populated.
 // More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
-func (d *ScaleStatusDieMut) TargetSelector() diefields.ValueMut[string, *ScaleStatusDieMut] {
+func (d *ScaleStatusDieMut) TargetSelector() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, scaleStatusFields.Get().TargetSelector)
 }
 
@@ -1777,7 +1665,7 @@ func (d *ScaleStatusDieMut) TargetSelector() diefields.ValueMut[string, *ScaleSt
 // map to the same storage identity.
 //
 // StatefulSetDie is immutable: it reads.
-// [StatefulSetDieMut], its mutable die, also writes, as DieWith passes it.
+// [StatefulSetDieMut], its mutable die, also writes, as DieStamp passes it.
 type StatefulSetDie struct {
 	diebase.DieObjectBase[StatefulSet, *StatefulSetDie, *StatefulSetDieMut]
 }
@@ -1826,26 +1714,14 @@ func (d *StatefulSetDieMut) DieReleaseApplyConfigurationE() (*StatefulSetApplyCo
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *StatefulSetDieMut) DieFeedApplyConfiguration(ac *StatefulSetApplyConfiguration) *StatefulSetDieMut {
+func (d *StatefulSetDieMut) DieFeedApplyConfiguration(ac *StatefulSetApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *StatefulSetDieMut) DieStampApplyConfiguration(fn func(ac *StatefulSetApplyConfiguration)) *StatefulSetDieMut {
+func (d *StatefulSetDieMut) DieStampApplyConfiguration(fn func(ac *StatefulSetApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [StatefulSetDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StatefulSetDieMut) DieFeedApplyConfigurationE(ac *StatefulSetApplyConfiguration) (*StatefulSetDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [StatefulSetDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StatefulSetDieMut) DieStampApplyConfigurationE(fn func(ac *StatefulSetApplyConfiguration)) (*StatefulSetDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type statefulSetFieldsTable struct {
@@ -1903,7 +1779,7 @@ func (d *StatefulSetDie) Status() *StatefulSetStatusDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *StatefulSetDieMut) Kind() diefields.ValueMut[string, *StatefulSetDieMut] {
+func (d *StatefulSetDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, statefulSetFields.Get().Kind)
 }
 
@@ -1911,7 +1787,7 @@ func (d *StatefulSetDieMut) Kind() diefields.ValueMut[string, *StatefulSetDieMut
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *StatefulSetDieMut) APIVersion() diefields.ValueMut[string, *StatefulSetDieMut] {
+func (d *StatefulSetDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, statefulSetFields.Get().APIVersion)
 }
 
@@ -1933,7 +1809,7 @@ func (d *StatefulSetDieMut) Status() *StatefulSetStatusDieMut {
 // StatefulSetCondition describes the state of a statefulset at a certain point.
 //
 // StatefulSetConditionDie is immutable: it reads.
-// [StatefulSetConditionDieMut], its mutable die, also writes, as DieWith passes it.
+// [StatefulSetConditionDieMut], its mutable die, also writes, as DieStamp passes it.
 type StatefulSetConditionDie struct {
 	diebase.DieBase[StatefulSetCondition, *StatefulSetConditionDie, *StatefulSetConditionDieMut]
 }
@@ -1982,26 +1858,14 @@ func (d *StatefulSetConditionDieMut) DieReleaseApplyConfigurationE() (*StatefulS
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *StatefulSetConditionDieMut) DieFeedApplyConfiguration(ac *StatefulSetConditionApplyConfiguration) *StatefulSetConditionDieMut {
+func (d *StatefulSetConditionDieMut) DieFeedApplyConfiguration(ac *StatefulSetConditionApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *StatefulSetConditionDieMut) DieStampApplyConfiguration(fn func(ac *StatefulSetConditionApplyConfiguration)) *StatefulSetConditionDieMut {
+func (d *StatefulSetConditionDieMut) DieStampApplyConfiguration(fn func(ac *StatefulSetConditionApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [StatefulSetConditionDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StatefulSetConditionDieMut) DieFeedApplyConfigurationE(ac *StatefulSetConditionApplyConfiguration) (*StatefulSetConditionDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [StatefulSetConditionDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StatefulSetConditionDieMut) DieStampApplyConfigurationE(fn func(ac *StatefulSetConditionApplyConfiguration)) (*StatefulSetConditionDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type statefulSetConditionFieldsTable struct {
@@ -2048,27 +1912,27 @@ func (d *StatefulSetConditionDie) Message() diefields.Value[string] {
 }
 
 // Type of statefulset condition.
-func (d *StatefulSetConditionDieMut) Type() diefields.ValueMut[StatefulSetConditionType, *StatefulSetConditionDieMut] {
+func (d *StatefulSetConditionDieMut) Type() diefields.ValueMut[StatefulSetConditionType] {
 	return diefields.ValueMutOf(d, statefulSetConditionFields.Get().Type)
 }
 
 // Status of the condition, one of True, False, Unknown.
-func (d *StatefulSetConditionDieMut) Status() diefields.ValueMut[diecorev1.ConditionStatus, *StatefulSetConditionDieMut] {
+func (d *StatefulSetConditionDieMut) Status() diefields.ValueMut[diecorev1.ConditionStatus] {
 	return diefields.ValueMutOf(d, statefulSetConditionFields.Get().Status)
 }
 
 // Last time the condition transitioned from one status to another.
-func (d *StatefulSetConditionDieMut) LastTransitionTime() diefields.ValueMut[diemetav1.Time, *StatefulSetConditionDieMut] {
+func (d *StatefulSetConditionDieMut) LastTransitionTime() diefields.ValueMut[diemetav1.Time] {
 	return diefields.ValueMutOf(d, statefulSetConditionFields.Get().LastTransitionTime)
 }
 
 // The reason for the condition's last transition.
-func (d *StatefulSetConditionDieMut) Reason() diefields.ValueMut[string, *StatefulSetConditionDieMut] {
+func (d *StatefulSetConditionDieMut) Reason() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, statefulSetConditionFields.Get().Reason)
 }
 
 // A human readable message indicating details about the transition.
-func (d *StatefulSetConditionDieMut) Message() diefields.ValueMut[string, *StatefulSetConditionDieMut] {
+func (d *StatefulSetConditionDieMut) Message() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, statefulSetConditionFields.Get().Message)
 }
 
@@ -2076,8 +1940,6 @@ func (d *StatefulSetConditionDieMut) Message() diefields.ValueMut[string, *State
 type StatefulSetListDie struct {
 	dielists.List[*StatefulSetDieMut]
 }
-
-var _ dielists.DieListOf[*StatefulSetDieMut] = (*StatefulSetListDie)(nil)
 
 // NewStatefulSetList returns a list with items.
 func NewStatefulSetList(items ...*StatefulSetDieMut) *StatefulSetListDie {
@@ -2093,7 +1955,7 @@ func (l *StatefulSetListDie) DeepCopyObject() runtime.Object { return l.DeepCopy
 // in this StatefulSet.
 //
 // StatefulSetOrdinalsDie is immutable: it reads.
-// [StatefulSetOrdinalsDieMut], its mutable die, also writes, as DieWith passes it.
+// [StatefulSetOrdinalsDieMut], its mutable die, also writes, as DieStamp passes it.
 type StatefulSetOrdinalsDie struct {
 	diebase.DieBase[StatefulSetOrdinals, *StatefulSetOrdinalsDie, *StatefulSetOrdinalsDieMut]
 }
@@ -2142,26 +2004,14 @@ func (d *StatefulSetOrdinalsDieMut) DieReleaseApplyConfigurationE() (*StatefulSe
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *StatefulSetOrdinalsDieMut) DieFeedApplyConfiguration(ac *StatefulSetOrdinalsApplyConfiguration) *StatefulSetOrdinalsDieMut {
+func (d *StatefulSetOrdinalsDieMut) DieFeedApplyConfiguration(ac *StatefulSetOrdinalsApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *StatefulSetOrdinalsDieMut) DieStampApplyConfiguration(fn func(ac *StatefulSetOrdinalsApplyConfiguration)) *StatefulSetOrdinalsDieMut {
+func (d *StatefulSetOrdinalsDieMut) DieStampApplyConfiguration(fn func(ac *StatefulSetOrdinalsApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [StatefulSetOrdinalsDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StatefulSetOrdinalsDieMut) DieFeedApplyConfigurationE(ac *StatefulSetOrdinalsApplyConfiguration) (*StatefulSetOrdinalsDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [StatefulSetOrdinalsDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StatefulSetOrdinalsDieMut) DieStampApplyConfigurationE(fn func(ac *StatefulSetOrdinalsApplyConfiguration)) (*StatefulSetOrdinalsDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type statefulSetOrdinalsFieldsTable struct {
@@ -2200,7 +2050,7 @@ func (d *StatefulSetOrdinalsDie) Start() diefields.Value[int32] {
 // If unset, defaults to 0. Replica indices will be in the range:
 //
 //	[0, .spec.replicas).
-func (d *StatefulSetOrdinalsDieMut) Start() diefields.ValueMut[int32, *StatefulSetOrdinalsDieMut] {
+func (d *StatefulSetOrdinalsDieMut) Start() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, statefulSetOrdinalsFields.Get().Start)
 }
 
@@ -2208,7 +2058,7 @@ func (d *StatefulSetOrdinalsDieMut) Start() diefields.ValueMut[int32, *StatefulS
 // created from the StatefulSet VolumeClaimTemplates.
 //
 // StatefulSetPersistentVolumeClaimRetentionPolicyDie is immutable: it reads.
-// [StatefulSetPersistentVolumeClaimRetentionPolicyDieMut], its mutable die, also writes, as DieWith passes it.
+// [StatefulSetPersistentVolumeClaimRetentionPolicyDieMut], its mutable die, also writes, as DieStamp passes it.
 type StatefulSetPersistentVolumeClaimRetentionPolicyDie struct {
 	diebase.DieBase[StatefulSetPersistentVolumeClaimRetentionPolicy, *StatefulSetPersistentVolumeClaimRetentionPolicyDie, *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut]
 }
@@ -2257,26 +2107,14 @@ func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut) DieReleaseApplyC
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut) DieFeedApplyConfiguration(ac *StatefulSetPersistentVolumeClaimRetentionPolicyApplyConfiguration) *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut {
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut) DieFeedApplyConfiguration(ac *StatefulSetPersistentVolumeClaimRetentionPolicyApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut) DieStampApplyConfiguration(fn func(ac *StatefulSetPersistentVolumeClaimRetentionPolicyApplyConfiguration)) *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut {
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut) DieStampApplyConfiguration(fn func(ac *StatefulSetPersistentVolumeClaimRetentionPolicyApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [StatefulSetPersistentVolumeClaimRetentionPolicyDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut) DieFeedApplyConfigurationE(ac *StatefulSetPersistentVolumeClaimRetentionPolicyApplyConfiguration) (*StatefulSetPersistentVolumeClaimRetentionPolicyDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [StatefulSetPersistentVolumeClaimRetentionPolicyDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut) DieStampApplyConfigurationE(fn func(ac *StatefulSetPersistentVolumeClaimRetentionPolicyApplyConfiguration)) (*StatefulSetPersistentVolumeClaimRetentionPolicyDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type statefulSetPersistentVolumeClaimRetentionPolicyFieldsTable struct {
@@ -2312,7 +2150,7 @@ func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) WhenScaled() diefie
 // VolumeClaimTemplates when the StatefulSet is deleted. The default policy
 // of `Retain` causes PVCs to not be affected by StatefulSet deletion. The
 // `Delete` policy causes those PVCs to be deleted.
-func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut) WhenDeleted() diefields.ValueMut[PersistentVolumeClaimRetentionPolicyType, *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut] {
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut) WhenDeleted() diefields.ValueMut[PersistentVolumeClaimRetentionPolicyType] {
 	return diefields.ValueMutOf(d, statefulSetPersistentVolumeClaimRetentionPolicyFields.Get().WhenDeleted)
 }
 
@@ -2321,14 +2159,14 @@ func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut) WhenDeleted() di
 // policy of `Retain` causes PVCs to not be affected by a scaledown. The
 // `Delete` policy causes the associated PVCs for any excess pods above
 // the replica count to be deleted.
-func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut) WhenScaled() diefields.ValueMut[PersistentVolumeClaimRetentionPolicyType, *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut] {
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut) WhenScaled() diefields.ValueMut[PersistentVolumeClaimRetentionPolicyType] {
 	return diefields.ValueMutOf(d, statefulSetPersistentVolumeClaimRetentionPolicyFields.Get().WhenScaled)
 }
 
 // A StatefulSetSpec is the specification of a StatefulSet.
 //
 // StatefulSetSpecDie is immutable: it reads.
-// [StatefulSetSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [StatefulSetSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type StatefulSetSpecDie struct {
 	diebase.DieBase[StatefulSetSpec, *StatefulSetSpecDie, *StatefulSetSpecDieMut]
 }
@@ -2377,26 +2215,14 @@ func (d *StatefulSetSpecDieMut) DieReleaseApplyConfigurationE() (*StatefulSetSpe
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *StatefulSetSpecDieMut) DieFeedApplyConfiguration(ac *StatefulSetSpecApplyConfiguration) *StatefulSetSpecDieMut {
+func (d *StatefulSetSpecDieMut) DieFeedApplyConfiguration(ac *StatefulSetSpecApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *StatefulSetSpecDieMut) DieStampApplyConfiguration(fn func(ac *StatefulSetSpecApplyConfiguration)) *StatefulSetSpecDieMut {
+func (d *StatefulSetSpecDieMut) DieStampApplyConfiguration(fn func(ac *StatefulSetSpecApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [StatefulSetSpecDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StatefulSetSpecDieMut) DieFeedApplyConfigurationE(ac *StatefulSetSpecApplyConfiguration) (*StatefulSetSpecDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [StatefulSetSpecDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StatefulSetSpecDieMut) DieStampApplyConfigurationE(fn func(ac *StatefulSetSpecApplyConfiguration)) (*StatefulSetSpecDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type statefulSetSpecFieldsTable struct {
@@ -2531,7 +2357,7 @@ func (d *StatefulSetSpecDie) Ordinals() *StatefulSetOrdinalsDie {
 // same Template, but individual replicas also have a consistent identity.
 // If unspecified, defaults to 1.
 // TODO: Consider a rename of this field.
-func (d *StatefulSetSpecDieMut) Replicas() diefields.OptionalMut[int32, *StatefulSetSpecDieMut] {
+func (d *StatefulSetSpecDieMut) Replicas() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, statefulSetSpecFields.Get().Replicas)
 }
 
@@ -2559,7 +2385,7 @@ func (d *StatefulSetSpecDieMut) Template() *diecorev1.PodTemplateSpecDieMut {
 // container in the template. A claim in this list takes precedence over
 // any volumes in the template, with the same name.
 // TODO: Define the behavior if a claim already exists with the same name.
-func (d *StatefulSetSpecDieMut) VolumeClaimTemplates() diefields.ValueMut[[]diecorev1.PersistentVolumeClaim, *StatefulSetSpecDieMut] {
+func (d *StatefulSetSpecDieMut) VolumeClaimTemplates() diefields.ValueMut[[]diecorev1.PersistentVolumeClaim] {
 	return diefields.ValueMutOf(d, statefulSetSpecFields.Get().VolumeClaimTemplates)
 }
 
@@ -2568,7 +2394,7 @@ func (d *StatefulSetSpecDieMut) VolumeClaimTemplates() diefields.ValueMut[[]diec
 // the network identity of the set. Pods get DNS/hostnames that follow the
 // pattern: pod-specific-string.serviceName.default.svc.cluster.local
 // where "pod-specific-string" is managed by the StatefulSet controller.
-func (d *StatefulSetSpecDieMut) ServiceName() diefields.ValueMut[string, *StatefulSetSpecDieMut] {
+func (d *StatefulSetSpecDieMut) ServiceName() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, statefulSetSpecFields.Get().ServiceName)
 }
 
@@ -2580,7 +2406,7 @@ func (d *StatefulSetSpecDieMut) ServiceName() diefields.ValueMut[string, *Statef
 // The alternative policy is `Parallel` which will create pods in parallel
 // to match the desired scale without waiting, and on scale down will delete
 // all pods at once.
-func (d *StatefulSetSpecDieMut) PodManagementPolicy() diefields.ValueMut[PodManagementPolicyType, *StatefulSetSpecDieMut] {
+func (d *StatefulSetSpecDieMut) PodManagementPolicy() diefields.ValueMut[PodManagementPolicyType] {
 	return diefields.ValueMutOf(d, statefulSetSpecFields.Get().PodManagementPolicy)
 }
 
@@ -2595,14 +2421,14 @@ func (d *StatefulSetSpecDieMut) UpdateStrategy() *StatefulSetUpdateStrategyDieMu
 // be maintained in the StatefulSet's revision history. The revision history
 // consists of all revisions not represented by a currently applied
 // StatefulSetSpec version. The default value is 10.
-func (d *StatefulSetSpecDieMut) RevisionHistoryLimit() diefields.OptionalMut[int32, *StatefulSetSpecDieMut] {
+func (d *StatefulSetSpecDieMut) RevisionHistoryLimit() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, statefulSetSpecFields.Get().RevisionHistoryLimit)
 }
 
 // minReadySeconds is the minimum number of seconds for which a newly created pod should be ready
 // without any of its container crashing for it to be considered available.
 // Defaults to 0 (pod will be considered available as soon as it is ready)
-func (d *StatefulSetSpecDieMut) MinReadySeconds() diefields.ValueMut[int32, *StatefulSetSpecDieMut] {
+func (d *StatefulSetSpecDieMut) MinReadySeconds() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, statefulSetSpecFields.Get().MinReadySeconds)
 }
 
@@ -2626,7 +2452,7 @@ func (d *StatefulSetSpecDieMut) Ordinals() *StatefulSetOrdinalsDieMut {
 // StatefulSetStatus represents the current state of a StatefulSet.
 //
 // StatefulSetStatusDie is immutable: it reads.
-// [StatefulSetStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [StatefulSetStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type StatefulSetStatusDie struct {
 	diebase.DieBase[StatefulSetStatus, *StatefulSetStatusDie, *StatefulSetStatusDieMut]
 }
@@ -2675,26 +2501,14 @@ func (d *StatefulSetStatusDieMut) DieReleaseApplyConfigurationE() (*StatefulSetS
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *StatefulSetStatusDieMut) DieFeedApplyConfiguration(ac *StatefulSetStatusApplyConfiguration) *StatefulSetStatusDieMut {
+func (d *StatefulSetStatusDieMut) DieFeedApplyConfiguration(ac *StatefulSetStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *StatefulSetStatusDieMut) DieStampApplyConfiguration(fn func(ac *StatefulSetStatusApplyConfiguration)) *StatefulSetStatusDieMut {
+func (d *StatefulSetStatusDieMut) DieStampApplyConfiguration(fn func(ac *StatefulSetStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [StatefulSetStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StatefulSetStatusDieMut) DieFeedApplyConfigurationE(ac *StatefulSetStatusApplyConfiguration) (*StatefulSetStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [StatefulSetStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StatefulSetStatusDieMut) DieStampApplyConfigurationE(fn func(ac *StatefulSetStatusApplyConfiguration)) (*StatefulSetStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type statefulSetStatusFieldsTable struct {
@@ -2784,48 +2598,48 @@ func (d *StatefulSetStatusDie) AvailableReplicas() diefields.Value[int32] {
 
 // observedGeneration is the most recent generation observed for this StatefulSet. It corresponds to the
 // StatefulSet's generation, which is updated on mutation by the API Server.
-func (d *StatefulSetStatusDieMut) ObservedGeneration() diefields.OptionalMut[int64, *StatefulSetStatusDieMut] {
+func (d *StatefulSetStatusDieMut) ObservedGeneration() diefields.OptionalMut[int64] {
 	return diefields.OptionalMutOf(d, statefulSetStatusFields.Get().ObservedGeneration)
 }
 
 // replicas is the number of Pods created by the StatefulSet controller.
-func (d *StatefulSetStatusDieMut) Replicas() diefields.ValueMut[int32, *StatefulSetStatusDieMut] {
+func (d *StatefulSetStatusDieMut) Replicas() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, statefulSetStatusFields.Get().Replicas)
 }
 
 // readyReplicas is the number of pods created by this StatefulSet controller with a Ready Condition.
-func (d *StatefulSetStatusDieMut) ReadyReplicas() diefields.ValueMut[int32, *StatefulSetStatusDieMut] {
+func (d *StatefulSetStatusDieMut) ReadyReplicas() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, statefulSetStatusFields.Get().ReadyReplicas)
 }
 
 // currentReplicas is the number of Pods created by the StatefulSet controller from the StatefulSet version
 // indicated by currentRevision.
-func (d *StatefulSetStatusDieMut) CurrentReplicas() diefields.ValueMut[int32, *StatefulSetStatusDieMut] {
+func (d *StatefulSetStatusDieMut) CurrentReplicas() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, statefulSetStatusFields.Get().CurrentReplicas)
 }
 
 // updatedReplicas is the number of Pods created by the StatefulSet controller from the StatefulSet version
 // indicated by updateRevision.
-func (d *StatefulSetStatusDieMut) UpdatedReplicas() diefields.ValueMut[int32, *StatefulSetStatusDieMut] {
+func (d *StatefulSetStatusDieMut) UpdatedReplicas() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, statefulSetStatusFields.Get().UpdatedReplicas)
 }
 
 // currentRevision, if not empty, indicates the version of the StatefulSet used to generate Pods in the
 // sequence [0,currentReplicas).
-func (d *StatefulSetStatusDieMut) CurrentRevision() diefields.ValueMut[string, *StatefulSetStatusDieMut] {
+func (d *StatefulSetStatusDieMut) CurrentRevision() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, statefulSetStatusFields.Get().CurrentRevision)
 }
 
 // updateRevision, if not empty, indicates the version of the StatefulSet used to generate Pods in the sequence
 // [replicas-updatedReplicas,replicas)
-func (d *StatefulSetStatusDieMut) UpdateRevision() diefields.ValueMut[string, *StatefulSetStatusDieMut] {
+func (d *StatefulSetStatusDieMut) UpdateRevision() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, statefulSetStatusFields.Get().UpdateRevision)
 }
 
 // collisionCount is the count of hash collisions for the StatefulSet. The StatefulSet controller
 // uses this field as a collision avoidance mechanism when it needs to create the name for the
 // newest ControllerRevision.
-func (d *StatefulSetStatusDieMut) CollisionCount() diefields.OptionalMut[int32, *StatefulSetStatusDieMut] {
+func (d *StatefulSetStatusDieMut) CollisionCount() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, statefulSetStatusFields.Get().CollisionCount)
 }
 
@@ -2835,7 +2649,7 @@ func (d *StatefulSetStatusDieMut) Conditions() *diefields.ListMapMut[StatefulSet
 }
 
 // availableReplicas is the total number of available pods (ready for at least minReadySeconds) targeted by this StatefulSet.
-func (d *StatefulSetStatusDieMut) AvailableReplicas() diefields.ValueMut[int32, *StatefulSetStatusDieMut] {
+func (d *StatefulSetStatusDieMut) AvailableReplicas() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, statefulSetStatusFields.Get().AvailableReplicas)
 }
 
@@ -2844,7 +2658,7 @@ func (d *StatefulSetStatusDieMut) AvailableReplicas() diefields.ValueMut[int32, 
 // necessary to perform the update for the indicated strategy.
 //
 // StatefulSetUpdateStrategyDie is immutable: it reads.
-// [StatefulSetUpdateStrategyDieMut], its mutable die, also writes, as DieWith passes it.
+// [StatefulSetUpdateStrategyDieMut], its mutable die, also writes, as DieStamp passes it.
 type StatefulSetUpdateStrategyDie struct {
 	diebase.DieBase[StatefulSetUpdateStrategy, *StatefulSetUpdateStrategyDie, *StatefulSetUpdateStrategyDieMut]
 }
@@ -2893,26 +2707,14 @@ func (d *StatefulSetUpdateStrategyDieMut) DieReleaseApplyConfigurationE() (*Stat
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *StatefulSetUpdateStrategyDieMut) DieFeedApplyConfiguration(ac *StatefulSetUpdateStrategyApplyConfiguration) *StatefulSetUpdateStrategyDieMut {
+func (d *StatefulSetUpdateStrategyDieMut) DieFeedApplyConfiguration(ac *StatefulSetUpdateStrategyApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *StatefulSetUpdateStrategyDieMut) DieStampApplyConfiguration(fn func(ac *StatefulSetUpdateStrategyApplyConfiguration)) *StatefulSetUpdateStrategyDieMut {
+func (d *StatefulSetUpdateStrategyDieMut) DieStampApplyConfiguration(fn func(ac *StatefulSetUpdateStrategyApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [StatefulSetUpdateStrategyDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StatefulSetUpdateStrategyDieMut) DieFeedApplyConfigurationE(ac *StatefulSetUpdateStrategyApplyConfiguration) (*StatefulSetUpdateStrategyDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [StatefulSetUpdateStrategyDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StatefulSetUpdateStrategyDieMut) DieStampApplyConfigurationE(fn func(ac *StatefulSetUpdateStrategyApplyConfiguration)) (*StatefulSetUpdateStrategyDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type statefulSetUpdateStrategyFieldsTable struct {
@@ -2938,7 +2740,7 @@ func (d *StatefulSetUpdateStrategyDie) RollingUpdate() *RollingUpdateStatefulSet
 }
 
 // Type indicates the type of the StatefulSetUpdateStrategy.
-func (d *StatefulSetUpdateStrategyDieMut) Type() diefields.ValueMut[StatefulSetUpdateStrategyType, *StatefulSetUpdateStrategyDieMut] {
+func (d *StatefulSetUpdateStrategyDieMut) Type() diefields.ValueMut[StatefulSetUpdateStrategyType] {
 	return diefields.ValueMutOf(d, statefulSetUpdateStrategyFields.Get().Type)
 }
 

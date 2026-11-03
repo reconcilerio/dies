@@ -22,6 +22,7 @@ import (
 	resourcev1alpha3 "k8s.io/api/resource/v1alpha3"
 	dieresourcev1alpha3 "reconciler.io/dies/v2/apis/resource/v1alpha3"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dielists "reconciler.io/dies/v2/die/lists"
 	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
@@ -51,12 +52,14 @@ func TestDiesMatchTypes(t *testing.T) {
 	}
 }
 
-// typed and object dies have the methods of their interfaces
+// typed, object and list dies have the methods of their interfaces
 var (
 	_ dieobjects.DieObjectOf[dieresourcev1alpha3.DeviceTaintRule, *dieresourcev1alpha3.DeviceTaintRuleDie, *dieresourcev1alpha3.DeviceTaintRuleDieMut]                                  = (*dieresourcev1alpha3.DeviceTaintRuleDie)(nil)
 	_ dieobjects.DieObjectMutOf[dieresourcev1alpha3.DeviceTaintRule, *dieresourcev1alpha3.DeviceTaintRuleDie, *dieresourcev1alpha3.DeviceTaintRuleDieMut]                               = (*dieresourcev1alpha3.DeviceTaintRuleDieMut)(nil)
 	_ dieobjects.DieObjectOf[dieresourcev1alpha3.ResourcePoolStatusRequest, *dieresourcev1alpha3.ResourcePoolStatusRequestDie, *dieresourcev1alpha3.ResourcePoolStatusRequestDieMut]    = (*dieresourcev1alpha3.ResourcePoolStatusRequestDie)(nil)
 	_ dieobjects.DieObjectMutOf[dieresourcev1alpha3.ResourcePoolStatusRequest, *dieresourcev1alpha3.ResourcePoolStatusRequestDie, *dieresourcev1alpha3.ResourcePoolStatusRequestDieMut] = (*dieresourcev1alpha3.ResourcePoolStatusRequestDieMut)(nil)
+	_ dielists.DieListOf[*dieresourcev1alpha3.DeviceTaintRuleDieMut]                                                                                                                    = (*dieresourcev1alpha3.DeviceTaintRuleListDie)(nil)
+	_ dielists.DieListOf[*dieresourcev1alpha3.ResourcePoolStatusRequestDieMut]                                                                                                          = (*dieresourcev1alpha3.ResourcePoolStatusRequestListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

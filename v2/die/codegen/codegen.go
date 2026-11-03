@@ -24,6 +24,7 @@ import (
 	"slices"
 
 	"reconciler.io/dies/v2/die/base"
+	"reconciler.io/dies/v2/die/fields"
 	"reconciler.io/dies/v2/die/internal/core"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -136,6 +137,22 @@ func CheckManaged[T any]() error {
 // from their package's annotations.
 func Object[T any](apiVersion, kind string) {
 	core.SetIdentity(reflect.TypeFor[T](), apiVersion, kind)
+}
+
+// TypedBlank returns a blank with its type metadata tared into its base,
+// for the dies of object types whose type metadata isn't an inline TypeMeta,
+// which a literal can't set. It panics if the metadata can't be written, as
+// a broken die definition does.
+func TypedBlank[T any, D base.DieOf[T, D, M], M fields.DieTypedMutOf[T, D, M]](apiVersion, kind string) D {
+	return core.Must(base.Blank[T, D, M]().DieStampE(func(m M) error {
+		if err := m.APIVersion().Set(apiVersion); err != nil {
+			return err
+		}
+		if err := m.Kind().Set(kind); err != nil {
+			return err
+		}
+		return m.DieTare()
+	}))
 }
 
 // Annotate supplies die tags, keyed by Go field name, for a type whose

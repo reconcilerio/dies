@@ -22,6 +22,7 @@ import (
 	apiserverinternalv1alpha1 "k8s.io/api/apiserverinternal/v1alpha1"
 	dieapiserverinternalv1alpha1 "reconciler.io/dies/v2/apis/apiserverinternal/v1alpha1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dielists "reconciler.io/dies/v2/die/lists"
 	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
@@ -41,10 +42,11 @@ func TestDiesMatchTypes(t *testing.T) {
 	}
 }
 
-// typed and object dies have the methods of their interfaces
+// typed, object and list dies have the methods of their interfaces
 var (
 	_ dieobjects.DieObjectOf[dieapiserverinternalv1alpha1.StorageVersion, *dieapiserverinternalv1alpha1.StorageVersionDie, *dieapiserverinternalv1alpha1.StorageVersionDieMut]    = (*dieapiserverinternalv1alpha1.StorageVersionDie)(nil)
 	_ dieobjects.DieObjectMutOf[dieapiserverinternalv1alpha1.StorageVersion, *dieapiserverinternalv1alpha1.StorageVersionDie, *dieapiserverinternalv1alpha1.StorageVersionDieMut] = (*dieapiserverinternalv1alpha1.StorageVersionDieMut)(nil)
+	_ dielists.DieListOf[*dieapiserverinternalv1alpha1.StorageVersionDieMut]                                                                                                      = (*dieapiserverinternalv1alpha1.StorageVersionListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

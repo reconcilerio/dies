@@ -24,6 +24,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
+	"reconciler.io/dies/v2/die"
+	"reconciler.io/dies/v2/die/dietest"
 )
 
 // JSON merge patches: what a die sends is its intent against what it read,
@@ -40,7 +42,7 @@ func get(t *testing.T, ns string) *dieappsv1.DeploymentDie {
 
 func mergePatch(t *testing.T, d *dieappsv1.DeploymentDie) *dieappsv1.DeploymentDie {
 	t.Helper()
-	body, err := d.DieReleaseMergePatchE()
+	body, err := die.ReleaseMergePatchE(d)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -53,25 +55,25 @@ func mergePatch(t *testing.T, d *dieappsv1.DeploymentDie) *dieappsv1.DeploymentD
 
 func TestMergePatchCarriesOnlyIntent(t *testing.T) {
 	ns := namespace(t)
-	apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Labels().Set("tier", "web")
-		d.Spec().Replicas().Set(2)
-		d.Spec().Paused().Set(true)
-		d.Spec().MinReadySeconds().Set(5)
+	apply(t, deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Labels().Set("tier", "web"))
+		dietest.NoError(t, d.Spec().Replicas().Set(2))
+		dietest.NoError(t, d.Spec().Paused().Set(true))
+		dietest.NoError(t, d.Spec().MinReadySeconds().Set(5))
 	}), "app")
 	read := get(t, ns)
 
 	// another writer changes the object after it was read
-	other := identity(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Labels().Set("team", "a")
+	other := identity(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Labels().Set("team", "a"))
 	})
 	apply(t, other, "other")
 
-	got := mergePatch(t, read.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Spec().Replicas().Set(0)
-		d.Spec().Paused().Set(false)
-		d.Spec().MinReadySeconds().Clear()
-		d.Metadata().Labels().Remove("tier")
+	got := mergePatch(t, read.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Spec().Replicas().Set(0))
+		dietest.NoError(t, d.Spec().Paused().Set(false))
+		dietest.NoError(t, d.Spec().MinReadySeconds().Clear())
+		dietest.NoError(t, d.Metadata().Labels().Remove("tier"))
 	}))
 
 	if r := got.Spec().Replicas().Ptr(); r == nil || *r != 0 {
@@ -96,12 +98,12 @@ func TestMergePatchCarriesOnlyIntent(t *testing.T) {
 // has it, from what it read: the other elements are kept, as they were.
 func TestMergePatchSendsListsWhole(t *testing.T) {
 	ns := namespace(t)
-	apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Spec().Template().Spec().Containers().At("sidecar").Image().Set("sidecar:1")
+	apply(t, deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("sidecar").Image().Set("sidecar:1"))
 	}), "app")
 
-	got := mergePatch(t, get(t, ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Spec().Template().Spec().Containers().At("app").Image().Set("app:2")
+	got := mergePatch(t, get(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:2"))
 	}))
 	containers := got.Spec().Template().Spec().Containers()
 	if containers.At("app").Image().Get() != "app:2" || containers.At("sidecar").Image().Get() != "sidecar:1" {
@@ -119,26 +121,26 @@ func TestMergePatchSendsListsWhole(t *testing.T) {
 func TestMergePatchSteps(t *testing.T) {
 	ns := namespace(t)
 	ctx := context.Background()
-	apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Labels().Set("canary", "true")
-		d.Spec().Replicas().Set(2)
+	apply(t, deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Labels().Set("canary", "true"))
+		dietest.NoError(t, d.Spec().Replicas().Set(2))
 	}), "app")
 
-	current, err := dieappsv1.DeploymentBlank.DieWithE(func(d *dieappsv1.DeploymentDieMut) error {
+	current, err := dieappsv1.DeploymentBlank.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
 		return dies.Get(ctx, keyOf(ns, "web"), d)
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	update := current.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Spec().Replicas().Set(0)
-		d.Metadata().Labels().Remove("canary")
+	update := current.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Spec().Replicas().Set(0))
+		dietest.NoError(t, d.Metadata().Labels().Remove("canary"))
 	})
-	body, err := update.DieReleaseMergePatchE()
+	body, err := die.ReleaseMergePatchE(update)
 	if err != nil {
 		t.Fatal(err)
 	}
-	patched, err := current.DieWithE(func(d *dieappsv1.DeploymentDieMut) error {
+	patched, err := current.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
 		return dies.Patch(ctx, d, client.RawPatch(types.MergePatchType, body))
 	})
 	if err != nil {

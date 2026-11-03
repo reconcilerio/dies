@@ -34,7 +34,7 @@ import (
 // Overhead structure represents the resource overhead associated with running a pod.
 //
 // OverheadDie is immutable: it reads.
-// [OverheadDieMut], its mutable die, also writes, as DieWith passes it.
+// [OverheadDieMut], its mutable die, also writes, as DieStamp passes it.
 type OverheadDie struct {
 	diebase.DieBase[Overhead, *OverheadDie, *OverheadDieMut]
 }
@@ -83,26 +83,14 @@ func (d *OverheadDieMut) DieReleaseApplyConfigurationE() (*OverheadApplyConfigur
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *OverheadDieMut) DieFeedApplyConfiguration(ac *OverheadApplyConfiguration) *OverheadDieMut {
+func (d *OverheadDieMut) DieFeedApplyConfiguration(ac *OverheadApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *OverheadDieMut) DieStampApplyConfiguration(fn func(ac *OverheadApplyConfiguration)) *OverheadDieMut {
+func (d *OverheadDieMut) DieStampApplyConfiguration(fn func(ac *OverheadApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [OverheadDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *OverheadDieMut) DieFeedApplyConfigurationE(ac *OverheadApplyConfiguration) (*OverheadDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [OverheadDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *OverheadDieMut) DieStampApplyConfigurationE(fn func(ac *OverheadApplyConfiguration)) (*OverheadDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type overheadFieldsTable struct {
@@ -134,7 +122,7 @@ func (d *OverheadDieMut) PodFixed() *diefields.MapMut[diecorev1.ResourceName, re
 // https://git.k8s.io/enhancements/keps/sig-node/585-runtime-class
 //
 // RuntimeClassDie is immutable: it reads.
-// [RuntimeClassDieMut], its mutable die, also writes, as DieWith passes it.
+// [RuntimeClassDieMut], its mutable die, also writes, as DieStamp passes it.
 type RuntimeClassDie struct {
 	diebase.DieObjectBase[RuntimeClass, *RuntimeClassDie, *RuntimeClassDieMut]
 }
@@ -183,26 +171,14 @@ func (d *RuntimeClassDieMut) DieReleaseApplyConfigurationE() (*RuntimeClassApply
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *RuntimeClassDieMut) DieFeedApplyConfiguration(ac *RuntimeClassApplyConfiguration) *RuntimeClassDieMut {
+func (d *RuntimeClassDieMut) DieFeedApplyConfiguration(ac *RuntimeClassApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *RuntimeClassDieMut) DieStampApplyConfiguration(fn func(ac *RuntimeClassApplyConfiguration)) *RuntimeClassDieMut {
+func (d *RuntimeClassDieMut) DieStampApplyConfiguration(fn func(ac *RuntimeClassApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [RuntimeClassDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *RuntimeClassDieMut) DieFeedApplyConfigurationE(ac *RuntimeClassApplyConfiguration) (*RuntimeClassDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [RuntimeClassDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *RuntimeClassDieMut) DieStampApplyConfigurationE(fn func(ac *RuntimeClassApplyConfiguration)) (*RuntimeClassDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type runtimeClassFieldsTable struct {
@@ -255,7 +231,7 @@ func (d *RuntimeClassDie) Spec() *RuntimeClassSpecDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *RuntimeClassDieMut) Kind() diefields.ValueMut[string, *RuntimeClassDieMut] {
+func (d *RuntimeClassDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, runtimeClassFields.Get().Kind)
 }
 
@@ -263,7 +239,7 @@ func (d *RuntimeClassDieMut) Kind() diefields.ValueMut[string, *RuntimeClassDieM
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *RuntimeClassDieMut) APIVersion() diefields.ValueMut[string, *RuntimeClassDieMut] {
+func (d *RuntimeClassDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, runtimeClassFields.Get().APIVersion)
 }
 
@@ -284,8 +260,6 @@ type RuntimeClassListDie struct {
 	dielists.List[*RuntimeClassDieMut]
 }
 
-var _ dielists.DieListOf[*RuntimeClassDieMut] = (*RuntimeClassListDie)(nil)
-
 // NewRuntimeClassList returns a list with items.
 func NewRuntimeClassList(items ...*RuntimeClassDieMut) *RuntimeClassListDie {
 	return &RuntimeClassListDie{dielists.NewList("node.k8s.io/v1alpha1", "RuntimeClassList", items...)}
@@ -304,7 +278,7 @@ func (l *RuntimeClassListDie) DeepCopyObject() runtime.Object { return l.DeepCop
 // understand how the pod will be run. The RuntimeClassSpec is immutable.
 //
 // RuntimeClassSpecDie is immutable: it reads.
-// [RuntimeClassSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [RuntimeClassSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type RuntimeClassSpecDie struct {
 	diebase.DieBase[RuntimeClassSpec, *RuntimeClassSpecDie, *RuntimeClassSpecDieMut]
 }
@@ -353,26 +327,14 @@ func (d *RuntimeClassSpecDieMut) DieReleaseApplyConfigurationE() (*RuntimeClassS
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *RuntimeClassSpecDieMut) DieFeedApplyConfiguration(ac *RuntimeClassSpecApplyConfiguration) *RuntimeClassSpecDieMut {
+func (d *RuntimeClassSpecDieMut) DieFeedApplyConfiguration(ac *RuntimeClassSpecApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *RuntimeClassSpecDieMut) DieStampApplyConfiguration(fn func(ac *RuntimeClassSpecApplyConfiguration)) *RuntimeClassSpecDieMut {
+func (d *RuntimeClassSpecDieMut) DieStampApplyConfiguration(fn func(ac *RuntimeClassSpecApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [RuntimeClassSpecDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *RuntimeClassSpecDieMut) DieFeedApplyConfigurationE(ac *RuntimeClassSpecApplyConfiguration) (*RuntimeClassSpecDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [RuntimeClassSpecDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *RuntimeClassSpecDieMut) DieStampApplyConfigurationE(fn func(ac *RuntimeClassSpecApplyConfiguration)) (*RuntimeClassSpecDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type runtimeClassSpecFieldsTable struct {
@@ -428,7 +390,7 @@ func (d *RuntimeClassSpecDie) Scheduling() *SchedulingDie {
 // in a pod.
 // The runtimeHandler must be lowercase, conform to the DNS Label (RFC 1123)
 // requirements, and is immutable.
-func (d *RuntimeClassSpecDieMut) RuntimeHandler() diefields.ValueMut[string, *RuntimeClassSpecDieMut] {
+func (d *RuntimeClassSpecDieMut) RuntimeHandler() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, runtimeClassSpecFields.Get().RuntimeHandler)
 }
 
@@ -451,7 +413,7 @@ func (d *RuntimeClassSpecDieMut) Scheduling() *SchedulingDieMut {
 // RuntimeClass.
 //
 // SchedulingDie is immutable: it reads.
-// [SchedulingDieMut], its mutable die, also writes, as DieWith passes it.
+// [SchedulingDieMut], its mutable die, also writes, as DieStamp passes it.
 type SchedulingDie struct {
 	diebase.DieBase[Scheduling, *SchedulingDie, *SchedulingDieMut]
 }
@@ -500,26 +462,14 @@ func (d *SchedulingDieMut) DieReleaseApplyConfigurationE() (*SchedulingApplyConf
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *SchedulingDieMut) DieFeedApplyConfiguration(ac *SchedulingApplyConfiguration) *SchedulingDieMut {
+func (d *SchedulingDieMut) DieFeedApplyConfiguration(ac *SchedulingApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *SchedulingDieMut) DieStampApplyConfiguration(fn func(ac *SchedulingApplyConfiguration)) *SchedulingDieMut {
+func (d *SchedulingDieMut) DieStampApplyConfiguration(fn func(ac *SchedulingApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [SchedulingDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *SchedulingDieMut) DieFeedApplyConfigurationE(ac *SchedulingApplyConfiguration) (*SchedulingDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [SchedulingDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *SchedulingDieMut) DieStampApplyConfigurationE(fn func(ac *SchedulingApplyConfiguration)) (*SchedulingDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type schedulingFieldsTable struct {
@@ -555,14 +505,14 @@ func (d *SchedulingDie) Tolerations() diefields.Value[[]diecorev1.Toleration] {
 // node matched by this selector. The RuntimeClass nodeSelector is merged
 // with a pod's existing nodeSelector. Any conflicts will cause the pod to
 // be rejected in admission.
-func (d *SchedulingDieMut) NodeSelector() diefields.ValueMut[map[string]string, *SchedulingDieMut] {
+func (d *SchedulingDieMut) NodeSelector() diefields.ValueMut[map[string]string] {
 	return diefields.ValueMutOf(d, schedulingFields.Get().NodeSelector)
 }
 
 // tolerations are appended (excluding duplicates) to pods running with this
 // RuntimeClass during admission, effectively unioning the set of nodes
 // tolerated by the pod and the RuntimeClass.
-func (d *SchedulingDieMut) Tolerations() diefields.ValueMut[[]diecorev1.Toleration, *SchedulingDieMut] {
+func (d *SchedulingDieMut) Tolerations() diefields.ValueMut[[]diecorev1.Toleration] {
 	return diefields.ValueMutOf(d, schedulingFields.Get().Tolerations)
 }
 

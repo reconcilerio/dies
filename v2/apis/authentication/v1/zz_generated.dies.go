@@ -32,7 +32,7 @@ import (
 // BoundObjectReference is a reference to an object that a token is bound to.
 //
 // BoundObjectReferenceDie is immutable: it reads.
-// [BoundObjectReferenceDieMut], its mutable die, also writes, as DieWith passes it.
+// [BoundObjectReferenceDieMut], its mutable die, also writes, as DieStamp passes it.
 type BoundObjectReferenceDie struct {
 	diebase.DieBase[BoundObjectReference, *BoundObjectReferenceDie, *BoundObjectReferenceDieMut]
 }
@@ -91,22 +91,22 @@ func (d *BoundObjectReferenceDie) UID() diefields.Value[types.UID] {
 
 // kind of the referent. Valid kinds are 'Pod', 'Secret', 'Node',
 // 'ValidatingWebhookConfiguration', and 'MutatingWebhookConfiguration'.
-func (d *BoundObjectReferenceDieMut) Kind() diefields.ValueMut[string, *BoundObjectReferenceDieMut] {
+func (d *BoundObjectReferenceDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, boundObjectReferenceFields.Get().Kind)
 }
 
 // apiVersion is API version of the referent.
-func (d *BoundObjectReferenceDieMut) APIVersion() diefields.ValueMut[string, *BoundObjectReferenceDieMut] {
+func (d *BoundObjectReferenceDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, boundObjectReferenceFields.Get().APIVersion)
 }
 
 // name of the referent.
-func (d *BoundObjectReferenceDieMut) Name() diefields.ValueMut[string, *BoundObjectReferenceDieMut] {
+func (d *BoundObjectReferenceDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, boundObjectReferenceFields.Get().Name)
 }
 
 // uid of the referent.
-func (d *BoundObjectReferenceDieMut) UID() diefields.ValueMut[types.UID, *BoundObjectReferenceDieMut] {
+func (d *BoundObjectReferenceDieMut) UID() diefields.ValueMut[types.UID] {
 	return diefields.ValueMutOf(d, boundObjectReferenceFields.Get().UID)
 }
 
@@ -115,7 +115,7 @@ func (d *BoundObjectReferenceDieMut) UID() diefields.ValueMut[types.UID, *BoundO
 // request header authentication is used, any extra keys will have their case ignored and returned as lowercase.
 //
 // SelfSubjectReviewDie is immutable: it reads.
-// [SelfSubjectReviewDieMut], its mutable die, also writes, as DieWith passes it.
+// [SelfSubjectReviewDieMut], its mutable die, also writes, as DieStamp passes it.
 type SelfSubjectReviewDie struct {
 	diebase.DieObjectBase[SelfSubjectReview, *SelfSubjectReviewDie, *SelfSubjectReviewDieMut]
 }
@@ -184,7 +184,7 @@ func (d *SelfSubjectReviewDie) Status() *SelfSubjectReviewStatusDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *SelfSubjectReviewDieMut) Kind() diefields.ValueMut[string, *SelfSubjectReviewDieMut] {
+func (d *SelfSubjectReviewDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, selfSubjectReviewFields.Get().Kind)
 }
 
@@ -192,7 +192,7 @@ func (d *SelfSubjectReviewDieMut) Kind() diefields.ValueMut[string, *SelfSubject
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *SelfSubjectReviewDieMut) APIVersion() diefields.ValueMut[string, *SelfSubjectReviewDieMut] {
+func (d *SelfSubjectReviewDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, selfSubjectReviewFields.Get().APIVersion)
 }
 
@@ -210,7 +210,7 @@ func (d *SelfSubjectReviewDieMut) Status() *SelfSubjectReviewStatusDieMut {
 // SelfSubjectReviewStatus is filled by the kube-apiserver and sent back to a user.
 //
 // SelfSubjectReviewStatusDie is immutable: it reads.
-// [SelfSubjectReviewStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [SelfSubjectReviewStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type SelfSubjectReviewStatusDie struct {
 	diebase.DieBase[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut]
 }
@@ -253,7 +253,7 @@ func (d *SelfSubjectReviewStatusDieMut) UserInfo() *UserInfoDieMut {
 // TokenRequest requests a token for a given service account.
 //
 // TokenRequestDie is immutable: it reads.
-// [TokenRequestDieMut], its mutable die, also writes, as DieWith passes it.
+// [TokenRequestDieMut], its mutable die, also writes, as DieStamp passes it.
 type TokenRequestDie struct {
 	diebase.DieObjectBase[TokenRequest, *TokenRequestDie, *TokenRequestDieMut]
 }
@@ -329,7 +329,7 @@ func (d *TokenRequestDie) Status() *TokenRequestStatusDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *TokenRequestDieMut) Kind() diefields.ValueMut[string, *TokenRequestDieMut] {
+func (d *TokenRequestDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, tokenRequestFields.Get().Kind)
 }
 
@@ -337,7 +337,7 @@ func (d *TokenRequestDieMut) Kind() diefields.ValueMut[string, *TokenRequestDieM
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *TokenRequestDieMut) APIVersion() diefields.ValueMut[string, *TokenRequestDieMut] {
+func (d *TokenRequestDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, tokenRequestFields.Get().APIVersion)
 }
 
@@ -360,7 +360,7 @@ func (d *TokenRequestDieMut) Status() *TokenRequestStatusDieMut {
 // TokenRequestSpec contains client provided parameters of a token request.
 //
 // TokenRequestSpecDie is immutable: it reads.
-// [TokenRequestSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [TokenRequestSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type TokenRequestSpecDie struct {
 	diebase.DieBase[TokenRequestSpec, *TokenRequestSpecDie, *TokenRequestSpecDieMut]
 }
@@ -437,14 +437,14 @@ func (d *TokenRequestSpecDie) Attestations() *diefields.Map[string, AttestationV
 // token issued for multiple audiences may be used to authenticate
 // against any of the audiences listed but implies a high degree of
 // trust between the target audiences.
-func (d *TokenRequestSpecDieMut) Audiences() diefields.ValueMut[[]string, *TokenRequestSpecDieMut] {
+func (d *TokenRequestSpecDieMut) Audiences() diefields.ValueMut[[]string] {
 	return diefields.ValueMutOf(d, tokenRequestSpecFields.Get().Audiences)
 }
 
 // expirationSeconds is the requested duration of validity of the request. The
 // token issuer may return a token with a different validity duration so a
 // client needs to check the 'expiration' field in a response.
-func (d *TokenRequestSpecDieMut) ExpirationSeconds() diefields.OptionalMut[int64, *TokenRequestSpecDieMut] {
+func (d *TokenRequestSpecDieMut) ExpirationSeconds() diefields.OptionalMut[int64] {
 	return diefields.OptionalMutOf(d, tokenRequestSpecFields.Get().ExpirationSeconds)
 }
 
@@ -469,7 +469,7 @@ func (d *TokenRequestSpecDieMut) Attestations() *diefields.MapMut[string, Attest
 // TokenRequestStatus is the result of a token request.
 //
 // TokenRequestStatusDie is immutable: it reads.
-// [TokenRequestStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [TokenRequestStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type TokenRequestStatusDie struct {
 	diebase.DieBase[TokenRequestStatus, *TokenRequestStatusDie, *TokenRequestStatusDieMut]
 }
@@ -512,12 +512,12 @@ func (d *TokenRequestStatusDie) ExpirationTimestamp() diefields.Value[diemetav1.
 }
 
 // token is the opaque bearer token.
-func (d *TokenRequestStatusDieMut) Token() diefields.ValueMut[string, *TokenRequestStatusDieMut] {
+func (d *TokenRequestStatusDieMut) Token() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, tokenRequestStatusFields.Get().Token)
 }
 
 // expirationTimestamp is the time of expiration of the returned token.
-func (d *TokenRequestStatusDieMut) ExpirationTimestamp() diefields.ValueMut[diemetav1.Time, *TokenRequestStatusDieMut] {
+func (d *TokenRequestStatusDieMut) ExpirationTimestamp() diefields.ValueMut[diemetav1.Time] {
 	return diefields.ValueMutOf(d, tokenRequestStatusFields.Get().ExpirationTimestamp)
 }
 
@@ -526,7 +526,7 @@ func (d *TokenRequestStatusDieMut) ExpirationTimestamp() diefields.ValueMut[diem
 // plugin in the kube-apiserver.
 //
 // TokenReviewDie is immutable: it reads.
-// [TokenReviewDieMut], its mutable die, also writes, as DieWith passes it.
+// [TokenReviewDieMut], its mutable die, also writes, as DieStamp passes it.
 type TokenReviewDie struct {
 	diebase.DieObjectBase[TokenReview, *TokenReviewDie, *TokenReviewDieMut]
 }
@@ -602,7 +602,7 @@ func (d *TokenReviewDie) Status() *TokenReviewStatusDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *TokenReviewDieMut) Kind() diefields.ValueMut[string, *TokenReviewDieMut] {
+func (d *TokenReviewDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, tokenReviewFields.Get().Kind)
 }
 
@@ -610,7 +610,7 @@ func (d *TokenReviewDieMut) Kind() diefields.ValueMut[string, *TokenReviewDieMut
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *TokenReviewDieMut) APIVersion() diefields.ValueMut[string, *TokenReviewDieMut] {
+func (d *TokenReviewDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, tokenReviewFields.Get().APIVersion)
 }
 
@@ -633,7 +633,7 @@ func (d *TokenReviewDieMut) Status() *TokenReviewStatusDieMut {
 // TokenReviewSpec is a description of the token authentication request.
 //
 // TokenReviewSpecDie is immutable: it reads.
-// [TokenReviewSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [TokenReviewSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type TokenReviewSpecDie struct {
 	diebase.DieBase[TokenReviewSpec, *TokenReviewSpecDie, *TokenReviewSpecDieMut]
 }
@@ -680,7 +680,7 @@ func (d *TokenReviewSpecDie) Audiences() diefields.Value[[]string] {
 }
 
 // token is the opaque bearer token.
-func (d *TokenReviewSpecDieMut) Token() diefields.ValueMut[string, *TokenReviewSpecDieMut] {
+func (d *TokenReviewSpecDieMut) Token() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, tokenReviewSpecFields.Get().Token)
 }
 
@@ -689,14 +689,14 @@ func (d *TokenReviewSpecDieMut) Token() diefields.ValueMut[string, *TokenReviewS
 // verify that the token was intended for at least one of the audiences in
 // this list. If no audiences are provided, the audience will default to the
 // audience of the Kubernetes apiserver.
-func (d *TokenReviewSpecDieMut) Audiences() diefields.ValueMut[[]string, *TokenReviewSpecDieMut] {
+func (d *TokenReviewSpecDieMut) Audiences() diefields.ValueMut[[]string] {
 	return diefields.ValueMutOf(d, tokenReviewSpecFields.Get().Audiences)
 }
 
 // TokenReviewStatus is the result of the token authentication request.
 //
 // TokenReviewStatusDie is immutable: it reads.
-// [TokenReviewStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [TokenReviewStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type TokenReviewStatusDie struct {
 	diebase.DieBase[TokenReviewStatus, *TokenReviewStatusDie, *TokenReviewStatusDieMut]
 }
@@ -761,7 +761,7 @@ func (d *TokenReviewStatusDie) Error() diefields.Value[string] {
 }
 
 // authenticated indicates that the token was associated with a known user.
-func (d *TokenReviewStatusDieMut) Authenticated() diefields.ValueMut[bool, *TokenReviewStatusDieMut] {
+func (d *TokenReviewStatusDieMut) Authenticated() diefields.ValueMut[bool] {
 	return diefields.ValueMutOf(d, tokenReviewStatusFields.Get().Authenticated)
 }
 
@@ -779,12 +779,12 @@ func (d *TokenReviewStatusDieMut) User() *UserInfoDieMut {
 // server is audience aware. If a TokenReview returns an empty
 // status.audience field where status.authenticated is "true", the token is
 // valid against the audience of the Kubernetes API server.
-func (d *TokenReviewStatusDieMut) Audiences() diefields.ValueMut[[]string, *TokenReviewStatusDieMut] {
+func (d *TokenReviewStatusDieMut) Audiences() diefields.ValueMut[[]string] {
 	return diefields.ValueMutOf(d, tokenReviewStatusFields.Get().Audiences)
 }
 
 // error indicates that the token couldn't be checked
-func (d *TokenReviewStatusDieMut) Error() diefields.ValueMut[string, *TokenReviewStatusDieMut] {
+func (d *TokenReviewStatusDieMut) Error() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, tokenReviewStatusFields.Get().Error)
 }
 
@@ -792,7 +792,7 @@ func (d *TokenReviewStatusDieMut) Error() diefields.ValueMut[string, *TokenRevie
 // user.Info interface.
 //
 // UserInfoDie is immutable: it reads.
-// [UserInfoDieMut], its mutable die, also writes, as DieWith passes it.
+// [UserInfoDieMut], its mutable die, also writes, as DieStamp passes it.
 type UserInfoDie struct {
 	diebase.DieBase[UserInfo, *UserInfoDie, *UserInfoDieMut]
 }
@@ -851,19 +851,19 @@ func (d *UserInfoDie) Extra() *diefields.Map[string, ExtraValue] {
 }
 
 // username is the name that uniquely identifies this user among all active users.
-func (d *UserInfoDieMut) Username() diefields.ValueMut[string, *UserInfoDieMut] {
+func (d *UserInfoDieMut) Username() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, userInfoFields.Get().Username)
 }
 
 // uid is a unique value that identifies this user across time. If this user is
 // deleted and another user by the same name is added, they will have
 // different UIDs.
-func (d *UserInfoDieMut) UID() diefields.ValueMut[string, *UserInfoDieMut] {
+func (d *UserInfoDieMut) UID() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, userInfoFields.Get().UID)
 }
 
 // groups is the names of groups this user is a part of.
-func (d *UserInfoDieMut) Groups() diefields.ValueMut[[]string, *UserInfoDieMut] {
+func (d *UserInfoDieMut) Groups() diefields.ValueMut[[]string] {
 	return diefields.ValueMutOf(d, userInfoFields.Get().Groups)
 }
 

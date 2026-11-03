@@ -82,34 +82,23 @@ func (l *ListMap[C, CD, K]) HasE(k K) (bool, error) {
 }
 
 // write writes through the list, returning it.
-func (l *ListMapMut[C, CDM, K]) write(rel base.Path, o core.Op, union bool) (*ListMapMut[C, CDM, K], error) {
-	if _, err := l.h.Write(l.at, rel, core.SetOp(o, reflect.Value{}), union); err != nil {
-		return nil, err
-	}
-	return l, nil
+func (l *ListMapMut[C, CDM, K]) write(rel base.Path, o core.Op, union bool) error {
+	_, err := l.h.Write(l.at, rel, core.SetOp(o, reflect.Value{}), union)
+	return err
 }
 
 // Remove removes the element with key k.
-func (l *ListMapMut[C, CDM, K]) Remove(k K) *ListMapMut[C, CDM, K] { return core.Must(l.RemoveE(k)) }
-
-// RemoveE is [ListMapMut.Remove], returning an error rather than panicking.
-func (l *ListMapMut[C, CDM, K]) RemoveE(k K) (*ListMapMut[C, CDM, K], error) {
+func (l *ListMapMut[C, CDM, K]) Remove(k K) error {
 	return l.write(base.Path{l.step(k)}, core.OpClear, false)
 }
 
 // Clear removes the list: null in patches.
-func (l *ListMapMut[C, CDM, K]) Clear() *ListMapMut[C, CDM, K] { return core.Must(l.ClearE()) }
-
-// ClearE is [ListMapMut.Clear], returning an error rather than panicking.
-func (l *ListMapMut[C, CDM, K]) ClearE() (*ListMapMut[C, CDM, K], error) {
+func (l *ListMapMut[C, CDM, K]) Clear() error {
 	return l.write(nil, core.OpClear, false)
 }
 
 // Empty sets the list to present and empty: [] in patches.
-func (l *ListMapMut[C, CDM, K]) Empty() *ListMapMut[C, CDM, K] { return core.Must(l.EmptyE()) }
-
-// EmptyE is [ListMapMut.Empty], returning an error rather than panicking.
-func (l *ListMapMut[C, CDM, K]) EmptyE() (*ListMapMut[C, CDM, K], error) {
+func (l *ListMapMut[C, CDM, K]) Empty() error {
 	return l.write(nil, core.OpEmpty, true)
 }
 
@@ -196,42 +185,28 @@ func (m *Map[K, V]) Has(k K) bool { return core.Must(m.HasE(k)) }
 func (m *Map[K, V]) HasE(k K) (bool, error) { return m.h.Has(m.entry(k)) }
 
 // write writes through the map, returning it.
-func (m *MapMut[K, V]) write(rel base.Path, o core.Op, v reflect.Value, union bool) (*MapMut[K, V], error) {
-	if _, err := m.h.Write(m.at, rel, core.SetOp(o, v), union); err != nil {
-		return nil, err
-	}
-	return m, nil
+func (m *MapMut[K, V]) write(rel base.Path, o core.Op, v reflect.Value, union bool) error {
+	_, err := m.h.Write(m.at, rel, core.SetOp(o, v), union)
+	return err
 }
 
 // Set sets the value for key k.
-func (m *MapMut[K, V]) Set(k K, v V) *MapMut[K, V] { return core.Must(m.SetE(k, v)) }
-
-// SetE is [MapMut.Set], returning an error rather than panicking.
-func (m *MapMut[K, V]) SetE(k K, v V) (*MapMut[K, V], error) {
+func (m *MapMut[K, V]) Set(k K, v V) error {
 	return m.write(base.Path{core.MapKeyStep(string(k))}, core.OpSet, core.DeepCopy(reflect.ValueOf(&v).Elem()), true)
 }
 
 // Remove removes key k.
-func (m *MapMut[K, V]) Remove(k K) *MapMut[K, V] { return core.Must(m.RemoveE(k)) }
-
-// RemoveE is [MapMut.Remove], returning an error rather than panicking.
-func (m *MapMut[K, V]) RemoveE(k K) (*MapMut[K, V], error) {
+func (m *MapMut[K, V]) Remove(k K) error {
 	return m.write(base.Path{core.MapKeyStep(string(k))}, core.OpClear, reflect.Value{}, false)
 }
 
 // Clear removes the map: null in patches.
-func (m *MapMut[K, V]) Clear() *MapMut[K, V] { return core.Must(m.ClearE()) }
-
-// ClearE is [MapMut.Clear], returning an error rather than panicking.
-func (m *MapMut[K, V]) ClearE() (*MapMut[K, V], error) {
+func (m *MapMut[K, V]) Clear() error {
 	return m.write(nil, core.OpClear, reflect.Value{}, false)
 }
 
 // Empty sets the map to present and empty: {} in patches.
-func (m *MapMut[K, V]) Empty() *MapMut[K, V] { return core.Must(m.EmptyE()) }
-
-// EmptyE is [MapMut.Empty], returning an error rather than panicking.
-func (m *MapMut[K, V]) EmptyE() (*MapMut[K, V], error) {
+func (m *MapMut[K, V]) Empty() error {
 	return m.write(nil, core.OpEmpty, reflect.Value{}, true)
 }
 

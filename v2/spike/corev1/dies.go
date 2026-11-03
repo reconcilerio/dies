@@ -140,7 +140,7 @@ func (d *PodSpecDie) ServiceAccountName() die.Value[string] {
 	return fields.ValueOf(d, podSpecFields.ServiceAccountName)
 }
 
-func (d *PodSpecDieMut) ServiceAccountName() die.ValueMut[string, *PodSpecDieMut] {
+func (d *PodSpecDieMut) ServiceAccountName() die.ValueMut[string] {
 	return fields.ValueMutOf(d, podSpecFields.ServiceAccountName)
 }
 
@@ -148,7 +148,7 @@ func (d *PodSpecDie) AutomountServiceAccountToken() die.Optional[bool] {
 	return fields.OptionalOf(d, podSpecFields.AutomountServiceAccountToken)
 }
 
-func (d *PodSpecDieMut) AutomountServiceAccountToken() die.OptionalMut[bool, *PodSpecDieMut] {
+func (d *PodSpecDieMut) AutomountServiceAccountToken() die.OptionalMut[bool] {
 	return fields.OptionalMutOf(d, podSpecFields.AutomountServiceAccountToken)
 }
 
@@ -203,7 +203,7 @@ func (d *ContainerDie) Name() die.Value[string] {
 	return fields.ValueOf(d, containerFields.Name)
 }
 
-func (d *ContainerDieMut) Name() die.ValueMut[string, *ContainerDieMut] {
+func (d *ContainerDieMut) Name() die.ValueMut[string] {
 	return fields.ValueMutOf(d, containerFields.Name)
 }
 
@@ -211,7 +211,7 @@ func (d *ContainerDie) Image() die.Value[string] {
 	return fields.ValueOf(d, containerFields.Image)
 }
 
-func (d *ContainerDieMut) Image() die.ValueMut[string, *ContainerDieMut] {
+func (d *ContainerDieMut) Image() die.ValueMut[string] {
 	return fields.ValueMutOf(d, containerFields.Image)
 }
 
@@ -219,7 +219,7 @@ func (d *ContainerDie) Args() die.Value[[]string] {
 	return fields.ValueOf(d, containerFields.Args)
 }
 
-func (d *ContainerDieMut) Args() die.ValueMut[[]string, *ContainerDieMut] {
+func (d *ContainerDieMut) Args() die.ValueMut[[]string] {
 	return fields.ValueMutOf(d, containerFields.Args)
 }
 
@@ -279,7 +279,7 @@ func (d *ContainerPortDie) Name() die.Value[string] {
 	return fields.ValueOf(d, containerPortFields.Name)
 }
 
-func (d *ContainerPortDieMut) Name() die.ValueMut[string, *ContainerPortDieMut] {
+func (d *ContainerPortDieMut) Name() die.ValueMut[string] {
 	return fields.ValueMutOf(d, containerPortFields.Name)
 }
 
@@ -287,7 +287,7 @@ func (d *ContainerPortDie) ContainerPort() die.Value[int32] {
 	return fields.ValueOf(d, containerPortFields.ContainerPort)
 }
 
-func (d *ContainerPortDieMut) ContainerPort() die.ValueMut[int32, *ContainerPortDieMut] {
+func (d *ContainerPortDieMut) ContainerPort() die.ValueMut[int32] {
 	return fields.ValueMutOf(d, containerPortFields.ContainerPort)
 }
 
@@ -295,7 +295,7 @@ func (d *ContainerPortDie) Protocol() die.Value[string] {
 	return fields.ValueOf(d, containerPortFields.Protocol)
 }
 
-func (d *ContainerPortDieMut) Protocol() die.ValueMut[string, *ContainerPortDieMut] {
+func (d *ContainerPortDieMut) Protocol() die.ValueMut[string] {
 	return fields.ValueMutOf(d, containerPortFields.Protocol)
 }
 
@@ -329,7 +329,7 @@ func (d *EnvVarDie) Name() die.Value[string] {
 	return fields.ValueOf(d, envVarFields.Name)
 }
 
-func (d *EnvVarDieMut) Name() die.ValueMut[string, *EnvVarDieMut] {
+func (d *EnvVarDieMut) Name() die.ValueMut[string] {
 	return fields.ValueMutOf(d, envVarFields.Name)
 }
 
@@ -337,7 +337,7 @@ func (d *EnvVarDie) Value() die.Value[string] {
 	return fields.ValueOf(d, envVarFields.Value)
 }
 
-func (d *EnvVarDieMut) Value() die.ValueMut[string, *EnvVarDieMut] {
+func (d *EnvVarDieMut) Value() die.ValueMut[string] {
 	return fields.ValueMutOf(d, envVarFields.Value)
 }
 
@@ -373,7 +373,7 @@ func (d *VolumeMountDie) Name() die.Value[string] {
 	return fields.ValueOf(d, volumeMountFields.Name)
 }
 
-func (d *VolumeMountDieMut) Name() die.ValueMut[string, *VolumeMountDieMut] {
+func (d *VolumeMountDieMut) Name() die.ValueMut[string] {
 	return fields.ValueMutOf(d, volumeMountFields.Name)
 }
 
@@ -381,7 +381,7 @@ func (d *VolumeMountDie) ReadOnly() die.Value[bool] {
 	return fields.ValueOf(d, volumeMountFields.ReadOnly)
 }
 
-func (d *VolumeMountDieMut) ReadOnly() die.ValueMut[bool, *VolumeMountDieMut] {
+func (d *VolumeMountDieMut) ReadOnly() die.ValueMut[bool] {
 	return fields.ValueMutOf(d, volumeMountFields.ReadOnly)
 }
 
@@ -389,7 +389,7 @@ func (d *VolumeMountDie) MountPath() die.Value[string] {
 	return fields.ValueOf(d, volumeMountFields.MountPath)
 }
 
-func (d *VolumeMountDieMut) MountPath() die.ValueMut[string, *VolumeMountDieMut] {
+func (d *VolumeMountDieMut) MountPath() die.ValueMut[string] {
 	return fields.ValueMutOf(d, volumeMountFields.MountPath)
 }
 
@@ -423,7 +423,7 @@ var volumeFields = struct {
 
 func (d *VolumeDie) Name() die.Value[string] { return fields.ValueOf(d, volumeFields.Name) }
 
-func (d *VolumeDieMut) Name() die.ValueMut[string, *VolumeDieMut] {
+func (d *VolumeDieMut) Name() die.ValueMut[string] {
 	return fields.ValueMutOf(d, volumeFields.Name)
 }
 
@@ -467,7 +467,7 @@ func (d *SecretVolumeSourceDie) SecretName() die.Value[string] {
 	return fields.ValueOf(d, secretVolumeSourceFields.SecretName)
 }
 
-func (d *SecretVolumeSourceDieMut) SecretName() die.ValueMut[string, *SecretVolumeSourceDieMut] {
+func (d *SecretVolumeSourceDieMut) SecretName() die.ValueMut[string] {
 	return fields.ValueMutOf(d, secretVolumeSourceFields.SecretName)
 }
 
@@ -496,6 +496,6 @@ var emptyDirVolumeSourceFields = struct {
 func (d *EmptyDirVolumeSourceDie) Medium() die.Value[string] {
 	return fields.ValueOf(d, emptyDirVolumeSourceFields.Medium)
 }
-func (d *EmptyDirVolumeSourceDieMut) Medium() die.ValueMut[string, *EmptyDirVolumeSourceDieMut] {
+func (d *EmptyDirVolumeSourceDieMut) Medium() die.ValueMut[string] {
 	return fields.ValueMutOf(d, emptyDirVolumeSourceFields.Medium)
 }

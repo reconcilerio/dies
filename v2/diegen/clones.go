@@ -83,7 +83,7 @@ func (g *generator) loadClones(clones []clone) (map[string]*packages.Package, er
 	if len(versioned) > 0 {
 		dir, err := versionedModule(versioned)
 		if dir != "" {
-			defer os.RemoveAll(dir)
+			defer func() { _ = os.RemoveAll(dir) }()
 		}
 		if err != nil {
 			return nil, err
@@ -240,7 +240,7 @@ func (g *generator) emitClone(p, up *packages.Package) error {
 			// a type's JSON methods define its encoding, and are not cloned,
 			// so the die package must provide them or declare the type itself
 			custom := customJSON(n)
-			if custom && !(hand[name]["MarshalJSON"] && hand[name]["UnmarshalJSON"]) {
+			if custom && (!hand[name]["MarshalJSON"] || !hand[name]["UnmarshalJSON"]) {
 				errs = append(errs, fmt.Errorf("%s.%s has custom JSON encoding, which is not cloned; in %s, either declare %s by hand as a type with the same encoding (such as a string), or write MarshalJSON and UnmarshalJSON for the cloned type", up.PkgPath, name, p.PkgPath, name))
 				continue
 			}

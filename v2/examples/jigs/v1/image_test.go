@@ -23,6 +23,8 @@ import (
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
+	"reconciler.io/dies/v2/die"
+	"reconciler.io/dies/v2/die/dietest"
 	dieviews "reconciler.io/dies/v2/die/jigs"
 	jigsv1 "reconciler.io/dies/v2/examples/jigs/v1"
 )
@@ -65,28 +67,28 @@ func TestLossyTransformIsRejected(t *testing.T) {
 // Jigs compose: the workload jig finds the containers, and the container
 // jig presents each image in parts. Setting a tag rewrites only the image.
 func TestRetagThroughJigs(t *testing.T) {
-	deploy := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Name().Set("web")
-		d.Spec().Template().Spec().Containers().At("app").Image().Set("registry.example:5000/team/app:v1@sha256:abc")
-		d.Spec().Template().Spec().Containers().At("proxy").Image().Set("proxy:1")
-	}).DieCommit().DieMutable()
+	deploy := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Name().Set("web"))
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("registry.example:5000/team/app:v1@sha256:abc"))
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("proxy").Image().Set("proxy:1"))
+	}).DieTare().DieMutable()
 
 	ps, _ := jigsv1.PodSpecableJig.OfMut(deploy)
 	c, ok := jigsv1.ContainerImageJig.OfMut(ps.Template().Spec().Containers().At("app"))
 	if !ok {
 		t.Fatal("no container jig")
 	}
-	if got := c.Image().DieRelease(); !reflect.DeepEqual(got, jigsv1.ImageReference{Repository: "registry.example:5000/team/app", Tag: "v1", Digest: "sha256:abc"}) {
+	if got := *c.Image().DieRelease(); !reflect.DeepEqual(got, jigsv1.ImageReference{Repository: "registry.example:5000/team/app", Tag: "v1", Digest: "sha256:abc"}) {
 		t.Errorf("parts %+v", got)
 	}
-	c.Image().Tag().Set("v2")
-	c.Image().Digest().Clear()
+	dietest.NoError(t, c.Image().Tag().Set("v2"))
+	dietest.NoError(t, c.Image().Digest().Clear())
 
 	if got := deploy.Spec().Template().Spec().Containers().At("app").Image().Get(); got != "registry.example:5000/team/app:v2" {
 		t.Errorf("image %q", got)
 	}
 	// the change is recorded on the image field alone
-	got, err := deploy.DieReleaseApplyPatchE()
+	got, err := die.ReleaseApplyPatchE(deploy)
 	assertJSON(t, got, err, `{
 		"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "web"},
 		"spec": {"template": {"spec": {"containers": [{"name": "app", "image": "registry.example:5000/team/app:v2"}]}}}
@@ -98,15 +100,16 @@ func TestRetagThroughJigs(t *testing.T) {
 func TestTransformRefusesWhatTheSourceCannotHold(t *testing.T) {
 	container := diecorev1.ContainerBlank.DieMutable()
 	c, _ := jigsv1.ContainerImageJig.OfMut(container)
-	c.Image().Repository().Set("app")
-	defer func() {
-		if recover() == nil {
-			t.Errorf("expected a tag containing a colon to be refused")
-		}
-		if got := container.Image().Get(); got != "app" {
-			t.Errorf("image changed to %q", got)
-		}
-	}()
+	if err := c.Image().Repository().Set("app"); err != nil {
+		t.Errorf("expected value to be set")
+	}
+
 	// "app:a:b" reads back as repository "app:a", tag "b"
-	c.Image().Tag().Set("a:b")
+	if err := c.Image().Tag().Set("a:b"); err == nil {
+		t.Errorf("expected a tag containing a colon to be refused")
+	}
+
+	if got := container.Image().Get(); got != "app" {
+		t.Errorf("image changed to %q", got)
+	}
 }

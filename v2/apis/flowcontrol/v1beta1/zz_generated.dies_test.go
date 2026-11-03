@@ -22,6 +22,7 @@ import (
 	flowcontrolv1beta1 "k8s.io/api/flowcontrol/v1beta1"
 	dieflowcontrolv1beta1 "reconciler.io/dies/v2/apis/flowcontrol/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dielists "reconciler.io/dies/v2/die/lists"
 	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
@@ -58,12 +59,14 @@ func TestDiesMatchTypes(t *testing.T) {
 	}
 }
 
-// typed and object dies have the methods of their interfaces
+// typed, object and list dies have the methods of their interfaces
 var (
 	_ dieobjects.DieObjectOf[dieflowcontrolv1beta1.FlowSchema, *dieflowcontrolv1beta1.FlowSchemaDie, *dieflowcontrolv1beta1.FlowSchemaDieMut]                                                    = (*dieflowcontrolv1beta1.FlowSchemaDie)(nil)
 	_ dieobjects.DieObjectMutOf[dieflowcontrolv1beta1.FlowSchema, *dieflowcontrolv1beta1.FlowSchemaDie, *dieflowcontrolv1beta1.FlowSchemaDieMut]                                                 = (*dieflowcontrolv1beta1.FlowSchemaDieMut)(nil)
 	_ dieobjects.DieObjectOf[dieflowcontrolv1beta1.PriorityLevelConfiguration, *dieflowcontrolv1beta1.PriorityLevelConfigurationDie, *dieflowcontrolv1beta1.PriorityLevelConfigurationDieMut]    = (*dieflowcontrolv1beta1.PriorityLevelConfigurationDie)(nil)
 	_ dieobjects.DieObjectMutOf[dieflowcontrolv1beta1.PriorityLevelConfiguration, *dieflowcontrolv1beta1.PriorityLevelConfigurationDie, *dieflowcontrolv1beta1.PriorityLevelConfigurationDieMut] = (*dieflowcontrolv1beta1.PriorityLevelConfigurationDieMut)(nil)
+	_ dielists.DieListOf[*dieflowcontrolv1beta1.FlowSchemaDieMut]                                                                                                                                = (*dieflowcontrolv1beta1.FlowSchemaListDie)(nil)
+	_ dielists.DieListOf[*dieflowcontrolv1beta1.PriorityLevelConfigurationDieMut]                                                                                                                = (*dieflowcontrolv1beta1.PriorityLevelConfigurationListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

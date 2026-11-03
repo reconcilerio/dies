@@ -23,6 +23,7 @@ import (
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
+	dielists "reconciler.io/dies/v2/die/lists"
 	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
@@ -283,7 +284,7 @@ func TestDiesMatchTypes(t *testing.T) {
 	}
 }
 
-// typed and object dies have the methods of their interfaces
+// typed, object and list dies have the methods of their interfaces
 var (
 	_ dieobjects.DieObjectOf[diecorev1.Binding, *diecorev1.BindingDie, *diecorev1.BindingDieMut]                                              = (*diecorev1.BindingDie)(nil)
 	_ dieobjects.DieObjectMutOf[diecorev1.Binding, *diecorev1.BindingDie, *diecorev1.BindingDieMut]                                           = (*diecorev1.BindingDieMut)(nil)
@@ -339,6 +340,22 @@ var (
 	_ dieobjects.DieObjectMutOf[diecorev1.ServiceAccount, *diecorev1.ServiceAccountDie, *diecorev1.ServiceAccountDieMut]                      = (*diecorev1.ServiceAccountDieMut)(nil)
 	_ diefields.DieTypedOf[diecorev1.ServiceProxyOptions, *diecorev1.ServiceProxyOptionsDie, *diecorev1.ServiceProxyOptionsDieMut]            = (*diecorev1.ServiceProxyOptionsDie)(nil)
 	_ diefields.DieTypedMutOf[diecorev1.ServiceProxyOptions, *diecorev1.ServiceProxyOptionsDie, *diecorev1.ServiceProxyOptionsDieMut]         = (*diecorev1.ServiceProxyOptionsDieMut)(nil)
+	_ dielists.DieListOf[*diecorev1.ComponentStatusDieMut]                                                                                    = (*diecorev1.ComponentStatusListDie)(nil)
+	_ dielists.DieListOf[*diecorev1.ConfigMapDieMut]                                                                                          = (*diecorev1.ConfigMapListDie)(nil)
+	_ dielists.DieListOf[*diecorev1.EndpointsDieMut]                                                                                          = (*diecorev1.EndpointsListDie)(nil)
+	_ dielists.DieListOf[*diecorev1.EventDieMut]                                                                                              = (*diecorev1.EventListDie)(nil)
+	_ dielists.DieListOf[*diecorev1.LimitRangeDieMut]                                                                                         = (*diecorev1.LimitRangeListDie)(nil)
+	_ dielists.DieListOf[*diecorev1.NamespaceDieMut]                                                                                          = (*diecorev1.NamespaceListDie)(nil)
+	_ dielists.DieListOf[*diecorev1.NodeDieMut]                                                                                               = (*diecorev1.NodeListDie)(nil)
+	_ dielists.DieListOf[*diecorev1.PersistentVolumeClaimDieMut]                                                                              = (*diecorev1.PersistentVolumeClaimListDie)(nil)
+	_ dielists.DieListOf[*diecorev1.PersistentVolumeDieMut]                                                                                   = (*diecorev1.PersistentVolumeListDie)(nil)
+	_ dielists.DieListOf[*diecorev1.PodDieMut]                                                                                                = (*diecorev1.PodListDie)(nil)
+	_ dielists.DieListOf[*diecorev1.PodTemplateDieMut]                                                                                        = (*diecorev1.PodTemplateListDie)(nil)
+	_ dielists.DieListOf[*diecorev1.ReplicationControllerDieMut]                                                                              = (*diecorev1.ReplicationControllerListDie)(nil)
+	_ dielists.DieListOf[*diecorev1.ResourceQuotaDieMut]                                                                                      = (*diecorev1.ResourceQuotaListDie)(nil)
+	_ dielists.DieListOf[*diecorev1.SecretDieMut]                                                                                             = (*diecorev1.SecretListDie)(nil)
+	_ dielists.DieListOf[*diecorev1.ServiceAccountDieMut]                                                                                     = (*diecorev1.ServiceAccountListDie)(nil)
+	_ dielists.DieListOf[*diecorev1.ServiceDieMut]                                                                                            = (*diecorev1.ServiceListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

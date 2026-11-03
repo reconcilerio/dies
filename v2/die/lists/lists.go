@@ -82,7 +82,7 @@ func NewList[D ListItem[D]](apiVersion, kind string, items ...D) List[D] {
 // DieCopy returns a copy of the list, with its items copied.
 func (l *List[D]) DieCopy() List[D] {
 	out := List[D]{TypeMeta: l.TypeMeta}
-	l.ListMeta.DeepCopyInto(&out.ListMeta)
+	l.DeepCopyInto(&out.ListMeta)
 	if l.Items != nil {
 		out.Items = make([]D, len(l.Items))
 		for i, item := range l.Items {

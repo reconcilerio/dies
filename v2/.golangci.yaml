@@ -1,0 +1,21 @@
+version: "2"
+
+linters:
+  # the linters golangci-lint enables by default, which users' codebases are
+  # most likely to run: errcheck, govet, ineffassign, staticcheck and unused
+  default: standard
+  enable:
+    # the directives generated code carries, such as for an alias of a
+    # deprecated type, must each be needed, or a codebase that checks them
+    # reports them
+    - nolintlint
+  exclusions:
+    # generated dies are linted as hand-written code is, so that they lint
+    # cleanly wherever they're generated, whatever a codebase excludes
+    generated: disable
+
+formatters:
+  enable:
+    - gofmt
+  exclusions:
+    generated: disable

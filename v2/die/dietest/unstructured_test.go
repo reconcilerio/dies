@@ -24,6 +24,7 @@ import (
 	k8sunstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
+	"reconciler.io/dies/v2/die"
 	"reconciler.io/dies/v2/die/dietest"
 	"reconciler.io/dies/v2/die/unstructured"
 )
@@ -31,11 +32,11 @@ import (
 type umut = unstructured.ObjectMut
 
 func widget(fn func(d *umut)) *unstructured.Object {
-	return unstructured.BlankFor("example.dev/v1", "Widget").DieWith(fn)
+	return unstructured.BlankFor("example.dev/v1", "Widget").DieStamp(fn)
 }
 
-func fedWidget(data string) *unstructured.Object {
-	return unstructured.Blank.DieWith(func(d *umut) { d.DieFeedJSON([]byte(data)) })
+func fedWidget(t testing.TB, data string) *unstructured.Object {
+	return unstructured.Blank.DieStamp(func(d *umut) { dietest.NoError(t, die.FeedJSON(d, []byte(data))) })
 }
 
 func containers(d *umut) *unstructured.NodeMut {
@@ -46,7 +47,7 @@ func containers(d *umut) *unstructured.NodeMut {
 // do, though their values have no Go types to normalize them.
 func TestUnstructuredDiffIsEmptyExactlyWhenEqual(t *testing.T) {
 	size := func(v any) *unstructured.Object {
-		return widget(func(d *umut) { d.Node().Field("spec").Field("size").Set(v) })
+		return widget(func(d *umut) { dietest.NoError(t, d.Node().Field("spec").Field("size").Set(v)) })
 	}
 	fed := `{"apiVersion": "example.dev/v1", "kind": "Widget", "spec": {"size": 1, "ratio": 0.5, "big": 9007199254740993}}`
 	pairs := []struct {
@@ -61,15 +62,15 @@ func TestUnstructuredDiffIsEmptyExactlyWhenEqual(t *testing.T) {
 		{"int and int64", size(1), size(int64(1)), true},
 		{"an integer and a float", size(int64(1)), size(1.5), false},
 		{"a number and a string", size(int64(1)), size("1"), false},
-		{"null and absent", size(nil), widget(func(d *umut) { d.Node().Field("spec").EmptyObject() }), false},
-		{"empty object and empty list", widget(func(d *umut) { d.Node().Field("spec").Field("x").EmptyObject() }), widget(func(d *umut) { d.Node().Field("spec").Field("x").EmptyList() }), false},
-		{"fed alike", fedWidget(fed), fedWidget(fed), true},
-		{"large integers fed", fedWidget(`{"spec": {"big": 9007199254740993}}`), fedWidget(`{"spec": {"big": 9007199254740992}}`), false},
-		{"fed, then the same value written", fedWidget(fed), fedWidget(fed).DieWith(func(d *umut) { d.Node().Field("spec").Field("size").Set(int64(1)) }), false},
+		{"null and absent", size(nil), widget(func(d *umut) { dietest.NoError(t, d.Node().Field("spec").EmptyObject()) }), false},
+		{"empty object and empty list", widget(func(d *umut) { dietest.NoError(t, d.Node().Field("spec").Field("x").EmptyObject()) }), widget(func(d *umut) { dietest.NoError(t, d.Node().Field("spec").Field("x").EmptyList()) }), false},
+		{"fed alike", fedWidget(t, fed), fedWidget(t, fed), true},
+		{"large integers fed", fedWidget(t, `{"spec": {"big": 9007199254740993}}`), fedWidget(t, `{"spec": {"big": 9007199254740992}}`), false},
+		{"fed, then the same value written", fedWidget(t, fed), fedWidget(t, fed).DieStamp(func(d *umut) { dietest.NoError(t, d.Node().Field("spec").Field("size").Set(int64(1))) }), false},
 		{"list items in a different order", widget(func(d *umut) {
-			containers(d).Set([]any{map[string]any{"name": "a"}, map[string]any{"name": "b"}})
+			dietest.NoError(t, containers(d).Set([]any{map[string]any{"name": "a"}, map[string]any{"name": "b"}}))
 		}), widget(func(d *umut) {
-			containers(d).Set([]any{map[string]any{"name": "b"}, map[string]any{"name": "a"}})
+			dietest.NoError(t, containers(d).Set([]any{map[string]any{"name": "b"}, map[string]any{"name": "a"}}))
 		}), false},
 		{"nil and a blank", nil, unstructured.Blank, false},
 	}
@@ -83,7 +84,7 @@ func TestUnstructuredDiffIsEmptyExactlyWhenEqual(t *testing.T) {
 
 	// as for mutable dies
 	m := func(v int64) *umut {
-		return widget(func(d *umut) { d.Node().Field("spec").Field("size").Set(v) }).DieMutable()
+		return widget(func(d *umut) { dietest.NoError(t, d.Node().Field("spec").Field("size").Set(v)) }).DieMutable()
 	}
 	check(t, "mutable, same", m(1), m(1), true, m(1).Equal(m(1)))
 	check(t, "mutable, different", m(1), m(2), false, m(1).Equal(m(2)))
@@ -91,8 +92,8 @@ func TestUnstructuredDiffIsEmptyExactlyWhenEqual(t *testing.T) {
 
 // A diff names the fields and intent that differ, as for typed dies.
 func TestUnstructuredDiffIsReadable(t *testing.T) {
-	x := widget(func(d *umut) { containers(d).Item("name", "app").Field("image").Set("app:1") })
-	y := widget(func(d *umut) { containers(d).Item("name", "app").Field("image").Set("app:2") })
+	x := widget(func(d *umut) { dietest.NoError(t, containers(d).Item("name", "app").Field("image").Set("app:1")) })
+	y := widget(func(d *umut) { dietest.NoError(t, containers(d).Item("name", "app").Field("image").Set("app:2")) })
 	diff := dietest.Diff(x, y)
 	for _, want := range []string{`"app:1"`, `"app:2"`, `set .spec.containers[name=app].image = "app:1"`} {
 		if !strings.Contains(diff, want) {
@@ -105,7 +106,7 @@ func TestUnstructuredDiffIsReadable(t *testing.T) {
 // Released, an unstructured die is its map, compared as go-cmp compares maps.
 func TestUnstructuredDiffRelease(t *testing.T) {
 	size := func(v any) *unstructured.Object {
-		return widget(func(d *umut) { d.Node().Field("spec").Field("size").Set(v) })
+		return widget(func(d *umut) { dietest.NoError(t, d.Node().Field("spec").Field("size").Set(v)) })
 	}
 	if diff := dietest.DiffRelease(size(int64(1)), size(int64(1))); diff != "" {
 		t.Errorf("unexpected diff:\n%s", diff)
@@ -131,7 +132,7 @@ func TestUnstructuredIgnoreFields(t *testing.T) {
 		})
 	}
 	image := func(name, image string) func(d *umut) {
-		return func(d *umut) { containers(d).Item("name", name).Field("image").Set(image) }
+		return func(d *umut) { dietest.NoError(t, containers(d).Item("name", name).Field("image").Set(image)) }
 	}
 	ignoreSidecar := dietest.IgnoreFields(blank.Item("name", "sidecar"))
 	assertNoDiffs(t, "a sidecar on one side", with(image("app", "app:1"), image("sidecar", "proxy:1")), with(image("app", "app:1")), ignoreSidecar)
@@ -154,7 +155,7 @@ func TestUnstructuredIgnoreFields(t *testing.T) {
 	// fed values, whose intent sets them whole, aren't ignored by a location
 	// within them, but are by one enclosing them
 	fed := func(image string) *unstructured.Object {
-		return fedWidget(`{"spec": {"containers": [{"name": "app", "image": "` + image + `"}]}}`)
+		return fedWidget(t, `{"spec": {"containers": [{"name": "app", "image": "`+image+`"}]}}`)
 	}
 	if diff := dietest.Diff(fed("app:1"), fed("app:2"), dietest.IgnoreFields(blank)); diff != "" {
 		t.Errorf("unexpected diff:\n%s", diff)
@@ -165,9 +166,9 @@ func TestUnstructuredIgnoreFields(t *testing.T) {
 // the unstructured die's intent at its own paths.
 func TestUnstructuredJigAsDiff(t *testing.T) {
 	deployment := func(image string) *unstructured.Object {
-		return unstructured.BlankFor("apps/v1", "Deployment").DieWith(func(d *umut) {
-			d.Node().Field("metadata").Field("name").Set("web")
-			d.Node().Field("spec").Field("template").Field("spec").Field("containers").Item("name", "app").Field("image").Set(image)
+		return unstructured.BlankFor("apps/v1", "Deployment").DieStamp(func(d *umut) {
+			dietest.NoError(t, d.Node().Field("metadata").Field("name").Set("web"))
+			dietest.NoError(t, d.Node().Field("spec").Field("template").Field("spec").Field("containers").Item("name", "app").Field("image").Set(image))
 		})
 	}
 	x := unstructured.JigAs[*dieappsv1.DeploymentDie](deployment("app:1"))
@@ -182,9 +183,9 @@ func TestUnstructuredJigAsDiff(t *testing.T) {
 	assertNoDiffs(t, "jigs, ignored", x, y, ignore)
 
 	// and as the typed die written alike
-	typed := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Name().Set("web")
-		d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1")
+	typed := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Name().Set("web"))
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
 	})
 	check(t, "a jig and a typed die", x, typed, true, x.Equal(typed))
 }
@@ -192,7 +193,7 @@ func TestUnstructuredJigAsDiff(t *testing.T) {
 // Unstructured list dies compare by their items' content.
 func TestUnstructuredListDiff(t *testing.T) {
 	item := func(name string) *umut {
-		return widget(func(d *umut) { d.Node().Field("metadata").Field("name").Set(name) }).DieMutable()
+		return widget(func(d *umut) { dietest.NoError(t, d.Node().Field("metadata").Field("name").Set(name)) }).DieMutable()
 	}
 	list := func(names ...string) *unstructured.ObjectList {
 		var items []*umut

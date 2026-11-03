@@ -102,17 +102,17 @@ type LocatedAs[X any] = base.LocatedAs[X]
 // Value is a handle to a leaf field of type V of an immutable die.
 type Value[V any] = fields.Value[V]
 
-// ValueMut is a handle to a leaf field of type V of a mutable M die, whose
-// writes return it.
-type ValueMut[V, M any] = fields.ValueMut[V, M]
+// ValueMut is a handle to a leaf field of type V of a mutable die, which
+// writes it.
+type ValueMut[V any] = fields.ValueMut[V]
 
 // Optional is a handle to a leaf field held by pointer, of type V, of an
 // immutable die.
 type Optional[V any] = fields.Optional[V]
 
 // OptionalMut is a handle to a leaf field held by pointer, of type V, of a
-// mutable M die, whose writes return it.
-type OptionalMut[V, M any] = fields.OptionalMut[V, M]
+// mutable die, which writes it.
+type OptionalMut[V any] = fields.OptionalMut[V]
 
 // ListMap is the collection for a list-map field of an immutable die, of C
 // elements with CD dies, keyed by K.
@@ -129,8 +129,8 @@ type Map[K ~string, V any] = fields.Map[K, V]
 // MapMut is the collection for a map field of a mutable die.
 type MapMut[K ~string, V any] = fields.MapMut[K, V]
 
-// Error is a die's error. E variants return one, for content that isn't
-// known; their fluent forms panic with it, for content that is.
+// Error is a die's error. Writes and E variants return one; the fluent forms
+// of reads panic with it, for content that is known.
 type Error = base.Error
 
 var (

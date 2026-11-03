@@ -26,6 +26,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
+	"reconciler.io/dies/v2/die"
 	"reconciler.io/dies/v2/die/base"
 	"reconciler.io/dies/v2/die/dietest"
 	"reconciler.io/dies/v2/die/unstructured"
@@ -33,18 +34,18 @@ import (
 
 type deploy = dieappsv1.DeploymentDieMut
 
-func named(name string) *dieappsv1.DeploymentDie {
-	return dieappsv1.DeploymentBlank.DieWith(func(d *deploy) { d.Metadata().Name().Set(name) })
+func named(t testing.TB, name string) *dieappsv1.DeploymentDie {
+	return dieappsv1.DeploymentBlank.DieStamp(func(d *deploy) { dietest.NoError(t, d.Metadata().Name().Set(name)) })
 }
 
-func at(sec, nsec int64) *dieappsv1.DeploymentDie {
-	return named("web").DieWith(func(d *deploy) {
-		d.Metadata().CreationTimestamp().Set(metav1.Unix(sec, nsec))
+func at(t testing.TB, sec, nsec int64) *dieappsv1.DeploymentDie {
+	return named(t, "web").DieStamp(func(d *deploy) {
+		dietest.NoError(t, d.Metadata().CreationTimestamp().Set(metav1.Unix(sec, nsec)))
 	})
 }
 
-func fedJSON(data string) *dieappsv1.DeploymentDie {
-	return dieappsv1.DeploymentBlank.DieWith(func(d *deploy) { d.DieFeedJSON([]byte(data)) })
+func fedJSON(t testing.TB, data string) *dieappsv1.DeploymentDie {
+	return dieappsv1.DeploymentBlank.DieStamp(func(d *deploy) { dietest.NoError(t, die.FeedJSON(d, []byte(data))) })
 }
 
 // Every pair of dies has a diff exactly when they aren't Equal.
@@ -56,16 +57,16 @@ func TestDiffIsEmptyExactlyWhenEqual(t *testing.T) {
 	}
 	immutable := []pair[*dieappsv1.DeploymentDie]{
 		{"blanks", dieappsv1.DeploymentBlank, dieappsv1.DeploymentBlank, true},
-		{"same writes", named("web"), named("web"), true},
-		{"different values", named("web"), named("api"), false},
-		{"fed and committed", named("web").DieCommit(), fedJSON(`{"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "web"}}`), true},
-		{"same value, different intent", named("web"), fedJSON(`{"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "web"}}`), false},
-		{"intent of the same value, written again", named("web"), named("web").DieWith(func(d *deploy) { d.Metadata().Name().Set("web") }), true},
-		{"a field the type doesn't have", fedJSON(`{"spec": {"futureField": 1}}`), fedJSON(`{"spec": {"futureField": 2}}`), false},
-		{"the same field the type doesn't have", fedJSON(`{"spec": {"futureField": 1}}`), fedJSON(`{"spec": {"futureField": 1}}`), true},
-		{"large integers", fedJSON(`{"spec": {"futureField": 9007199254740993}}`), fedJSON(`{"spec": {"futureField": 9007199254740992}}`), false},
-		{"times within a second, as encoded", at(10, 1), at(10, 2), true},
-		{"times a second apart", at(10, 0), at(11, 0), false},
+		{"same writes", named(t, "web"), named(t, "web"), true},
+		{"different values", named(t, "web"), named(t, "api"), false},
+		{"fed and tared", named(t, "web").DieTare(), fedJSON(t, `{"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "web"}}`), true},
+		{"same value, different intent", named(t, "web"), fedJSON(t, `{"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "web"}}`), false},
+		{"intent of the same value, written again", named(t, "web"), named(t, "web").DieStamp(func(d *deploy) { dietest.NoError(t, d.Metadata().Name().Set("web")) }), true},
+		{"a field the type doesn't have", fedJSON(t, `{"spec": {"futureField": 1}}`), fedJSON(t, `{"spec": {"futureField": 2}}`), false},
+		{"the same field the type doesn't have", fedJSON(t, `{"spec": {"futureField": 1}}`), fedJSON(t, `{"spec": {"futureField": 1}}`), true},
+		{"large integers", fedJSON(t, `{"spec": {"futureField": 9007199254740993}}`), fedJSON(t, `{"spec": {"futureField": 9007199254740992}}`), false},
+		{"times within a second, as encoded", at(t, 10, 1), at(t, 10, 2), true},
+		{"times a second apart", at(t, 10, 0), at(t, 11, 0), false},
 		{"nil and a blank", nil, dieappsv1.DeploymentBlank, false},
 		{"nils", nil, nil, true},
 	}
@@ -78,8 +79,8 @@ func TestDiffIsEmptyExactlyWhenEqual(t *testing.T) {
 	}
 
 	mutable := []pair[*deploy]{
-		{"mutable, same writes", named("web").DieMutable(), named("web").DieMutable(), true},
-		{"mutable, different values", named("web").DieMutable(), named("api").DieMutable(), false},
+		{"mutable, same writes", named(t, "web").DieMutable(), named(t, "web").DieMutable(), true},
+		{"mutable, different values", named(t, "web").DieMutable(), named(t, "api").DieMutable(), false},
 	}
 	for _, p := range mutable {
 		check(t, p.name, p.x, p.y, p.equal, p.x.Equal(p.y))
@@ -89,10 +90,10 @@ func TestDiffIsEmptyExactlyWhenEqual(t *testing.T) {
 	// paths within it, wherever its root is
 	spec := func(d *dieappsv1.DeploymentDie) *dieappsv1.DeploymentSpecDie { return d.Spec() }
 	replicas := func(n int32) *dieappsv1.DeploymentDie {
-		return named("web").DieWith(func(d *deploy) { d.Spec().Replicas().Set(n) })
+		return named(t, "web").DieStamp(func(d *deploy) { dietest.NoError(t, d.Spec().Replicas().Set(n)) })
 	}
 	children := []pair[*dieappsv1.DeploymentSpecDie]{
-		{"children, same writes under different roots", spec(replicas(1)), spec(replicas(1).DieWith(func(d *deploy) { d.Metadata().Name().Set("api") })), true},
+		{"children, same writes under different roots", spec(replicas(1)), spec(replicas(1).DieStamp(func(d *deploy) { dietest.NoError(t, d.Metadata().Name().Set("api")) })), true},
 		{"children, different writes", spec(replicas(1)), spec(replicas(2)), false},
 	}
 	for _, p := range children {
@@ -100,11 +101,19 @@ func TestDiffIsEmptyExactlyWhenEqual(t *testing.T) {
 	}
 
 	object := func(fn func(d *unstructured.ObjectMut)) *unstructured.Object {
-		return unstructured.BlankFor("example.dev/v1", "Widget").DieWith(fn)
+		return unstructured.BlankFor("example.dev/v1", "Widget").DieStamp(fn)
 	}
 	objects := []pair[*unstructured.Object]{
-		{"unstructured, same writes", object(func(d *unstructured.ObjectMut) { d.Node().Field("spec").Field("size").Set(int64(1)) }), object(func(d *unstructured.ObjectMut) { d.Node().Field("spec").Field("size").Set(int64(1)) }), true},
-		{"unstructured, different writes", object(func(d *unstructured.ObjectMut) { d.Node().Field("spec").Field("size").Set(int64(1)) }), object(func(d *unstructured.ObjectMut) { d.Node().Field("spec").Field("size").Set(int64(2)) }), false},
+		{"unstructured, same writes", object(func(d *unstructured.ObjectMut) {
+			dietest.NoError(t, d.Node().Field("spec").Field("size").Set(int64(1)))
+		}), object(func(d *unstructured.ObjectMut) {
+			dietest.NoError(t, d.Node().Field("spec").Field("size").Set(int64(1)))
+		}), true},
+		{"unstructured, different writes", object(func(d *unstructured.ObjectMut) {
+			dietest.NoError(t, d.Node().Field("spec").Field("size").Set(int64(1)))
+		}), object(func(d *unstructured.ObjectMut) {
+			dietest.NoError(t, d.Node().Field("spec").Field("size").Set(int64(2)))
+		}), false},
 	}
 	for _, p := range objects {
 		check(t, p.name, p.x, p.y, p.equal, p.x.Equal(p.y))
@@ -127,8 +136,8 @@ func check(t *testing.T, name string, x, y any, want, equal bool) {
 
 // A diff names the fields and intent that differ, not a die's internals.
 func TestDiffIsReadable(t *testing.T) {
-	x := named("web").DieWith(func(d *deploy) { d.Spec().Replicas().Set(1) })
-	y := named("web").DieWith(func(d *deploy) { d.Spec().Replicas().Set(2) })
+	x := named(t, "web").DieStamp(func(d *deploy) { dietest.NoError(t, d.Spec().Replicas().Set(1)) })
+	y := named(t, "web").DieStamp(func(d *deploy) { dietest.NoError(t, d.Spec().Replicas().Set(2)) })
 	diff := dietest.Diff(x, y)
 	for _, want := range []string{`"replicas"`, "int64(1)", "int64(2)", `"set .spec.replicas = 1"`, `"set .spec.replicas = 2"`} {
 		if !strings.Contains(diff, want) {
@@ -150,16 +159,16 @@ func TestDiffWithinValues(t *testing.T) {
 		Name   string
 		Expect *dieappsv1.DeploymentDie
 	}
-	if diff := dietest.Diff(tc{"a", named("web")}, tc{"a", named("web")}); diff != "" {
+	if diff := dietest.Diff(tc{"a", named(t, "web")}, tc{"a", named(t, "web")}); diff != "" {
 		t.Errorf("unexpected diff:\n%s", diff)
 	}
-	if diff := dietest.Diff(tc{"a", named("web")}, tc{"a", named("api")}); !strings.Contains(diff, `"api"`) {
+	if diff := dietest.Diff(tc{"a", named(t, "web")}, tc{"a", named(t, "api")}); !strings.Contains(diff, `"api"`) {
 		t.Errorf("diff:\n%s", diff)
 	}
 	list := func(names ...string) *dieappsv1.DeploymentListDie {
 		var items []*deploy
 		for _, n := range names {
-			items = append(items, named(n).DieMutable())
+			items = append(items, named(t, n).DieMutable())
 		}
 		return dieappsv1.NewDeploymentList(items...)
 	}
@@ -174,8 +183,8 @@ func TestDiffWithinValues(t *testing.T) {
 // Options for Go types don't apply to a die's content, but options for the
 // content do, and with TransformRelease options for Go types do.
 func TestDiffOptions(t *testing.T) {
-	x := named("web").DieWith(func(d *deploy) { d.Metadata().ResourceVersion().Set("1") })
-	y := named("web").DieWith(func(d *deploy) { d.Metadata().ResourceVersion().Set("2") })
+	x := named(t, "web").DieStamp(func(d *deploy) { dietest.NoError(t, d.Metadata().ResourceVersion().Set("1")) })
+	y := named(t, "web").DieStamp(func(d *deploy) { dietest.NoError(t, d.Metadata().ResourceVersion().Set("2")) })
 	ignoreRV := cmpopts.IgnoreFields(metav1.ObjectMeta{}, "ResourceVersion")
 
 	if diff := dietest.Diff(x, y, ignoreRV); diff == "" {
@@ -200,9 +209,9 @@ func TestDiffOptions(t *testing.T) {
 		t.Errorf("unexpected diff:\n%s", diff)
 	}
 	// intent isn't compared
-	fed := fedJSON(`{"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "web"}}`)
-	if diff := dietest.DiffRelease(named("web"), fed); diff != "" || named("web").Equal(fed) {
-		t.Errorf("diff %q, equal %v", diff, named("web").Equal(fed))
+	fed := fedJSON(t, `{"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "web"}}`)
+	if diff := dietest.DiffRelease(named(t, "web"), fed); diff != "" || named(t, "web").Equal(fed) {
+		t.Errorf("diff %q, equal %v", diff, named(t, "web").Equal(fed))
 	}
 	// nor are nil dies a problem
 	if diff := dietest.DiffRelease((*dieappsv1.DeploymentDie)(nil), dieappsv1.DeploymentBlank); diff == "" {

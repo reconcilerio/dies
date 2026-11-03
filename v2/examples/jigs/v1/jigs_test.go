@@ -25,6 +25,7 @@ import (
 	diebatchv1 "reconciler.io/dies/v2/apis/batch/v1"
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
 	"reconciler.io/dies/v2/die"
+	"reconciler.io/dies/v2/die/dietest"
 	jigsv1 "reconciler.io/dies/v2/examples/jigs/v1"
 )
 
@@ -47,33 +48,35 @@ func assertJSON(t *testing.T, got []byte, err error, want string) {
 
 // injectSidecar is written once against the jig, and works for every
 // workload the jig knows.
-func injectSidecar(ps *jigsv1.PodSpecableDieMut) {
-	ps.Template().Spec().Containers().At("sidecar").Image().Set("proxy:1")
-	ps.Template().Metadata().Annotations().Set("sidecar.example.dev/injected", "true")
+func injectSidecar(ps *jigsv1.PodSpecableDieMut) error {
+	if err := ps.Template().Spec().Containers().At("sidecar").Image().Set("proxy:1"); err != nil {
+		return err
+	}
+	return ps.Template().Metadata().Annotations().Set("sidecar.example.dev/injected", "true")
 }
 
 func TestJigWritesThroughToEachSource(t *testing.T) {
-	deploy := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Name().Set("web")
-		d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1")
-	}).DieCommit().DieMutable()
-	cron := diebatchv1.CronJobBlank.DieWith(func(d *diebatchv1.CronJobDieMut) {
-		d.Metadata().Name().Set("nightly")
-	}).DieCommit().DieMutable()
-	pod := diecorev1.PodBlank.DieWith(func(d *diecorev1.PodDieMut) {
-		d.Metadata().Name().Set("debug")
-	}).DieCommit().DieMutable()
+	deploy := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Name().Set("web"))
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
+	}).DieTare().DieMutable()
+	cron := diebatchv1.CronJobBlank.DieStamp(func(d *diebatchv1.CronJobDieMut) {
+		dietest.NoError(t, d.Metadata().Name().Set("nightly"))
+	}).DieTare().DieMutable()
+	pod := diecorev1.PodBlank.DieStamp(func(d *diecorev1.PodDieMut) {
+		dietest.NoError(t, d.Metadata().Name().Set("debug"))
+	}).DieTare().DieMutable()
 
 	for _, source := range []die.MutableDie{deploy, cron, pod} {
 		ps, ok := jigsv1.PodSpecableJig.OfMut(source)
 		if !ok {
 			t.Fatalf("no jig of %T", source)
 		}
-		injectSidecar(ps)
+		dietest.NoError(t, injectSidecar(ps))
 	}
 
 	// each change landed at its source's own location, as intent
-	got, err := deploy.DieReleaseApplyPatchE()
+	got, err := die.ReleaseApplyPatchE(deploy)
 	assertJSON(t, got, err, `{
 		"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "web"},
 		"spec": {"template": {
@@ -81,7 +84,7 @@ func TestJigWritesThroughToEachSource(t *testing.T) {
 			"spec": {"containers": [{"name": "sidecar", "image": "proxy:1"}]}
 		}}
 	}`)
-	got, err = cron.DieReleaseApplyPatchE()
+	got, err = die.ReleaseApplyPatchE(cron)
 	assertJSON(t, got, err, `{
 		"apiVersion": "batch/v1", "kind": "CronJob", "metadata": {"name": "nightly"},
 		"spec": {"jobTemplate": {"spec": {"template": {
@@ -90,7 +93,7 @@ func TestJigWritesThroughToEachSource(t *testing.T) {
 		}}}}
 	}`)
 	// a pod's template metadata is the pod's own metadata
-	got, err = pod.DieReleaseApplyPatchE()
+	got, err = die.ReleaseApplyPatchE(pod)
 	assertJSON(t, got, err, `{
 		"apiVersion": "v1", "kind": "Pod",
 		"metadata": {"name": "debug", "annotations": {"sidecar.example.dev/injected": "true"}},
@@ -104,9 +107,9 @@ func TestJigWritesThroughToEachSource(t *testing.T) {
 }
 
 func TestJigReads(t *testing.T) {
-	pod := diecorev1.PodBlank.DieWith(func(d *diecorev1.PodDieMut) {
-		d.Metadata().Name().Set("debug")
-		d.Spec().Containers().At("app").Image().Set("app:1")
+	pod := diecorev1.PodBlank.DieStamp(func(d *diecorev1.PodDieMut) {
+		dietest.NoError(t, d.Metadata().Name().Set("debug"))
+		dietest.NoError(t, d.Spec().Containers().At("app").Image().Set("app:1"))
 	})
 	ps, _ := jigsv1.PodSpecableJig.Of(pod)
 
@@ -115,7 +118,7 @@ func TestJigReads(t *testing.T) {
 		t.Errorf("names %q %q", ps.Metadata().Name().Get(), ps.Template().Metadata().Name().Get())
 	}
 	// the whole jig is assembled from the bindings
-	got := ps.DieRelease()
+	got := *ps.DieRelease()
 	if got.Name != "debug" || got.Template.Name != "debug" || got.Template.Spec.Containers[0].Image != "app:1" {
 		t.Errorf("released jig %+v", got)
 	}
@@ -128,12 +131,12 @@ func TestJigOfAnImmutableDieIsImmutable(t *testing.T) {
 	if ps.Template().Spec().Containers().Len() != 0 {
 		t.Errorf("expected no containers")
 	}
-	// DieWith on the jig works on a copy, which is not linked to the source
-	written := ps.DieWith(func(ps *jigsv1.PodSpecableDieMut) {
-		ps.Template().Spec().Containers().At("app").Image().Set("x")
+	// DieStamp on the jig works on a copy, which is not linked to the source
+	written := ps.DieStamp(func(ps *jigsv1.PodSpecableDieMut) {
+		dietest.NoError(t, ps.Template().Spec().Containers().At("app").Image().Set("x"))
 	})
 	if written.Template().Spec().Containers().At("app").Image().Get() != "x" || dieappsv1.DeploymentBlank.Spec().Template().Spec().Containers().Len() != 0 {
-		t.Errorf("written %s", written.DieReleaseJSON())
+		t.Errorf("written %s", die.ReleaseJSON(written))
 	}
 }
 
@@ -147,9 +150,9 @@ func TestJigOfAnUnknownType(t *testing.T) {
 func TestStampThroughAJig(t *testing.T) {
 	deploy := dieappsv1.DeploymentBlank.DieMutable()
 	ps, _ := jigsv1.PodSpecableJig.OfMut(deploy)
-	ps.Template().DieStamp(func(r *diecorev1.PodTemplateSpec) {
+	dietest.NoError(t, die.StampValue(ps.Template(), func(r *diecorev1.PodTemplateSpec) {
 		r.Labels = map[string]string{"app": "web"}
-	})
+	}))
 	if got := deploy.Spec().Template().Metadata().Labels().At("app"); got != "web" {
 		t.Errorf("label %q", got)
 	}
@@ -166,21 +169,21 @@ func TestOverlappingBindingsShareTheSource(t *testing.T) {
 	templateLabels := ps.Template().Metadata().Labels()
 	templateName := ps.Template().Metadata().Name()
 
-	ps.Metadata().Labels().Set("app", "web")
-	ps.Metadata().Name().Set("debug")
+	dietest.NoError(t, ps.Metadata().Labels().Set("app", "web"))
+	dietest.NoError(t, ps.Metadata().Name().Set("debug"))
 	if templateLabels.At("app") != "web" || templateName.Get() != "debug" {
 		t.Errorf("template metadata %v %q, want the write through metadata", templateLabels.Keys(), templateName.Get())
 	}
 
 	// and the other way
-	ps.Template().Metadata().Annotations().Set("note", "hi")
+	dietest.NoError(t, ps.Template().Metadata().Annotations().Set("note", "hi"))
 	if got := ps.Metadata().Annotations().At("note"); got != "hi" {
 		t.Errorf("annotation %q, want the write through template metadata", got)
 	}
 
 	// a value already read is a copy, and does not change
-	snapshot := ps.Metadata().DieRelease()
-	ps.Metadata().Labels().Set("app", "api")
+	snapshot := *ps.Metadata().DieRelease()
+	dietest.NoError(t, ps.Metadata().Labels().Set("app", "api"))
 	if snapshot.Labels["app"] != "web" || ps.Template().Metadata().Labels().At("app") != "api" {
 		t.Errorf("snapshot %v, live %v", snapshot.Labels, ps.Template().Metadata().Labels().Keys())
 	}
@@ -189,13 +192,13 @@ func TestOverlappingBindingsShareTheSource(t *testing.T) {
 // A copy of a jig is unlinked from its source: it reads what the jig did,
 // and writes to it stay in the copy.
 func TestJigCopyIsUnlinked(t *testing.T) {
-	deploy := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1")
-	}).DieCommit().DieMutable()
+	deploy := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
+	}).DieTare().DieMutable()
 	ps, _ := jigsv1.PodSpecableJig.OfMut(deploy)
 
 	copied := ps.DeepCopy()
-	copied.Template().Spec().Containers().At("app").Image().Set("app:2")
+	dietest.NoError(t, copied.Template().Spec().Containers().At("app").Image().Set("app:2"))
 	if got := copied.Template().Spec().Containers().At("app").Image().Get(); got != "app:2" {
 		t.Errorf("copy image %q", got)
 	}
@@ -203,6 +206,6 @@ func TestJigCopyIsUnlinked(t *testing.T) {
 		t.Errorf("source image %q", got)
 	}
 	// the copy is a root of its own, whose intent is only what was written to it
-	got, err := copied.DieReleaseApplyPatchE()
+	got, err := die.ReleaseApplyPatchE(copied)
 	assertJSON(t, got, err, `{"template": {"spec": {"containers": [{"name": "app", "image": "app:2"}]}}}`)
 }

@@ -26,6 +26,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
+	"reconciler.io/dies/v2/die"
+	"reconciler.io/dies/v2/die/dietest"
 )
 
 func unstructuredDeployment() *unstructured.Unstructured {
@@ -46,14 +48,15 @@ func unstructuredDeployment() *unstructured.Unstructured {
 // Clients strip the type metadata of a typed object as they decode it, which
 // isn't intent: patches don't carry it, and the type metadata is gone.
 func TestSetGroupVersionKindIsNotIntent(t *testing.T) {
-	d := dieappsv1.DeploymentBlank.DieMutable().DieFeedUnstructured(unstructuredDeployment())
-	d.Spec().Replicas().Set(4)
+	d := dieappsv1.DeploymentBlank.DieMutable()
+	dietest.NoError(t, die.FeedUnstructured(d, unstructuredDeployment()))
+	dietest.NoError(t, d.Spec().Replicas().Set(4))
 	d.GetObjectKind().SetGroupVersionKind(schema.GroupVersionKind{})
 
 	if gvk := d.GetObjectKind().GroupVersionKind(); !gvk.Empty() {
 		t.Errorf("gvk %v", gvk)
 	}
-	if got, err := d.DieReleaseMergePatchE(); err != nil || string(got) != `{"spec":{"replicas":4}}` {
+	if got, err := die.ReleaseMergePatchE(d); err != nil || string(got) != `{"spec":{"replicas":4}}` {
 		t.Errorf("merge patch %s, %v", got, err)
 	}
 	data, err := d.MarshalJSON()
@@ -61,7 +64,7 @@ func TestSetGroupVersionKindIsNotIntent(t *testing.T) {
 		t.Errorf("encoded %s, %v", data, err)
 	}
 	// an apply always identifies its object
-	if got, err := d.DieReleaseApplyPatchE(); err != nil || !strings.Contains(string(got), `"apiVersion":"apps/v1","kind":"Deployment"`) {
+	if got, err := die.ReleaseApplyPatchE(d); err != nil || !strings.Contains(string(got), `"apiVersion":"apps/v1","kind":"Deployment"`) {
 		t.Errorf("apply patch %s, %v", got, err)
 	}
 }
@@ -69,16 +72,18 @@ func TestSetGroupVersionKindIsNotIntent(t *testing.T) {
 // An object die feeds and releases unstructured objects through its codec, so
 // presence and fields its type doesn't have survive both ways.
 func TestDieFeedUnstructured(t *testing.T) {
-	d := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) { d.DieFeedUnstructured(unstructuredDeployment()) })
+	d := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, die.FeedUnstructured(d, unstructuredDeployment()))
+	})
 	if d.GetName() != "web" || d.Spec().Replicas().Get() != 3 || d.Spec().Template().Spec().Containers().At("app").Image().Get() != "app:1" {
-		t.Errorf("fed %+v", d.DieRelease())
+		t.Errorf("fed %+v", *d.DieRelease())
 	}
 	if !d.Spec().Paused().Has() || d.Spec().MinReadySeconds().Has() {
 		t.Errorf("paused %v, minReadySeconds %v", d.Spec().Paused().Has(), d.Spec().MinReadySeconds().Has())
 	}
 
-	d = d.DieWith(func(d *dieappsv1.DeploymentDieMut) { d.Spec().Replicas().Set(4) })
-	u := d.DieReleaseUnstructured()
+	d = d.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietest.NoError(t, d.Spec().Replicas().Set(4)) })
+	u := die.ReleaseUnstructured(d)
 	if got, _, _ := unstructured.NestedInt64(u.Object, "spec", "replicas"); got != 4 {
 		t.Errorf("replicas %v", u.Object["spec"])
 	}
@@ -94,29 +99,26 @@ func TestDieFeedUnstructured(t *testing.T) {
 
 	// as with DieFeed, a mutable root discards its intent
 	m := dieappsv1.DeploymentBlank.DieMutable()
-	m.Spec().Replicas().Set(9)
-	m.DieFeedUnstructured(unstructuredDeployment())
-	if got, err := m.DieReleaseMergePatchE(); err != nil || string(got) != "{}" {
+	dietest.NoError(t, m.Spec().Replicas().Set(9))
+	dietest.NoError(t, die.FeedUnstructured(m, unstructuredDeployment()))
+	if got, err := die.ReleaseMergePatchE(m); err != nil || string(got) != "{}" {
 		t.Errorf("patch %s, %v", got, err)
 	}
 
 	bad := unstructuredDeployment()
 	bad.Object["spec"] = "not an object"
-	defer func() {
-		if r := recover(); r == nil || !strings.Contains(r.(error).Error(), "feeding") {
-			t.Errorf("recovered %v", r)
-		}
-	}()
-	dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) { d.DieFeedUnstructured(bad) })
+	if err := die.FeedUnstructured(dieappsv1.DeploymentBlank.DieMutable(), bad); err == nil || !strings.Contains(err.Error(), "feeding") {
+		t.Errorf("error %v", err)
+	}
 }
 
-// DieWithE runs an operation that fills in a die, such as a client's, on a
+// DieStampE runs an operation that fills in a die, such as a client's, on a
 // mutable copy of an immutable die, and returns the result immutable, with
 // the operation's error.
-func TestDieWithE(t *testing.T) {
+func TestDieStampE(t *testing.T) {
 	blank := dieappsv1.DeploymentBlank
-	got, err := blank.DieWithE(func(d *dieappsv1.DeploymentDieMut) error {
-		d.DieFeedUnstructured(unstructuredDeployment())
+	got, err := blank.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
+		dietest.NoError(t, die.FeedUnstructured(d, unstructuredDeployment()))
 		return nil
 	})
 	if err != nil || got.GetName() != "web" {
@@ -127,8 +129,8 @@ func TestDieWithE(t *testing.T) {
 	}
 
 	failed := errors.New("failed")
-	got, err = blank.DieWithE(func(d *dieappsv1.DeploymentDieMut) error {
-		d.Spec().Replicas().Set(2)
+	got, err = blank.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
+		dietest.NoError(t, d.Spec().Replicas().Set(2))
 		return failed
 	})
 	if err != failed || got.Spec().Replicas().Get() != 2 {
@@ -136,7 +138,7 @@ func TestDieWithE(t *testing.T) {
 	}
 
 	// a client zeroes the object it decodes into, replacing the die's state
-	got, err = blank.DieWithE(func(d *dieappsv1.DeploymentDieMut) error {
+	got, err = blank.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
 		*d = dieappsv1.DeploymentDieMut{}
 		return json.Unmarshal([]byte(`{"metadata": {"name": "decoded"}}`), d)
 	})
@@ -146,7 +148,7 @@ func TestDieWithE(t *testing.T) {
 
 	// a mutable die passes itself, and keeps what a client decoded into it
 	m := blank.DieMutable()
-	got2, err := m.DieWithE(func(d *dieappsv1.DeploymentDieMut) error {
+	got2, err := m.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
 		*d = dieappsv1.DeploymentDieMut{}
 		return json.Unmarshal([]byte(`{"metadata": {"name": "decoded"}}`), d)
 	})

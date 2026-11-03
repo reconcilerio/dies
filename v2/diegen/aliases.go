@@ -200,7 +200,7 @@ func (g *generator) emitAliases(p, up *packages.Package) error {
 					f.p("// %s", l)
 				}
 			}
-			f.p("type %s = %s.%s", name, pkg, name)
+			f.alias(name, pkg+"."+name, deprecation(g.typeDocs[obj]))
 			if values := valuesOf[obj]; len(values) > 0 {
 				f.p("")
 				f.p("const (")
@@ -218,6 +218,46 @@ func (g *generator) emitAliases(p, up *packages.Package) error {
 		}
 	}
 	return f.write(filepath.Dir(p.GoFiles[0]), typesFile)
+}
+
+// deprecation returns the paragraph of a doc comment that deprecates what it
+// documents, without markers, or nil. As Go's convention has it, and as
+// staticcheck reads it, the paragraph starts with "Deprecated: ".
+func deprecation(doc []string) []string {
+	for i, l := range doc {
+		if !strings.HasPrefix(l, "Deprecated: ") || i > 0 && strings.TrimSpace(doc[i-1]) != "" {
+			continue
+		}
+		var lines []string
+		for _, l := range doc[i:] {
+			if strings.TrimSpace(l) == "" {
+				break
+			}
+			if !strings.HasPrefix(l, "+") {
+				lines = append(lines, l)
+			}
+		}
+		return lines
+	}
+	return nil
+}
+
+// alias emits an alias of a type, below the doc lines already emitted for
+// it. An alias of a deprecated type is deprecated too, so that code naming
+// it is told, and its own use of the type is exempt from the linters that
+// would report it: golangci-lint's directive, and staticcheck's.
+func (f *file) alias(name, target string, deprecated []string) {
+	if deprecated == nil {
+		f.p("type %s = %s", name, target)
+		return
+	}
+	f.p("//")
+	for _, l := range deprecated {
+		f.p("// %s", l)
+	}
+	f.p("//")
+	f.p("//lint:ignore SA1019 an alias is of its type, deprecated or not")
+	f.p("type %s = %s //nolint:staticcheck // an alias is of its type, deprecated or not", name, target)
 }
 
 func embedsTypeMeta(st *types.Struct) bool {

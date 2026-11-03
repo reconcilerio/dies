@@ -35,7 +35,7 @@ import (
 // path are forwarded to the backend.
 //
 // HTTPIngressPathDie is immutable: it reads.
-// [HTTPIngressPathDieMut], its mutable die, also writes, as DieWith passes it.
+// [HTTPIngressPathDieMut], its mutable die, also writes, as DieStamp passes it.
 type HTTPIngressPathDie struct {
 	diebase.DieBase[HTTPIngressPath, *HTTPIngressPathDie, *HTTPIngressPathDieMut]
 }
@@ -84,26 +84,14 @@ func (d *HTTPIngressPathDieMut) DieReleaseApplyConfigurationE() (*HTTPIngressPat
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *HTTPIngressPathDieMut) DieFeedApplyConfiguration(ac *HTTPIngressPathApplyConfiguration) *HTTPIngressPathDieMut {
+func (d *HTTPIngressPathDieMut) DieFeedApplyConfiguration(ac *HTTPIngressPathApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *HTTPIngressPathDieMut) DieStampApplyConfiguration(fn func(ac *HTTPIngressPathApplyConfiguration)) *HTTPIngressPathDieMut {
+func (d *HTTPIngressPathDieMut) DieStampApplyConfiguration(fn func(ac *HTTPIngressPathApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [HTTPIngressPathDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HTTPIngressPathDieMut) DieFeedApplyConfigurationE(ac *HTTPIngressPathApplyConfiguration) (*HTTPIngressPathDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [HTTPIngressPathDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HTTPIngressPathDieMut) DieStampApplyConfigurationE(fn func(ac *HTTPIngressPathApplyConfiguration)) (*HTTPIngressPathDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type hTTPIngressPathFieldsTable struct {
@@ -157,7 +145,7 @@ func (d *HTTPIngressPathDie) Backend() *IngressBackendDie {
 // contain characters disallowed from the conventional "path" part of a URL
 // as defined by RFC 3986. Paths must begin with a '/' and must be present
 // when using PathType with value "Exact" or "Prefix".
-func (d *HTTPIngressPathDieMut) Path() diefields.ValueMut[string, *HTTPIngressPathDieMut] {
+func (d *HTTPIngressPathDieMut) Path() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, hTTPIngressPathFields.Get().Path)
 }
 
@@ -176,7 +164,7 @@ func (d *HTTPIngressPathDieMut) Path() diefields.ValueMut[string, *HTTPIngressPa
 //     or treat it identically to Prefix or Exact path types.
 //
 // Implementations are required to support all path types.
-func (d *HTTPIngressPathDieMut) PathType() diefields.OptionalMut[PathType, *HTTPIngressPathDieMut] {
+func (d *HTTPIngressPathDieMut) PathType() diefields.OptionalMut[PathType] {
 	return diefields.OptionalMutOf(d, hTTPIngressPathFields.Get().PathType)
 }
 
@@ -193,7 +181,7 @@ func (d *HTTPIngressPathDieMut) Backend() *IngressBackendDieMut {
 // or '#'.
 //
 // HTTPIngressRuleValueDie is immutable: it reads.
-// [HTTPIngressRuleValueDieMut], its mutable die, also writes, as DieWith passes it.
+// [HTTPIngressRuleValueDieMut], its mutable die, also writes, as DieStamp passes it.
 type HTTPIngressRuleValueDie struct {
 	diebase.DieBase[HTTPIngressRuleValue, *HTTPIngressRuleValueDie, *HTTPIngressRuleValueDieMut]
 }
@@ -242,26 +230,14 @@ func (d *HTTPIngressRuleValueDieMut) DieReleaseApplyConfigurationE() (*HTTPIngre
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *HTTPIngressRuleValueDieMut) DieFeedApplyConfiguration(ac *HTTPIngressRuleValueApplyConfiguration) *HTTPIngressRuleValueDieMut {
+func (d *HTTPIngressRuleValueDieMut) DieFeedApplyConfiguration(ac *HTTPIngressRuleValueApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *HTTPIngressRuleValueDieMut) DieStampApplyConfiguration(fn func(ac *HTTPIngressRuleValueApplyConfiguration)) *HTTPIngressRuleValueDieMut {
+func (d *HTTPIngressRuleValueDieMut) DieStampApplyConfiguration(fn func(ac *HTTPIngressRuleValueApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [HTTPIngressRuleValueDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HTTPIngressRuleValueDieMut) DieFeedApplyConfigurationE(ac *HTTPIngressRuleValueApplyConfiguration) (*HTTPIngressRuleValueDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [HTTPIngressRuleValueDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HTTPIngressRuleValueDieMut) DieStampApplyConfigurationE(fn func(ac *HTTPIngressRuleValueApplyConfiguration)) (*HTTPIngressRuleValueDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type hTTPIngressRuleValueFieldsTable struct {
@@ -280,7 +256,7 @@ func (d *HTTPIngressRuleValueDie) Paths() diefields.Value[[]HTTPIngressPath] {
 }
 
 // paths is a collection of paths that map requests to backends.
-func (d *HTTPIngressRuleValueDieMut) Paths() diefields.ValueMut[[]HTTPIngressPath, *HTTPIngressRuleValueDieMut] {
+func (d *HTTPIngressRuleValueDieMut) Paths() diefields.ValueMut[[]HTTPIngressPath] {
 	return diefields.ValueMutOf(d, hTTPIngressRuleValueFields.Get().Paths)
 }
 
@@ -293,7 +269,7 @@ func (d *HTTPIngressRuleValueDieMut) Paths() diefields.ValueMut[[]HTTPIngressPat
 // Invalid: 10.01.2.3 or 2001:db8:0:0:0::1
 //
 // IPAddressDie is immutable: it reads.
-// [IPAddressDieMut], its mutable die, also writes, as DieWith passes it.
+// [IPAddressDieMut], its mutable die, also writes, as DieStamp passes it.
 type IPAddressDie struct {
 	diebase.DieObjectBase[IPAddress, *IPAddressDie, *IPAddressDieMut]
 }
@@ -342,26 +318,14 @@ func (d *IPAddressDieMut) DieReleaseApplyConfigurationE() (*IPAddressApplyConfig
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *IPAddressDieMut) DieFeedApplyConfiguration(ac *IPAddressApplyConfiguration) *IPAddressDieMut {
+func (d *IPAddressDieMut) DieFeedApplyConfiguration(ac *IPAddressApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *IPAddressDieMut) DieStampApplyConfiguration(fn func(ac *IPAddressApplyConfiguration)) *IPAddressDieMut {
+func (d *IPAddressDieMut) DieStampApplyConfiguration(fn func(ac *IPAddressApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [IPAddressDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IPAddressDieMut) DieFeedApplyConfigurationE(ac *IPAddressApplyConfiguration) (*IPAddressDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [IPAddressDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IPAddressDieMut) DieStampApplyConfigurationE(fn func(ac *IPAddressApplyConfiguration)) (*IPAddressDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type iPAddressFieldsTable struct {
@@ -414,7 +378,7 @@ func (d *IPAddressDie) Spec() *IPAddressSpecDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *IPAddressDieMut) Kind() diefields.ValueMut[string, *IPAddressDieMut] {
+func (d *IPAddressDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, iPAddressFields.Get().Kind)
 }
 
@@ -422,7 +386,7 @@ func (d *IPAddressDieMut) Kind() diefields.ValueMut[string, *IPAddressDieMut] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *IPAddressDieMut) APIVersion() diefields.ValueMut[string, *IPAddressDieMut] {
+func (d *IPAddressDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, iPAddressFields.Get().APIVersion)
 }
 
@@ -443,8 +407,6 @@ type IPAddressListDie struct {
 	dielists.List[*IPAddressDieMut]
 }
 
-var _ dielists.DieListOf[*IPAddressDieMut] = (*IPAddressListDie)(nil)
-
 // NewIPAddressList returns a list with items.
 func NewIPAddressList(items ...*IPAddressDieMut) *IPAddressListDie {
 	return &IPAddressListDie{dielists.NewList("networking.k8s.io/v1", "IPAddressList", items...)}
@@ -458,7 +420,7 @@ func (l *IPAddressListDie) DeepCopyObject() runtime.Object { return l.DeepCopy()
 // IPAddressSpec describe the attributes in an IP Address.
 //
 // IPAddressSpecDie is immutable: it reads.
-// [IPAddressSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [IPAddressSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type IPAddressSpecDie struct {
 	diebase.DieBase[IPAddressSpec, *IPAddressSpecDie, *IPAddressSpecDieMut]
 }
@@ -507,26 +469,14 @@ func (d *IPAddressSpecDieMut) DieReleaseApplyConfigurationE() (*IPAddressSpecApp
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *IPAddressSpecDieMut) DieFeedApplyConfiguration(ac *IPAddressSpecApplyConfiguration) *IPAddressSpecDieMut {
+func (d *IPAddressSpecDieMut) DieFeedApplyConfiguration(ac *IPAddressSpecApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *IPAddressSpecDieMut) DieStampApplyConfiguration(fn func(ac *IPAddressSpecApplyConfiguration)) *IPAddressSpecDieMut {
+func (d *IPAddressSpecDieMut) DieStampApplyConfiguration(fn func(ac *IPAddressSpecApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [IPAddressSpecDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IPAddressSpecDieMut) DieFeedApplyConfigurationE(ac *IPAddressSpecApplyConfiguration) (*IPAddressSpecDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [IPAddressSpecDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IPAddressSpecDieMut) DieStampApplyConfigurationE(fn func(ac *IPAddressSpecApplyConfiguration)) (*IPAddressSpecDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type iPAddressSpecFieldsTable struct {
@@ -556,7 +506,7 @@ func (d *IPAddressSpecDieMut) ParentRef() *ParentReferenceDieMut {
 // that should not be included within this rule.
 //
 // IPBlockDie is immutable: it reads.
-// [IPBlockDieMut], its mutable die, also writes, as DieWith passes it.
+// [IPBlockDieMut], its mutable die, also writes, as DieStamp passes it.
 type IPBlockDie struct {
 	diebase.DieBase[IPBlock, *IPBlockDie, *IPBlockDieMut]
 }
@@ -605,26 +555,14 @@ func (d *IPBlockDieMut) DieReleaseApplyConfigurationE() (*IPBlockApplyConfigurat
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *IPBlockDieMut) DieFeedApplyConfiguration(ac *IPBlockApplyConfiguration) *IPBlockDieMut {
+func (d *IPBlockDieMut) DieFeedApplyConfiguration(ac *IPBlockApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *IPBlockDieMut) DieStampApplyConfiguration(fn func(ac *IPBlockApplyConfiguration)) *IPBlockDieMut {
+func (d *IPBlockDieMut) DieStampApplyConfiguration(fn func(ac *IPBlockApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [IPBlockDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IPBlockDieMut) DieFeedApplyConfigurationE(ac *IPBlockApplyConfiguration) (*IPBlockDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [IPBlockDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IPBlockDieMut) DieStampApplyConfigurationE(fn func(ac *IPBlockApplyConfiguration)) (*IPBlockDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type iPBlockFieldsTable struct {
@@ -654,14 +592,14 @@ func (d *IPBlockDie) Except() diefields.Value[[]string] {
 
 // cidr is a string representing the IPBlock
 // Valid examples are "192.168.1.0/24" or "2001:db8::/64"
-func (d *IPBlockDieMut) CIDR() diefields.ValueMut[string, *IPBlockDieMut] {
+func (d *IPBlockDieMut) CIDR() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, iPBlockFields.Get().CIDR)
 }
 
 // except is a slice of CIDRs that should not be included within an IPBlock
 // Valid examples are "192.168.1.0/24" or "2001:db8::/64"
 // Except values will be rejected if they are outside the cidr range
-func (d *IPBlockDieMut) Except() diefields.ValueMut[[]string, *IPBlockDieMut] {
+func (d *IPBlockDieMut) Except() diefields.ValueMut[[]string] {
 	return diefields.ValueMutOf(d, iPBlockFields.Get().Except)
 }
 
@@ -671,7 +609,7 @@ func (d *IPBlockDieMut) Except() diefields.ValueMut[[]string, *IPBlockDieMut] {
 // based virtual hosting etc.
 //
 // IngressDie is immutable: it reads.
-// [IngressDieMut], its mutable die, also writes, as DieWith passes it.
+// [IngressDieMut], its mutable die, also writes, as DieStamp passes it.
 type IngressDie struct {
 	diebase.DieObjectBase[Ingress, *IngressDie, *IngressDieMut]
 }
@@ -720,26 +658,14 @@ func (d *IngressDieMut) DieReleaseApplyConfigurationE() (*IngressApplyConfigurat
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *IngressDieMut) DieFeedApplyConfiguration(ac *IngressApplyConfiguration) *IngressDieMut {
+func (d *IngressDieMut) DieFeedApplyConfiguration(ac *IngressApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *IngressDieMut) DieStampApplyConfiguration(fn func(ac *IngressApplyConfiguration)) *IngressDieMut {
+func (d *IngressDieMut) DieStampApplyConfiguration(fn func(ac *IngressApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [IngressDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressDieMut) DieFeedApplyConfigurationE(ac *IngressApplyConfiguration) (*IngressDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [IngressDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressDieMut) DieStampApplyConfigurationE(fn func(ac *IngressApplyConfiguration)) (*IngressDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type ingressFieldsTable struct {
@@ -798,7 +724,7 @@ func (d *IngressDie) Status() *IngressStatusDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *IngressDieMut) Kind() diefields.ValueMut[string, *IngressDieMut] {
+func (d *IngressDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, ingressFields.Get().Kind)
 }
 
@@ -806,7 +732,7 @@ func (d *IngressDieMut) Kind() diefields.ValueMut[string, *IngressDieMut] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *IngressDieMut) APIVersion() diefields.ValueMut[string, *IngressDieMut] {
+func (d *IngressDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, ingressFields.Get().APIVersion)
 }
 
@@ -831,7 +757,7 @@ func (d *IngressDieMut) Status() *IngressStatusDieMut {
 // IngressBackend describes all endpoints for a given service and port.
 //
 // IngressBackendDie is immutable: it reads.
-// [IngressBackendDieMut], its mutable die, also writes, as DieWith passes it.
+// [IngressBackendDieMut], its mutable die, also writes, as DieStamp passes it.
 type IngressBackendDie struct {
 	diebase.DieBase[IngressBackend, *IngressBackendDie, *IngressBackendDieMut]
 }
@@ -880,26 +806,14 @@ func (d *IngressBackendDieMut) DieReleaseApplyConfigurationE() (*IngressBackendA
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *IngressBackendDieMut) DieFeedApplyConfiguration(ac *IngressBackendApplyConfiguration) *IngressBackendDieMut {
+func (d *IngressBackendDieMut) DieFeedApplyConfiguration(ac *IngressBackendApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *IngressBackendDieMut) DieStampApplyConfiguration(fn func(ac *IngressBackendApplyConfiguration)) *IngressBackendDieMut {
+func (d *IngressBackendDieMut) DieStampApplyConfiguration(fn func(ac *IngressBackendApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [IngressBackendDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressBackendDieMut) DieFeedApplyConfigurationE(ac *IngressBackendApplyConfiguration) (*IngressBackendDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [IngressBackendDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressBackendDieMut) DieStampApplyConfigurationE(fn func(ac *IngressBackendApplyConfiguration)) (*IngressBackendDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type ingressBackendFieldsTable struct {
@@ -949,7 +863,7 @@ func (d *IngressBackendDieMut) Resource() *diecorev1.TypedLocalObjectReferenceDi
 // resources without a class specified will be assigned this default class.
 //
 // IngressClassDie is immutable: it reads.
-// [IngressClassDieMut], its mutable die, also writes, as DieWith passes it.
+// [IngressClassDieMut], its mutable die, also writes, as DieStamp passes it.
 type IngressClassDie struct {
 	diebase.DieObjectBase[IngressClass, *IngressClassDie, *IngressClassDieMut]
 }
@@ -998,26 +912,14 @@ func (d *IngressClassDieMut) DieReleaseApplyConfigurationE() (*IngressClassApply
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *IngressClassDieMut) DieFeedApplyConfiguration(ac *IngressClassApplyConfiguration) *IngressClassDieMut {
+func (d *IngressClassDieMut) DieFeedApplyConfiguration(ac *IngressClassApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *IngressClassDieMut) DieStampApplyConfiguration(fn func(ac *IngressClassApplyConfiguration)) *IngressClassDieMut {
+func (d *IngressClassDieMut) DieStampApplyConfiguration(fn func(ac *IngressClassApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [IngressClassDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressClassDieMut) DieFeedApplyConfigurationE(ac *IngressClassApplyConfiguration) (*IngressClassDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [IngressClassDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressClassDieMut) DieStampApplyConfigurationE(fn func(ac *IngressClassApplyConfiguration)) (*IngressClassDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type ingressClassFieldsTable struct {
@@ -1070,7 +972,7 @@ func (d *IngressClassDie) Spec() *IngressClassSpecDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *IngressClassDieMut) Kind() diefields.ValueMut[string, *IngressClassDieMut] {
+func (d *IngressClassDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, ingressClassFields.Get().Kind)
 }
 
@@ -1078,7 +980,7 @@ func (d *IngressClassDieMut) Kind() diefields.ValueMut[string, *IngressClassDieM
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *IngressClassDieMut) APIVersion() diefields.ValueMut[string, *IngressClassDieMut] {
+func (d *IngressClassDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, ingressClassFields.Get().APIVersion)
 }
 
@@ -1099,8 +1001,6 @@ type IngressClassListDie struct {
 	dielists.List[*IngressClassDieMut]
 }
 
-var _ dielists.DieListOf[*IngressClassDieMut] = (*IngressClassListDie)(nil)
-
 // NewIngressClassList returns a list with items.
 func NewIngressClassList(items ...*IngressClassDieMut) *IngressClassListDie {
 	return &IngressClassListDie{dielists.NewList("networking.k8s.io/v1", "IngressClassList", items...)}
@@ -1117,7 +1017,7 @@ func (l *IngressClassListDie) DeepCopyObject() runtime.Object { return l.DeepCop
 // to specify a cluster or namespace-scoped resource.
 //
 // IngressClassParametersReferenceDie is immutable: it reads.
-// [IngressClassParametersReferenceDieMut], its mutable die, also writes, as DieWith passes it.
+// [IngressClassParametersReferenceDieMut], its mutable die, also writes, as DieStamp passes it.
 type IngressClassParametersReferenceDie struct {
 	diebase.DieBase[IngressClassParametersReference, *IngressClassParametersReferenceDie, *IngressClassParametersReferenceDieMut]
 }
@@ -1166,26 +1066,14 @@ func (d *IngressClassParametersReferenceDieMut) DieReleaseApplyConfigurationE() 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *IngressClassParametersReferenceDieMut) DieFeedApplyConfiguration(ac *IngressClassParametersReferenceApplyConfiguration) *IngressClassParametersReferenceDieMut {
+func (d *IngressClassParametersReferenceDieMut) DieFeedApplyConfiguration(ac *IngressClassParametersReferenceApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *IngressClassParametersReferenceDieMut) DieStampApplyConfiguration(fn func(ac *IngressClassParametersReferenceApplyConfiguration)) *IngressClassParametersReferenceDieMut {
+func (d *IngressClassParametersReferenceDieMut) DieStampApplyConfiguration(fn func(ac *IngressClassParametersReferenceApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [IngressClassParametersReferenceDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressClassParametersReferenceDieMut) DieFeedApplyConfigurationE(ac *IngressClassParametersReferenceApplyConfiguration) (*IngressClassParametersReferenceDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [IngressClassParametersReferenceDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressClassParametersReferenceDieMut) DieStampApplyConfigurationE(fn func(ac *IngressClassParametersReferenceApplyConfiguration)) (*IngressClassParametersReferenceDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type ingressClassParametersReferenceFieldsTable struct {
@@ -1239,37 +1127,37 @@ func (d *IngressClassParametersReferenceDie) Namespace() diefields.Optional[stri
 // apiGroup is the group for the resource being referenced. If APIGroup is
 // not specified, the specified Kind must be in the core API group. For any
 // other third-party types, APIGroup is required.
-func (d *IngressClassParametersReferenceDieMut) APIGroup() diefields.OptionalMut[string, *IngressClassParametersReferenceDieMut] {
+func (d *IngressClassParametersReferenceDieMut) APIGroup() diefields.OptionalMut[string] {
 	return diefields.OptionalMutOf(d, ingressClassParametersReferenceFields.Get().APIGroup)
 }
 
 // kind is the type of resource being referenced.
-func (d *IngressClassParametersReferenceDieMut) Kind() diefields.ValueMut[string, *IngressClassParametersReferenceDieMut] {
+func (d *IngressClassParametersReferenceDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, ingressClassParametersReferenceFields.Get().Kind)
 }
 
 // name is the name of resource being referenced.
-func (d *IngressClassParametersReferenceDieMut) Name() diefields.ValueMut[string, *IngressClassParametersReferenceDieMut] {
+func (d *IngressClassParametersReferenceDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, ingressClassParametersReferenceFields.Get().Name)
 }
 
 // scope represents if this refers to a cluster or namespace scoped resource.
 // This may be set to "Cluster" (default) or "Namespace".
-func (d *IngressClassParametersReferenceDieMut) Scope() diefields.OptionalMut[string, *IngressClassParametersReferenceDieMut] {
+func (d *IngressClassParametersReferenceDieMut) Scope() diefields.OptionalMut[string] {
 	return diefields.OptionalMutOf(d, ingressClassParametersReferenceFields.Get().Scope)
 }
 
 // namespace is the namespace of the resource being referenced. This field is
 // required when scope is set to "Namespace" and must be unset when scope is set to
 // "Cluster".
-func (d *IngressClassParametersReferenceDieMut) Namespace() diefields.OptionalMut[string, *IngressClassParametersReferenceDieMut] {
+func (d *IngressClassParametersReferenceDieMut) Namespace() diefields.OptionalMut[string] {
 	return diefields.OptionalMutOf(d, ingressClassParametersReferenceFields.Get().Namespace)
 }
 
 // IngressClassSpec provides information about the class of an Ingress.
 //
 // IngressClassSpecDie is immutable: it reads.
-// [IngressClassSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [IngressClassSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type IngressClassSpecDie struct {
 	diebase.DieBase[IngressClassSpec, *IngressClassSpecDie, *IngressClassSpecDieMut]
 }
@@ -1318,26 +1206,14 @@ func (d *IngressClassSpecDieMut) DieReleaseApplyConfigurationE() (*IngressClassS
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *IngressClassSpecDieMut) DieFeedApplyConfiguration(ac *IngressClassSpecApplyConfiguration) *IngressClassSpecDieMut {
+func (d *IngressClassSpecDieMut) DieFeedApplyConfiguration(ac *IngressClassSpecApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *IngressClassSpecDieMut) DieStampApplyConfiguration(fn func(ac *IngressClassSpecApplyConfiguration)) *IngressClassSpecDieMut {
+func (d *IngressClassSpecDieMut) DieStampApplyConfiguration(fn func(ac *IngressClassSpecApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [IngressClassSpecDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressClassSpecDieMut) DieFeedApplyConfigurationE(ac *IngressClassSpecApplyConfiguration) (*IngressClassSpecDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [IngressClassSpecDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressClassSpecDieMut) DieStampApplyConfigurationE(fn func(ac *IngressClassSpecApplyConfiguration)) (*IngressClassSpecDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type ingressClassSpecFieldsTable struct {
@@ -1375,7 +1251,7 @@ func (d *IngressClassSpecDie) Parameters() *IngressClassParametersReferenceDie {
 // same implementing controller. This should be specified as a
 // domain-prefixed path no more than 250 characters in length, e.g.
 // "acme.io/ingress-controller". This field is immutable.
-func (d *IngressClassSpecDieMut) Controller() diefields.ValueMut[string, *IngressClassSpecDieMut] {
+func (d *IngressClassSpecDieMut) Controller() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, ingressClassSpecFields.Get().Controller)
 }
 
@@ -1391,8 +1267,6 @@ type IngressListDie struct {
 	dielists.List[*IngressDieMut]
 }
 
-var _ dielists.DieListOf[*IngressDieMut] = (*IngressListDie)(nil)
-
 // NewIngressList returns a list with items.
 func NewIngressList(items ...*IngressDieMut) *IngressListDie {
 	return &IngressListDie{dielists.NewList("networking.k8s.io/v1", "IngressList", items...)}
@@ -1406,7 +1280,7 @@ func (l *IngressListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 // IngressLoadBalancerIngress represents the status of a load-balancer ingress point.
 //
 // IngressLoadBalancerIngressDie is immutable: it reads.
-// [IngressLoadBalancerIngressDieMut], its mutable die, also writes, as DieWith passes it.
+// [IngressLoadBalancerIngressDieMut], its mutable die, also writes, as DieStamp passes it.
 type IngressLoadBalancerIngressDie struct {
 	diebase.DieBase[IngressLoadBalancerIngress, *IngressLoadBalancerIngressDie, *IngressLoadBalancerIngressDieMut]
 }
@@ -1455,26 +1329,14 @@ func (d *IngressLoadBalancerIngressDieMut) DieReleaseApplyConfigurationE() (*Ing
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *IngressLoadBalancerIngressDieMut) DieFeedApplyConfiguration(ac *IngressLoadBalancerIngressApplyConfiguration) *IngressLoadBalancerIngressDieMut {
+func (d *IngressLoadBalancerIngressDieMut) DieFeedApplyConfiguration(ac *IngressLoadBalancerIngressApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *IngressLoadBalancerIngressDieMut) DieStampApplyConfiguration(fn func(ac *IngressLoadBalancerIngressApplyConfiguration)) *IngressLoadBalancerIngressDieMut {
+func (d *IngressLoadBalancerIngressDieMut) DieStampApplyConfiguration(fn func(ac *IngressLoadBalancerIngressApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [IngressLoadBalancerIngressDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressLoadBalancerIngressDieMut) DieFeedApplyConfigurationE(ac *IngressLoadBalancerIngressApplyConfiguration) (*IngressLoadBalancerIngressDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [IngressLoadBalancerIngressDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressLoadBalancerIngressDieMut) DieStampApplyConfigurationE(fn func(ac *IngressLoadBalancerIngressApplyConfiguration)) (*IngressLoadBalancerIngressDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type ingressLoadBalancerIngressFieldsTable struct {
@@ -1507,24 +1369,24 @@ func (d *IngressLoadBalancerIngressDie) Ports() diefields.Value[[]IngressPortSta
 }
 
 // ip is set for load-balancer ingress points that are IP based.
-func (d *IngressLoadBalancerIngressDieMut) IP() diefields.ValueMut[string, *IngressLoadBalancerIngressDieMut] {
+func (d *IngressLoadBalancerIngressDieMut) IP() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, ingressLoadBalancerIngressFields.Get().IP)
 }
 
 // hostname is set for load-balancer ingress points that are DNS based.
-func (d *IngressLoadBalancerIngressDieMut) Hostname() diefields.ValueMut[string, *IngressLoadBalancerIngressDieMut] {
+func (d *IngressLoadBalancerIngressDieMut) Hostname() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, ingressLoadBalancerIngressFields.Get().Hostname)
 }
 
 // ports provides information about the ports exposed by this LoadBalancer.
-func (d *IngressLoadBalancerIngressDieMut) Ports() diefields.ValueMut[[]IngressPortStatus, *IngressLoadBalancerIngressDieMut] {
+func (d *IngressLoadBalancerIngressDieMut) Ports() diefields.ValueMut[[]IngressPortStatus] {
 	return diefields.ValueMutOf(d, ingressLoadBalancerIngressFields.Get().Ports)
 }
 
 // IngressLoadBalancerStatus represents the status of a load-balancer.
 //
 // IngressLoadBalancerStatusDie is immutable: it reads.
-// [IngressLoadBalancerStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [IngressLoadBalancerStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type IngressLoadBalancerStatusDie struct {
 	diebase.DieBase[IngressLoadBalancerStatus, *IngressLoadBalancerStatusDie, *IngressLoadBalancerStatusDieMut]
 }
@@ -1573,26 +1435,14 @@ func (d *IngressLoadBalancerStatusDieMut) DieReleaseApplyConfigurationE() (*Ingr
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *IngressLoadBalancerStatusDieMut) DieFeedApplyConfiguration(ac *IngressLoadBalancerStatusApplyConfiguration) *IngressLoadBalancerStatusDieMut {
+func (d *IngressLoadBalancerStatusDieMut) DieFeedApplyConfiguration(ac *IngressLoadBalancerStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *IngressLoadBalancerStatusDieMut) DieStampApplyConfiguration(fn func(ac *IngressLoadBalancerStatusApplyConfiguration)) *IngressLoadBalancerStatusDieMut {
+func (d *IngressLoadBalancerStatusDieMut) DieStampApplyConfiguration(fn func(ac *IngressLoadBalancerStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [IngressLoadBalancerStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressLoadBalancerStatusDieMut) DieFeedApplyConfigurationE(ac *IngressLoadBalancerStatusApplyConfiguration) (*IngressLoadBalancerStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [IngressLoadBalancerStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressLoadBalancerStatusDieMut) DieStampApplyConfigurationE(fn func(ac *IngressLoadBalancerStatusApplyConfiguration)) (*IngressLoadBalancerStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type ingressLoadBalancerStatusFieldsTable struct {
@@ -1611,14 +1461,14 @@ func (d *IngressLoadBalancerStatusDie) Ingress() diefields.Value[[]IngressLoadBa
 }
 
 // ingress is a list containing ingress points for the load-balancer.
-func (d *IngressLoadBalancerStatusDieMut) Ingress() diefields.ValueMut[[]IngressLoadBalancerIngress, *IngressLoadBalancerStatusDieMut] {
+func (d *IngressLoadBalancerStatusDieMut) Ingress() diefields.ValueMut[[]IngressLoadBalancerIngress] {
 	return diefields.ValueMutOf(d, ingressLoadBalancerStatusFields.Get().Ingress)
 }
 
 // IngressPortStatus represents the error condition of a service port
 //
 // IngressPortStatusDie is immutable: it reads.
-// [IngressPortStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [IngressPortStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type IngressPortStatusDie struct {
 	diebase.DieBase[IngressPortStatus, *IngressPortStatusDie, *IngressPortStatusDieMut]
 }
@@ -1667,26 +1517,14 @@ func (d *IngressPortStatusDieMut) DieReleaseApplyConfigurationE() (*IngressPortS
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *IngressPortStatusDieMut) DieFeedApplyConfiguration(ac *IngressPortStatusApplyConfiguration) *IngressPortStatusDieMut {
+func (d *IngressPortStatusDieMut) DieFeedApplyConfiguration(ac *IngressPortStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *IngressPortStatusDieMut) DieStampApplyConfiguration(fn func(ac *IngressPortStatusApplyConfiguration)) *IngressPortStatusDieMut {
+func (d *IngressPortStatusDieMut) DieStampApplyConfiguration(fn func(ac *IngressPortStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [IngressPortStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressPortStatusDieMut) DieFeedApplyConfigurationE(ac *IngressPortStatusApplyConfiguration) (*IngressPortStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [IngressPortStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressPortStatusDieMut) DieStampApplyConfigurationE(fn func(ac *IngressPortStatusApplyConfiguration)) (*IngressPortStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type ingressPortStatusFieldsTable struct {
@@ -1728,13 +1566,13 @@ func (d *IngressPortStatusDie) Error() diefields.Optional[string] {
 }
 
 // port is the port number of the ingress port.
-func (d *IngressPortStatusDieMut) Port() diefields.ValueMut[int32, *IngressPortStatusDieMut] {
+func (d *IngressPortStatusDieMut) Port() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, ingressPortStatusFields.Get().Port)
 }
 
 // protocol is the protocol of the ingress port.
 // The supported values are: "TCP", "UDP", "SCTP"
-func (d *IngressPortStatusDieMut) Protocol() diefields.ValueMut[diecorev1.Protocol, *IngressPortStatusDieMut] {
+func (d *IngressPortStatusDieMut) Protocol() diefields.ValueMut[diecorev1.Protocol] {
 	return diefields.ValueMutOf(d, ingressPortStatusFields.Get().Protocol)
 }
 
@@ -1747,7 +1585,7 @@ func (d *IngressPortStatusDieMut) Protocol() diefields.ValueMut[diecorev1.Protoc
 //
 // ---
 // The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
-func (d *IngressPortStatusDieMut) Error() diefields.OptionalMut[string, *IngressPortStatusDieMut] {
+func (d *IngressPortStatusDieMut) Error() diefields.OptionalMut[string] {
 	return diefields.OptionalMutOf(d, ingressPortStatusFields.Get().Error)
 }
 
@@ -1756,7 +1594,7 @@ func (d *IngressPortStatusDieMut) Error() diefields.OptionalMut[string, *Ingress
 // match, then routed to the backend associated with the matching IngressRuleValue.
 //
 // IngressRuleDie is immutable: it reads.
-// [IngressRuleDieMut], its mutable die, also writes, as DieWith passes it.
+// [IngressRuleDieMut], its mutable die, also writes, as DieStamp passes it.
 type IngressRuleDie struct {
 	diebase.DieBase[IngressRule, *IngressRuleDie, *IngressRuleDieMut]
 }
@@ -1805,26 +1643,14 @@ func (d *IngressRuleDieMut) DieReleaseApplyConfigurationE() (*IngressRuleApplyCo
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *IngressRuleDieMut) DieFeedApplyConfiguration(ac *IngressRuleApplyConfiguration) *IngressRuleDieMut {
+func (d *IngressRuleDieMut) DieFeedApplyConfiguration(ac *IngressRuleApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *IngressRuleDieMut) DieStampApplyConfiguration(fn func(ac *IngressRuleApplyConfiguration)) *IngressRuleDieMut {
+func (d *IngressRuleDieMut) DieStampApplyConfiguration(fn func(ac *IngressRuleApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [IngressRuleDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressRuleDieMut) DieFeedApplyConfigurationE(ac *IngressRuleApplyConfiguration) (*IngressRuleDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [IngressRuleDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressRuleDieMut) DieStampApplyConfigurationE(fn func(ac *IngressRuleApplyConfiguration)) (*IngressRuleDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type ingressRuleFieldsTable struct {
@@ -1894,7 +1720,7 @@ func (d *IngressRuleDie) HTTP() *HTTPIngressRuleValueDie {
 // 1. If host is precise, the request matches this rule if the http host header is equal to Host.
 // 2. If host is a wildcard, then the request matches this rule if the http host header
 // is to equal to the suffix (removing the first label) of the wildcard rule.
-func (d *IngressRuleDieMut) Host() diefields.ValueMut[string, *IngressRuleDieMut] {
+func (d *IngressRuleDieMut) Host() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, ingressRuleFields.Get().Host)
 }
 
@@ -1909,7 +1735,7 @@ func (d *IngressRuleDieMut) HTTP() *HTTPIngressRuleValueDieMut {
 // one of the following must be set.
 //
 // IngressRuleValueDie is immutable: it reads.
-// [IngressRuleValueDieMut], its mutable die, also writes, as DieWith passes it.
+// [IngressRuleValueDieMut], its mutable die, also writes, as DieStamp passes it.
 type IngressRuleValueDie struct {
 	diebase.DieBase[IngressRuleValue, *IngressRuleValueDie, *IngressRuleValueDieMut]
 }
@@ -1958,26 +1784,14 @@ func (d *IngressRuleValueDieMut) DieReleaseApplyConfigurationE() (*IngressRuleVa
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *IngressRuleValueDieMut) DieFeedApplyConfiguration(ac *IngressRuleValueApplyConfiguration) *IngressRuleValueDieMut {
+func (d *IngressRuleValueDieMut) DieFeedApplyConfiguration(ac *IngressRuleValueApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *IngressRuleValueDieMut) DieStampApplyConfiguration(fn func(ac *IngressRuleValueApplyConfiguration)) *IngressRuleValueDieMut {
+func (d *IngressRuleValueDieMut) DieStampApplyConfiguration(fn func(ac *IngressRuleValueApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [IngressRuleValueDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressRuleValueDieMut) DieFeedApplyConfigurationE(ac *IngressRuleValueApplyConfiguration) (*IngressRuleValueDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [IngressRuleValueDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressRuleValueDieMut) DieStampApplyConfigurationE(fn func(ac *IngressRuleValueApplyConfiguration)) (*IngressRuleValueDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type ingressRuleValueFieldsTable struct {
@@ -2003,7 +1817,7 @@ func (d *IngressRuleValueDieMut) HTTP() *HTTPIngressRuleValueDieMut {
 // IngressServiceBackend references a Kubernetes Service as a Backend.
 //
 // IngressServiceBackendDie is immutable: it reads.
-// [IngressServiceBackendDieMut], its mutable die, also writes, as DieWith passes it.
+// [IngressServiceBackendDieMut], its mutable die, also writes, as DieStamp passes it.
 type IngressServiceBackendDie struct {
 	diebase.DieBase[IngressServiceBackend, *IngressServiceBackendDie, *IngressServiceBackendDieMut]
 }
@@ -2052,26 +1866,14 @@ func (d *IngressServiceBackendDieMut) DieReleaseApplyConfigurationE() (*IngressS
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *IngressServiceBackendDieMut) DieFeedApplyConfiguration(ac *IngressServiceBackendApplyConfiguration) *IngressServiceBackendDieMut {
+func (d *IngressServiceBackendDieMut) DieFeedApplyConfiguration(ac *IngressServiceBackendApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *IngressServiceBackendDieMut) DieStampApplyConfiguration(fn func(ac *IngressServiceBackendApplyConfiguration)) *IngressServiceBackendDieMut {
+func (d *IngressServiceBackendDieMut) DieStampApplyConfiguration(fn func(ac *IngressServiceBackendApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [IngressServiceBackendDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressServiceBackendDieMut) DieFeedApplyConfigurationE(ac *IngressServiceBackendApplyConfiguration) (*IngressServiceBackendDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [IngressServiceBackendDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressServiceBackendDieMut) DieStampApplyConfigurationE(fn func(ac *IngressServiceBackendApplyConfiguration)) (*IngressServiceBackendDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type ingressServiceBackendFieldsTable struct {
@@ -2100,7 +1902,7 @@ func (d *IngressServiceBackendDie) Port() *ServiceBackendPortDie {
 
 // name is the referenced service. The service must exist in
 // the same namespace as the Ingress object.
-func (d *IngressServiceBackendDieMut) Name() diefields.ValueMut[string, *IngressServiceBackendDieMut] {
+func (d *IngressServiceBackendDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, ingressServiceBackendFields.Get().Name)
 }
 
@@ -2113,7 +1915,7 @@ func (d *IngressServiceBackendDieMut) Port() *ServiceBackendPortDieMut {
 // IngressSpec describes the Ingress the user wishes to exist.
 //
 // IngressSpecDie is immutable: it reads.
-// [IngressSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [IngressSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type IngressSpecDie struct {
 	diebase.DieBase[IngressSpec, *IngressSpecDie, *IngressSpecDieMut]
 }
@@ -2162,26 +1964,14 @@ func (d *IngressSpecDieMut) DieReleaseApplyConfigurationE() (*IngressSpecApplyCo
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *IngressSpecDieMut) DieFeedApplyConfiguration(ac *IngressSpecApplyConfiguration) *IngressSpecDieMut {
+func (d *IngressSpecDieMut) DieFeedApplyConfiguration(ac *IngressSpecApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *IngressSpecDieMut) DieStampApplyConfiguration(fn func(ac *IngressSpecApplyConfiguration)) *IngressSpecDieMut {
+func (d *IngressSpecDieMut) DieStampApplyConfiguration(fn func(ac *IngressSpecApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [IngressSpecDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressSpecDieMut) DieFeedApplyConfigurationE(ac *IngressSpecApplyConfiguration) (*IngressSpecDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [IngressSpecDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressSpecDieMut) DieStampApplyConfigurationE(fn func(ac *IngressSpecApplyConfiguration)) (*IngressSpecDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type ingressSpecFieldsTable struct {
@@ -2247,7 +2037,7 @@ func (d *IngressSpecDie) Rules() diefields.Value[[]IngressRule] {
 // created Ingress resources should prefer using the field. However, even
 // though the annotation is officially deprecated, for backwards compatibility
 // reasons, ingress controllers should still honor that annotation if present.
-func (d *IngressSpecDieMut) IngressClassName() diefields.OptionalMut[string, *IngressSpecDieMut] {
+func (d *IngressSpecDieMut) IngressClassName() diefields.OptionalMut[string] {
 	return diefields.OptionalMutOf(d, ingressSpecFields.Get().IngressClassName)
 }
 
@@ -2264,20 +2054,20 @@ func (d *IngressSpecDieMut) DefaultBackend() *IngressBackendDieMut {
 // they will be multiplexed on the same port according to the hostname specified
 // through the SNI TLS extension, if the ingress controller fulfilling the
 // ingress supports SNI.
-func (d *IngressSpecDieMut) TLS() diefields.ValueMut[[]IngressTLS, *IngressSpecDieMut] {
+func (d *IngressSpecDieMut) TLS() diefields.ValueMut[[]IngressTLS] {
 	return diefields.ValueMutOf(d, ingressSpecFields.Get().TLS)
 }
 
 // rules is a list of host rules used to configure the Ingress. If unspecified,
 // or no rule matches, all traffic is sent to the default backend.
-func (d *IngressSpecDieMut) Rules() diefields.ValueMut[[]IngressRule, *IngressSpecDieMut] {
+func (d *IngressSpecDieMut) Rules() diefields.ValueMut[[]IngressRule] {
 	return diefields.ValueMutOf(d, ingressSpecFields.Get().Rules)
 }
 
 // IngressStatus describe the current state of the Ingress.
 //
 // IngressStatusDie is immutable: it reads.
-// [IngressStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [IngressStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type IngressStatusDie struct {
 	diebase.DieBase[IngressStatus, *IngressStatusDie, *IngressStatusDieMut]
 }
@@ -2326,26 +2116,14 @@ func (d *IngressStatusDieMut) DieReleaseApplyConfigurationE() (*IngressStatusApp
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *IngressStatusDieMut) DieFeedApplyConfiguration(ac *IngressStatusApplyConfiguration) *IngressStatusDieMut {
+func (d *IngressStatusDieMut) DieFeedApplyConfiguration(ac *IngressStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *IngressStatusDieMut) DieStampApplyConfiguration(fn func(ac *IngressStatusApplyConfiguration)) *IngressStatusDieMut {
+func (d *IngressStatusDieMut) DieStampApplyConfiguration(fn func(ac *IngressStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [IngressStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressStatusDieMut) DieFeedApplyConfigurationE(ac *IngressStatusApplyConfiguration) (*IngressStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [IngressStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressStatusDieMut) DieStampApplyConfigurationE(fn func(ac *IngressStatusApplyConfiguration)) (*IngressStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type ingressStatusFieldsTable struct {
@@ -2371,7 +2149,7 @@ func (d *IngressStatusDieMut) LoadBalancer() *IngressLoadBalancerStatusDieMut {
 // IngressTLS describes the transport layer security associated with an ingress.
 //
 // IngressTLSDie is immutable: it reads.
-// [IngressTLSDieMut], its mutable die, also writes, as DieWith passes it.
+// [IngressTLSDieMut], its mutable die, also writes, as DieStamp passes it.
 type IngressTLSDie struct {
 	diebase.DieBase[IngressTLS, *IngressTLSDie, *IngressTLSDieMut]
 }
@@ -2420,26 +2198,14 @@ func (d *IngressTLSDieMut) DieReleaseApplyConfigurationE() (*IngressTLSApplyConf
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *IngressTLSDieMut) DieFeedApplyConfiguration(ac *IngressTLSApplyConfiguration) *IngressTLSDieMut {
+func (d *IngressTLSDieMut) DieFeedApplyConfiguration(ac *IngressTLSApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *IngressTLSDieMut) DieStampApplyConfiguration(fn func(ac *IngressTLSApplyConfiguration)) *IngressTLSDieMut {
+func (d *IngressTLSDieMut) DieStampApplyConfiguration(fn func(ac *IngressTLSApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [IngressTLSDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressTLSDieMut) DieFeedApplyConfigurationE(ac *IngressTLSApplyConfiguration) (*IngressTLSDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [IngressTLSDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *IngressTLSDieMut) DieStampApplyConfigurationE(fn func(ac *IngressTLSApplyConfiguration)) (*IngressTLSDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type ingressTLSFieldsTable struct {
@@ -2475,7 +2241,7 @@ func (d *IngressTLSDie) SecretName() diefields.Value[string] {
 // this list must match the name/s used in the tlsSecret. Defaults to the
 // wildcard host setting for the loadbalancer controller fulfilling this
 // Ingress, if left unspecified.
-func (d *IngressTLSDieMut) Hosts() diefields.ValueMut[[]string, *IngressTLSDieMut] {
+func (d *IngressTLSDieMut) Hosts() diefields.ValueMut[[]string] {
 	return diefields.ValueMutOf(d, ingressTLSFields.Get().Hosts)
 }
 
@@ -2484,14 +2250,14 @@ func (d *IngressTLSDieMut) Hosts() diefields.ValueMut[[]string, *IngressTLSDieMu
 // hostname alone. If the SNI host in a listener conflicts with the "Host"
 // header field used by an IngressRule, the SNI host is used for termination
 // and value of the "Host" header is used for routing.
-func (d *IngressTLSDieMut) SecretName() diefields.ValueMut[string, *IngressTLSDieMut] {
+func (d *IngressTLSDieMut) SecretName() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, ingressTLSFields.Get().SecretName)
 }
 
 // NetworkPolicy describes what network traffic is allowed for a set of Pods
 //
 // NetworkPolicyDie is immutable: it reads.
-// [NetworkPolicyDieMut], its mutable die, also writes, as DieWith passes it.
+// [NetworkPolicyDieMut], its mutable die, also writes, as DieStamp passes it.
 type NetworkPolicyDie struct {
 	diebase.DieObjectBase[NetworkPolicy, *NetworkPolicyDie, *NetworkPolicyDieMut]
 }
@@ -2540,26 +2306,14 @@ func (d *NetworkPolicyDieMut) DieReleaseApplyConfigurationE() (*NetworkPolicyApp
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *NetworkPolicyDieMut) DieFeedApplyConfiguration(ac *NetworkPolicyApplyConfiguration) *NetworkPolicyDieMut {
+func (d *NetworkPolicyDieMut) DieFeedApplyConfiguration(ac *NetworkPolicyApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *NetworkPolicyDieMut) DieStampApplyConfiguration(fn func(ac *NetworkPolicyApplyConfiguration)) *NetworkPolicyDieMut {
+func (d *NetworkPolicyDieMut) DieStampApplyConfiguration(fn func(ac *NetworkPolicyApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [NetworkPolicyDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *NetworkPolicyDieMut) DieFeedApplyConfigurationE(ac *NetworkPolicyApplyConfiguration) (*NetworkPolicyDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [NetworkPolicyDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *NetworkPolicyDieMut) DieStampApplyConfigurationE(fn func(ac *NetworkPolicyApplyConfiguration)) (*NetworkPolicyDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type networkPolicyFieldsTable struct {
@@ -2611,7 +2365,7 @@ func (d *NetworkPolicyDie) Spec() *NetworkPolicySpecDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *NetworkPolicyDieMut) Kind() diefields.ValueMut[string, *NetworkPolicyDieMut] {
+func (d *NetworkPolicyDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, networkPolicyFields.Get().Kind)
 }
 
@@ -2619,7 +2373,7 @@ func (d *NetworkPolicyDieMut) Kind() diefields.ValueMut[string, *NetworkPolicyDi
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *NetworkPolicyDieMut) APIVersion() diefields.ValueMut[string, *NetworkPolicyDieMut] {
+func (d *NetworkPolicyDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, networkPolicyFields.Get().APIVersion)
 }
 
@@ -2639,7 +2393,7 @@ func (d *NetworkPolicyDieMut) Spec() *NetworkPolicySpecDieMut {
 // This type is beta-level in 1.8
 //
 // NetworkPolicyEgressRuleDie is immutable: it reads.
-// [NetworkPolicyEgressRuleDieMut], its mutable die, also writes, as DieWith passes it.
+// [NetworkPolicyEgressRuleDieMut], its mutable die, also writes, as DieStamp passes it.
 type NetworkPolicyEgressRuleDie struct {
 	diebase.DieBase[NetworkPolicyEgressRule, *NetworkPolicyEgressRuleDie, *NetworkPolicyEgressRuleDieMut]
 }
@@ -2688,26 +2442,14 @@ func (d *NetworkPolicyEgressRuleDieMut) DieReleaseApplyConfigurationE() (*Networ
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *NetworkPolicyEgressRuleDieMut) DieFeedApplyConfiguration(ac *NetworkPolicyEgressRuleApplyConfiguration) *NetworkPolicyEgressRuleDieMut {
+func (d *NetworkPolicyEgressRuleDieMut) DieFeedApplyConfiguration(ac *NetworkPolicyEgressRuleApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *NetworkPolicyEgressRuleDieMut) DieStampApplyConfiguration(fn func(ac *NetworkPolicyEgressRuleApplyConfiguration)) *NetworkPolicyEgressRuleDieMut {
+func (d *NetworkPolicyEgressRuleDieMut) DieStampApplyConfiguration(fn func(ac *NetworkPolicyEgressRuleApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [NetworkPolicyEgressRuleDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *NetworkPolicyEgressRuleDieMut) DieFeedApplyConfigurationE(ac *NetworkPolicyEgressRuleApplyConfiguration) (*NetworkPolicyEgressRuleDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [NetworkPolicyEgressRuleDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *NetworkPolicyEgressRuleDieMut) DieStampApplyConfigurationE(fn func(ac *NetworkPolicyEgressRuleApplyConfiguration)) (*NetworkPolicyEgressRuleDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type networkPolicyEgressRuleFieldsTable struct {
@@ -2745,7 +2487,7 @@ func (d *NetworkPolicyEgressRuleDie) To() diefields.Value[[]NetworkPolicyPeer] {
 // empty or missing, this rule matches all ports (traffic not restricted by port).
 // If this field is present and contains at least one item, then this rule allows
 // traffic only if the traffic matches at least one port in the list.
-func (d *NetworkPolicyEgressRuleDieMut) Ports() diefields.ValueMut[[]NetworkPolicyPort, *NetworkPolicyEgressRuleDieMut] {
+func (d *NetworkPolicyEgressRuleDieMut) Ports() diefields.ValueMut[[]NetworkPolicyPort] {
 	return diefields.ValueMutOf(d, networkPolicyEgressRuleFields.Get().Ports)
 }
 
@@ -2754,7 +2496,7 @@ func (d *NetworkPolicyEgressRuleDieMut) Ports() diefields.ValueMut[[]NetworkPoli
 // empty or missing, this rule matches all destinations (traffic not restricted by
 // destination). If this field is present and contains at least one item, this rule
 // allows traffic only if the traffic matches at least one item in the to list.
-func (d *NetworkPolicyEgressRuleDieMut) To() diefields.ValueMut[[]NetworkPolicyPeer, *NetworkPolicyEgressRuleDieMut] {
+func (d *NetworkPolicyEgressRuleDieMut) To() diefields.ValueMut[[]NetworkPolicyPeer] {
 	return diefields.ValueMutOf(d, networkPolicyEgressRuleFields.Get().To)
 }
 
@@ -2762,7 +2504,7 @@ func (d *NetworkPolicyEgressRuleDieMut) To() diefields.ValueMut[[]NetworkPolicyP
 // matched by a NetworkPolicySpec's podSelector. The traffic must match both ports and from.
 //
 // NetworkPolicyIngressRuleDie is immutable: it reads.
-// [NetworkPolicyIngressRuleDieMut], its mutable die, also writes, as DieWith passes it.
+// [NetworkPolicyIngressRuleDieMut], its mutable die, also writes, as DieStamp passes it.
 type NetworkPolicyIngressRuleDie struct {
 	diebase.DieBase[NetworkPolicyIngressRule, *NetworkPolicyIngressRuleDie, *NetworkPolicyIngressRuleDieMut]
 }
@@ -2811,26 +2553,14 @@ func (d *NetworkPolicyIngressRuleDieMut) DieReleaseApplyConfigurationE() (*Netwo
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *NetworkPolicyIngressRuleDieMut) DieFeedApplyConfiguration(ac *NetworkPolicyIngressRuleApplyConfiguration) *NetworkPolicyIngressRuleDieMut {
+func (d *NetworkPolicyIngressRuleDieMut) DieFeedApplyConfiguration(ac *NetworkPolicyIngressRuleApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *NetworkPolicyIngressRuleDieMut) DieStampApplyConfiguration(fn func(ac *NetworkPolicyIngressRuleApplyConfiguration)) *NetworkPolicyIngressRuleDieMut {
+func (d *NetworkPolicyIngressRuleDieMut) DieStampApplyConfiguration(fn func(ac *NetworkPolicyIngressRuleApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [NetworkPolicyIngressRuleDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *NetworkPolicyIngressRuleDieMut) DieFeedApplyConfigurationE(ac *NetworkPolicyIngressRuleApplyConfiguration) (*NetworkPolicyIngressRuleDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [NetworkPolicyIngressRuleDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *NetworkPolicyIngressRuleDieMut) DieStampApplyConfigurationE(fn func(ac *NetworkPolicyIngressRuleApplyConfiguration)) (*NetworkPolicyIngressRuleDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type networkPolicyIngressRuleFieldsTable struct {
@@ -2868,7 +2598,7 @@ func (d *NetworkPolicyIngressRuleDie) From() diefields.Value[[]NetworkPolicyPeer
 // empty or missing, this rule matches all ports (traffic not restricted by port).
 // If this field is present and contains at least one item, then this rule allows
 // traffic only if the traffic matches at least one port in the list.
-func (d *NetworkPolicyIngressRuleDieMut) Ports() diefields.ValueMut[[]NetworkPolicyPort, *NetworkPolicyIngressRuleDieMut] {
+func (d *NetworkPolicyIngressRuleDieMut) Ports() diefields.ValueMut[[]NetworkPolicyPort] {
 	return diefields.ValueMutOf(d, networkPolicyIngressRuleFields.Get().Ports)
 }
 
@@ -2877,7 +2607,7 @@ func (d *NetworkPolicyIngressRuleDieMut) Ports() diefields.ValueMut[[]NetworkPol
 // empty or missing, this rule matches all sources (traffic not restricted by
 // source). If this field is present and contains at least one item, this rule
 // allows traffic only if the traffic matches at least one item in the from list.
-func (d *NetworkPolicyIngressRuleDieMut) From() diefields.ValueMut[[]NetworkPolicyPeer, *NetworkPolicyIngressRuleDieMut] {
+func (d *NetworkPolicyIngressRuleDieMut) From() diefields.ValueMut[[]NetworkPolicyPeer] {
 	return diefields.ValueMutOf(d, networkPolicyIngressRuleFields.Get().From)
 }
 
@@ -2885,8 +2615,6 @@ func (d *NetworkPolicyIngressRuleDieMut) From() diefields.ValueMut[[]NetworkPoli
 type NetworkPolicyListDie struct {
 	dielists.List[*NetworkPolicyDieMut]
 }
-
-var _ dielists.DieListOf[*NetworkPolicyDieMut] = (*NetworkPolicyListDie)(nil)
 
 // NewNetworkPolicyList returns a list with items.
 func NewNetworkPolicyList(items ...*NetworkPolicyDieMut) *NetworkPolicyListDie {
@@ -2904,7 +2632,7 @@ func (l *NetworkPolicyListDie) DeepCopyObject() runtime.Object { return l.DeepCo
 // fields are allowed
 //
 // NetworkPolicyPeerDie is immutable: it reads.
-// [NetworkPolicyPeerDieMut], its mutable die, also writes, as DieWith passes it.
+// [NetworkPolicyPeerDieMut], its mutable die, also writes, as DieStamp passes it.
 type NetworkPolicyPeerDie struct {
 	diebase.DieBase[NetworkPolicyPeer, *NetworkPolicyPeerDie, *NetworkPolicyPeerDieMut]
 }
@@ -2953,26 +2681,14 @@ func (d *NetworkPolicyPeerDieMut) DieReleaseApplyConfigurationE() (*NetworkPolic
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *NetworkPolicyPeerDieMut) DieFeedApplyConfiguration(ac *NetworkPolicyPeerApplyConfiguration) *NetworkPolicyPeerDieMut {
+func (d *NetworkPolicyPeerDieMut) DieFeedApplyConfiguration(ac *NetworkPolicyPeerApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *NetworkPolicyPeerDieMut) DieStampApplyConfiguration(fn func(ac *NetworkPolicyPeerApplyConfiguration)) *NetworkPolicyPeerDieMut {
+func (d *NetworkPolicyPeerDieMut) DieStampApplyConfiguration(fn func(ac *NetworkPolicyPeerApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [NetworkPolicyPeerDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *NetworkPolicyPeerDieMut) DieFeedApplyConfigurationE(ac *NetworkPolicyPeerApplyConfiguration) (*NetworkPolicyPeerDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [NetworkPolicyPeerDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *NetworkPolicyPeerDieMut) DieStampApplyConfigurationE(fn func(ac *NetworkPolicyPeerApplyConfiguration)) (*NetworkPolicyPeerDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type networkPolicyPeerFieldsTable struct {
@@ -3044,7 +2760,7 @@ func (d *NetworkPolicyPeerDieMut) IPBlock() *IPBlockDieMut {
 // NetworkPolicyPort describes a port to allow traffic on
 //
 // NetworkPolicyPortDie is immutable: it reads.
-// [NetworkPolicyPortDieMut], its mutable die, also writes, as DieWith passes it.
+// [NetworkPolicyPortDieMut], its mutable die, also writes, as DieStamp passes it.
 type NetworkPolicyPortDie struct {
 	diebase.DieBase[NetworkPolicyPort, *NetworkPolicyPortDie, *NetworkPolicyPortDieMut]
 }
@@ -3093,26 +2809,14 @@ func (d *NetworkPolicyPortDieMut) DieReleaseApplyConfigurationE() (*NetworkPolic
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *NetworkPolicyPortDieMut) DieFeedApplyConfiguration(ac *NetworkPolicyPortApplyConfiguration) *NetworkPolicyPortDieMut {
+func (d *NetworkPolicyPortDieMut) DieFeedApplyConfiguration(ac *NetworkPolicyPortApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *NetworkPolicyPortDieMut) DieStampApplyConfiguration(fn func(ac *NetworkPolicyPortApplyConfiguration)) *NetworkPolicyPortDieMut {
+func (d *NetworkPolicyPortDieMut) DieStampApplyConfiguration(fn func(ac *NetworkPolicyPortApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [NetworkPolicyPortDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *NetworkPolicyPortDieMut) DieFeedApplyConfigurationE(ac *NetworkPolicyPortApplyConfiguration) (*NetworkPolicyPortDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [NetworkPolicyPortDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *NetworkPolicyPortDieMut) DieStampApplyConfigurationE(fn func(ac *NetworkPolicyPortApplyConfiguration)) (*NetworkPolicyPortDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type networkPolicyPortFieldsTable struct {
@@ -3153,7 +2857,7 @@ func (d *NetworkPolicyPortDie) EndPort() diefields.Optional[int32] {
 
 // protocol represents the protocol (TCP, UDP, or SCTP) which traffic must match.
 // If not specified, this field defaults to TCP.
-func (d *NetworkPolicyPortDieMut) Protocol() diefields.OptionalMut[diecorev1.Protocol, *NetworkPolicyPortDieMut] {
+func (d *NetworkPolicyPortDieMut) Protocol() diefields.OptionalMut[diecorev1.Protocol] {
 	return diefields.OptionalMutOf(d, networkPolicyPortFields.Get().Protocol)
 }
 
@@ -3161,7 +2865,7 @@ func (d *NetworkPolicyPortDieMut) Protocol() diefields.OptionalMut[diecorev1.Pro
 // port on a pod. If this field is not provided, this matches all port names and
 // numbers.
 // If present, only traffic on the specified protocol AND port will be matched.
-func (d *NetworkPolicyPortDieMut) Port() diefields.OptionalMut[intstr.IntOrString, *NetworkPolicyPortDieMut] {
+func (d *NetworkPolicyPortDieMut) Port() diefields.OptionalMut[intstr.IntOrString] {
 	return diefields.OptionalMutOf(d, networkPolicyPortFields.Get().Port)
 }
 
@@ -3169,14 +2873,14 @@ func (d *NetworkPolicyPortDieMut) Port() diefields.OptionalMut[intstr.IntOrStrin
 // should be allowed by the policy. This field cannot be defined if the port field
 // is not defined or if the port field is defined as a named (string) port.
 // The endPort must be equal or greater than port.
-func (d *NetworkPolicyPortDieMut) EndPort() diefields.OptionalMut[int32, *NetworkPolicyPortDieMut] {
+func (d *NetworkPolicyPortDieMut) EndPort() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, networkPolicyPortFields.Get().EndPort)
 }
 
 // NetworkPolicySpec provides the specification of a NetworkPolicy
 //
 // NetworkPolicySpecDie is immutable: it reads.
-// [NetworkPolicySpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [NetworkPolicySpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type NetworkPolicySpecDie struct {
 	diebase.DieBase[NetworkPolicySpec, *NetworkPolicySpecDie, *NetworkPolicySpecDieMut]
 }
@@ -3225,26 +2929,14 @@ func (d *NetworkPolicySpecDieMut) DieReleaseApplyConfigurationE() (*NetworkPolic
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *NetworkPolicySpecDieMut) DieFeedApplyConfiguration(ac *NetworkPolicySpecApplyConfiguration) *NetworkPolicySpecDieMut {
+func (d *NetworkPolicySpecDieMut) DieFeedApplyConfiguration(ac *NetworkPolicySpecApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *NetworkPolicySpecDieMut) DieStampApplyConfiguration(fn func(ac *NetworkPolicySpecApplyConfiguration)) *NetworkPolicySpecDieMut {
+func (d *NetworkPolicySpecDieMut) DieStampApplyConfiguration(fn func(ac *NetworkPolicySpecApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [NetworkPolicySpecDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *NetworkPolicySpecDieMut) DieFeedApplyConfigurationE(ac *NetworkPolicySpecApplyConfiguration) (*NetworkPolicySpecDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [NetworkPolicySpecDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *NetworkPolicySpecDieMut) DieStampApplyConfigurationE(fn func(ac *NetworkPolicySpecApplyConfiguration)) (*NetworkPolicySpecDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type networkPolicySpecFieldsTable struct {
@@ -3326,7 +3018,7 @@ func (d *NetworkPolicySpecDieMut) PodSelector() *diemetav1.LabelSelectorDieMut {
 // across all of the NetworkPolicy objects whose podSelector matches the pod. If
 // this field is empty then this NetworkPolicy does not allow any traffic (and serves
 // solely to ensure that the pods it selects are isolated by default)
-func (d *NetworkPolicySpecDieMut) Ingress() diefields.ValueMut[[]NetworkPolicyIngressRule, *NetworkPolicySpecDieMut] {
+func (d *NetworkPolicySpecDieMut) Ingress() diefields.ValueMut[[]NetworkPolicyIngressRule] {
 	return diefields.ValueMutOf(d, networkPolicySpecFields.Get().Ingress)
 }
 
@@ -3337,7 +3029,7 @@ func (d *NetworkPolicySpecDieMut) Ingress() diefields.ValueMut[[]NetworkPolicyIn
 // this field is empty then this NetworkPolicy limits all outgoing traffic (and serves
 // solely to ensure that the pods it selects are isolated by default).
 // This field is beta-level in 1.8
-func (d *NetworkPolicySpecDieMut) Egress() diefields.ValueMut[[]NetworkPolicyEgressRule, *NetworkPolicySpecDieMut] {
+func (d *NetworkPolicySpecDieMut) Egress() diefields.ValueMut[[]NetworkPolicyEgressRule] {
 	return diefields.ValueMutOf(d, networkPolicySpecFields.Get().Egress)
 }
 
@@ -3351,14 +3043,14 @@ func (d *NetworkPolicySpecDieMut) Egress() diefields.ValueMut[[]NetworkPolicyEgr
 // you must specify a policyTypes value that include "Egress" (since such a policy would not include
 // an egress section and would otherwise default to just [ "Ingress" ]).
 // This field is beta-level in 1.8
-func (d *NetworkPolicySpecDieMut) PolicyTypes() diefields.ValueMut[[]PolicyType, *NetworkPolicySpecDieMut] {
+func (d *NetworkPolicySpecDieMut) PolicyTypes() diefields.ValueMut[[]PolicyType] {
 	return diefields.ValueMutOf(d, networkPolicySpecFields.Get().PolicyTypes)
 }
 
 // ParentReference describes a reference to a parent object.
 //
 // ParentReferenceDie is immutable: it reads.
-// [ParentReferenceDieMut], its mutable die, also writes, as DieWith passes it.
+// [ParentReferenceDieMut], its mutable die, also writes, as DieStamp passes it.
 type ParentReferenceDie struct {
 	diebase.DieBase[ParentReference, *ParentReferenceDie, *ParentReferenceDieMut]
 }
@@ -3407,26 +3099,14 @@ func (d *ParentReferenceDieMut) DieReleaseApplyConfigurationE() (*ParentReferenc
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ParentReferenceDieMut) DieFeedApplyConfiguration(ac *ParentReferenceApplyConfiguration) *ParentReferenceDieMut {
+func (d *ParentReferenceDieMut) DieFeedApplyConfiguration(ac *ParentReferenceApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ParentReferenceDieMut) DieStampApplyConfiguration(fn func(ac *ParentReferenceApplyConfiguration)) *ParentReferenceDieMut {
+func (d *ParentReferenceDieMut) DieStampApplyConfiguration(fn func(ac *ParentReferenceApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ParentReferenceDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ParentReferenceDieMut) DieFeedApplyConfigurationE(ac *ParentReferenceApplyConfiguration) (*ParentReferenceDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ParentReferenceDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ParentReferenceDieMut) DieStampApplyConfigurationE(fn func(ac *ParentReferenceApplyConfiguration)) (*ParentReferenceDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type parentReferenceFieldsTable struct {
@@ -3466,29 +3146,29 @@ func (d *ParentReferenceDie) Name() diefields.Value[string] {
 }
 
 // group is the group of the object being referenced.
-func (d *ParentReferenceDieMut) Group() diefields.ValueMut[string, *ParentReferenceDieMut] {
+func (d *ParentReferenceDieMut) Group() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, parentReferenceFields.Get().Group)
 }
 
 // resource is the resource of the object being referenced.
-func (d *ParentReferenceDieMut) Resource() diefields.ValueMut[string, *ParentReferenceDieMut] {
+func (d *ParentReferenceDieMut) Resource() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, parentReferenceFields.Get().Resource)
 }
 
 // namespace is the namespace of the object being referenced.
-func (d *ParentReferenceDieMut) Namespace() diefields.ValueMut[string, *ParentReferenceDieMut] {
+func (d *ParentReferenceDieMut) Namespace() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, parentReferenceFields.Get().Namespace)
 }
 
 // name is the name of the object being referenced.
-func (d *ParentReferenceDieMut) Name() diefields.ValueMut[string, *ParentReferenceDieMut] {
+func (d *ParentReferenceDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, parentReferenceFields.Get().Name)
 }
 
 // ServiceBackendPort is the service port being referenced.
 //
 // ServiceBackendPortDie is immutable: it reads.
-// [ServiceBackendPortDieMut], its mutable die, also writes, as DieWith passes it.
+// [ServiceBackendPortDieMut], its mutable die, also writes, as DieStamp passes it.
 type ServiceBackendPortDie struct {
 	diebase.DieBase[ServiceBackendPort, *ServiceBackendPortDie, *ServiceBackendPortDieMut]
 }
@@ -3537,26 +3217,14 @@ func (d *ServiceBackendPortDieMut) DieReleaseApplyConfigurationE() (*ServiceBack
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ServiceBackendPortDieMut) DieFeedApplyConfiguration(ac *ServiceBackendPortApplyConfiguration) *ServiceBackendPortDieMut {
+func (d *ServiceBackendPortDieMut) DieFeedApplyConfiguration(ac *ServiceBackendPortApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ServiceBackendPortDieMut) DieStampApplyConfiguration(fn func(ac *ServiceBackendPortApplyConfiguration)) *ServiceBackendPortDieMut {
+func (d *ServiceBackendPortDieMut) DieStampApplyConfiguration(fn func(ac *ServiceBackendPortApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ServiceBackendPortDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ServiceBackendPortDieMut) DieFeedApplyConfigurationE(ac *ServiceBackendPortApplyConfiguration) (*ServiceBackendPortDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ServiceBackendPortDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ServiceBackendPortDieMut) DieStampApplyConfigurationE(fn func(ac *ServiceBackendPortApplyConfiguration)) (*ServiceBackendPortDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type serviceBackendPortFieldsTable struct {
@@ -3585,13 +3253,13 @@ func (d *ServiceBackendPortDie) Number() diefields.Value[int32] {
 
 // name is the name of the port on the Service.
 // This is a mutually exclusive setting with "Number".
-func (d *ServiceBackendPortDieMut) Name() diefields.ValueMut[string, *ServiceBackendPortDieMut] {
+func (d *ServiceBackendPortDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, serviceBackendPortFields.Get().Name)
 }
 
 // number is the numerical port number (e.g. 80) on the Service.
 // This is a mutually exclusive setting with "Name".
-func (d *ServiceBackendPortDieMut) Number() diefields.ValueMut[int32, *ServiceBackendPortDieMut] {
+func (d *ServiceBackendPortDieMut) Number() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, serviceBackendPortFields.Get().Number)
 }
 
@@ -3599,7 +3267,7 @@ func (d *ServiceBackendPortDieMut) Number() diefields.ValueMut[int32, *ServiceBa
 // This range is used to allocate ClusterIPs to Service objects.
 //
 // ServiceCIDRDie is immutable: it reads.
-// [ServiceCIDRDieMut], its mutable die, also writes, as DieWith passes it.
+// [ServiceCIDRDieMut], its mutable die, also writes, as DieStamp passes it.
 type ServiceCIDRDie struct {
 	diebase.DieObjectBase[ServiceCIDR, *ServiceCIDRDie, *ServiceCIDRDieMut]
 }
@@ -3648,26 +3316,14 @@ func (d *ServiceCIDRDieMut) DieReleaseApplyConfigurationE() (*ServiceCIDRApplyCo
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ServiceCIDRDieMut) DieFeedApplyConfiguration(ac *ServiceCIDRApplyConfiguration) *ServiceCIDRDieMut {
+func (d *ServiceCIDRDieMut) DieFeedApplyConfiguration(ac *ServiceCIDRApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ServiceCIDRDieMut) DieStampApplyConfiguration(fn func(ac *ServiceCIDRApplyConfiguration)) *ServiceCIDRDieMut {
+func (d *ServiceCIDRDieMut) DieStampApplyConfiguration(fn func(ac *ServiceCIDRApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ServiceCIDRDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ServiceCIDRDieMut) DieFeedApplyConfigurationE(ac *ServiceCIDRApplyConfiguration) (*ServiceCIDRDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ServiceCIDRDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ServiceCIDRDieMut) DieStampApplyConfigurationE(fn func(ac *ServiceCIDRApplyConfiguration)) (*ServiceCIDRDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type serviceCIDRFieldsTable struct {
@@ -3728,7 +3384,7 @@ func (d *ServiceCIDRDie) Status() *ServiceCIDRStatusDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *ServiceCIDRDieMut) Kind() diefields.ValueMut[string, *ServiceCIDRDieMut] {
+func (d *ServiceCIDRDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, serviceCIDRFields.Get().Kind)
 }
 
@@ -3736,7 +3392,7 @@ func (d *ServiceCIDRDieMut) Kind() diefields.ValueMut[string, *ServiceCIDRDieMut
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *ServiceCIDRDieMut) APIVersion() diefields.ValueMut[string, *ServiceCIDRDieMut] {
+func (d *ServiceCIDRDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, serviceCIDRFields.Get().APIVersion)
 }
 
@@ -3763,8 +3419,6 @@ type ServiceCIDRListDie struct {
 	dielists.List[*ServiceCIDRDieMut]
 }
 
-var _ dielists.DieListOf[*ServiceCIDRDieMut] = (*ServiceCIDRListDie)(nil)
-
 // NewServiceCIDRList returns a list with items.
 func NewServiceCIDRList(items ...*ServiceCIDRDieMut) *ServiceCIDRListDie {
 	return &ServiceCIDRListDie{dielists.NewList("networking.k8s.io/v1", "ServiceCIDRList", items...)}
@@ -3778,7 +3432,7 @@ func (l *ServiceCIDRListDie) DeepCopyObject() runtime.Object { return l.DeepCopy
 // ServiceCIDRSpec define the CIDRs the user wants to use for allocating ClusterIPs for Services.
 //
 // ServiceCIDRSpecDie is immutable: it reads.
-// [ServiceCIDRSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [ServiceCIDRSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type ServiceCIDRSpecDie struct {
 	diebase.DieBase[ServiceCIDRSpec, *ServiceCIDRSpecDie, *ServiceCIDRSpecDieMut]
 }
@@ -3827,26 +3481,14 @@ func (d *ServiceCIDRSpecDieMut) DieReleaseApplyConfigurationE() (*ServiceCIDRSpe
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ServiceCIDRSpecDieMut) DieFeedApplyConfiguration(ac *ServiceCIDRSpecApplyConfiguration) *ServiceCIDRSpecDieMut {
+func (d *ServiceCIDRSpecDieMut) DieFeedApplyConfiguration(ac *ServiceCIDRSpecApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ServiceCIDRSpecDieMut) DieStampApplyConfiguration(fn func(ac *ServiceCIDRSpecApplyConfiguration)) *ServiceCIDRSpecDieMut {
+func (d *ServiceCIDRSpecDieMut) DieStampApplyConfiguration(fn func(ac *ServiceCIDRSpecApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ServiceCIDRSpecDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ServiceCIDRSpecDieMut) DieFeedApplyConfigurationE(ac *ServiceCIDRSpecApplyConfiguration) (*ServiceCIDRSpecDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ServiceCIDRSpecDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ServiceCIDRSpecDieMut) DieStampApplyConfigurationE(fn func(ac *ServiceCIDRSpecApplyConfiguration)) (*ServiceCIDRSpecDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type serviceCIDRSpecFieldsTable struct {
@@ -3869,14 +3511,14 @@ func (d *ServiceCIDRSpecDie) CIDRs() diefields.Value[[]string] {
 // cidrs defines the IP blocks in CIDR notation (e.g. "192.168.0.0/24" or "2001:db8::/64")
 // from which to assign service cluster IPs. Max of two CIDRs is allowed, one of each IP family.
 // This field is immutable.
-func (d *ServiceCIDRSpecDieMut) CIDRs() diefields.ValueMut[[]string, *ServiceCIDRSpecDieMut] {
+func (d *ServiceCIDRSpecDieMut) CIDRs() diefields.ValueMut[[]string] {
 	return diefields.ValueMutOf(d, serviceCIDRSpecFields.Get().CIDRs)
 }
 
 // ServiceCIDRStatus describes the current state of the ServiceCIDR.
 //
 // ServiceCIDRStatusDie is immutable: it reads.
-// [ServiceCIDRStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [ServiceCIDRStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type ServiceCIDRStatusDie struct {
 	diebase.DieBase[ServiceCIDRStatus, *ServiceCIDRStatusDie, *ServiceCIDRStatusDieMut]
 }
@@ -3925,26 +3567,14 @@ func (d *ServiceCIDRStatusDieMut) DieReleaseApplyConfigurationE() (*ServiceCIDRS
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ServiceCIDRStatusDieMut) DieFeedApplyConfiguration(ac *ServiceCIDRStatusApplyConfiguration) *ServiceCIDRStatusDieMut {
+func (d *ServiceCIDRStatusDieMut) DieFeedApplyConfiguration(ac *ServiceCIDRStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ServiceCIDRStatusDieMut) DieStampApplyConfiguration(fn func(ac *ServiceCIDRStatusApplyConfiguration)) *ServiceCIDRStatusDieMut {
+func (d *ServiceCIDRStatusDieMut) DieStampApplyConfiguration(fn func(ac *ServiceCIDRStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ServiceCIDRStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ServiceCIDRStatusDieMut) DieFeedApplyConfigurationE(ac *ServiceCIDRStatusApplyConfiguration) (*ServiceCIDRStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ServiceCIDRStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ServiceCIDRStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ServiceCIDRStatusApplyConfiguration)) (*ServiceCIDRStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type serviceCIDRStatusFieldsTable struct {

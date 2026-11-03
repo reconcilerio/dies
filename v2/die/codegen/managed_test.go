@@ -32,22 +32,6 @@ type widget struct {
 	Color string `json:"color,omitempty"`
 }
 
-type widgetDie struct {
-	base.DieBase[widget, *widgetDie, *widgetDieMut]
-}
-
-type widgetDieMut struct {
-	base.DieMutBase[widget, *widgetDie, *widgetDieMut]
-}
-
-func (*widgetDie) DieFrom(b base.DieBase[widget, *widgetDie, *widgetDieMut]) *widgetDie {
-	return &widgetDie{b}
-}
-
-func (*widgetDieMut) DieFrom(b base.DieMutBase[widget, *widgetDie, *widgetDieMut]) *widgetDieMut {
-	return &widgetDieMut{b}
-}
-
 var widgetFields = struct {
 	Name fields.Field[widget, string]
 }{

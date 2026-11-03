@@ -23,9 +23,9 @@ import (
 	"reflect"
 )
 
-var ErrImmutable = Errorf("die: an immutable die can't be written; write within DieWith, or to a DieMutable copy")
+var ErrImmutable = Errorf("die: an immutable die can't be written; write within DieStamp, or to a DieMutable copy")
 
-var ErrImmutableChild = Errorf("die: cannot mutate through a child of an immutable die, mutate inside DieWith instead")
+var ErrImmutableChild = Errorf("die: cannot mutate through a child of an immutable die, mutate inside DieStamp instead")
 
 // holder is the state of a root object. Child dies share their root's holder
 // and address into it by path.
@@ -153,7 +153,7 @@ func (h *Holder) Has(p Path) (bool, error) {
 					return false, nil
 				}
 				v := m.MapIndex(reflect.ValueOf(last.name).Convert(m.Type().Key()))
-				return v.IsValid() && !(v.Kind() == reflect.Interface && v.IsNil()), nil
+				return v.IsValid() && (v.Kind() != reflect.Interface || !v.IsNil()), nil
 			}
 		}
 	}

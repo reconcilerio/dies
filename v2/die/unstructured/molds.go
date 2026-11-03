@@ -64,9 +64,10 @@ import (
 //     merges objects and maps alike, and replaces lists.
 //   - Defaults aren't used: a list-map key left to its default, such as a
 //     port's protocol, doesn't match the element with the default set.
-//   - Subresources aren't known: DieSubresource and DieMain have no effect.
-//   - A client zeroes the object it decodes into, mold included. DieWith and
-//     DieWithE keep it; a die passed to a client directly loses it, as do the
+//   - Subresources aren't known: die.Subresource and die.MainResource have no
+//     effect.
+//   - A client zeroes the object it decodes into, mold included. DieStamp and
+//     DieStampE keep it; a die passed to a client directly loses it, as do the
 //     items of a list a client lists into. For gives them their mold.
 type Molds struct {
 	client openapi.Client

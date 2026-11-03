@@ -28,6 +28,8 @@ import (
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
+	"reconciler.io/dies/v2/die"
+	"reconciler.io/dies/v2/die/dietest"
 	dieunstructured "reconciler.io/dies/v2/die/unstructured"
 	widgetv1 "reconciler.io/dies/v2/examples/widget/v1"
 )
@@ -44,13 +46,13 @@ var (
 // jig of the unstructured die, so they're the same intent.
 func TestUnstructuredAppliesAsTyped(t *testing.T) {
 	blank := moldedBlank(t, serverMolds(t), deploymentGVK)
-	server := deployment("default").DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Labels().Set("tier", "web")
-		d.Spec().MinReadySeconds().Set(5)
+	server := die.ReleaseJSON(deployment(t, "default").DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Labels().Set("tier", "web"))
+		dietest.NoError(t, d.Spec().MinReadySeconds().Set(5))
 		ref := d.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef()
-		ref.Name().Set("settings")
-		ref.Key().Set("color")
-	}).DieReleaseJSON()
+		dietest.NoError(t, ref.Name().Set("settings"))
+		dietest.NoError(t, ref.Key().Set("color"))
+	}))
 
 	for _, c := range []struct {
 		name   string
@@ -58,46 +60,46 @@ func TestUnstructuredAppliesAsTyped(t *testing.T) {
 		change func(d *dieappsv1.DeploymentDieMut)
 	}{
 		{"from a blank", false, func(d *dieappsv1.DeploymentDieMut) {
-			d.Metadata().Namespace().Set("default")
-			d.Metadata().Name().Set("web")
-			d.Spec().Replicas().Set(0)
-			d.Spec().Selector().MatchLabels().Set("app", "web")
-			d.Spec().Template().Spec().Containers().At("app").DieWith(func(c *diecorev1.ContainerDieMut) {
-				c.Image().Set("app:1")
-				c.Args().Set([]string{"--verbose"})
-				c.Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080, Protocol: diecorev1.ProtocolTCP}).Name().Set("http")
+			dietest.NoError(t, d.Metadata().Namespace().Set("default"))
+			dietest.NoError(t, d.Metadata().Name().Set("web"))
+			dietest.NoError(t, d.Spec().Replicas().Set(0))
+			dietest.NoError(t, d.Spec().Selector().MatchLabels().Set("app", "web"))
+			d.Spec().Template().Spec().Containers().At("app").DieStamp(func(c *diecorev1.ContainerDieMut) {
+				dietest.NoError(t, c.Image().Set("app:1"))
+				dietest.NoError(t, c.Args().Set([]string{"--verbose"}))
+				dietest.NoError(t, c.Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080, Protocol: diecorev1.ProtocolTCP}).Name().Set("http"))
 			})
-			d.Spec().Template().Spec().Tolerations().Empty()
+			dietest.NoError(t, d.Spec().Template().Spec().Tolerations().Empty())
 		}},
 		{"clearing a field", true, func(d *dieappsv1.DeploymentDieMut) {
-			d.Spec().MinReadySeconds().Clear()
+			dietest.NoError(t, d.Spec().MinReadySeconds().Clear())
 		}},
 		{"removing a map entry", true, func(d *dieappsv1.DeploymentDieMut) {
-			d.Metadata().Labels().Remove("tier")
+			dietest.NoError(t, d.Metadata().Labels().Remove("tier"))
 		}},
 		{"within an atomic struct", true, func(d *dieappsv1.DeploymentDieMut) {
-			d.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef().Key().Set("colour")
+			dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef().Key().Set("colour"))
 		}},
 		{"removing a list-map element", true, func(d *dieappsv1.DeploymentDieMut) {
-			d.Spec().Template().Spec().Containers().Remove("app")
-			d.Spec().Template().Spec().Containers().At("sidecar").Image().Set("sidecar:1")
+			dietest.NoError(t, d.Spec().Template().Spec().Containers().Remove("app"))
+			dietest.NoError(t, d.Spec().Template().Spec().Containers().At("sidecar").Image().Set("sidecar:1"))
 		}},
 	} {
 		t.Run(c.name, func(t *testing.T) {
 			typed, u := dieappsv1.DeploymentBlank, blank
 			if c.server {
-				typed = typed.DieWith(func(d *dieappsv1.DeploymentDieMut) { d.DieFeedJSON(server) })
-				u = u.DieWith(func(d *dieunstructured.ObjectMut) { d.DieFeedJSON(server) })
+				typed = typed.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietest.NoError(t, die.FeedJSON(d, server)) })
+				u = u.DieStamp(func(d *dieunstructured.ObjectMut) { dietest.NoError(t, die.FeedJSON(d, server)) })
 			}
-			typed = typed.DieWith(c.change)
+			typed = typed.DieStamp(c.change)
 			mu := u.DieMutable()
 			c.change(dieunstructured.JigAsMut[*dieappsv1.DeploymentDieMut](mu.Node()))
 
-			want, err := typed.DieReleaseApplyPatchE()
+			want, err := die.ReleaseApplyPatchE(typed)
 			if err != nil {
 				t.Fatal(err)
 			}
-			got, err := mu.DieReleaseApplyPatchE()
+			got, err := die.ReleaseApplyPatchE(mu)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -122,11 +124,11 @@ func TestClearingCustomResourceFields(t *testing.T) {
 
 	applyU := func(t *testing.T, d *dieunstructured.Object, manager string) *dieunstructured.Object {
 		t.Helper()
-		body, err := d.DieReleaseApplyPatchE()
+		body, err := die.ReleaseApplyPatchE(d)
 		if err != nil {
 			t.Fatal(err)
 		}
-		got, err := d.DieWithE(func(d *dieunstructured.ObjectMut) error {
+		got, err := d.DieStampE(func(d *dieunstructured.ObjectMut) error {
 			return dies.Patch(ctx, d, client.RawPatch(types.ApplyPatchType, body), client.FieldOwner(manager), client.ForceOwnership)
 		})
 		if err != nil {
@@ -139,38 +141,38 @@ func TestClearingCustomResourceFields(t *testing.T) {
 		clear func(manager string)
 	}{
 		{"typed", func(manager string) {
-			d := widget(ns).DieWith(func(d *widgetv1.WidgetDieMut) {
-				d.Spec().Match().Exact().Clear()
-				d.Spec().Match().Note().Clear()
+			d := widget(t, ns).DieStamp(func(d *widgetv1.WidgetDieMut) {
+				dietest.NoError(t, d.Spec().Match().Exact().Clear())
+				dietest.NoError(t, d.Spec().Match().Note().Clear())
 			})
-			body, err := d.DieReleaseApplyPatchE()
+			body, err := die.ReleaseApplyPatchE(d)
 			if err != nil {
 				t.Fatal(err)
 			}
 			applyObject(t, d.DieMutable(), body, manager, false)
 		}},
 		{"unstructured", func(manager string) {
-			applyU(t, unstructuredBlank.DieWith(func(d *dieunstructured.ObjectMut) {
+			applyU(t, unstructuredBlank.DieStamp(func(d *dieunstructured.ObjectMut) {
 				d.SetNamespace(ns)
 				d.SetName("web")
 				match := d.Node().Field("spec").Field("match")
-				match.Field("equal").Clear()
-				match.Field("note").Clear()
+				dietest.NoError(t, match.Field("equal").Clear())
+				dietest.NoError(t, match.Field("note").Clear())
 			}), manager)
 		}},
 	} {
 		t.Run(c.name, func(t *testing.T) {
-			applyU(t, unstructuredBlank.DieWith(func(d *dieunstructured.ObjectMut) {
+			applyU(t, unstructuredBlank.DieStamp(func(d *dieunstructured.ObjectMut) {
 				d.SetNamespace(ns)
 				d.SetName("web")
 				match := d.Node().Field("spec").Field("match")
-				match.Field("equal").Set(true)
-				match.Field("note").Set("set by matcher")
+				dietest.NoError(t, match.Field("equal").Set(true))
+				dietest.NoError(t, match.Field("note").Set("set by matcher"))
 			}), "matcher")
 
 			c.clear("clearer-" + c.name)
 			// what the server has, rather than a die with its intent on top
-			got, err := dieunstructured.BlankFor("example.dev/v1", "Widget").DieWithE(func(d *dieunstructured.ObjectMut) error {
+			got, err := dieunstructured.BlankFor("example.dev/v1", "Widget").DieStampE(func(d *dieunstructured.ObjectMut) error {
 				return dies.Get(ctx, keyOf(ns, "web"), d)
 			})
 			if err != nil {

@@ -25,6 +25,8 @@ import (
 	corev1ac "k8s.io/client-go/applyconfigurations/core/v1"
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
+	"reconciler.io/dies/v2/die"
+	"reconciler.io/dies/v2/die/dietest"
 )
 
 func assertSameJSON(t *testing.T, got, want any) {
@@ -50,20 +52,20 @@ func desired() *appsv1ac.DeploymentApplyConfiguration {
 
 // A die's intent is an apply configuration, and back.
 func TestApplyConfigurations(t *testing.T) {
-	live := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Namespace().Set("default")
-		d.Metadata().Name().Set("web")
-		d.Spec().Replicas().Set(3)
-		d.Spec().Template().Spec().ServiceAccountName().Set("sa")
-		d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1")
-	}).DieCommit()
+	live := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Namespace().Set("default"))
+		dietest.NoError(t, d.Metadata().Name().Set("web"))
+		dietest.NoError(t, d.Spec().Replicas().Set(3))
+		dietest.NoError(t, d.Spec().Template().Spec().ServiceAccountName().Set("sa"))
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
+	}).DieTare()
 
 	// fed over a value, an apply configuration is the intent, exactly, and
 	// the value is the base with it applied
-	d := live.DieWith(func(d *dieappsv1.DeploymentDieMut) { d.Spec().Paused().Set(true) }).
-		DieMutable().DieFeedApplyConfiguration(desired())
+	d := live.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietest.NoError(t, d.Spec().Paused().Set(true)) }).DieMutable()
+	dietest.NoError(t, d.DieFeedApplyConfiguration(desired()))
 	assertSameJSON(t, d.DieReleaseApplyConfiguration(), desired())
-	got, err := d.DieReleaseApplyPatchE()
+	got, err := die.ReleaseApplyPatchE(d)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -79,26 +81,26 @@ func TestApplyConfigurations(t *testing.T) {
 	// a die within another releases and feeds its own intent
 	app := d.Spec().Template().Spec().Containers().At("app")
 	assertSameJSON(t, app.DieReleaseApplyConfiguration(), corev1ac.Container().WithName("app").WithImage("app:2"))
-	d = d.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Spec().Template().Spec().Containers().At("app").DieFeedApplyConfiguration(corev1ac.Container().WithName("app").WithArgs("--verbose"))
+	d = d.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").DieFeedApplyConfiguration(corev1ac.Container().WithName("app").WithArgs("--verbose")))
 	})
 	assertSameJSON(t, d.Spec().Template().Spec().DieReleaseApplyConfiguration(), corev1ac.PodSpec().
 		WithContainers(corev1ac.Container().WithName("app").WithArgs("--verbose")))
 
 	// a stamp edits the intent as an apply configuration
-	d = d.DieStampApplyConfiguration(func(ac *appsv1ac.DeploymentApplyConfiguration) {
+	dietest.NoError(t, d.DieStampApplyConfiguration(func(ac *appsv1ac.DeploymentApplyConfiguration) {
 		ac.Spec.WithMinReadySeconds(5)
 		ac.WithLabels(map[string]string{"app": "web"})
-	})
+	}))
 	if got := d.DieReleaseApplyConfiguration(); *got.Spec.MinReadySeconds != 5 || got.Labels["app"] != "web" || *got.Spec.Replicas != 2 {
 		t.Errorf("stamped %+v", got)
 	}
 
 	// an element of a list map with no other fields is still there
-	keys := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.DieFeedApplyConfiguration(appsv1ac.Deployment("web", "default").
+	keys := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.DieFeedApplyConfiguration(appsv1ac.Deployment("web", "default").
 			WithSpec(appsv1ac.DeploymentSpec().WithTemplate(corev1ac.PodTemplateSpec().
-				WithSpec(corev1ac.PodSpec().WithContainers(corev1ac.Container().WithName("sidecar"))))))
+				WithSpec(corev1ac.PodSpec().WithContainers(corev1ac.Container().WithName("sidecar")))))))
 	})
 	if !keys.Spec().Template().Spec().Containers().Has("sidecar") {
 		t.Error("the sidecar isn't there")

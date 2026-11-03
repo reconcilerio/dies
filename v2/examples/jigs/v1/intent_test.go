@@ -22,6 +22,7 @@ import (
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	diebatchv1 "reconciler.io/dies/v2/apis/batch/v1"
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
+	"reconciler.io/dies/v2/die"
 	"reconciler.io/dies/v2/die/dietest"
 	jigsv1 "reconciler.io/dies/v2/examples/jigs/v1"
 )
@@ -39,9 +40,9 @@ func assertIntent(t *testing.T, what, got, want string) {
 func TestJigIntentIsTheSources(t *testing.T) {
 	deploy := dieappsv1.DeploymentBlank.DieMutable()
 	ps, _ := jigsv1.PodSpecableJig.OfMut(deploy)
-	ps.Template().Spec().Containers().At("app").Image().Set("app:1")
+	dietest.NoError(t, ps.Template().Spec().Containers().At("app").Image().Set("app:1"))
 	// not bound by the jig, so not its intent
-	deploy.Spec().Replicas().Set(3)
+	dietest.NoError(t, deploy.Spec().Replicas().Set(3))
 
 	assertIntent(t, "jig", ps.DieIntent(), `set .template.spec.containers[name=app].image = "app:1"`)
 	assertIntent(t, "jig's template", ps.Template().DieIntent(), `set .template.spec.containers[name=app].image = "app:1"`)
@@ -53,8 +54,8 @@ func TestJigIntentIsTheSources(t *testing.T) {
 
 // Two jig locations bound to the same source location both have its intent.
 func TestOverlappingBindingsShareIntent(t *testing.T) {
-	pod := diecorev1.PodBlank.DieWith(func(d *diecorev1.PodDieMut) {
-		d.Metadata().Labels().Set("app", "web")
+	pod := diecorev1.PodBlank.DieStamp(func(d *diecorev1.PodDieMut) {
+		dietest.NoError(t, d.Metadata().Labels().Set("app", "web"))
 	})
 	ps, _ := jigsv1.PodSpecableJig.Of(pod)
 	assertIntent(t, "jig", ps.DieIntent(), "set .metadata.labels[\"app\"] = \"web\"\nset .template.metadata.labels[\"app\"] = \"web\"")
@@ -63,9 +64,9 @@ func TestOverlappingBindingsShareIntent(t *testing.T) {
 // Where a transform presents the source, its operations can't be mapped:
 // any intent below the binding sets the binding's whole value.
 func TestTransformedIntentSetsTheBinding(t *testing.T) {
-	container := diecorev1.ContainerBlank.DieWith(func(d *diecorev1.ContainerDieMut) {
-		d.Name().Set("app")
-		d.Image().Set("registry.example/app:1")
+	container := diecorev1.ContainerBlank.DieStamp(func(d *diecorev1.ContainerDieMut) {
+		dietest.NoError(t, d.Name().Set("app"))
+		dietest.NoError(t, d.Image().Set("registry.example/app:1"))
 	})
 	ci, _ := jigsv1.ContainerImageJig.Of(container)
 	assertIntent(t, "jig", ci.DieIntent(), "set .name = \"app\"\nset .image = {\"repository\":\"registry.example/app\",\"tag\":\"1\"}")
@@ -77,8 +78,8 @@ func TestTransformedIntentSetsTheBinding(t *testing.T) {
 
 // As for an aggregate of several source locations.
 func TestAggregatedIntentSetsTheBinding(t *testing.T) {
-	deploy := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1")
+	deploy := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
 	})
 	w, _ := jigsv1.WorkloadJig.Of(deploy)
 	assertIntent(t, "jig", w.DieIntent(), "set .containers = [{\"name\":\"app\",\"image\":\"app:1\",\"resources\":{}}]")
@@ -87,16 +88,16 @@ func TestAggregatedIntentSetsTheBinding(t *testing.T) {
 // Jigs of different types compare by what the jig binds, value and intent.
 func TestJigsOfDifferentTypesCompare(t *testing.T) {
 	deploy := func(image string) *jigsv1.PodSpecableDie {
-		ps, _ := jigsv1.PodSpecableJig.Of(dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-			d.Spec().Replicas().Set(3)
-			d.Spec().Template().Spec().Containers().At("app").Image().Set(image)
+		ps, _ := jigsv1.PodSpecableJig.Of(dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+			dietest.NoError(t, d.Spec().Replicas().Set(3))
+			dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set(image))
 		}))
 		return ps
 	}
 	cron := func(image string) *jigsv1.PodSpecableDie {
-		ps, _ := jigsv1.PodSpecableJig.Of(diebatchv1.CronJobBlank.DieWith(func(d *diebatchv1.CronJobDieMut) {
-			d.Spec().Schedule().Set("@daily")
-			d.Spec().JobTemplate().Spec().Template().Spec().Containers().At("app").Image().Set(image)
+		ps, _ := jigsv1.PodSpecableJig.Of(diebatchv1.CronJobBlank.DieStamp(func(d *diebatchv1.CronJobDieMut) {
+			dietest.NoError(t, d.Spec().Schedule().Set("@daily"))
+			dietest.NoError(t, d.Spec().JobTemplate().Spec().Template().Spec().Containers().At("app").Image().Set(image))
 		}))
 		return ps
 	}
@@ -108,8 +109,8 @@ func TestJigsOfDifferentTypesCompare(t *testing.T) {
 	}
 
 	// the same value, with different intent, differs
-	fed := diebatchv1.CronJobBlank.DieWith(func(d *diebatchv1.CronJobDieMut) {
-		d.DieFeedJSON([]byte(`{"spec": {"jobTemplate": {"spec": {"template": {"spec": {"containers": [{"name": "app", "image": "app:1"}]}}}}}}`))
+	fed := diebatchv1.CronJobBlank.DieStamp(func(d *diebatchv1.CronJobDieMut) {
+		dietest.NoError(t, die.FeedJSON(d, []byte(`{"spec": {"jobTemplate": {"spec": {"template": {"spec": {"containers": [{"name": "app", "image": "app:1"}]}}}}}}`)))
 	})
 	y, _ := jigsv1.PodSpecableJig.Of(fed)
 	x := deploy("app:1")
@@ -125,13 +126,13 @@ func TestJigsOfDifferentTypesCompare(t *testing.T) {
 // Jigs of different types compare by what the jig binds, ignoring what the
 // comparison doesn't care about by the jig's own locations.
 func TestJigsCompareIgnoringFields(t *testing.T) {
-	deploy, _ := jigsv1.PodSpecableJig.Of(dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Name().Set("web")
-		d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1")
+	deploy, _ := jigsv1.PodSpecableJig.Of(dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Name().Set("web"))
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
 	}))
-	cron, _ := jigsv1.PodSpecableJig.Of(diebatchv1.CronJobBlank.DieWith(func(d *diebatchv1.CronJobDieMut) {
-		d.Metadata().Name().Set("nightly")
-		d.Spec().JobTemplate().Spec().Template().Spec().Containers().At("app").Image().Set("app:1")
+	cron, _ := jigsv1.PodSpecableJig.Of(diebatchv1.CronJobBlank.DieStamp(func(d *diebatchv1.CronJobDieMut) {
+		dietest.NoError(t, d.Metadata().Name().Set("nightly"))
+		dietest.NoError(t, d.Spec().JobTemplate().Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
 	}))
 	ignore := dietest.IgnoreFields(jigsv1.PodSpecableBlank.Metadata())
 	if diff := dietest.Diff(deploy, cron); diff == "" {

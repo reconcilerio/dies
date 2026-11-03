@@ -26,7 +26,7 @@ import (
 )
 
 // VersionSelectionDie is immutable: it reads.
-// [VersionSelectionDieMut], its mutable die, also writes, as DieWith passes it.
+// [VersionSelectionDieMut], its mutable die, also writes, as DieStamp passes it.
 type VersionSelectionDie struct {
 	diebase.DieBase[VersionSelection, *VersionSelectionDie, *VersionSelectionDieMut]
 }
@@ -64,7 +64,7 @@ func (d *VersionSelectionDieMut) Semver() *VersionSelectionSemverDieMut {
 }
 
 // VersionSelectionSemverDie is immutable: it reads.
-// [VersionSelectionSemverDieMut], its mutable die, also writes, as DieWith passes it.
+// [VersionSelectionSemverDieMut], its mutable die, also writes, as DieStamp passes it.
 type VersionSelectionSemverDie struct {
 	diebase.DieBase[VersionSelectionSemver, *VersionSelectionSemverDie, *VersionSelectionSemverDieMut]
 }
@@ -103,7 +103,7 @@ func (d *VersionSelectionSemverDie) Prereleases() *VersionSelectionSemverPrerele
 	return diefields.Child(d, versionSelectionSemverFields.Get().Prereleases)
 }
 
-func (d *VersionSelectionSemverDieMut) Constraints() diefields.ValueMut[string, *VersionSelectionSemverDieMut] {
+func (d *VersionSelectionSemverDieMut) Constraints() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, versionSelectionSemverFields.Get().Constraints)
 }
 
@@ -112,7 +112,7 @@ func (d *VersionSelectionSemverDieMut) Prereleases() *VersionSelectionSemverPrer
 }
 
 // VersionSelectionSemverPrereleasesDie is immutable: it reads.
-// [VersionSelectionSemverPrereleasesDieMut], its mutable die, also writes, as DieWith passes it.
+// [VersionSelectionSemverPrereleasesDieMut], its mutable die, also writes, as DieStamp passes it.
 type VersionSelectionSemverPrereleasesDie struct {
 	diebase.DieBase[VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie, *VersionSelectionSemverPrereleasesDieMut]
 }
@@ -145,7 +145,7 @@ func (d *VersionSelectionSemverPrereleasesDie) Identifiers() diefields.Value[[]s
 	return diefields.ValueOf(d, versionSelectionSemverPrereleasesFields.Get().Identifiers)
 }
 
-func (d *VersionSelectionSemverPrereleasesDieMut) Identifiers() diefields.ValueMut[[]string, *VersionSelectionSemverPrereleasesDieMut] {
+func (d *VersionSelectionSemverPrereleasesDieMut) Identifiers() diefields.ValueMut[[]string] {
 	return diefields.ValueMutOf(d, versionSelectionSemverPrereleasesFields.Get().Identifiers)
 }
 

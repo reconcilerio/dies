@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package base
+package die
 
 import (
 	"encoding/json"
@@ -26,8 +26,8 @@ import (
 
 // ApplyConfiguration is a die's intent as an apply configuration, for clients
 // that take one, such as controller-runtime's client.Apply: what
-// [DieBase.DieReleaseApplyPatch] sends, the object's identity included. Any
-// root die has one, with or without an apply configuration type of its own.
+// [ReleaseApplyPatch] sends, the object's identity included. Any root die has one, with or without an apply configuration type
+// of its own.
 //
 // It is the intent when it was made, not after. A client decodes what the
 // server returns into it; [ApplyConfiguration.Result] has that.
@@ -46,23 +46,24 @@ type ApplyConfiguration struct {
 
 var _ runtime.ApplyConfiguration = (*ApplyConfiguration)(nil)
 
-// ApplyConfigurationOf returns a root die's intent as an apply configuration.
-// It panics on a die within another, as [DieBase.DieReleaseApplyPatch] does.
-func ApplyConfigurationOf(d Die) *ApplyConfiguration {
-	return core.Must(ApplyConfigurationOfE(d))
+// ApplyConfigurationOf returns a root die's intent as an apply configuration,
+// or the part of it scopes keep, as [ReleaseApplyPatch] does. It panics on a
+// die within another, as ReleaseApplyPatch does.
+func ApplyConfigurationOf(d Die, scopes ...Scope) *ApplyConfiguration {
+	return core.Must(ApplyConfigurationOfE(d, scopes...))
 }
 
 // ApplyConfigurationOfE is [ApplyConfigurationOf], returning an error rather
 // than panicking.
-func ApplyConfigurationOfE(d Die) (*ApplyConfiguration, error) {
-	h, at, ok := core.StateOf(d)
-	if !ok {
-		return nil, core.Errorf("die: %T is not a die", d)
+func ApplyConfigurationOfE(d Die, scopes ...Scope) (*ApplyConfiguration, error) {
+	r, err := scoped(d, "ApplyConfigurationOf", scopes)
+	if err != nil {
+		return nil, err
 	}
-	if len(at) > 0 {
-		return nil, core.Errorf("die: ApplyConfigurationOf is only supported on a root die, not at %s", at)
+	if len(r.At) > 0 {
+		return nil, core.Errorf("die: ApplyConfigurationOf is only supported on a root die, not at %s", r.At)
 	}
-	patch, err := h.ApplyPatch()
+	patch, err := r.H.ApplyPatch()
 	if err != nil {
 		return nil, core.Errorf("die: encoding the intent of %T: %w", d, err)
 	}
@@ -91,5 +92,5 @@ func (ac *ApplyConfiguration) UnmarshalJSON(data []byte) error {
 }
 
 // Result is the object as the server returned it from the apply, as JSON, or
-// nil before it is applied: to feed a die, d.DieFeedJSON(ac.Result()).
+// nil before it is applied: to feed a die, die.FeedJSON(d, ac.Result()).
 func (ac *ApplyConfiguration) Result() []byte { return ac.result }

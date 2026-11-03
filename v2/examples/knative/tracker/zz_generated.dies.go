@@ -31,7 +31,7 @@ import (
 // divergent ways.
 //
 // ReferenceDie is immutable: it reads.
-// [ReferenceDieMut], its mutable die, also writes, as DieWith passes it.
+// [ReferenceDieMut], its mutable die, also writes, as DieStamp passes it.
 type ReferenceDie struct {
 	diebase.DieBase[Reference, *ReferenceDie, *ReferenceDieMut]
 }
@@ -97,23 +97,23 @@ func (d *ReferenceDie) Selector() *diemetav1.LabelSelectorDie {
 }
 
 // API version of the referent.
-func (d *ReferenceDieMut) APIVersion() diefields.ValueMut[string, *ReferenceDieMut] {
+func (d *ReferenceDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, referenceFields.Get().APIVersion)
 }
 
 // Kind of the referent.
-func (d *ReferenceDieMut) Kind() diefields.ValueMut[string, *ReferenceDieMut] {
+func (d *ReferenceDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, referenceFields.Get().Kind)
 }
 
 // Namespace of the referent.
-func (d *ReferenceDieMut) Namespace() diefields.ValueMut[string, *ReferenceDieMut] {
+func (d *ReferenceDieMut) Namespace() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, referenceFields.Get().Namespace)
 }
 
 // Name of the referent.
 // Mutually exclusive with Selector.
-func (d *ReferenceDieMut) Name() diefields.ValueMut[string, *ReferenceDieMut] {
+func (d *ReferenceDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, referenceFields.Get().Name)
 }
 

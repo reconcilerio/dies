@@ -17,14 +17,17 @@ limitations under the License.
 package v1
 
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "reconciler.io/dies/v2/apis/meta/v1"
 )
 
 // Ready marks the widget's Ready condition true. It is a hand-written method
 // on a generated die, which doesn't compile until the die is generated; that
 // must not keep the die from being generated. It writes, so it is a method of
-// the mutable die.
-func (d *WidgetDieMut) Ready(reason string) *WidgetDieMut {
-	d.Status().Conditions().At("Ready").Status().Set(metav1.ConditionTrue).Reason().Set(reason)
-	return d
+// the mutable die, and returns only an error, as writes do.
+func (d *WidgetDieMut) Ready(reason string) error {
+	ready := d.Status().Conditions().At("Ready")
+	if err := ready.Status().Set(metav1.ConditionTrue); err != nil {
+		return err
+	}
+	return ready.Reason().Set(reason)
 }

@@ -34,7 +34,7 @@ import (
 // checking.
 //
 // LocalSubjectAccessReviewDie is immutable: it reads.
-// [LocalSubjectAccessReviewDieMut], its mutable die, also writes, as DieWith passes it.
+// [LocalSubjectAccessReviewDieMut], its mutable die, also writes, as DieStamp passes it.
 type LocalSubjectAccessReviewDie struct {
 	diebase.DieObjectBase[LocalSubjectAccessReview, *LocalSubjectAccessReviewDie, *LocalSubjectAccessReviewDieMut]
 }
@@ -111,7 +111,7 @@ func (d *LocalSubjectAccessReviewDie) Status() *SubjectAccessReviewStatusDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *LocalSubjectAccessReviewDieMut) Kind() diefields.ValueMut[string, *LocalSubjectAccessReviewDieMut] {
+func (d *LocalSubjectAccessReviewDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, localSubjectAccessReviewFields.Get().Kind)
 }
 
@@ -119,7 +119,7 @@ func (d *LocalSubjectAccessReviewDieMut) Kind() diefields.ValueMut[string, *Loca
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *LocalSubjectAccessReviewDieMut) APIVersion() diefields.ValueMut[string, *LocalSubjectAccessReviewDieMut] {
+func (d *LocalSubjectAccessReviewDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, localSubjectAccessReviewFields.Get().APIVersion)
 }
 
@@ -143,7 +143,7 @@ func (d *LocalSubjectAccessReviewDieMut) Status() *SubjectAccessReviewStatusDieM
 // NonResourceAttributes includes the authorization attributes available for non-resource requests to the Authorizer interface
 //
 // NonResourceAttributesDie is immutable: it reads.
-// [NonResourceAttributesDieMut], its mutable die, also writes, as DieWith passes it.
+// [NonResourceAttributesDieMut], its mutable die, also writes, as DieStamp passes it.
 type NonResourceAttributesDie struct {
 	diebase.DieBase[NonResourceAttributes, *NonResourceAttributesDie, *NonResourceAttributesDieMut]
 }
@@ -186,19 +186,19 @@ func (d *NonResourceAttributesDie) Verb() diefields.Value[string] {
 }
 
 // path is the URL path of the request
-func (d *NonResourceAttributesDieMut) Path() diefields.ValueMut[string, *NonResourceAttributesDieMut] {
+func (d *NonResourceAttributesDieMut) Path() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, nonResourceAttributesFields.Get().Path)
 }
 
 // verb is the standard HTTP verb
-func (d *NonResourceAttributesDieMut) Verb() diefields.ValueMut[string, *NonResourceAttributesDieMut] {
+func (d *NonResourceAttributesDieMut) Verb() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, nonResourceAttributesFields.Get().Verb)
 }
 
 // NonResourceRule holds information that describes a rule for the non-resource
 //
 // NonResourceRuleDie is immutable: it reads.
-// [NonResourceRuleDieMut], its mutable die, also writes, as DieWith passes it.
+// [NonResourceRuleDieMut], its mutable die, also writes, as DieStamp passes it.
 type NonResourceRuleDie struct {
 	diebase.DieBase[NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut]
 }
@@ -242,20 +242,20 @@ func (d *NonResourceRuleDie) NonResourceURLs() diefields.Value[[]string] {
 }
 
 // verbs is a list of kubernetes non-resource API verbs, like: get, post, put, delete, patch, head, options.  "*" means all.
-func (d *NonResourceRuleDieMut) Verbs() diefields.ValueMut[[]string, *NonResourceRuleDieMut] {
+func (d *NonResourceRuleDieMut) Verbs() diefields.ValueMut[[]string] {
 	return diefields.ValueMutOf(d, nonResourceRuleFields.Get().Verbs)
 }
 
 // nonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full,
 // final step in the path.  "*" means all.
-func (d *NonResourceRuleDieMut) NonResourceURLs() diefields.ValueMut[[]string, *NonResourceRuleDieMut] {
+func (d *NonResourceRuleDieMut) NonResourceURLs() diefields.ValueMut[[]string] {
 	return diefields.ValueMutOf(d, nonResourceRuleFields.Get().NonResourceURLs)
 }
 
 // ResourceAttributes includes the authorization attributes available for resource requests to the Authorizer interface
 //
 // ResourceAttributesDie is immutable: it reads.
-// [ResourceAttributesDieMut], its mutable die, also writes, as DieWith passes it.
+// [ResourceAttributesDieMut], its mutable die, also writes, as DieStamp passes it.
 type ResourceAttributesDie struct {
 	diebase.DieBase[ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut]
 }
@@ -353,37 +353,37 @@ func (d *ResourceAttributesDie) LabelSelector() *dieauthorizationv1.LabelSelecto
 // "" (empty) is defaulted for LocalSubjectAccessReviews
 // "" (empty) is empty for cluster-scoped resources
 // "" (empty) means "all" for namespace scoped resources from a SubjectAccessReview or SelfSubjectAccessReview
-func (d *ResourceAttributesDieMut) Namespace() diefields.ValueMut[string, *ResourceAttributesDieMut] {
+func (d *ResourceAttributesDieMut) Namespace() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, resourceAttributesFields.Get().Namespace)
 }
 
 // verb is a kubernetes resource API verb, like: get, list, watch, create, update, delete, proxy.  "*" means all.
-func (d *ResourceAttributesDieMut) Verb() diefields.ValueMut[string, *ResourceAttributesDieMut] {
+func (d *ResourceAttributesDieMut) Verb() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, resourceAttributesFields.Get().Verb)
 }
 
 // group is the API Group of the Resource.  "*" means all.
-func (d *ResourceAttributesDieMut) Group() diefields.ValueMut[string, *ResourceAttributesDieMut] {
+func (d *ResourceAttributesDieMut) Group() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, resourceAttributesFields.Get().Group)
 }
 
 // version is the API Version of the Resource.  "*" means all.
-func (d *ResourceAttributesDieMut) Version() diefields.ValueMut[string, *ResourceAttributesDieMut] {
+func (d *ResourceAttributesDieMut) Version() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, resourceAttributesFields.Get().Version)
 }
 
 // resource is one of the existing resource types.  "*" means all.
-func (d *ResourceAttributesDieMut) Resource() diefields.ValueMut[string, *ResourceAttributesDieMut] {
+func (d *ResourceAttributesDieMut) Resource() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, resourceAttributesFields.Get().Resource)
 }
 
 // subresource is one of the existing resource types.  "" means none.
-func (d *ResourceAttributesDieMut) Subresource() diefields.ValueMut[string, *ResourceAttributesDieMut] {
+func (d *ResourceAttributesDieMut) Subresource() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, resourceAttributesFields.Get().Subresource)
 }
 
 // name is the name of the resource being requested for a "get" or deleted for a "delete". "" (empty) means all.
-func (d *ResourceAttributesDieMut) Name() diefields.ValueMut[string, *ResourceAttributesDieMut] {
+func (d *ResourceAttributesDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, resourceAttributesFields.Get().Name)
 }
 
@@ -401,7 +401,7 @@ func (d *ResourceAttributesDieMut) LabelSelector() *dieauthorizationv1.LabelSele
 // may contain duplicates, and possibly be incomplete.
 //
 // ResourceRuleDie is immutable: it reads.
-// [ResourceRuleDieMut], its mutable die, also writes, as DieWith passes it.
+// [ResourceRuleDieMut], its mutable die, also writes, as DieStamp passes it.
 type ResourceRuleDie struct {
 	diebase.DieBase[ResourceRule, *ResourceRuleDie, *ResourceRuleDieMut]
 }
@@ -461,25 +461,25 @@ func (d *ResourceRuleDie) ResourceNames() diefields.Value[[]string] {
 }
 
 // verbs is a list of kubernetes resource API verbs, like: get, list, watch, create, update, delete, proxy.  "*" means all.
-func (d *ResourceRuleDieMut) Verbs() diefields.ValueMut[[]string, *ResourceRuleDieMut] {
+func (d *ResourceRuleDieMut) Verbs() diefields.ValueMut[[]string] {
 	return diefields.ValueMutOf(d, resourceRuleFields.Get().Verbs)
 }
 
 // apiGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
 // the enumerated resources in any API group will be allowed.  "*" means all.
-func (d *ResourceRuleDieMut) APIGroups() diefields.ValueMut[[]string, *ResourceRuleDieMut] {
+func (d *ResourceRuleDieMut) APIGroups() diefields.ValueMut[[]string] {
 	return diefields.ValueMutOf(d, resourceRuleFields.Get().APIGroups)
 }
 
 // resources is a list of resources this rule applies to.  "*" means all in the specified apiGroups.
 //
 //	"*/foo" represents the subresource 'foo' for all resources in the specified apiGroups.
-func (d *ResourceRuleDieMut) Resources() diefields.ValueMut[[]string, *ResourceRuleDieMut] {
+func (d *ResourceRuleDieMut) Resources() diefields.ValueMut[[]string] {
 	return diefields.ValueMutOf(d, resourceRuleFields.Get().Resources)
 }
 
 // resourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.  "*" means all.
-func (d *ResourceRuleDieMut) ResourceNames() diefields.ValueMut[[]string, *ResourceRuleDieMut] {
+func (d *ResourceRuleDieMut) ResourceNames() diefields.ValueMut[[]string] {
 	return diefields.ValueMutOf(d, resourceRuleFields.Get().ResourceNames)
 }
 
@@ -488,7 +488,7 @@ func (d *ResourceRuleDieMut) ResourceNames() diefields.ValueMut[[]string, *Resou
 // to check whether they can perform an action
 //
 // SelfSubjectAccessReviewDie is immutable: it reads.
-// [SelfSubjectAccessReviewDieMut], its mutable die, also writes, as DieWith passes it.
+// [SelfSubjectAccessReviewDieMut], its mutable die, also writes, as DieStamp passes it.
 type SelfSubjectAccessReviewDie struct {
 	diebase.DieObjectBase[SelfSubjectAccessReview, *SelfSubjectAccessReviewDie, *SelfSubjectAccessReviewDieMut]
 }
@@ -564,7 +564,7 @@ func (d *SelfSubjectAccessReviewDie) Status() *SubjectAccessReviewStatusDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *SelfSubjectAccessReviewDieMut) Kind() diefields.ValueMut[string, *SelfSubjectAccessReviewDieMut] {
+func (d *SelfSubjectAccessReviewDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, selfSubjectAccessReviewFields.Get().Kind)
 }
 
@@ -572,7 +572,7 @@ func (d *SelfSubjectAccessReviewDieMut) Kind() diefields.ValueMut[string, *SelfS
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *SelfSubjectAccessReviewDieMut) APIVersion() diefields.ValueMut[string, *SelfSubjectAccessReviewDieMut] {
+func (d *SelfSubjectAccessReviewDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, selfSubjectAccessReviewFields.Get().APIVersion)
 }
 
@@ -596,7 +596,7 @@ func (d *SelfSubjectAccessReviewDieMut) Status() *SubjectAccessReviewStatusDieMu
 // and nonResourceAttributes must be set
 //
 // SelfSubjectAccessReviewSpecDie is immutable: it reads.
-// [SelfSubjectAccessReviewSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [SelfSubjectAccessReviewSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type SelfSubjectAccessReviewSpecDie struct {
 	diebase.DieBase[SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie, *SelfSubjectAccessReviewSpecDieMut]
 }
@@ -656,7 +656,7 @@ func (d *SelfSubjectAccessReviewSpecDieMut) NonResourceAttributes() *NonResource
 // SubjectAccessReview, and LocalAccessReview are the correct way to defer authorization decisions to the API server.
 //
 // SelfSubjectRulesReviewDie is immutable: it reads.
-// [SelfSubjectRulesReviewDieMut], its mutable die, also writes, as DieWith passes it.
+// [SelfSubjectRulesReviewDieMut], its mutable die, also writes, as DieStamp passes it.
 type SelfSubjectRulesReviewDie struct {
 	diebase.DieObjectBase[SelfSubjectRulesReview, *SelfSubjectRulesReviewDie, *SelfSubjectRulesReviewDieMut]
 }
@@ -732,7 +732,7 @@ func (d *SelfSubjectRulesReviewDie) Status() *SubjectRulesReviewStatusDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *SelfSubjectRulesReviewDieMut) Kind() diefields.ValueMut[string, *SelfSubjectRulesReviewDieMut] {
+func (d *SelfSubjectRulesReviewDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, selfSubjectRulesReviewFields.Get().Kind)
 }
 
@@ -740,7 +740,7 @@ func (d *SelfSubjectRulesReviewDieMut) Kind() diefields.ValueMut[string, *SelfSu
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *SelfSubjectRulesReviewDieMut) APIVersion() diefields.ValueMut[string, *SelfSubjectRulesReviewDieMut] {
+func (d *SelfSubjectRulesReviewDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, selfSubjectRulesReviewFields.Get().APIVersion)
 }
 
@@ -763,7 +763,7 @@ func (d *SelfSubjectRulesReviewDieMut) Status() *SubjectRulesReviewStatusDieMut 
 // SelfSubjectRulesReviewSpec defines the specification for SelfSubjectRulesReview.
 //
 // SelfSubjectRulesReviewSpecDie is immutable: it reads.
-// [SelfSubjectRulesReviewSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [SelfSubjectRulesReviewSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type SelfSubjectRulesReviewSpecDie struct {
 	diebase.DieBase[SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie, *SelfSubjectRulesReviewSpecDieMut]
 }
@@ -799,14 +799,14 @@ func (d *SelfSubjectRulesReviewSpecDie) Namespace() diefields.Value[string] {
 }
 
 // namespace to evaluate rules for. Required.
-func (d *SelfSubjectRulesReviewSpecDieMut) Namespace() diefields.ValueMut[string, *SelfSubjectRulesReviewSpecDieMut] {
+func (d *SelfSubjectRulesReviewSpecDieMut) Namespace() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, selfSubjectRulesReviewSpecFields.Get().Namespace)
 }
 
 // SubjectAccessReview checks whether or not a user or group can perform an action.
 //
 // SubjectAccessReviewDie is immutable: it reads.
-// [SubjectAccessReviewDieMut], its mutable die, also writes, as DieWith passes it.
+// [SubjectAccessReviewDieMut], its mutable die, also writes, as DieStamp passes it.
 type SubjectAccessReviewDie struct {
 	diebase.DieObjectBase[SubjectAccessReview, *SubjectAccessReviewDie, *SubjectAccessReviewDieMut]
 }
@@ -882,7 +882,7 @@ func (d *SubjectAccessReviewDie) Status() *SubjectAccessReviewStatusDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *SubjectAccessReviewDieMut) Kind() diefields.ValueMut[string, *SubjectAccessReviewDieMut] {
+func (d *SubjectAccessReviewDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, subjectAccessReviewFields.Get().Kind)
 }
 
@@ -890,7 +890,7 @@ func (d *SubjectAccessReviewDieMut) Kind() diefields.ValueMut[string, *SubjectAc
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *SubjectAccessReviewDieMut) APIVersion() diefields.ValueMut[string, *SubjectAccessReviewDieMut] {
+func (d *SubjectAccessReviewDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, subjectAccessReviewFields.Get().APIVersion)
 }
 
@@ -914,7 +914,7 @@ func (d *SubjectAccessReviewDieMut) Status() *SubjectAccessReviewStatusDieMut {
 // and nonResourceAttributes must be set
 //
 // SubjectAccessReviewSpecDie is immutable: it reads.
-// [SubjectAccessReviewSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [SubjectAccessReviewSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type SubjectAccessReviewSpecDie struct {
 	diebase.DieBase[SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie, *SubjectAccessReviewSpecDieMut]
 }
@@ -998,12 +998,12 @@ func (d *SubjectAccessReviewSpecDieMut) NonResourceAttributes() *NonResourceAttr
 
 // user is the user you're testing for.
 // If you specify "User" but not "Group", then is it interpreted as "What if User were not a member of any groups
-func (d *SubjectAccessReviewSpecDieMut) User() diefields.ValueMut[string, *SubjectAccessReviewSpecDieMut] {
+func (d *SubjectAccessReviewSpecDieMut) User() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, subjectAccessReviewSpecFields.Get().User)
 }
 
 // group is the groups you're testing for.
-func (d *SubjectAccessReviewSpecDieMut) Groups() diefields.ValueMut[[]string, *SubjectAccessReviewSpecDieMut] {
+func (d *SubjectAccessReviewSpecDieMut) Groups() diefields.ValueMut[[]string] {
 	return diefields.ValueMutOf(d, subjectAccessReviewSpecFields.Get().Groups)
 }
 
@@ -1014,14 +1014,14 @@ func (d *SubjectAccessReviewSpecDieMut) Extra() *diefields.MapMut[string, ExtraV
 }
 
 // uid information about the requesting user.
-func (d *SubjectAccessReviewSpecDieMut) UID() diefields.ValueMut[string, *SubjectAccessReviewSpecDieMut] {
+func (d *SubjectAccessReviewSpecDieMut) UID() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, subjectAccessReviewSpecFields.Get().UID)
 }
 
 // SubjectAccessReviewStatus
 //
 // SubjectAccessReviewStatusDie is immutable: it reads.
-// [SubjectAccessReviewStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [SubjectAccessReviewStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type SubjectAccessReviewStatusDie struct {
 	diebase.DieBase[SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie, *SubjectAccessReviewStatusDieMut]
 }
@@ -1083,7 +1083,7 @@ func (d *SubjectAccessReviewStatusDie) EvaluationError() diefields.Value[string]
 }
 
 // allowed is required. True if the action would be allowed, false otherwise.
-func (d *SubjectAccessReviewStatusDieMut) Allowed() diefields.ValueMut[bool, *SubjectAccessReviewStatusDieMut] {
+func (d *SubjectAccessReviewStatusDieMut) Allowed() diefields.ValueMut[bool] {
 	return diefields.ValueMutOf(d, subjectAccessReviewStatusFields.Get().Allowed)
 }
 
@@ -1091,19 +1091,19 @@ func (d *SubjectAccessReviewStatusDieMut) Allowed() diefields.ValueMut[bool, *Su
 // false. If both allowed is false and denied is false, then the
 // authorizer has no opinion on whether to authorize the action. Denied
 // may not be true if Allowed is true.
-func (d *SubjectAccessReviewStatusDieMut) Denied() diefields.ValueMut[bool, *SubjectAccessReviewStatusDieMut] {
+func (d *SubjectAccessReviewStatusDieMut) Denied() diefields.ValueMut[bool] {
 	return diefields.ValueMutOf(d, subjectAccessReviewStatusFields.Get().Denied)
 }
 
 // reason is optional.  It indicates why a request was allowed or denied.
-func (d *SubjectAccessReviewStatusDieMut) Reason() diefields.ValueMut[string, *SubjectAccessReviewStatusDieMut] {
+func (d *SubjectAccessReviewStatusDieMut) Reason() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, subjectAccessReviewStatusFields.Get().Reason)
 }
 
 // evaluationError is an indication that some error occurred during the authorization check.
 // It is entirely possible to get an error and be able to continue determine authorization status in spite of it.
 // For instance, RBAC can be missing a role, but enough roles are still present and bound to reason about the request.
-func (d *SubjectAccessReviewStatusDieMut) EvaluationError() diefields.ValueMut[string, *SubjectAccessReviewStatusDieMut] {
+func (d *SubjectAccessReviewStatusDieMut) EvaluationError() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, subjectAccessReviewStatusFields.Get().EvaluationError)
 }
 
@@ -1113,7 +1113,7 @@ func (d *SubjectAccessReviewStatusDieMut) EvaluationError() diefields.ValueMut[s
 // even if that list is incomplete.
 //
 // SubjectRulesReviewStatusDie is immutable: it reads.
-// [SubjectRulesReviewStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [SubjectRulesReviewStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type SubjectRulesReviewStatusDie struct {
 	diebase.DieBase[SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie, *SubjectRulesReviewStatusDieMut]
 }
@@ -1176,26 +1176,26 @@ func (d *SubjectRulesReviewStatusDie) EvaluationError() diefields.Value[string] 
 
 // resourceRules is the list of actions the subject is allowed to perform on resources.
 // The list ordering isn't significant, may contain duplicates, and possibly be incomplete.
-func (d *SubjectRulesReviewStatusDieMut) ResourceRules() diefields.ValueMut[[]ResourceRule, *SubjectRulesReviewStatusDieMut] {
+func (d *SubjectRulesReviewStatusDieMut) ResourceRules() diefields.ValueMut[[]ResourceRule] {
 	return diefields.ValueMutOf(d, subjectRulesReviewStatusFields.Get().ResourceRules)
 }
 
 // nonResourceRules is the list of actions the subject is allowed to perform on non-resources.
 // The list ordering isn't significant, may contain duplicates, and possibly be incomplete.
-func (d *SubjectRulesReviewStatusDieMut) NonResourceRules() diefields.ValueMut[[]NonResourceRule, *SubjectRulesReviewStatusDieMut] {
+func (d *SubjectRulesReviewStatusDieMut) NonResourceRules() diefields.ValueMut[[]NonResourceRule] {
 	return diefields.ValueMutOf(d, subjectRulesReviewStatusFields.Get().NonResourceRules)
 }
 
 // incomplete is true when the rules returned by this call are incomplete. This is most commonly
 // encountered when an authorizer, such as an external authorizer, doesn't support rules evaluation.
-func (d *SubjectRulesReviewStatusDieMut) Incomplete() diefields.ValueMut[bool, *SubjectRulesReviewStatusDieMut] {
+func (d *SubjectRulesReviewStatusDieMut) Incomplete() diefields.ValueMut[bool] {
 	return diefields.ValueMutOf(d, subjectRulesReviewStatusFields.Get().Incomplete)
 }
 
 // evaluationError can appear in combination with Rules. It indicates an error occurred during
 // rule evaluation, such as an authorizer that doesn't support rule evaluation, and that
 // ResourceRules and/or NonResourceRules may be incomplete.
-func (d *SubjectRulesReviewStatusDieMut) EvaluationError() diefields.ValueMut[string, *SubjectRulesReviewStatusDieMut] {
+func (d *SubjectRulesReviewStatusDieMut) EvaluationError() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, subjectRulesReviewStatusFields.Get().EvaluationError)
 }
 

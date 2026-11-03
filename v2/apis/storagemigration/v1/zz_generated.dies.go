@@ -33,7 +33,7 @@ import (
 // storage version.
 //
 // StorageVersionMigrationDie is immutable: it reads.
-// [StorageVersionMigrationDieMut], its mutable die, also writes, as DieWith passes it.
+// [StorageVersionMigrationDieMut], its mutable die, also writes, as DieStamp passes it.
 type StorageVersionMigrationDie struct {
 	diebase.DieObjectBase[StorageVersionMigration, *StorageVersionMigrationDie, *StorageVersionMigrationDieMut]
 }
@@ -82,26 +82,14 @@ func (d *StorageVersionMigrationDieMut) DieReleaseApplyConfigurationE() (*Storag
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *StorageVersionMigrationDieMut) DieFeedApplyConfiguration(ac *StorageVersionMigrationApplyConfiguration) *StorageVersionMigrationDieMut {
+func (d *StorageVersionMigrationDieMut) DieFeedApplyConfiguration(ac *StorageVersionMigrationApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *StorageVersionMigrationDieMut) DieStampApplyConfiguration(fn func(ac *StorageVersionMigrationApplyConfiguration)) *StorageVersionMigrationDieMut {
+func (d *StorageVersionMigrationDieMut) DieStampApplyConfiguration(fn func(ac *StorageVersionMigrationApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [StorageVersionMigrationDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StorageVersionMigrationDieMut) DieFeedApplyConfigurationE(ac *StorageVersionMigrationApplyConfiguration) (*StorageVersionMigrationDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [StorageVersionMigrationDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StorageVersionMigrationDieMut) DieStampApplyConfigurationE(fn func(ac *StorageVersionMigrationApplyConfiguration)) (*StorageVersionMigrationDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type storageVersionMigrationFieldsTable struct {
@@ -160,7 +148,7 @@ func (d *StorageVersionMigrationDie) Status() *StorageVersionMigrationStatusDie 
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *StorageVersionMigrationDieMut) Kind() diefields.ValueMut[string, *StorageVersionMigrationDieMut] {
+func (d *StorageVersionMigrationDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, storageVersionMigrationFields.Get().Kind)
 }
 
@@ -168,7 +156,7 @@ func (d *StorageVersionMigrationDieMut) Kind() diefields.ValueMut[string, *Stora
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *StorageVersionMigrationDieMut) APIVersion() diefields.ValueMut[string, *StorageVersionMigrationDieMut] {
+func (d *StorageVersionMigrationDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, storageVersionMigrationFields.Get().APIVersion)
 }
 
@@ -193,8 +181,6 @@ type StorageVersionMigrationListDie struct {
 	dielists.List[*StorageVersionMigrationDieMut]
 }
 
-var _ dielists.DieListOf[*StorageVersionMigrationDieMut] = (*StorageVersionMigrationListDie)(nil)
-
 // NewStorageVersionMigrationList returns a list with items.
 func NewStorageVersionMigrationList(items ...*StorageVersionMigrationDieMut) *StorageVersionMigrationListDie {
 	return &StorageVersionMigrationListDie{dielists.NewList("storagemigration.k8s.io/v1", "StorageVersionMigrationList", items...)}
@@ -210,7 +196,7 @@ func (l *StorageVersionMigrationListDie) DeepCopyObject() runtime.Object { retur
 // Spec of the storage version migration.
 //
 // StorageVersionMigrationSpecDie is immutable: it reads.
-// [StorageVersionMigrationSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [StorageVersionMigrationSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type StorageVersionMigrationSpecDie struct {
 	diebase.DieBase[StorageVersionMigrationSpec, *StorageVersionMigrationSpecDie, *StorageVersionMigrationSpecDieMut]
 }
@@ -259,26 +245,14 @@ func (d *StorageVersionMigrationSpecDieMut) DieReleaseApplyConfigurationE() (*St
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *StorageVersionMigrationSpecDieMut) DieFeedApplyConfiguration(ac *StorageVersionMigrationSpecApplyConfiguration) *StorageVersionMigrationSpecDieMut {
+func (d *StorageVersionMigrationSpecDieMut) DieFeedApplyConfiguration(ac *StorageVersionMigrationSpecApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *StorageVersionMigrationSpecDieMut) DieStampApplyConfiguration(fn func(ac *StorageVersionMigrationSpecApplyConfiguration)) *StorageVersionMigrationSpecDieMut {
+func (d *StorageVersionMigrationSpecDieMut) DieStampApplyConfiguration(fn func(ac *StorageVersionMigrationSpecApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [StorageVersionMigrationSpecDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StorageVersionMigrationSpecDieMut) DieFeedApplyConfigurationE(ac *StorageVersionMigrationSpecApplyConfiguration) (*StorageVersionMigrationSpecDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [StorageVersionMigrationSpecDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StorageVersionMigrationSpecDieMut) DieStampApplyConfigurationE(fn func(ac *StorageVersionMigrationSpecApplyConfiguration)) (*StorageVersionMigrationSpecDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type storageVersionMigrationSpecFieldsTable struct {
@@ -308,7 +282,7 @@ func (d *StorageVersionMigrationSpecDieMut) Resource() *diemetav1.GroupResourceD
 // Status of the storage version migration.
 //
 // StorageVersionMigrationStatusDie is immutable: it reads.
-// [StorageVersionMigrationStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [StorageVersionMigrationStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type StorageVersionMigrationStatusDie struct {
 	diebase.DieBase[StorageVersionMigrationStatus, *StorageVersionMigrationStatusDie, *StorageVersionMigrationStatusDieMut]
 }
@@ -357,26 +331,14 @@ func (d *StorageVersionMigrationStatusDieMut) DieReleaseApplyConfigurationE() (*
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *StorageVersionMigrationStatusDieMut) DieFeedApplyConfiguration(ac *StorageVersionMigrationStatusApplyConfiguration) *StorageVersionMigrationStatusDieMut {
+func (d *StorageVersionMigrationStatusDieMut) DieFeedApplyConfiguration(ac *StorageVersionMigrationStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *StorageVersionMigrationStatusDieMut) DieStampApplyConfiguration(fn func(ac *StorageVersionMigrationStatusApplyConfiguration)) *StorageVersionMigrationStatusDieMut {
+func (d *StorageVersionMigrationStatusDieMut) DieStampApplyConfiguration(fn func(ac *StorageVersionMigrationStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [StorageVersionMigrationStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StorageVersionMigrationStatusDieMut) DieFeedApplyConfigurationE(ac *StorageVersionMigrationStatusApplyConfiguration) (*StorageVersionMigrationStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [StorageVersionMigrationStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StorageVersionMigrationStatusDieMut) DieStampApplyConfigurationE(fn func(ac *StorageVersionMigrationStatusApplyConfiguration)) (*StorageVersionMigrationStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type storageVersionMigrationStatusFieldsTable struct {
@@ -411,7 +373,7 @@ func (d *StorageVersionMigrationStatusDieMut) Conditions() *diefields.ListMapMut
 // ResourceVersion to compare with the GC cache for performing the migration.
 // This is the current resource version of given group, version and resource when
 // kube-controller-manager first observes this StorageVersionMigration resource.
-func (d *StorageVersionMigrationStatusDieMut) ResourceVersion() diefields.ValueMut[string, *StorageVersionMigrationStatusDieMut] {
+func (d *StorageVersionMigrationStatusDieMut) ResourceVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, storageVersionMigrationStatusFields.Get().ResourceVersion)
 }
 

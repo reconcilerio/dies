@@ -43,7 +43,8 @@ const (
 )
 
 // FieldInfo describes a field a die manages. It is also a location within
-// the die, so it can be passed to [DieBase.DieOnly] and [DieBase.DieExcept].
+// the die, so it can be passed to a scope, such as
+// [reconciler.io/dies/v2/die.Only].
 type FieldInfo struct {
 	// Wire is the field's name on the wire.
 	Wire string

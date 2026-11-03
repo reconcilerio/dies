@@ -23,11 +23,13 @@ import (
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
+	"reconciler.io/dies/v2/die"
+	"reconciler.io/dies/v2/die/dietest"
 	"reconciler.io/dies/v2/die/unstructured"
 )
 
 func TestJigAs(t *testing.T) {
-	d := unstructured.Blank.DieWith(func(d *unstructured.ObjectMut) { d.DieFeedUnstructured(server()) })
+	d := unstructured.Blank.DieStamp(func(d *unstructured.ObjectMut) { dietest.NoError(t, die.FeedUnstructured(d, server())) })
 
 	app := unstructured.JigAs[*diecorev1.ContainerDie](d.Node().Field("spec").Field("containers").Item("name", "app"))
 	if got := app.Image().Get(); got != "app:1" {
@@ -37,24 +39,24 @@ func TestJigAs(t *testing.T) {
 	// JigAsMut, mutable: JigAs takes only immutable dies and nodes, and
 	// JigAsMut only mutable ones
 
-	d = d.DieWith(func(d *unstructured.ObjectMut) {
+	d = d.DieStamp(func(d *unstructured.ObjectMut) {
 		containers := d.Node().Field("spec").Field("containers")
 		app := unstructured.JigAsMut[*diecorev1.ContainerDieMut](containers.Item("name", "app"))
-		app.Image().Set("app:2")
-		app.Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("http")
-		app.Env().At("MODE").Value().Set("full")
+		dietest.NoError(t, app.Image().Set("app:2"))
+		dietest.NoError(t, app.Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("http"))
+		dietest.NoError(t, app.Env().At("MODE").Value().Set("full"))
 		// reads see writes to the node, through either
-		containers.Item("name", "app").Field("workingDir").Set("/srv")
+		dietest.NoError(t, containers.Item("name", "app").Field("workingDir").Set("/srv"))
 		if got := app.WorkingDir().Get(); got != "/srv" {
 			t.Errorf("workingDir %q", got)
 		}
 		// a jig of a list element by its index
 		proxy := unstructured.JigAsMut[*diecorev1.ContainerDieMut](containers.Index(1))
-		proxy.Args().Set([]string{"--verbose"})
+		dietest.NoError(t, proxy.Args().Set([]string{"--verbose"}))
 	})
 
 	// only what was written is intent, and unknown fields are kept
-	got, err := d.DieReleaseMergePatchE()
+	got, err := die.ReleaseMergePatchE(d)
 	assertJSON(t, got, err, `{"spec": {"containers": [
 		{"name": "app", "image": "app:2", "futureField": {"from": "a newer API"}, "workingDir": "/srv",
 		 "ports": [{"containerPort": 8080, "protocol": "TCP", "name": "http"}],
@@ -71,22 +73,22 @@ func TestJigAs(t *testing.T) {
 
 // The whole of an unstructured die can be read and held as a typed die.
 func TestJigAsOfAnUnstructuredObject(t *testing.T) {
-	d := unstructured.BlankFor("apps/v1", "Deployment").DieWith(func(d *unstructured.ObjectMut) {
-		d.Node().Field("metadata").Field("name").Set("web")
-		d.Node().Field("spec").Field("futureField").Set(true)
-	}).DieCommit()
+	d := unstructured.BlankFor("apps/v1", "Deployment").DieStamp(func(d *unstructured.ObjectMut) {
+		dietest.NoError(t, d.Node().Field("metadata").Field("name").Set("web"))
+		dietest.NoError(t, d.Node().Field("spec").Field("futureField").Set(true))
+	}).DieTare()
 
 	if got := unstructured.GetAs[appsv1.Deployment](d).Name; got != "web" {
 		t.Errorf("name %q", got)
 	}
-	d = d.DieWith(func(d *unstructured.ObjectMut) {
+	d = d.DieStamp(func(d *unstructured.ObjectMut) {
 		deploy := unstructured.JigAsMut[*dieappsv1.DeploymentDieMut](d)
 		if got := deploy.Metadata().Name().Get(); got != "web" {
 			t.Errorf("name %q", got)
 		}
-		deploy.Spec().Template().Spec().Containers().At("app").Image().Set("app:1")
+		dietest.NoError(t, deploy.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
 	})
-	got, err := d.DieReleaseMergePatchE()
+	got, err := die.ReleaseMergePatchE(d)
 	assertJSON(t, got, err, `{"spec": {"template": {"spec": {"containers": [{"name": "app", "image": "app:1"}]}}}}`)
 	if d.Node().Field("spec").Field("futureField").Get() != true {
 		t.Error("unknown field lost")

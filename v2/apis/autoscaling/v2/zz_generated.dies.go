@@ -40,7 +40,7 @@ import (
 // should be set.
 //
 // ContainerResourceMetricSourceDie is immutable: it reads.
-// [ContainerResourceMetricSourceDieMut], its mutable die, also writes, as DieWith passes it.
+// [ContainerResourceMetricSourceDieMut], its mutable die, also writes, as DieStamp passes it.
 type ContainerResourceMetricSourceDie struct {
 	diebase.DieBase[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]
 }
@@ -89,26 +89,14 @@ func (d *ContainerResourceMetricSourceDieMut) DieReleaseApplyConfigurationE() (*
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ContainerResourceMetricSourceDieMut) DieFeedApplyConfiguration(ac *ContainerResourceMetricSourceApplyConfiguration) *ContainerResourceMetricSourceDieMut {
+func (d *ContainerResourceMetricSourceDieMut) DieFeedApplyConfiguration(ac *ContainerResourceMetricSourceApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ContainerResourceMetricSourceDieMut) DieStampApplyConfiguration(fn func(ac *ContainerResourceMetricSourceApplyConfiguration)) *ContainerResourceMetricSourceDieMut {
+func (d *ContainerResourceMetricSourceDieMut) DieStampApplyConfiguration(fn func(ac *ContainerResourceMetricSourceApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ContainerResourceMetricSourceDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ContainerResourceMetricSourceDieMut) DieFeedApplyConfigurationE(ac *ContainerResourceMetricSourceApplyConfiguration) (*ContainerResourceMetricSourceDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ContainerResourceMetricSourceDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ContainerResourceMetricSourceDieMut) DieStampApplyConfigurationE(fn func(ac *ContainerResourceMetricSourceApplyConfiguration)) (*ContainerResourceMetricSourceDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type containerResourceMetricSourceFieldsTable struct {
@@ -141,7 +129,7 @@ func (d *ContainerResourceMetricSourceDie) Container() diefields.Value[string] {
 }
 
 // name is the name of the resource in question.
-func (d *ContainerResourceMetricSourceDieMut) Name() diefields.ValueMut[diecorev1.ResourceName, *ContainerResourceMetricSourceDieMut] {
+func (d *ContainerResourceMetricSourceDieMut) Name() diefields.ValueMut[diecorev1.ResourceName] {
 	return diefields.ValueMutOf(d, containerResourceMetricSourceFields.Get().Name)
 }
 
@@ -151,7 +139,7 @@ func (d *ContainerResourceMetricSourceDieMut) Target() *MetricTargetDieMut {
 }
 
 // container is the name of the container in the pods of the scaling target
-func (d *ContainerResourceMetricSourceDieMut) Container() diefields.ValueMut[string, *ContainerResourceMetricSourceDieMut] {
+func (d *ContainerResourceMetricSourceDieMut) Container() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, containerResourceMetricSourceFields.Get().Container)
 }
 
@@ -162,7 +150,7 @@ func (d *ContainerResourceMetricSourceDieMut) Container() diefields.ValueMut[str
 // normal per-pod metrics using the "pods" source.
 //
 // ContainerResourceMetricStatusDie is immutable: it reads.
-// [ContainerResourceMetricStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [ContainerResourceMetricStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type ContainerResourceMetricStatusDie struct {
 	diebase.DieBase[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]
 }
@@ -211,26 +199,14 @@ func (d *ContainerResourceMetricStatusDieMut) DieReleaseApplyConfigurationE() (*
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ContainerResourceMetricStatusDieMut) DieFeedApplyConfiguration(ac *ContainerResourceMetricStatusApplyConfiguration) *ContainerResourceMetricStatusDieMut {
+func (d *ContainerResourceMetricStatusDieMut) DieFeedApplyConfiguration(ac *ContainerResourceMetricStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ContainerResourceMetricStatusDieMut) DieStampApplyConfiguration(fn func(ac *ContainerResourceMetricStatusApplyConfiguration)) *ContainerResourceMetricStatusDieMut {
+func (d *ContainerResourceMetricStatusDieMut) DieStampApplyConfiguration(fn func(ac *ContainerResourceMetricStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ContainerResourceMetricStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ContainerResourceMetricStatusDieMut) DieFeedApplyConfigurationE(ac *ContainerResourceMetricStatusApplyConfiguration) (*ContainerResourceMetricStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ContainerResourceMetricStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ContainerResourceMetricStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ContainerResourceMetricStatusApplyConfiguration)) (*ContainerResourceMetricStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type containerResourceMetricStatusFieldsTable struct {
@@ -263,7 +239,7 @@ func (d *ContainerResourceMetricStatusDie) Container() diefields.Value[string] {
 }
 
 // name is the name of the resource in question.
-func (d *ContainerResourceMetricStatusDieMut) Name() diefields.ValueMut[diecorev1.ResourceName, *ContainerResourceMetricStatusDieMut] {
+func (d *ContainerResourceMetricStatusDieMut) Name() diefields.ValueMut[diecorev1.ResourceName] {
 	return diefields.ValueMutOf(d, containerResourceMetricStatusFields.Get().Name)
 }
 
@@ -273,14 +249,14 @@ func (d *ContainerResourceMetricStatusDieMut) Current() *MetricValueStatusDieMut
 }
 
 // container is the name of the container in the pods of the scaling target
-func (d *ContainerResourceMetricStatusDieMut) Container() diefields.ValueMut[string, *ContainerResourceMetricStatusDieMut] {
+func (d *ContainerResourceMetricStatusDieMut) Container() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, containerResourceMetricStatusFields.Get().Container)
 }
 
 // CrossVersionObjectReference contains enough information to let you identify the referred resource.
 //
 // CrossVersionObjectReferenceDie is immutable: it reads.
-// [CrossVersionObjectReferenceDieMut], its mutable die, also writes, as DieWith passes it.
+// [CrossVersionObjectReferenceDieMut], its mutable die, also writes, as DieStamp passes it.
 type CrossVersionObjectReferenceDie struct {
 	diebase.DieBase[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]
 }
@@ -329,26 +305,14 @@ func (d *CrossVersionObjectReferenceDieMut) DieReleaseApplyConfigurationE() (*Cr
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *CrossVersionObjectReferenceDieMut) DieFeedApplyConfiguration(ac *CrossVersionObjectReferenceApplyConfiguration) *CrossVersionObjectReferenceDieMut {
+func (d *CrossVersionObjectReferenceDieMut) DieFeedApplyConfiguration(ac *CrossVersionObjectReferenceApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *CrossVersionObjectReferenceDieMut) DieStampApplyConfiguration(fn func(ac *CrossVersionObjectReferenceApplyConfiguration)) *CrossVersionObjectReferenceDieMut {
+func (d *CrossVersionObjectReferenceDieMut) DieStampApplyConfiguration(fn func(ac *CrossVersionObjectReferenceApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [CrossVersionObjectReferenceDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *CrossVersionObjectReferenceDieMut) DieFeedApplyConfigurationE(ac *CrossVersionObjectReferenceApplyConfiguration) (*CrossVersionObjectReferenceDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [CrossVersionObjectReferenceDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *CrossVersionObjectReferenceDieMut) DieStampApplyConfigurationE(fn func(ac *CrossVersionObjectReferenceApplyConfiguration)) (*CrossVersionObjectReferenceDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type crossVersionObjectReferenceFieldsTable struct {
@@ -381,17 +345,17 @@ func (d *CrossVersionObjectReferenceDie) APIVersion() diefields.Value[string] {
 }
 
 // kind is the kind of the referent; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *CrossVersionObjectReferenceDieMut) Kind() diefields.ValueMut[string, *CrossVersionObjectReferenceDieMut] {
+func (d *CrossVersionObjectReferenceDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, crossVersionObjectReferenceFields.Get().Kind)
 }
 
 // name is the name of the referent; More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-func (d *CrossVersionObjectReferenceDieMut) Name() diefields.ValueMut[string, *CrossVersionObjectReferenceDieMut] {
+func (d *CrossVersionObjectReferenceDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, crossVersionObjectReferenceFields.Get().Name)
 }
 
 // apiVersion is the API version of the referent
-func (d *CrossVersionObjectReferenceDieMut) APIVersion() diefields.ValueMut[string, *CrossVersionObjectReferenceDieMut] {
+func (d *CrossVersionObjectReferenceDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, crossVersionObjectReferenceFields.Get().APIVersion)
 }
 
@@ -400,7 +364,7 @@ func (d *CrossVersionObjectReferenceDieMut) APIVersion() diefields.ValueMut[stri
 // messaging service, or QPS from loadbalancer running outside of cluster).
 //
 // ExternalMetricSourceDie is immutable: it reads.
-// [ExternalMetricSourceDieMut], its mutable die, also writes, as DieWith passes it.
+// [ExternalMetricSourceDieMut], its mutable die, also writes, as DieStamp passes it.
 type ExternalMetricSourceDie struct {
 	diebase.DieBase[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]
 }
@@ -449,26 +413,14 @@ func (d *ExternalMetricSourceDieMut) DieReleaseApplyConfigurationE() (*ExternalM
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ExternalMetricSourceDieMut) DieFeedApplyConfiguration(ac *ExternalMetricSourceApplyConfiguration) *ExternalMetricSourceDieMut {
+func (d *ExternalMetricSourceDieMut) DieFeedApplyConfiguration(ac *ExternalMetricSourceApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ExternalMetricSourceDieMut) DieStampApplyConfiguration(fn func(ac *ExternalMetricSourceApplyConfiguration)) *ExternalMetricSourceDieMut {
+func (d *ExternalMetricSourceDieMut) DieStampApplyConfiguration(fn func(ac *ExternalMetricSourceApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ExternalMetricSourceDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ExternalMetricSourceDieMut) DieFeedApplyConfigurationE(ac *ExternalMetricSourceApplyConfiguration) (*ExternalMetricSourceDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ExternalMetricSourceDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ExternalMetricSourceDieMut) DieStampApplyConfigurationE(fn func(ac *ExternalMetricSourceApplyConfiguration)) (*ExternalMetricSourceDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type externalMetricSourceFieldsTable struct {
@@ -507,7 +459,7 @@ func (d *ExternalMetricSourceDieMut) Target() *MetricTargetDieMut {
 // not associated with any Kubernetes object.
 //
 // ExternalMetricStatusDie is immutable: it reads.
-// [ExternalMetricStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [ExternalMetricStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type ExternalMetricStatusDie struct {
 	diebase.DieBase[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]
 }
@@ -556,26 +508,14 @@ func (d *ExternalMetricStatusDieMut) DieReleaseApplyConfigurationE() (*ExternalM
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ExternalMetricStatusDieMut) DieFeedApplyConfiguration(ac *ExternalMetricStatusApplyConfiguration) *ExternalMetricStatusDieMut {
+func (d *ExternalMetricStatusDieMut) DieFeedApplyConfiguration(ac *ExternalMetricStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ExternalMetricStatusDieMut) DieStampApplyConfiguration(fn func(ac *ExternalMetricStatusApplyConfiguration)) *ExternalMetricStatusDieMut {
+func (d *ExternalMetricStatusDieMut) DieStampApplyConfiguration(fn func(ac *ExternalMetricStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ExternalMetricStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ExternalMetricStatusDieMut) DieFeedApplyConfigurationE(ac *ExternalMetricStatusApplyConfiguration) (*ExternalMetricStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ExternalMetricStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ExternalMetricStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ExternalMetricStatusApplyConfiguration)) (*ExternalMetricStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type externalMetricStatusFieldsTable struct {
@@ -613,7 +553,7 @@ func (d *ExternalMetricStatusDieMut) Current() *MetricValueStatusDieMut {
 // HPAScalingPolicy is a single policy which must hold true for a specified past interval.
 //
 // HPAScalingPolicyDie is immutable: it reads.
-// [HPAScalingPolicyDieMut], its mutable die, also writes, as DieWith passes it.
+// [HPAScalingPolicyDieMut], its mutable die, also writes, as DieStamp passes it.
 type HPAScalingPolicyDie struct {
 	diebase.DieBase[HPAScalingPolicy, *HPAScalingPolicyDie, *HPAScalingPolicyDieMut]
 }
@@ -662,26 +602,14 @@ func (d *HPAScalingPolicyDieMut) DieReleaseApplyConfigurationE() (*HPAScalingPol
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *HPAScalingPolicyDieMut) DieFeedApplyConfiguration(ac *HPAScalingPolicyApplyConfiguration) *HPAScalingPolicyDieMut {
+func (d *HPAScalingPolicyDieMut) DieFeedApplyConfiguration(ac *HPAScalingPolicyApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *HPAScalingPolicyDieMut) DieStampApplyConfiguration(fn func(ac *HPAScalingPolicyApplyConfiguration)) *HPAScalingPolicyDieMut {
+func (d *HPAScalingPolicyDieMut) DieStampApplyConfiguration(fn func(ac *HPAScalingPolicyApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [HPAScalingPolicyDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HPAScalingPolicyDieMut) DieFeedApplyConfigurationE(ac *HPAScalingPolicyApplyConfiguration) (*HPAScalingPolicyDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [HPAScalingPolicyDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HPAScalingPolicyDieMut) DieStampApplyConfigurationE(fn func(ac *HPAScalingPolicyApplyConfiguration)) (*HPAScalingPolicyDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type hPAScalingPolicyFieldsTable struct {
@@ -716,19 +644,19 @@ func (d *HPAScalingPolicyDie) PeriodSeconds() diefields.Value[int32] {
 }
 
 // type is used to specify the scaling policy.
-func (d *HPAScalingPolicyDieMut) Type() diefields.ValueMut[HPAScalingPolicyType, *HPAScalingPolicyDieMut] {
+func (d *HPAScalingPolicyDieMut) Type() diefields.ValueMut[HPAScalingPolicyType] {
 	return diefields.ValueMutOf(d, hPAScalingPolicyFields.Get().Type)
 }
 
 // value contains the amount of change which is permitted by the policy.
 // It must be greater than zero
-func (d *HPAScalingPolicyDieMut) Value() diefields.ValueMut[int32, *HPAScalingPolicyDieMut] {
+func (d *HPAScalingPolicyDieMut) Value() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, hPAScalingPolicyFields.Get().Value)
 }
 
 // periodSeconds specifies the window of time for which the policy should hold true.
 // PeriodSeconds must be greater than zero and less than or equal to 1800 (30 min).
-func (d *HPAScalingPolicyDieMut) PeriodSeconds() diefields.ValueMut[int32, *HPAScalingPolicyDieMut] {
+func (d *HPAScalingPolicyDieMut) PeriodSeconds() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, hPAScalingPolicyFields.Get().PeriodSeconds)
 }
 
@@ -745,7 +673,7 @@ func (d *HPAScalingPolicyDieMut) PeriodSeconds() diefields.ValueMut[int32, *HPAS
 // eagerly for small metric variations.
 //
 // HPAScalingRulesDie is immutable: it reads.
-// [HPAScalingRulesDieMut], its mutable die, also writes, as DieWith passes it.
+// [HPAScalingRulesDieMut], its mutable die, also writes, as DieStamp passes it.
 type HPAScalingRulesDie struct {
 	diebase.DieBase[HPAScalingRules, *HPAScalingRulesDie, *HPAScalingRulesDieMut]
 }
@@ -794,26 +722,14 @@ func (d *HPAScalingRulesDieMut) DieReleaseApplyConfigurationE() (*HPAScalingRule
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *HPAScalingRulesDieMut) DieFeedApplyConfiguration(ac *HPAScalingRulesApplyConfiguration) *HPAScalingRulesDieMut {
+func (d *HPAScalingRulesDieMut) DieFeedApplyConfiguration(ac *HPAScalingRulesApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *HPAScalingRulesDieMut) DieStampApplyConfiguration(fn func(ac *HPAScalingRulesApplyConfiguration)) *HPAScalingRulesDieMut {
+func (d *HPAScalingRulesDieMut) DieStampApplyConfiguration(fn func(ac *HPAScalingRulesApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [HPAScalingRulesDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HPAScalingRulesDieMut) DieFeedApplyConfigurationE(ac *HPAScalingRulesApplyConfiguration) (*HPAScalingRulesDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [HPAScalingRulesDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HPAScalingRulesDieMut) DieStampApplyConfigurationE(fn func(ac *HPAScalingRulesApplyConfiguration)) (*HPAScalingRulesDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type hPAScalingRulesFieldsTable struct {
@@ -874,13 +790,13 @@ func (d *HPAScalingRulesDie) Tolerance() diefields.Optional[resource.Quantity] {
 // If not set, use the default values:
 // - For scale up: 0 (i.e. no stabilization is done).
 // - For scale down: 300 (i.e. the stabilization window is 300 seconds long).
-func (d *HPAScalingRulesDieMut) StabilizationWindowSeconds() diefields.OptionalMut[int32, *HPAScalingRulesDieMut] {
+func (d *HPAScalingRulesDieMut) StabilizationWindowSeconds() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, hPAScalingRulesFields.Get().StabilizationWindowSeconds)
 }
 
 // selectPolicy is used to specify which policy should be used.
 // If not set, the default value Max is used.
-func (d *HPAScalingRulesDieMut) SelectPolicy() diefields.OptionalMut[ScalingPolicySelect, *HPAScalingRulesDieMut] {
+func (d *HPAScalingRulesDieMut) SelectPolicy() diefields.OptionalMut[ScalingPolicySelect] {
 	return diefields.OptionalMutOf(d, hPAScalingRulesFields.Get().SelectPolicy)
 }
 
@@ -888,7 +804,7 @@ func (d *HPAScalingRulesDieMut) SelectPolicy() diefields.OptionalMut[ScalingPoli
 // If not set, use the default values:
 // - For scale up: allow doubling the number of pods, or an absolute change of 4 pods in a 15s window.
 // - For scale down: allow all pods to be removed in a 15s window.
-func (d *HPAScalingRulesDieMut) Policies() diefields.ValueMut[[]HPAScalingPolicy, *HPAScalingRulesDieMut] {
+func (d *HPAScalingRulesDieMut) Policies() diefields.ValueMut[[]HPAScalingPolicy] {
 	return diefields.ValueMutOf(d, hPAScalingRulesFields.Get().Policies)
 }
 
@@ -900,7 +816,7 @@ func (d *HPAScalingRulesDieMut) Policies() diefields.ValueMut[[]HPAScalingPolicy
 // For example, if autoscaling is configured with a memory consumption target of 100Mi,
 // and scale-down and scale-up tolerances of 5% and 1% respectively, scaling will be
 // triggered when the actual consumption falls below 95Mi or exceeds 101Mi.
-func (d *HPAScalingRulesDieMut) Tolerance() diefields.OptionalMut[resource.Quantity, *HPAScalingRulesDieMut] {
+func (d *HPAScalingRulesDieMut) Tolerance() diefields.OptionalMut[resource.Quantity] {
 	return diefields.OptionalMutOf(d, hPAScalingRulesFields.Get().Tolerance)
 }
 
@@ -909,7 +825,7 @@ func (d *HPAScalingRulesDieMut) Tolerance() diefields.OptionalMut[resource.Quant
 // implementing the scale subresource based on the metrics specified.
 //
 // HorizontalPodAutoscalerDie is immutable: it reads.
-// [HorizontalPodAutoscalerDieMut], its mutable die, also writes, as DieWith passes it.
+// [HorizontalPodAutoscalerDieMut], its mutable die, also writes, as DieStamp passes it.
 type HorizontalPodAutoscalerDie struct {
 	diebase.DieObjectBase[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut]
 }
@@ -958,26 +874,14 @@ func (d *HorizontalPodAutoscalerDieMut) DieReleaseApplyConfigurationE() (*Horizo
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *HorizontalPodAutoscalerDieMut) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerApplyConfiguration) *HorizontalPodAutoscalerDieMut {
+func (d *HorizontalPodAutoscalerDieMut) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *HorizontalPodAutoscalerDieMut) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerApplyConfiguration)) *HorizontalPodAutoscalerDieMut {
+func (d *HorizontalPodAutoscalerDieMut) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [HorizontalPodAutoscalerDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HorizontalPodAutoscalerDieMut) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerApplyConfiguration) (*HorizontalPodAutoscalerDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [HorizontalPodAutoscalerDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HorizontalPodAutoscalerDieMut) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerApplyConfiguration)) (*HorizontalPodAutoscalerDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type horizontalPodAutoscalerFieldsTable struct {
@@ -1037,7 +941,7 @@ func (d *HorizontalPodAutoscalerDie) Status() *HorizontalPodAutoscalerStatusDie 
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *HorizontalPodAutoscalerDieMut) Kind() diefields.ValueMut[string, *HorizontalPodAutoscalerDieMut] {
+func (d *HorizontalPodAutoscalerDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, horizontalPodAutoscalerFields.Get().Kind)
 }
 
@@ -1045,7 +949,7 @@ func (d *HorizontalPodAutoscalerDieMut) Kind() diefields.ValueMut[string, *Horiz
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *HorizontalPodAutoscalerDieMut) APIVersion() diefields.ValueMut[string, *HorizontalPodAutoscalerDieMut] {
+func (d *HorizontalPodAutoscalerDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, horizontalPodAutoscalerFields.Get().APIVersion)
 }
 
@@ -1070,7 +974,7 @@ func (d *HorizontalPodAutoscalerDieMut) Status() *HorizontalPodAutoscalerStatusD
 // in both Up and Down directions (scaleUp and scaleDown fields respectively).
 //
 // HorizontalPodAutoscalerBehaviorDie is immutable: it reads.
-// [HorizontalPodAutoscalerBehaviorDieMut], its mutable die, also writes, as DieWith passes it.
+// [HorizontalPodAutoscalerBehaviorDieMut], its mutable die, also writes, as DieStamp passes it.
 type HorizontalPodAutoscalerBehaviorDie struct {
 	diebase.DieBase[HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie, *HorizontalPodAutoscalerBehaviorDieMut]
 }
@@ -1119,26 +1023,14 @@ func (d *HorizontalPodAutoscalerBehaviorDieMut) DieReleaseApplyConfigurationE() 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *HorizontalPodAutoscalerBehaviorDieMut) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerBehaviorApplyConfiguration) *HorizontalPodAutoscalerBehaviorDieMut {
+func (d *HorizontalPodAutoscalerBehaviorDieMut) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerBehaviorApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *HorizontalPodAutoscalerBehaviorDieMut) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerBehaviorApplyConfiguration)) *HorizontalPodAutoscalerBehaviorDieMut {
+func (d *HorizontalPodAutoscalerBehaviorDieMut) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerBehaviorApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [HorizontalPodAutoscalerBehaviorDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HorizontalPodAutoscalerBehaviorDieMut) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerBehaviorApplyConfiguration) (*HorizontalPodAutoscalerBehaviorDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [HorizontalPodAutoscalerBehaviorDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HorizontalPodAutoscalerBehaviorDieMut) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerBehaviorApplyConfiguration)) (*HorizontalPodAutoscalerBehaviorDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type horizontalPodAutoscalerBehaviorFieldsTable struct {
@@ -1193,7 +1085,7 @@ func (d *HorizontalPodAutoscalerBehaviorDieMut) ScaleDown() *HPAScalingRulesDieM
 // a HorizontalPodAutoscaler at a certain point.
 //
 // HorizontalPodAutoscalerConditionDie is immutable: it reads.
-// [HorizontalPodAutoscalerConditionDieMut], its mutable die, also writes, as DieWith passes it.
+// [HorizontalPodAutoscalerConditionDieMut], its mutable die, also writes, as DieStamp passes it.
 type HorizontalPodAutoscalerConditionDie struct {
 	diebase.DieBase[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]
 }
@@ -1242,26 +1134,14 @@ func (d *HorizontalPodAutoscalerConditionDieMut) DieReleaseApplyConfigurationE()
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *HorizontalPodAutoscalerConditionDieMut) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerConditionApplyConfiguration) *HorizontalPodAutoscalerConditionDieMut {
+func (d *HorizontalPodAutoscalerConditionDieMut) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerConditionApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *HorizontalPodAutoscalerConditionDieMut) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerConditionApplyConfiguration)) *HorizontalPodAutoscalerConditionDieMut {
+func (d *HorizontalPodAutoscalerConditionDieMut) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerConditionApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [HorizontalPodAutoscalerConditionDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HorizontalPodAutoscalerConditionDieMut) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerConditionApplyConfiguration) (*HorizontalPodAutoscalerConditionDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [HorizontalPodAutoscalerConditionDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HorizontalPodAutoscalerConditionDieMut) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerConditionApplyConfiguration)) (*HorizontalPodAutoscalerConditionDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type horizontalPodAutoscalerConditionFieldsTable struct {
@@ -1319,36 +1199,36 @@ func (d *HorizontalPodAutoscalerConditionDie) ObservedGeneration() diefields.Opt
 }
 
 // type describes the current condition
-func (d *HorizontalPodAutoscalerConditionDieMut) Type() diefields.ValueMut[HorizontalPodAutoscalerConditionType, *HorizontalPodAutoscalerConditionDieMut] {
+func (d *HorizontalPodAutoscalerConditionDieMut) Type() diefields.ValueMut[HorizontalPodAutoscalerConditionType] {
 	return diefields.ValueMutOf(d, horizontalPodAutoscalerConditionFields.Get().Type)
 }
 
 // status is the status of the condition (True, False, Unknown)
-func (d *HorizontalPodAutoscalerConditionDieMut) Status() diefields.ValueMut[diecorev1.ConditionStatus, *HorizontalPodAutoscalerConditionDieMut] {
+func (d *HorizontalPodAutoscalerConditionDieMut) Status() diefields.ValueMut[diecorev1.ConditionStatus] {
 	return diefields.ValueMutOf(d, horizontalPodAutoscalerConditionFields.Get().Status)
 }
 
 // lastTransitionTime is the last time the condition transitioned from
 // one status to another
-func (d *HorizontalPodAutoscalerConditionDieMut) LastTransitionTime() diefields.ValueMut[diemetav1.Time, *HorizontalPodAutoscalerConditionDieMut] {
+func (d *HorizontalPodAutoscalerConditionDieMut) LastTransitionTime() diefields.ValueMut[diemetav1.Time] {
 	return diefields.ValueMutOf(d, horizontalPodAutoscalerConditionFields.Get().LastTransitionTime)
 }
 
 // reason is the reason for the condition's last transition.
-func (d *HorizontalPodAutoscalerConditionDieMut) Reason() diefields.ValueMut[string, *HorizontalPodAutoscalerConditionDieMut] {
+func (d *HorizontalPodAutoscalerConditionDieMut) Reason() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, horizontalPodAutoscalerConditionFields.Get().Reason)
 }
 
 // message is a human-readable explanation containing details about
 // the transition
-func (d *HorizontalPodAutoscalerConditionDieMut) Message() diefields.ValueMut[string, *HorizontalPodAutoscalerConditionDieMut] {
+func (d *HorizontalPodAutoscalerConditionDieMut) Message() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, horizontalPodAutoscalerConditionFields.Get().Message)
 }
 
 // observedGeneration represents the .metadata.generation that the condition was set based upon.
 // For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
 // with respect to the current state of the instance.
-func (d *HorizontalPodAutoscalerConditionDieMut) ObservedGeneration() diefields.OptionalMut[int64, *HorizontalPodAutoscalerConditionDieMut] {
+func (d *HorizontalPodAutoscalerConditionDieMut) ObservedGeneration() diefields.OptionalMut[int64] {
 	return diefields.OptionalMutOf(d, horizontalPodAutoscalerConditionFields.Get().ObservedGeneration)
 }
 
@@ -1356,8 +1236,6 @@ func (d *HorizontalPodAutoscalerConditionDieMut) ObservedGeneration() diefields.
 type HorizontalPodAutoscalerListDie struct {
 	dielists.List[*HorizontalPodAutoscalerDieMut]
 }
-
-var _ dielists.DieListOf[*HorizontalPodAutoscalerDieMut] = (*HorizontalPodAutoscalerListDie)(nil)
 
 // NewHorizontalPodAutoscalerList returns a list with items.
 func NewHorizontalPodAutoscalerList(items ...*HorizontalPodAutoscalerDieMut) *HorizontalPodAutoscalerListDie {
@@ -1374,7 +1252,7 @@ func (l *HorizontalPodAutoscalerListDie) DeepCopyObject() runtime.Object { retur
 // HorizontalPodAutoscalerSpec describes the desired functionality of the HorizontalPodAutoscaler.
 //
 // HorizontalPodAutoscalerSpecDie is immutable: it reads.
-// [HorizontalPodAutoscalerSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [HorizontalPodAutoscalerSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type HorizontalPodAutoscalerSpecDie struct {
 	diebase.DieBase[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]
 }
@@ -1423,26 +1301,14 @@ func (d *HorizontalPodAutoscalerSpecDieMut) DieReleaseApplyConfigurationE() (*Ho
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *HorizontalPodAutoscalerSpecDieMut) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerSpecApplyConfiguration) *HorizontalPodAutoscalerSpecDieMut {
+func (d *HorizontalPodAutoscalerSpecDieMut) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerSpecApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *HorizontalPodAutoscalerSpecDieMut) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerSpecApplyConfiguration)) *HorizontalPodAutoscalerSpecDieMut {
+func (d *HorizontalPodAutoscalerSpecDieMut) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerSpecApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [HorizontalPodAutoscalerSpecDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HorizontalPodAutoscalerSpecDieMut) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerSpecApplyConfiguration) (*HorizontalPodAutoscalerSpecDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [HorizontalPodAutoscalerSpecDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HorizontalPodAutoscalerSpecDieMut) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerSpecApplyConfiguration)) (*HorizontalPodAutoscalerSpecDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type horizontalPodAutoscalerSpecFieldsTable struct {
@@ -1514,13 +1380,13 @@ func (d *HorizontalPodAutoscalerSpecDieMut) ScaleTargetRef() *CrossVersionObject
 // alpha feature gate HPAScaleToZero is enabled and at least one Object or External
 // metric is configured.  Scaling is active as long as at least one metric value is
 // available.
-func (d *HorizontalPodAutoscalerSpecDieMut) MinReplicas() diefields.OptionalMut[int32, *HorizontalPodAutoscalerSpecDieMut] {
+func (d *HorizontalPodAutoscalerSpecDieMut) MinReplicas() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, horizontalPodAutoscalerSpecFields.Get().MinReplicas)
 }
 
 // maxReplicas is the upper limit for the number of replicas to which the autoscaler can scale up.
 // It cannot be less that minReplicas.
-func (d *HorizontalPodAutoscalerSpecDieMut) MaxReplicas() diefields.ValueMut[int32, *HorizontalPodAutoscalerSpecDieMut] {
+func (d *HorizontalPodAutoscalerSpecDieMut) MaxReplicas() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, horizontalPodAutoscalerSpecFields.Get().MaxReplicas)
 }
 
@@ -1532,7 +1398,7 @@ func (d *HorizontalPodAutoscalerSpecDieMut) MaxReplicas() diefields.ValueMut[int
 // increased, and vice-versa.  See the individual metric source types for
 // more information about how each type of metric must respond.
 // If not set, the default metric will be set to 80% average CPU utilization.
-func (d *HorizontalPodAutoscalerSpecDieMut) Metrics() diefields.ValueMut[[]MetricSpec, *HorizontalPodAutoscalerSpecDieMut] {
+func (d *HorizontalPodAutoscalerSpecDieMut) Metrics() diefields.ValueMut[[]MetricSpec] {
 	return diefields.ValueMutOf(d, horizontalPodAutoscalerSpecFields.Get().Metrics)
 }
 
@@ -1546,7 +1412,7 @@ func (d *HorizontalPodAutoscalerSpecDieMut) Behavior() *HorizontalPodAutoscalerB
 // HorizontalPodAutoscalerStatus describes the current status of a horizontal pod autoscaler.
 //
 // HorizontalPodAutoscalerStatusDie is immutable: it reads.
-// [HorizontalPodAutoscalerStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [HorizontalPodAutoscalerStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type HorizontalPodAutoscalerStatusDie struct {
 	diebase.DieBase[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]
 }
@@ -1595,26 +1461,14 @@ func (d *HorizontalPodAutoscalerStatusDieMut) DieReleaseApplyConfigurationE() (*
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *HorizontalPodAutoscalerStatusDieMut) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerStatusApplyConfiguration) *HorizontalPodAutoscalerStatusDieMut {
+func (d *HorizontalPodAutoscalerStatusDieMut) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *HorizontalPodAutoscalerStatusDieMut) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerStatusApplyConfiguration)) *HorizontalPodAutoscalerStatusDieMut {
+func (d *HorizontalPodAutoscalerStatusDieMut) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [HorizontalPodAutoscalerStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HorizontalPodAutoscalerStatusDieMut) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerStatusApplyConfiguration) (*HorizontalPodAutoscalerStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [HorizontalPodAutoscalerStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HorizontalPodAutoscalerStatusDieMut) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerStatusApplyConfiguration)) (*HorizontalPodAutoscalerStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type horizontalPodAutoscalerStatusFieldsTable struct {
@@ -1672,30 +1526,30 @@ func (d *HorizontalPodAutoscalerStatusDie) Conditions() *diefields.ListMap[Horiz
 }
 
 // observedGeneration is the most recent generation observed by this autoscaler.
-func (d *HorizontalPodAutoscalerStatusDieMut) ObservedGeneration() diefields.OptionalMut[int64, *HorizontalPodAutoscalerStatusDieMut] {
+func (d *HorizontalPodAutoscalerStatusDieMut) ObservedGeneration() diefields.OptionalMut[int64] {
 	return diefields.OptionalMutOf(d, horizontalPodAutoscalerStatusFields.Get().ObservedGeneration)
 }
 
 // lastScaleTime is the last time the HorizontalPodAutoscaler scaled the number of pods,
 // used by the autoscaler to control how often the number of pods is changed.
-func (d *HorizontalPodAutoscalerStatusDieMut) LastScaleTime() diefields.OptionalMut[diemetav1.Time, *HorizontalPodAutoscalerStatusDieMut] {
+func (d *HorizontalPodAutoscalerStatusDieMut) LastScaleTime() diefields.OptionalMut[diemetav1.Time] {
 	return diefields.OptionalMutOf(d, horizontalPodAutoscalerStatusFields.Get().LastScaleTime)
 }
 
 // currentReplicas is current number of replicas of pods managed by this autoscaler,
 // as last seen by the autoscaler.
-func (d *HorizontalPodAutoscalerStatusDieMut) CurrentReplicas() diefields.ValueMut[int32, *HorizontalPodAutoscalerStatusDieMut] {
+func (d *HorizontalPodAutoscalerStatusDieMut) CurrentReplicas() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, horizontalPodAutoscalerStatusFields.Get().CurrentReplicas)
 }
 
 // desiredReplicas is the desired number of replicas of pods managed by this autoscaler,
 // as last calculated by the autoscaler.
-func (d *HorizontalPodAutoscalerStatusDieMut) DesiredReplicas() diefields.ValueMut[int32, *HorizontalPodAutoscalerStatusDieMut] {
+func (d *HorizontalPodAutoscalerStatusDieMut) DesiredReplicas() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, horizontalPodAutoscalerStatusFields.Get().DesiredReplicas)
 }
 
 // currentMetrics is the last read state of the metrics used by this autoscaler.
-func (d *HorizontalPodAutoscalerStatusDieMut) CurrentMetrics() diefields.ValueMut[[]MetricStatus, *HorizontalPodAutoscalerStatusDieMut] {
+func (d *HorizontalPodAutoscalerStatusDieMut) CurrentMetrics() diefields.ValueMut[[]MetricStatus] {
 	return diefields.ValueMutOf(d, horizontalPodAutoscalerStatusFields.Get().CurrentMetrics)
 }
 
@@ -1708,7 +1562,7 @@ func (d *HorizontalPodAutoscalerStatusDieMut) Conditions() *diefields.ListMapMut
 // MetricIdentifier defines the name and optionally selector for a metric
 //
 // MetricIdentifierDie is immutable: it reads.
-// [MetricIdentifierDieMut], its mutable die, also writes, as DieWith passes it.
+// [MetricIdentifierDieMut], its mutable die, also writes, as DieStamp passes it.
 type MetricIdentifierDie struct {
 	diebase.DieBase[MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]
 }
@@ -1757,26 +1611,14 @@ func (d *MetricIdentifierDieMut) DieReleaseApplyConfigurationE() (*MetricIdentif
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *MetricIdentifierDieMut) DieFeedApplyConfiguration(ac *MetricIdentifierApplyConfiguration) *MetricIdentifierDieMut {
+func (d *MetricIdentifierDieMut) DieFeedApplyConfiguration(ac *MetricIdentifierApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *MetricIdentifierDieMut) DieStampApplyConfiguration(fn func(ac *MetricIdentifierApplyConfiguration)) *MetricIdentifierDieMut {
+func (d *MetricIdentifierDieMut) DieStampApplyConfiguration(fn func(ac *MetricIdentifierApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [MetricIdentifierDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *MetricIdentifierDieMut) DieFeedApplyConfigurationE(ac *MetricIdentifierApplyConfiguration) (*MetricIdentifierDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [MetricIdentifierDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *MetricIdentifierDieMut) DieStampApplyConfigurationE(fn func(ac *MetricIdentifierApplyConfiguration)) (*MetricIdentifierDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type metricIdentifierFieldsTable struct {
@@ -1804,7 +1646,7 @@ func (d *MetricIdentifierDie) Selector() *diemetav1.LabelSelectorDie {
 }
 
 // name is the name of the given metric
-func (d *MetricIdentifierDieMut) Name() diefields.ValueMut[string, *MetricIdentifierDieMut] {
+func (d *MetricIdentifierDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, metricIdentifierFields.Get().Name)
 }
 
@@ -1819,7 +1661,7 @@ func (d *MetricIdentifierDieMut) Selector() *diemetav1.LabelSelectorDieMut {
 // (only `type` and one other matching field should be set at once).
 //
 // MetricSpecDie is immutable: it reads.
-// [MetricSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [MetricSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type MetricSpecDie struct {
 	diebase.DieBase[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]
 }
@@ -1868,26 +1710,14 @@ func (d *MetricSpecDieMut) DieReleaseApplyConfigurationE() (*MetricSpecApplyConf
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *MetricSpecDieMut) DieFeedApplyConfiguration(ac *MetricSpecApplyConfiguration) *MetricSpecDieMut {
+func (d *MetricSpecDieMut) DieFeedApplyConfiguration(ac *MetricSpecApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *MetricSpecDieMut) DieStampApplyConfiguration(fn func(ac *MetricSpecApplyConfiguration)) *MetricSpecDieMut {
+func (d *MetricSpecDieMut) DieStampApplyConfiguration(fn func(ac *MetricSpecApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [MetricSpecDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *MetricSpecDieMut) DieFeedApplyConfigurationE(ac *MetricSpecApplyConfiguration) (*MetricSpecDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [MetricSpecDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *MetricSpecDieMut) DieStampApplyConfigurationE(fn func(ac *MetricSpecApplyConfiguration)) (*MetricSpecDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type metricSpecFieldsTable struct {
@@ -1958,7 +1788,7 @@ func (d *MetricSpecDie) External() *ExternalMetricSourceDie {
 
 // type is the type of metric source.  It should be one of "ContainerResource", "External",
 // "Object", "Pods" or "Resource", each mapping to a matching field in the object.
-func (d *MetricSpecDieMut) Type() diefields.ValueMut[MetricSourceType, *MetricSpecDieMut] {
+func (d *MetricSpecDieMut) Type() diefields.ValueMut[MetricSourceType] {
 	return diefields.ValueMutOf(d, metricSpecFields.Get().Type)
 }
 
@@ -2005,7 +1835,7 @@ func (d *MetricSpecDieMut) External() *ExternalMetricSourceDieMut {
 // MetricStatus describes the last-read state of a single metric.
 //
 // MetricStatusDie is immutable: it reads.
-// [MetricStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [MetricStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type MetricStatusDie struct {
 	diebase.DieBase[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]
 }
@@ -2054,26 +1884,14 @@ func (d *MetricStatusDieMut) DieReleaseApplyConfigurationE() (*MetricStatusApply
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *MetricStatusDieMut) DieFeedApplyConfiguration(ac *MetricStatusApplyConfiguration) *MetricStatusDieMut {
+func (d *MetricStatusDieMut) DieFeedApplyConfiguration(ac *MetricStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *MetricStatusDieMut) DieStampApplyConfiguration(fn func(ac *MetricStatusApplyConfiguration)) *MetricStatusDieMut {
+func (d *MetricStatusDieMut) DieStampApplyConfiguration(fn func(ac *MetricStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [MetricStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *MetricStatusDieMut) DieFeedApplyConfigurationE(ac *MetricStatusApplyConfiguration) (*MetricStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [MetricStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *MetricStatusDieMut) DieStampApplyConfigurationE(fn func(ac *MetricStatusApplyConfiguration)) (*MetricStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type metricStatusFieldsTable struct {
@@ -2144,7 +1962,7 @@ func (d *MetricStatusDie) External() *ExternalMetricStatusDie {
 
 // type is the type of metric source.  It will be one of "ContainerResource", "External",
 // "Object", "Pods" or "Resource", each corresponds to a matching field in the object.
-func (d *MetricStatusDieMut) Type() diefields.ValueMut[MetricSourceType, *MetricStatusDieMut] {
+func (d *MetricStatusDieMut) Type() diefields.ValueMut[MetricSourceType] {
 	return diefields.ValueMutOf(d, metricStatusFields.Get().Type)
 }
 
@@ -2191,7 +2009,7 @@ func (d *MetricStatusDieMut) External() *ExternalMetricStatusDieMut {
 // MetricTarget defines the target value, average value, or average utilization of a specific metric
 //
 // MetricTargetDie is immutable: it reads.
-// [MetricTargetDieMut], its mutable die, also writes, as DieWith passes it.
+// [MetricTargetDieMut], its mutable die, also writes, as DieStamp passes it.
 type MetricTargetDie struct {
 	diebase.DieBase[MetricTarget, *MetricTargetDie, *MetricTargetDieMut]
 }
@@ -2240,26 +2058,14 @@ func (d *MetricTargetDieMut) DieReleaseApplyConfigurationE() (*MetricTargetApply
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *MetricTargetDieMut) DieFeedApplyConfiguration(ac *MetricTargetApplyConfiguration) *MetricTargetDieMut {
+func (d *MetricTargetDieMut) DieFeedApplyConfiguration(ac *MetricTargetApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *MetricTargetDieMut) DieStampApplyConfiguration(fn func(ac *MetricTargetApplyConfiguration)) *MetricTargetDieMut {
+func (d *MetricTargetDieMut) DieStampApplyConfiguration(fn func(ac *MetricTargetApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [MetricTargetDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *MetricTargetDieMut) DieFeedApplyConfigurationE(ac *MetricTargetApplyConfiguration) (*MetricTargetDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [MetricTargetDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *MetricTargetDieMut) DieStampApplyConfigurationE(fn func(ac *MetricTargetApplyConfiguration)) (*MetricTargetDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type metricTargetFieldsTable struct {
@@ -2303,18 +2109,18 @@ func (d *MetricTargetDie) AverageUtilization() diefields.Optional[int32] {
 }
 
 // type represents whether the metric type is Utilization, Value, or AverageValue
-func (d *MetricTargetDieMut) Type() diefields.ValueMut[MetricTargetType, *MetricTargetDieMut] {
+func (d *MetricTargetDieMut) Type() diefields.ValueMut[MetricTargetType] {
 	return diefields.ValueMutOf(d, metricTargetFields.Get().Type)
 }
 
 // value is the target value of the metric (as a quantity).
-func (d *MetricTargetDieMut) Value() diefields.OptionalMut[resource.Quantity, *MetricTargetDieMut] {
+func (d *MetricTargetDieMut) Value() diefields.OptionalMut[resource.Quantity] {
 	return diefields.OptionalMutOf(d, metricTargetFields.Get().Value)
 }
 
 // averageValue is the target value of the average of the
 // metric across all relevant pods (as a quantity)
-func (d *MetricTargetDieMut) AverageValue() diefields.OptionalMut[resource.Quantity, *MetricTargetDieMut] {
+func (d *MetricTargetDieMut) AverageValue() diefields.OptionalMut[resource.Quantity] {
 	return diefields.OptionalMutOf(d, metricTargetFields.Get().AverageValue)
 }
 
@@ -2322,14 +2128,14 @@ func (d *MetricTargetDieMut) AverageValue() diefields.OptionalMut[resource.Quant
 // resource metric across all relevant pods, represented as a percentage of
 // the requested value of the resource for the pods.
 // Currently only valid for Resource metric source type
-func (d *MetricTargetDieMut) AverageUtilization() diefields.OptionalMut[int32, *MetricTargetDieMut] {
+func (d *MetricTargetDieMut) AverageUtilization() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, metricTargetFields.Get().AverageUtilization)
 }
 
 // MetricValueStatus holds the current value for a metric
 //
 // MetricValueStatusDie is immutable: it reads.
-// [MetricValueStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [MetricValueStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type MetricValueStatusDie struct {
 	diebase.DieBase[MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut]
 }
@@ -2378,26 +2184,14 @@ func (d *MetricValueStatusDieMut) DieReleaseApplyConfigurationE() (*MetricValueS
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *MetricValueStatusDieMut) DieFeedApplyConfiguration(ac *MetricValueStatusApplyConfiguration) *MetricValueStatusDieMut {
+func (d *MetricValueStatusDieMut) DieFeedApplyConfiguration(ac *MetricValueStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *MetricValueStatusDieMut) DieStampApplyConfiguration(fn func(ac *MetricValueStatusApplyConfiguration)) *MetricValueStatusDieMut {
+func (d *MetricValueStatusDieMut) DieStampApplyConfiguration(fn func(ac *MetricValueStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [MetricValueStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *MetricValueStatusDieMut) DieFeedApplyConfigurationE(ac *MetricValueStatusApplyConfiguration) (*MetricValueStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [MetricValueStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *MetricValueStatusDieMut) DieStampApplyConfigurationE(fn func(ac *MetricValueStatusApplyConfiguration)) (*MetricValueStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type metricValueStatusFieldsTable struct {
@@ -2433,20 +2227,20 @@ func (d *MetricValueStatusDie) AverageUtilization() diefields.Optional[int32] {
 }
 
 // value is the current value of the metric (as a quantity).
-func (d *MetricValueStatusDieMut) Value() diefields.OptionalMut[resource.Quantity, *MetricValueStatusDieMut] {
+func (d *MetricValueStatusDieMut) Value() diefields.OptionalMut[resource.Quantity] {
 	return diefields.OptionalMutOf(d, metricValueStatusFields.Get().Value)
 }
 
 // averageValue is the current value of the average of the
 // metric across all relevant pods (as a quantity)
-func (d *MetricValueStatusDieMut) AverageValue() diefields.OptionalMut[resource.Quantity, *MetricValueStatusDieMut] {
+func (d *MetricValueStatusDieMut) AverageValue() diefields.OptionalMut[resource.Quantity] {
 	return diefields.OptionalMutOf(d, metricValueStatusFields.Get().AverageValue)
 }
 
 // averageUtilization is the current value of the average of the
 // resource metric across all relevant pods, represented as a percentage of
 // the requested value of the resource for the pods.
-func (d *MetricValueStatusDieMut) AverageUtilization() diefields.OptionalMut[int32, *MetricValueStatusDieMut] {
+func (d *MetricValueStatusDieMut) AverageUtilization() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, metricValueStatusFields.Get().AverageUtilization)
 }
 
@@ -2454,7 +2248,7 @@ func (d *MetricValueStatusDieMut) AverageUtilization() diefields.OptionalMut[int
 // kubernetes object (for example, hits-per-second on an Ingress object).
 //
 // ObjectMetricSourceDie is immutable: it reads.
-// [ObjectMetricSourceDieMut], its mutable die, also writes, as DieWith passes it.
+// [ObjectMetricSourceDieMut], its mutable die, also writes, as DieStamp passes it.
 type ObjectMetricSourceDie struct {
 	diebase.DieBase[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]
 }
@@ -2503,26 +2297,14 @@ func (d *ObjectMetricSourceDieMut) DieReleaseApplyConfigurationE() (*ObjectMetri
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ObjectMetricSourceDieMut) DieFeedApplyConfiguration(ac *ObjectMetricSourceApplyConfiguration) *ObjectMetricSourceDieMut {
+func (d *ObjectMetricSourceDieMut) DieFeedApplyConfiguration(ac *ObjectMetricSourceApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ObjectMetricSourceDieMut) DieStampApplyConfiguration(fn func(ac *ObjectMetricSourceApplyConfiguration)) *ObjectMetricSourceDieMut {
+func (d *ObjectMetricSourceDieMut) DieStampApplyConfiguration(fn func(ac *ObjectMetricSourceApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ObjectMetricSourceDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ObjectMetricSourceDieMut) DieFeedApplyConfigurationE(ac *ObjectMetricSourceApplyConfiguration) (*ObjectMetricSourceDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ObjectMetricSourceDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ObjectMetricSourceDieMut) DieStampApplyConfigurationE(fn func(ac *ObjectMetricSourceApplyConfiguration)) (*ObjectMetricSourceDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type objectMetricSourceFieldsTable struct {
@@ -2573,7 +2355,7 @@ func (d *ObjectMetricSourceDieMut) Metric() *MetricIdentifierDieMut {
 // kubernetes object (for example, hits-per-second on an Ingress object).
 //
 // ObjectMetricStatusDie is immutable: it reads.
-// [ObjectMetricStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [ObjectMetricStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type ObjectMetricStatusDie struct {
 	diebase.DieBase[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]
 }
@@ -2622,26 +2404,14 @@ func (d *ObjectMetricStatusDieMut) DieReleaseApplyConfigurationE() (*ObjectMetri
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ObjectMetricStatusDieMut) DieFeedApplyConfiguration(ac *ObjectMetricStatusApplyConfiguration) *ObjectMetricStatusDieMut {
+func (d *ObjectMetricStatusDieMut) DieFeedApplyConfiguration(ac *ObjectMetricStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ObjectMetricStatusDieMut) DieStampApplyConfiguration(fn func(ac *ObjectMetricStatusApplyConfiguration)) *ObjectMetricStatusDieMut {
+func (d *ObjectMetricStatusDieMut) DieStampApplyConfiguration(fn func(ac *ObjectMetricStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ObjectMetricStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ObjectMetricStatusDieMut) DieFeedApplyConfigurationE(ac *ObjectMetricStatusApplyConfiguration) (*ObjectMetricStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ObjectMetricStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ObjectMetricStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ObjectMetricStatusApplyConfiguration)) (*ObjectMetricStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type objectMetricStatusFieldsTable struct {
@@ -2694,7 +2464,7 @@ func (d *ObjectMetricStatusDieMut) DescribedObject() *CrossVersionObjectReferenc
 // value.
 //
 // PodsMetricSourceDie is immutable: it reads.
-// [PodsMetricSourceDieMut], its mutable die, also writes, as DieWith passes it.
+// [PodsMetricSourceDieMut], its mutable die, also writes, as DieStamp passes it.
 type PodsMetricSourceDie struct {
 	diebase.DieBase[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]
 }
@@ -2743,26 +2513,14 @@ func (d *PodsMetricSourceDieMut) DieReleaseApplyConfigurationE() (*PodsMetricSou
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *PodsMetricSourceDieMut) DieFeedApplyConfiguration(ac *PodsMetricSourceApplyConfiguration) *PodsMetricSourceDieMut {
+func (d *PodsMetricSourceDieMut) DieFeedApplyConfiguration(ac *PodsMetricSourceApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *PodsMetricSourceDieMut) DieStampApplyConfiguration(fn func(ac *PodsMetricSourceApplyConfiguration)) *PodsMetricSourceDieMut {
+func (d *PodsMetricSourceDieMut) DieStampApplyConfiguration(fn func(ac *PodsMetricSourceApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [PodsMetricSourceDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PodsMetricSourceDieMut) DieFeedApplyConfigurationE(ac *PodsMetricSourceApplyConfiguration) (*PodsMetricSourceDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [PodsMetricSourceDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PodsMetricSourceDieMut) DieStampApplyConfigurationE(fn func(ac *PodsMetricSourceApplyConfiguration)) (*PodsMetricSourceDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type podsMetricSourceFieldsTable struct {
@@ -2801,7 +2559,7 @@ func (d *PodsMetricSourceDieMut) Target() *MetricTargetDieMut {
 // the current scale target (for example, transactions-processed-per-second).
 //
 // PodsMetricStatusDie is immutable: it reads.
-// [PodsMetricStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [PodsMetricStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type PodsMetricStatusDie struct {
 	diebase.DieBase[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]
 }
@@ -2850,26 +2608,14 @@ func (d *PodsMetricStatusDieMut) DieReleaseApplyConfigurationE() (*PodsMetricSta
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *PodsMetricStatusDieMut) DieFeedApplyConfiguration(ac *PodsMetricStatusApplyConfiguration) *PodsMetricStatusDieMut {
+func (d *PodsMetricStatusDieMut) DieFeedApplyConfiguration(ac *PodsMetricStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *PodsMetricStatusDieMut) DieStampApplyConfiguration(fn func(ac *PodsMetricStatusApplyConfiguration)) *PodsMetricStatusDieMut {
+func (d *PodsMetricStatusDieMut) DieStampApplyConfiguration(fn func(ac *PodsMetricStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [PodsMetricStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PodsMetricStatusDieMut) DieFeedApplyConfigurationE(ac *PodsMetricStatusApplyConfiguration) (*PodsMetricStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [PodsMetricStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PodsMetricStatusDieMut) DieStampApplyConfigurationE(fn func(ac *PodsMetricStatusApplyConfiguration)) (*PodsMetricStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type podsMetricStatusFieldsTable struct {
@@ -2913,7 +2659,7 @@ func (d *PodsMetricStatusDieMut) Current() *MetricValueStatusDieMut {
 // should be set.
 //
 // ResourceMetricSourceDie is immutable: it reads.
-// [ResourceMetricSourceDieMut], its mutable die, also writes, as DieWith passes it.
+// [ResourceMetricSourceDieMut], its mutable die, also writes, as DieStamp passes it.
 type ResourceMetricSourceDie struct {
 	diebase.DieBase[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]
 }
@@ -2962,26 +2708,14 @@ func (d *ResourceMetricSourceDieMut) DieReleaseApplyConfigurationE() (*ResourceM
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ResourceMetricSourceDieMut) DieFeedApplyConfiguration(ac *ResourceMetricSourceApplyConfiguration) *ResourceMetricSourceDieMut {
+func (d *ResourceMetricSourceDieMut) DieFeedApplyConfiguration(ac *ResourceMetricSourceApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ResourceMetricSourceDieMut) DieStampApplyConfiguration(fn func(ac *ResourceMetricSourceApplyConfiguration)) *ResourceMetricSourceDieMut {
+func (d *ResourceMetricSourceDieMut) DieStampApplyConfiguration(fn func(ac *ResourceMetricSourceApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ResourceMetricSourceDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ResourceMetricSourceDieMut) DieFeedApplyConfigurationE(ac *ResourceMetricSourceApplyConfiguration) (*ResourceMetricSourceDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ResourceMetricSourceDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ResourceMetricSourceDieMut) DieStampApplyConfigurationE(fn func(ac *ResourceMetricSourceApplyConfiguration)) (*ResourceMetricSourceDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type resourceMetricSourceFieldsTable struct {
@@ -3007,7 +2741,7 @@ func (d *ResourceMetricSourceDie) Target() *MetricTargetDie {
 }
 
 // name is the name of the resource in question.
-func (d *ResourceMetricSourceDieMut) Name() diefields.ValueMut[diecorev1.ResourceName, *ResourceMetricSourceDieMut] {
+func (d *ResourceMetricSourceDieMut) Name() diefields.ValueMut[diecorev1.ResourceName] {
 	return diefields.ValueMutOf(d, resourceMetricSourceFields.Get().Name)
 }
 
@@ -3023,7 +2757,7 @@ func (d *ResourceMetricSourceDieMut) Target() *MetricTargetDieMut {
 // normal per-pod metrics using the "pods" source.
 //
 // ResourceMetricStatusDie is immutable: it reads.
-// [ResourceMetricStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [ResourceMetricStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type ResourceMetricStatusDie struct {
 	diebase.DieBase[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]
 }
@@ -3072,26 +2806,14 @@ func (d *ResourceMetricStatusDieMut) DieReleaseApplyConfigurationE() (*ResourceM
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ResourceMetricStatusDieMut) DieFeedApplyConfiguration(ac *ResourceMetricStatusApplyConfiguration) *ResourceMetricStatusDieMut {
+func (d *ResourceMetricStatusDieMut) DieFeedApplyConfiguration(ac *ResourceMetricStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ResourceMetricStatusDieMut) DieStampApplyConfiguration(fn func(ac *ResourceMetricStatusApplyConfiguration)) *ResourceMetricStatusDieMut {
+func (d *ResourceMetricStatusDieMut) DieStampApplyConfiguration(fn func(ac *ResourceMetricStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ResourceMetricStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ResourceMetricStatusDieMut) DieFeedApplyConfigurationE(ac *ResourceMetricStatusApplyConfiguration) (*ResourceMetricStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ResourceMetricStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ResourceMetricStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ResourceMetricStatusApplyConfiguration)) (*ResourceMetricStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type resourceMetricStatusFieldsTable struct {
@@ -3117,7 +2839,7 @@ func (d *ResourceMetricStatusDie) Current() *MetricValueStatusDie {
 }
 
 // name is the name of the resource in question.
-func (d *ResourceMetricStatusDieMut) Name() diefields.ValueMut[diecorev1.ResourceName, *ResourceMetricStatusDieMut] {
+func (d *ResourceMetricStatusDieMut) Name() diefields.ValueMut[diecorev1.ResourceName] {
 	return diefields.ValueMutOf(d, resourceMetricStatusFields.Get().Name)
 }
 

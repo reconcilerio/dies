@@ -23,6 +23,7 @@ import (
 	"strconv"
 
 	"reconciler.io/dies/v2/die/internal/core"
+	"reconciler.io/dies/v2/die/internal/refs"
 )
 
 // Content is what a die holds, as plain values: its current value and its
@@ -53,15 +54,15 @@ func ContentOfE(d Die) (*Content, error) {
 	if v := reflect.ValueOf(d); v.Kind() == reflect.Pointer && v.IsNil() {
 		return nil, nil
 	}
-	c, ok := d.(interface{ content() (*Content, error) })
+	r, ok := refs.Of(d)
 	if !ok {
 		return nil, core.Errorf("die: %T is not a die", d)
 	}
-	return c.content()
+	return content(r)
 }
 
-func (b *state[T]) content() (*Content, error) {
-	data, err := b.MarshalJSON()
+func content(r refs.Ref) (*Content, error) {
+	data, err := r.MarshalJSON()
 	if err != nil {
 		return nil, err
 	}
@@ -69,10 +70,10 @@ func (b *state[T]) content() (*Content, error) {
 	dec.UseNumber()
 	var v any
 	if err := dec.Decode(&v); err != nil {
-		return nil, core.Errorf("die: decoding the value of %s: %w", reflect.TypeFor[T](), err)
+		return nil, core.Errorf("die: decoding the value of %s: %w", r.T, err)
 	}
 	var intent []string
-	describeIntent(core.NodeAt(core.IntentOf(b.hold()), b.at), nil, &intent)
+	describeIntent(core.NodeAt(core.IntentOf(r.H), r.At), nil, &intent)
 	return &Content{Value: plainNumbers(v), Intent: intent}, nil
 }
 
@@ -99,8 +100,8 @@ func plainNumbers(v any) any {
 	return v
 }
 
-func equal(a interface{ content() (*Content, error) }, b Die) (bool, error) {
-	mine, err := a.content()
+func equal(a refs.Ref, b Die) (bool, error) {
+	mine, err := content(a)
 	if err != nil {
 		return false, err
 	}
@@ -112,7 +113,7 @@ func equal(a interface{ content() (*Content, error) }, b Die) (bool, error) {
 }
 
 // ReleaseOf returns the current value of a die as its type has it, as
-// [DieBase.DieRelease] does, boxed; or nil for a nil die. Unlike [Content],
+// [DieBase.DieRelease] does, but boxed as a value; or nil for a nil die. Unlike [Content],
 // it holds neither intent nor fields the type doesn't have.
 func ReleaseOf(d Die) any { return core.Must(ReleaseOfE(d)) }
 
@@ -124,11 +125,13 @@ func ReleaseOfE(d Die) (any, error) {
 	if v := reflect.ValueOf(d); v.Kind() == reflect.Pointer && v.IsNil() {
 		return nil, nil
 	}
-	r, ok := d.(interface{ release() (any, error) })
+	r, ok := refs.Of(d)
 	if !ok {
 		return nil, core.Errorf("die: %T is not a die", d)
 	}
-	return r.release()
+	v, err := r.Value()
+	if err != nil {
+		return nil, err
+	}
+	return v.Interface(), nil
 }
-
-func (b *state[T]) release() (any, error) { return b.DieReleaseE() }

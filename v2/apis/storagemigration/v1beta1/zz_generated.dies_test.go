@@ -22,6 +22,7 @@ import (
 	storagemigrationv1beta1 "k8s.io/api/storagemigration/v1beta1"
 	diestoragemigrationv1beta1 "reconciler.io/dies/v2/apis/storagemigration/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dielists "reconciler.io/dies/v2/die/lists"
 	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
@@ -39,10 +40,11 @@ func TestDiesMatchTypes(t *testing.T) {
 	}
 }
 
-// typed and object dies have the methods of their interfaces
+// typed, object and list dies have the methods of their interfaces
 var (
 	_ dieobjects.DieObjectOf[diestoragemigrationv1beta1.StorageVersionMigration, *diestoragemigrationv1beta1.StorageVersionMigrationDie, *diestoragemigrationv1beta1.StorageVersionMigrationDieMut]    = (*diestoragemigrationv1beta1.StorageVersionMigrationDie)(nil)
 	_ dieobjects.DieObjectMutOf[diestoragemigrationv1beta1.StorageVersionMigration, *diestoragemigrationv1beta1.StorageVersionMigrationDie, *diestoragemigrationv1beta1.StorageVersionMigrationDieMut] = (*diestoragemigrationv1beta1.StorageVersionMigrationDieMut)(nil)
+	_ dielists.DieListOf[*diestoragemigrationv1beta1.StorageVersionMigrationDieMut]                                                                                                                    = (*diestoragemigrationv1beta1.StorageVersionMigrationListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

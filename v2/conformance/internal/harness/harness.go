@@ -33,6 +33,7 @@ import (
 
 	"reconciler.io/dies/v2/apis"
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
+	"reconciler.io/dies/v2/die/dietest"
 	dieunstructured "reconciler.io/dies/v2/die/unstructured"
 	widgetv1 "reconciler.io/dies/v2/examples/widget/v1"
 )
@@ -75,9 +76,9 @@ func Namespace(t testing.TB, c client.Client) string {
 		name = name[:63-len(suffix)]
 	}
 	name = strings.TrimRight(name, "-") + suffix
-	ns := diecorev1.NamespaceBlank.DieWith(func(d *diecorev1.NamespaceDieMut) {
-		d.Metadata().Name().Set(name)
-		d.Metadata().Labels().Set(Label, "true")
+	ns := diecorev1.NamespaceBlank.DieStamp(func(d *diecorev1.NamespaceDieMut) {
+		dietest.NoError(t, d.Metadata().Name().Set(name))
+		dietest.NoError(t, d.Metadata().Labels().Set(Label, "true"))
 	}).DieMutable()
 	ctx := context.Background()
 	if err := c.Create(ctx, ns); err != nil {

@@ -17,21 +17,8 @@ limitations under the License.
 package base
 
 import (
-	"reflect"
-
 	"reconciler.io/dies/v2/die/internal/core"
 )
-
-func pathsOf(root reflect.Type, at []Located) ([]Path, error) {
-	paths := make([]Path, len(at))
-	for i, l := range at {
-		if r, ok := l.(core.Rooted); ok && r.DieRootType() != root {
-			return nil, core.Errorf("die: location %s is within %s, not %s", l.DiePath(), r.DieRootType(), root)
-		}
-		paths[i] = l.DiePath()
-	}
-	return paths, nil
-}
 
 // Path is a location in an object's wire schema: a sequence of steps, such
 // as .spec.template.spec.containers[name=app].

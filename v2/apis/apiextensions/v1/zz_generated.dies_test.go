@@ -23,6 +23,7 @@ import (
 	dieapiextensionsv1 "reconciler.io/dies/v2/apis/apiextensions/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
+	dielists "reconciler.io/dies/v2/die/lists"
 	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
@@ -59,12 +60,13 @@ func TestDiesMatchTypes(t *testing.T) {
 	}
 }
 
-// typed and object dies have the methods of their interfaces
+// typed, object and list dies have the methods of their interfaces
 var (
 	_ diefields.DieTypedOf[dieapiextensionsv1.ConversionReview, *dieapiextensionsv1.ConversionReviewDie, *dieapiextensionsv1.ConversionReviewDieMut]                              = (*dieapiextensionsv1.ConversionReviewDie)(nil)
 	_ diefields.DieTypedMutOf[dieapiextensionsv1.ConversionReview, *dieapiextensionsv1.ConversionReviewDie, *dieapiextensionsv1.ConversionReviewDieMut]                           = (*dieapiextensionsv1.ConversionReviewDieMut)(nil)
 	_ dieobjects.DieObjectOf[dieapiextensionsv1.CustomResourceDefinition, *dieapiextensionsv1.CustomResourceDefinitionDie, *dieapiextensionsv1.CustomResourceDefinitionDieMut]    = (*dieapiextensionsv1.CustomResourceDefinitionDie)(nil)
 	_ dieobjects.DieObjectMutOf[dieapiextensionsv1.CustomResourceDefinition, *dieapiextensionsv1.CustomResourceDefinitionDie, *dieapiextensionsv1.CustomResourceDefinitionDieMut] = (*dieapiextensionsv1.CustomResourceDefinitionDieMut)(nil)
+	_ dielists.DieListOf[*dieapiextensionsv1.CustomResourceDefinitionDieMut]                                                                                                      = (*dieapiextensionsv1.CustomResourceDefinitionListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

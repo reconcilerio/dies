@@ -22,6 +22,7 @@ import (
 	resourcev1beta2 "k8s.io/api/resource/v1beta2"
 	dieresourcev1beta2 "reconciler.io/dies/v2/apis/resource/v1beta2"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dielists "reconciler.io/dies/v2/die/lists"
 	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
@@ -87,7 +88,7 @@ func TestDiesMatchTypes(t *testing.T) {
 	}
 }
 
-// typed and object dies have the methods of their interfaces
+// typed, object and list dies have the methods of their interfaces
 var (
 	_ dieobjects.DieObjectOf[dieresourcev1beta2.DeviceClass, *dieresourcev1beta2.DeviceClassDie, *dieresourcev1beta2.DeviceClassDieMut]                                  = (*dieresourcev1beta2.DeviceClassDie)(nil)
 	_ dieobjects.DieObjectMutOf[dieresourcev1beta2.DeviceClass, *dieresourcev1beta2.DeviceClassDie, *dieresourcev1beta2.DeviceClassDieMut]                               = (*dieresourcev1beta2.DeviceClassDieMut)(nil)
@@ -99,6 +100,11 @@ var (
 	_ dieobjects.DieObjectMutOf[dieresourcev1beta2.ResourceClaimTemplate, *dieresourcev1beta2.ResourceClaimTemplateDie, *dieresourcev1beta2.ResourceClaimTemplateDieMut] = (*dieresourcev1beta2.ResourceClaimTemplateDieMut)(nil)
 	_ dieobjects.DieObjectOf[dieresourcev1beta2.ResourceSlice, *dieresourcev1beta2.ResourceSliceDie, *dieresourcev1beta2.ResourceSliceDieMut]                            = (*dieresourcev1beta2.ResourceSliceDie)(nil)
 	_ dieobjects.DieObjectMutOf[dieresourcev1beta2.ResourceSlice, *dieresourcev1beta2.ResourceSliceDie, *dieresourcev1beta2.ResourceSliceDieMut]                         = (*dieresourcev1beta2.ResourceSliceDieMut)(nil)
+	_ dielists.DieListOf[*dieresourcev1beta2.DeviceClassDieMut]                                                                                                          = (*dieresourcev1beta2.DeviceClassListDie)(nil)
+	_ dielists.DieListOf[*dieresourcev1beta2.DeviceTaintRuleDieMut]                                                                                                      = (*dieresourcev1beta2.DeviceTaintRuleListDie)(nil)
+	_ dielists.DieListOf[*dieresourcev1beta2.ResourceClaimDieMut]                                                                                                        = (*dieresourcev1beta2.ResourceClaimListDie)(nil)
+	_ dielists.DieListOf[*dieresourcev1beta2.ResourceClaimTemplateDieMut]                                                                                                = (*dieresourcev1beta2.ResourceClaimTemplateListDie)(nil)
+	_ dielists.DieListOf[*dieresourcev1beta2.ResourceSliceDieMut]                                                                                                        = (*dieresourcev1beta2.ResourceSliceListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

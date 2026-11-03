@@ -22,6 +22,7 @@ import (
 	admissionregistrationv1alpha1 "k8s.io/api/admissionregistration/v1alpha1"
 	dieadmissionregistrationv1alpha1 "reconciler.io/dies/v2/apis/admissionregistration/v1alpha1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dielists "reconciler.io/dies/v2/die/lists"
 	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
@@ -61,7 +62,7 @@ func TestDiesMatchTypes(t *testing.T) {
 	}
 }
 
-// typed and object dies have the methods of their interfaces
+// typed, object and list dies have the methods of their interfaces
 var (
 	_ dieobjects.DieObjectOf[dieadmissionregistrationv1alpha1.MutatingAdmissionPolicy, *dieadmissionregistrationv1alpha1.MutatingAdmissionPolicyDie, *dieadmissionregistrationv1alpha1.MutatingAdmissionPolicyDieMut]                               = (*dieadmissionregistrationv1alpha1.MutatingAdmissionPolicyDie)(nil)
 	_ dieobjects.DieObjectMutOf[dieadmissionregistrationv1alpha1.MutatingAdmissionPolicy, *dieadmissionregistrationv1alpha1.MutatingAdmissionPolicyDie, *dieadmissionregistrationv1alpha1.MutatingAdmissionPolicyDieMut]                            = (*dieadmissionregistrationv1alpha1.MutatingAdmissionPolicyDieMut)(nil)
@@ -71,6 +72,10 @@ var (
 	_ dieobjects.DieObjectMutOf[dieadmissionregistrationv1alpha1.ValidatingAdmissionPolicy, *dieadmissionregistrationv1alpha1.ValidatingAdmissionPolicyDie, *dieadmissionregistrationv1alpha1.ValidatingAdmissionPolicyDieMut]                      = (*dieadmissionregistrationv1alpha1.ValidatingAdmissionPolicyDieMut)(nil)
 	_ dieobjects.DieObjectOf[dieadmissionregistrationv1alpha1.ValidatingAdmissionPolicyBinding, *dieadmissionregistrationv1alpha1.ValidatingAdmissionPolicyBindingDie, *dieadmissionregistrationv1alpha1.ValidatingAdmissionPolicyBindingDieMut]    = (*dieadmissionregistrationv1alpha1.ValidatingAdmissionPolicyBindingDie)(nil)
 	_ dieobjects.DieObjectMutOf[dieadmissionregistrationv1alpha1.ValidatingAdmissionPolicyBinding, *dieadmissionregistrationv1alpha1.ValidatingAdmissionPolicyBindingDie, *dieadmissionregistrationv1alpha1.ValidatingAdmissionPolicyBindingDieMut] = (*dieadmissionregistrationv1alpha1.ValidatingAdmissionPolicyBindingDieMut)(nil)
+	_ dielists.DieListOf[*dieadmissionregistrationv1alpha1.MutatingAdmissionPolicyBindingDieMut]                                                                                                                                                    = (*dieadmissionregistrationv1alpha1.MutatingAdmissionPolicyBindingListDie)(nil)
+	_ dielists.DieListOf[*dieadmissionregistrationv1alpha1.MutatingAdmissionPolicyDieMut]                                                                                                                                                           = (*dieadmissionregistrationv1alpha1.MutatingAdmissionPolicyListDie)(nil)
+	_ dielists.DieListOf[*dieadmissionregistrationv1alpha1.ValidatingAdmissionPolicyBindingDieMut]                                                                                                                                                  = (*dieadmissionregistrationv1alpha1.ValidatingAdmissionPolicyBindingListDie)(nil)
+	_ dielists.DieListOf[*dieadmissionregistrationv1alpha1.ValidatingAdmissionPolicyDieMut]                                                                                                                                                         = (*dieadmissionregistrationv1alpha1.ValidatingAdmissionPolicyListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

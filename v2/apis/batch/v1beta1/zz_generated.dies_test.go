@@ -22,6 +22,7 @@ import (
 	batchv1beta1 "k8s.io/api/batch/v1beta1"
 	diebatchv1beta1 "reconciler.io/dies/v2/apis/batch/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dielists "reconciler.io/dies/v2/die/lists"
 	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
@@ -40,10 +41,11 @@ func TestDiesMatchTypes(t *testing.T) {
 	}
 }
 
-// typed and object dies have the methods of their interfaces
+// typed, object and list dies have the methods of their interfaces
 var (
 	_ dieobjects.DieObjectOf[diebatchv1beta1.CronJob, *diebatchv1beta1.CronJobDie, *diebatchv1beta1.CronJobDieMut]    = (*diebatchv1beta1.CronJobDie)(nil)
 	_ dieobjects.DieObjectMutOf[diebatchv1beta1.CronJob, *diebatchv1beta1.CronJobDie, *diebatchv1beta1.CronJobDieMut] = (*diebatchv1beta1.CronJobDieMut)(nil)
+	_ dielists.DieListOf[*diebatchv1beta1.CronJobDieMut]                                                              = (*diebatchv1beta1.CronJobListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

@@ -22,6 +22,7 @@ import (
 	storagev1beta1 "k8s.io/api/storage/v1beta1"
 	diestoragev1beta1 "reconciler.io/dies/v2/apis/storage/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dielists "reconciler.io/dies/v2/die/lists"
 	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
@@ -59,7 +60,7 @@ func TestDiesMatchTypes(t *testing.T) {
 	}
 }
 
-// typed and object dies have the methods of their interfaces
+// typed, object and list dies have the methods of their interfaces
 var (
 	_ dieobjects.DieObjectOf[diestoragev1beta1.CSIDriver, *diestoragev1beta1.CSIDriverDie, *diestoragev1beta1.CSIDriverDieMut]                                        = (*diestoragev1beta1.CSIDriverDie)(nil)
 	_ dieobjects.DieObjectMutOf[diestoragev1beta1.CSIDriver, *diestoragev1beta1.CSIDriverDie, *diestoragev1beta1.CSIDriverDieMut]                                     = (*diestoragev1beta1.CSIDriverDieMut)(nil)
@@ -73,6 +74,12 @@ var (
 	_ dieobjects.DieObjectMutOf[diestoragev1beta1.VolumeAttachment, *diestoragev1beta1.VolumeAttachmentDie, *diestoragev1beta1.VolumeAttachmentDieMut]                = (*diestoragev1beta1.VolumeAttachmentDieMut)(nil)
 	_ dieobjects.DieObjectOf[diestoragev1beta1.VolumeAttributesClass, *diestoragev1beta1.VolumeAttributesClassDie, *diestoragev1beta1.VolumeAttributesClassDieMut]    = (*diestoragev1beta1.VolumeAttributesClassDie)(nil)
 	_ dieobjects.DieObjectMutOf[diestoragev1beta1.VolumeAttributesClass, *diestoragev1beta1.VolumeAttributesClassDie, *diestoragev1beta1.VolumeAttributesClassDieMut] = (*diestoragev1beta1.VolumeAttributesClassDieMut)(nil)
+	_ dielists.DieListOf[*diestoragev1beta1.CSIDriverDieMut]                                                                                                          = (*diestoragev1beta1.CSIDriverListDie)(nil)
+	_ dielists.DieListOf[*diestoragev1beta1.CSINodeDieMut]                                                                                                            = (*diestoragev1beta1.CSINodeListDie)(nil)
+	_ dielists.DieListOf[*diestoragev1beta1.CSIStorageCapacityDieMut]                                                                                                 = (*diestoragev1beta1.CSIStorageCapacityListDie)(nil)
+	_ dielists.DieListOf[*diestoragev1beta1.StorageClassDieMut]                                                                                                       = (*diestoragev1beta1.StorageClassListDie)(nil)
+	_ dielists.DieListOf[*diestoragev1beta1.VolumeAttachmentDieMut]                                                                                                   = (*diestoragev1beta1.VolumeAttachmentListDie)(nil)
+	_ dielists.DieListOf[*diestoragev1beta1.VolumeAttributesClassDieMut]                                                                                              = (*diestoragev1beta1.VolumeAttributesClassListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

@@ -19,13 +19,15 @@ package dietest
 
 import (
 	"os"
+	"testing"
 
+	"reconciler.io/dies/v2/die"
 	"reconciler.io/dies/v2/die/base"
 	"reconciler.io/dies/v2/die/internal/core"
 )
 
 // FeedYAMLFile returns an immutable die of the YAML, or JSON, in a file, fed
-// to a copy of d as [base.DieMutBase.DieFeedYAML] feeds it:
+// to a copy of d as [die.FeedYAML] feeds it:
 // FeedYAMLFile(DeploymentBlank, "testdata/web.yaml"). It panics if the file
 // can't be read or doesn't decode, so that fixtures can be package variables.
 func FeedYAMLFile[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]](d D, name string) D {
@@ -39,8 +41,21 @@ func FeedYAMLFileE[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]](d D, 
 		var zero D
 		return zero, core.Errorf("dietest: %w", err)
 	}
-	return d.DieWithE(func(m M) error {
-		_, err := m.DieFeedYAMLE(data)
-		return err
-	})
+	return d.DieStampE(func(m M) error { return die.FeedYAML(m, data) })
+}
+
+// NoError fails a test, as t.Fatal does, with the first of errs that isn't
+// nil. Writes return only an error, so a test or fixture checks them inline:
+//
+//	dietest.NoError(t, d.Metadata().Name().Set("web"), d.Spec().Replicas().Set(3))
+//
+// Each argument is evaluated before any is checked, so writes after one that
+// fails are still made.
+func NoError(t testing.TB, errs ...error) {
+	t.Helper()
+	for _, err := range errs {
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
 }

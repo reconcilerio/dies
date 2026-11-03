@@ -59,13 +59,18 @@ func run(m *testing.M) int {
 		}
 	}
 
+	crds, err := harness.CRDs()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "cluster conformance: %v\n", err)
+		return 1
+	}
 	// envtest installs the CRD the suite uses, waits for it, and removes it
 	// after
 	env := &envtest.Environment{
 		UseExistingCluster: ptr.To(true),
 		Config:             cfg,
 		CRDInstallOptions: envtest.CRDInstallOptions{
-			CRDs:            harness.CRDs(),
+			CRDs:            crds,
 			CleanUpAfterUse: true,
 		},
 	}

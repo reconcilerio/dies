@@ -40,7 +40,7 @@ func TestDiesMatchTypes(t *testing.T) {
 	}
 }
 
-// typed and object dies have the methods of their interfaces
+// typed, object and list dies have the methods of their interfaces
 var (
 	_ dieobjects.DieObjectOf[widgetv1.Widget, *widgetv1.WidgetDie, *widgetv1.WidgetDieMut]    = (*widgetv1.WidgetDie)(nil)
 	_ dieobjects.DieObjectMutOf[widgetv1.Widget, *widgetv1.WidgetDie, *widgetv1.WidgetDieMut] = (*widgetv1.WidgetDieMut)(nil)

@@ -20,8 +20,6 @@ limitations under the License.
 package objects
 
 import (
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-
 	diemetav1 "reconciler.io/dies/v2/apis/meta/v1"
 	"reconciler.io/dies/v2/die/base"
 	"reconciler.io/dies/v2/die/fields"
@@ -44,6 +42,4 @@ type DieObjectMutOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] inte
 	fields.DieTypedMutOf[T, D, M]
 	base.DieObject
 	Metadata() *diemetav1.ObjectMetaDieMut
-	DieFeedUnstructured(u *unstructured.Unstructured) M
-	DieFeedUnstructuredE(u *unstructured.Unstructured) (M, error)
 }

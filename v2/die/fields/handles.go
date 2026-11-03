@@ -30,9 +30,8 @@ import (
 // prefix.
 //
 // An immutable die's handles read. A mutable die's handles, ValueMut,
-// OptionalMut, ListMapMut and MapMut, embed them and also write, in place: a
-// leaf's writes return the die it is a field of, so calls chain at the die's
-// level.
+// OptionalMut, ListMapMut and MapMut, embed them and also write, in place,
+// returning only an error.
 
 // leaf is the state shared by leaf handles: the die's location, and the
 // leaf's within it, usually a field of the die.
@@ -49,25 +48,19 @@ func leafOf[T, V any](d base.LocatedAs[T], f Field[T, V]) leaf {
 	return leaf{h: h, at: at, rel: base.Path{core.FieldStep(f.fd.Wire)}}
 }
 
-// write writes through a leaf of d, returning d.
-func write[M any](d M, l leaf, o core.Op, v reflect.Value, union bool) (M, error) {
-	if _, err := l.h.Write(l.at, l.rel, core.SetOp(o, v), union); err != nil {
-		var zero M
-		return zero, err
-	}
-	return d, nil
+// write writes through a leaf.
+func write(l leaf, o core.Op, v reflect.Value, union bool) error {
+	_, err := l.h.Write(l.at, l.rel, core.SetOp(o, v), union)
+	return err
 }
 
 // Value is a handle to a leaf field of type V, of an immutable die, which
 // reads it.
 type Value[V any] struct{ l leaf }
 
-// ValueMut is a handle to a leaf field of type V of a mutable M die, which
+// ValueMut is a handle to a leaf field of type V of a mutable die, which
 // writes it.
-type ValueMut[V, M any] struct {
-	Value[V]
-	d M
-}
+type ValueMut[V any] struct{ Value[V] }
 
 // DieValue marks a handle as a location of a V, for [base.LocatedAs]. It does
 // nothing.
@@ -85,17 +78,17 @@ func ValueAtE[V any](d base.Die, p base.Path) (Value[V], error) {
 }
 
 // ValueMutAt returns the handle for the value of type V at a path within a
-// mutable die's root, whose writes return d. The path may be outside d
+// mutable die's root. The path may be outside d
 // itself, such as the namespace of the object a subject is part of. It
 // panics if the value at the path isn't a V.
-func ValueMutAt[V any, M base.MutableDie](d M, p base.Path) ValueMut[V, M] {
+func ValueMutAt[V any](d base.MutableDie, p base.Path) ValueMut[V] {
 	return core.Must(ValueMutAtE[V](d, p))
 }
 
 // ValueMutAtE is [ValueMutAt], returning an error rather than panicking.
-func ValueMutAtE[V any, M base.MutableDie](d M, p base.Path) (ValueMut[V, M], error) {
+func ValueMutAtE[V any](d base.MutableDie, p base.Path) (ValueMut[V], error) {
 	l, err := leafAt[V](d, p)
-	return ValueMut[V, M]{Value[V]{l}, d}, err
+	return ValueMut[V]{Value[V]{l}}, err
 }
 
 func leafAt[V any](d base.Die, p base.Path) (leaf, error) {
@@ -116,8 +109,8 @@ func ValueOf[T, V any](d base.LocatedAs[T], f Field[T, V]) Value[V] {
 }
 
 // ValueMutOf returns the handle for a leaf field of a mutable die.
-func ValueMutOf[T, V any, M base.LocatedAs[T]](d M, f Field[T, V]) ValueMut[V, M] {
-	return ValueMut[V, M]{Value[V]{leafOf[T](d, f)}, d}
+func ValueMutOf[T, V any](d base.LocatedAs[T], f Field[T, V]) ValueMut[V] {
+	return ValueMut[V]{Value[V]{leafOf(d, f)}}
 }
 
 // Get returns a copy of the current value.
@@ -148,39 +141,27 @@ func (v Value[V]) DieRoot() base.Die { return base.RootOf(v.l.h) }
 func (v Value[V]) DieRootType() reflect.Type { return v.l.h.Base.Type() }
 
 // Set records the value as intent, even when it is the zero value.
-func (v ValueMut[V, M]) Set(x V) M { return core.Must(v.SetE(x)) }
-
-// SetE is [ValueMut.Set], returning an error rather than panicking.
-func (v ValueMut[V, M]) SetE(x V) (M, error) {
-	return write(v.d, v.l, core.OpSet, core.DeepCopy(reflect.ValueOf(&x).Elem()), true)
+func (v ValueMut[V]) Set(x V) error {
+	return write(v.l, core.OpSet, core.DeepCopy(reflect.ValueOf(&x).Elem()), true)
 }
 
 // Clear records that the field is absent: null in patches.
-func (v ValueMut[V, M]) Clear() M { return core.Must(v.ClearE()) }
-
-// ClearE is [ValueMut.Clear], returning an error rather than panicking.
-func (v ValueMut[V, M]) ClearE() (M, error) {
-	return write(v.d, v.l, core.OpClear, reflect.Value{}, false)
+func (v ValueMut[V]) Clear() error {
+	return write(v.l, core.OpClear, reflect.Value{}, false)
 }
 
 // Empty records that a list or map field is present and empty.
-func (v ValueMut[V, M]) Empty() M { return core.Must(v.EmptyE()) }
-
-// EmptyE is [ValueMut.Empty], returning an error rather than panicking.
-func (v ValueMut[V, M]) EmptyE() (M, error) {
-	return write(v.d, v.l, core.OpEmpty, reflect.Value{}, true)
+func (v ValueMut[V]) Empty() error {
+	return write(v.l, core.OpEmpty, reflect.Value{}, true)
 }
 
 // Optional is a handle to a pointer leaf field of type *V of an immutable
 // die, which reads V, with presence reported separately.
 type Optional[V any] struct{ l leaf }
 
-// OptionalMut is a handle to a pointer leaf field of type *V of a mutable M
+// OptionalMut is a handle to a pointer leaf field of type *V of a mutable
 // die, which writes V.
-type OptionalMut[V, M any] struct {
-	Optional[V]
-	d M
-}
+type OptionalMut[V any] struct{ Optional[V] }
 
 // OptionalOf returns the handle for a pointer leaf field of an immutable die.
 func OptionalOf[T, V any](d base.LocatedAs[T], f Field[T, *V]) Optional[V] {
@@ -188,8 +169,8 @@ func OptionalOf[T, V any](d base.LocatedAs[T], f Field[T, *V]) Optional[V] {
 }
 
 // OptionalMutOf returns the handle for a pointer leaf field of a mutable die.
-func OptionalMutOf[T, V any, M base.LocatedAs[T]](d M, f Field[T, *V]) OptionalMut[V, M] {
-	return OptionalMut[V, M]{Optional[V]{leafOf[T](d, f)}, d}
+func OptionalMutOf[T, V any](d base.LocatedAs[T], f Field[T, *V]) OptionalMut[V] {
+	return OptionalMut[V]{Optional[V]{leafOf(d, f)}}
 }
 
 // Get returns the current value, or the zero value when absent.
@@ -232,17 +213,11 @@ func (o Optional[V]) DieRoot() base.Die { return base.RootOf(o.l.h) }
 func (o Optional[V]) DieRootType() reflect.Type { return o.l.h.Base.Type() }
 
 // Set records the value as intent.
-func (o OptionalMut[V, M]) Set(x V) M { return core.Must(o.SetE(x)) }
-
-// SetE is [OptionalMut.Set], returning an error rather than panicking.
-func (o OptionalMut[V, M]) SetE(x V) (M, error) {
-	return write(o.d, o.l, core.OpSet, reflect.ValueOf(&x), true)
+func (o OptionalMut[V]) Set(x V) error {
+	return write(o.l, core.OpSet, reflect.ValueOf(&x), true)
 }
 
 // Clear records that the field is absent: null in patches.
-func (o OptionalMut[V, M]) Clear() M { return core.Must(o.ClearE()) }
-
-// ClearE is [OptionalMut.Clear], returning an error rather than panicking.
-func (o OptionalMut[V, M]) ClearE() (M, error) {
-	return write(o.d, o.l, core.OpClear, reflect.Value{}, false)
+func (o OptionalMut[V]) Clear() error {
+	return write(o.l, core.OpClear, reflect.Value{}, false)
 }

@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"reconciler.io/dies/v2/die"
+	"reconciler.io/dies/v2/die/dietest"
 	"reconciler.io/dies/v2/spike/corev1"
 )
 
@@ -31,14 +32,14 @@ var (
 )
 
 func TestBlankLocations(t *testing.T) {
-	d := DeploymentBlank.DieWith(func(d *DeploymentDieMut) {
-		d.Metadata().Name().Set("my-app")
-		d.Spec().Replicas().Set(2)
-		d.Spec().Paused().Set(true)
-		d.Status().Conditions().At("Ready").True("Available")
+	d := DeploymentBlank.DieStamp(func(d *DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Name().Set("my-app"))
+		dietest.NoError(t, d.Spec().Replicas().Set(2))
+		dietest.NoError(t, d.Spec().Paused().Set(true))
+		dietest.NoError(t, d.Status().Conditions().At("Ready").True("Available"))
 	})
 
-	got, err := d.DieOnly(specReplicas, statusConditions).DieReleaseApplyPatchE()
+	got, err := die.ReleaseApplyPatchE(d, die.Only(specReplicas, statusConditions))
 	assertJSON(t, got, err, `{
 		"apiVersion": "apps/v1",
 		"kind": "Deployment",
@@ -50,7 +51,9 @@ func TestBlankLocations(t *testing.T) {
 	}`)
 
 	// a location within another type is rejected instead of matching nothing
-	assertPanics(t, func() { d.DieOnly(corev1.ContainerBlank.Image()) })
+	if _, err := die.ReleaseApplyPatchE(d, die.Only(corev1.ContainerBlank.Image())); err == nil {
+		t.Error("a scope of a location within another type was accepted")
+	}
 }
 
 // bind stands in for a view binding: both locations must be the same die

@@ -180,7 +180,7 @@ func dockerHealthy(ctx context.Context) (err error) {
 	if err != nil {
 		return err
 	}
-	defer provider.Close()
+	defer func() { _ = provider.Close() }()
 	return provider.Health(ctx)
 }
 
@@ -229,7 +229,7 @@ func withLogs(ctx context.Context, c testcontainers.Container, err error) error 
 	if lerr != nil {
 		return err
 	}
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 	logs, _ := io.ReadAll(r)
 	const tail = 4096
 	if len(logs) > tail {

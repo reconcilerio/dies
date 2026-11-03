@@ -41,7 +41,7 @@ func Owned(t testing.TB, obj metav1.Object, manager, subresource string) []strin
 		}
 		found = true
 		set := &fieldpath.Set{}
-		if err := set.FromJSON(bytes.NewReader(mf.FieldsV1.Raw)); err != nil {
+		if err := set.FromJSON(bytes.NewReader(mf.FieldsV1.GetRawBytes())); err != nil {
 			t.Fatal(err)
 		}
 		set.Leaves().Iterate(func(p fieldpath.Path) {

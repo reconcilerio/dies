@@ -21,6 +21,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"go/types"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -205,7 +206,7 @@ func (pg *pkgGen) emitApplyConfigurations(dir string) error {
 			if err := pg.checkACName(name); err != nil {
 				return err
 			}
-			f.p("type %s = %s.%s", name, acPkg, name)
+			f.alias(name, acPkg+"."+name, pg.deprecation(strings.TrimSuffix(name, "ApplyConfiguration")))
 		}
 		if len(set.extracts) > 0 {
 			f.p("")
@@ -220,6 +221,19 @@ func (pg *pkgGen) emitApplyConfigurations(dir string) error {
 		}
 	}
 	return f.write(dir, acFile)
+}
+
+// deprecation returns the deprecation of a type of the die package, as its
+// upstream type's doc comment states it, or nil.
+func (pg *pkgGen) deprecation(name string) []string {
+	obj, ok := pg.p.Types.Scope().Lookup(name).(*types.TypeName)
+	if !ok {
+		return nil
+	}
+	if n, ok := types.Unalias(obj.Type()).(*types.Named); ok {
+		obj = n.Obj()
+	}
+	return deprecation(pg.g.typeDocs[obj])
 }
 
 func (pg *pkgGen) checkACName(name string) error {
@@ -251,26 +265,14 @@ func (pg *pkgGen) emitApplyConfiguration(dname, mname, ac string) {
 	f.p("// DieFeedApplyConfiguration replaces the die's intent with an apply")
 	f.p("// configuration's, such as the fields a manager owns that Extract returns:")
 	f.p("// each value it sets becomes intent, over the die's value.")
-	f.p("func (d *%s) DieFeedApplyConfiguration(ac %s) *%s {", mname, ac, mname)
+	f.p("func (d *%s) DieFeedApplyConfiguration(ac %s) error {", mname, ac)
 	f.p("	return die.FeedApplyConfiguration(d, ac)")
 	f.p("}")
 	f.p("")
 	f.p("// DieStampApplyConfiguration passes the die's intent, as an apply")
 	f.p("// configuration, to fn, and feeds back what fn makes of it.")
-	f.p("func (d *%s) DieStampApplyConfiguration(fn func(ac %s)) *%s {", mname, ac, mname)
+	f.p("func (d *%s) DieStampApplyConfiguration(fn func(ac %s)) error {", mname, ac)
 	f.p("	return die.StampApplyConfiguration(d, fn)")
-	f.p("}")
-	f.p("")
-	f.p("// DieFeedApplyConfigurationE is [%s.DieFeedApplyConfiguration],", mname)
-	f.p("// returning an error rather than panicking.")
-	f.p("func (d *%s) DieFeedApplyConfigurationE(ac %s) (*%s, error) {", mname, ac, mname)
-	f.p("	return die.FeedApplyConfigurationE(d, ac)")
-	f.p("}")
-	f.p("")
-	f.p("// DieStampApplyConfigurationE is [%s.DieStampApplyConfiguration],", mname)
-	f.p("// returning an error rather than panicking.")
-	f.p("func (d *%s) DieStampApplyConfigurationE(fn func(ac %s)) (*%s, error) {", mname, ac, mname)
-	f.p("	return die.StampApplyConfigurationE(d, fn)")
 	f.p("}")
 	f.p("")
 }

@@ -32,6 +32,6 @@ type DieTypedOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] interfac
 type DieTypedMutOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] interface {
 	base.DieMutOf[T, D, M]
 	base.DieTyped
-	APIVersion() ValueMut[string, M]
-	Kind() ValueMut[string, M]
+	APIVersion() ValueMut[string]
+	Kind() ValueMut[string]
 }

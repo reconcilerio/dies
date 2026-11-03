@@ -31,7 +31,7 @@ import (
 // of their own, and has an optional init container.
 //
 // BatchDie is immutable: it reads.
-// [BatchDieMut], its mutable die, also writes, as DieWith passes it.
+// [BatchDieMut], its mutable die, also writes, as DieStamp passes it.
 type BatchDie struct {
 	diebase.DieBase[Batch, *BatchDie, *BatchDieMut]
 }
@@ -69,7 +69,7 @@ func (d *BatchDie) Containers() diefields.Value[[]diecorev1.Container] {
 
 func (d *BatchDie) Init() *diecorev1.ContainerDie { return diefields.Child(d, batchFields.Get().Init) }
 
-func (d *BatchDieMut) Containers() diefields.ValueMut[[]diecorev1.Container, *BatchDieMut] {
+func (d *BatchDieMut) Containers() diefields.ValueMut[[]diecorev1.Container] {
 	return diefields.ValueMutOf(d, batchFields.Get().Containers)
 }
 
@@ -78,7 +78,7 @@ func (d *BatchDieMut) Init() *diecorev1.ContainerDieMut {
 }
 
 // BuilderDie is immutable: it reads.
-// [BuilderDieMut], its mutable die, also writes, as DieWith passes it.
+// [BuilderDieMut], its mutable die, also writes, as DieStamp passes it.
 type BuilderDie struct {
 	diebase.DieBase[Builder, *BuilderDie, *BuilderDieMut]
 }
@@ -124,11 +124,11 @@ func (d *BuilderDie) Env() *diefields.ListMap[diecorev1.EnvVar, *diecorev1.EnvVa
 	return diefields.ListMapOf(d, builderFields.Get().Env)
 }
 
-func (d *BuilderDieMut) Name() diefields.ValueMut[string, *BuilderDieMut] {
+func (d *BuilderDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, builderFields.Get().Name)
 }
 
-func (d *BuilderDieMut) Image() diefields.ValueMut[string, *BuilderDieMut] {
+func (d *BuilderDieMut) Image() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, builderFields.Get().Image)
 }
 
@@ -139,7 +139,7 @@ func (d *BuilderDieMut) Env() *diefields.ListMapMut[diecorev1.EnvVar, *diecorev1
 // Conditioned presents the conditions of a status in their harmonized form.
 //
 // ConditionedDie is immutable: it reads.
-// [ConditionedDieMut], its mutable die, also writes, as DieWith passes it.
+// [ConditionedDieMut], its mutable die, also writes, as DieStamp passes it.
 type ConditionedDie struct {
 	diebase.DieBase[Conditioned, *ConditionedDie, *ConditionedDieMut]
 }
@@ -180,7 +180,7 @@ func (d *ConditionedDieMut) Conditions() *diefields.ListMapMut[diemetav1.Conditi
 // ContainerImage presents a container's image as its parts.
 //
 // ContainerImageDie is immutable: it reads.
-// [ContainerImageDieMut], its mutable die, also writes, as DieWith passes it.
+// [ContainerImageDieMut], its mutable die, also writes, as DieStamp passes it.
 type ContainerImageDie struct {
 	diebase.DieBase[ContainerImage, *ContainerImageDie, *ContainerImageDieMut]
 }
@@ -220,7 +220,7 @@ func (d *ContainerImageDie) Image() *ImageReferenceDie {
 	return diefields.Child(d, containerImageFields.Get().Image)
 }
 
-func (d *ContainerImageDieMut) Name() diefields.ValueMut[string, *ContainerImageDieMut] {
+func (d *ContainerImageDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, containerImageFields.Get().Name)
 }
 
@@ -232,7 +232,7 @@ func (d *ContainerImageDieMut) Image() *ImageReferenceDieMut {
 // or registry.example/repo@sha256:digest.
 //
 // ImageReferenceDie is immutable: it reads.
-// [ImageReferenceDieMut], its mutable die, also writes, as DieWith passes it.
+// [ImageReferenceDieMut], its mutable die, also writes, as DieStamp passes it.
 type ImageReferenceDie struct {
 	diebase.DieBase[ImageReference, *ImageReferenceDie, *ImageReferenceDieMut]
 }
@@ -278,15 +278,15 @@ func (d *ImageReferenceDie) Digest() diefields.Value[string] {
 	return diefields.ValueOf(d, imageReferenceFields.Get().Digest)
 }
 
-func (d *ImageReferenceDieMut) Repository() diefields.ValueMut[string, *ImageReferenceDieMut] {
+func (d *ImageReferenceDieMut) Repository() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, imageReferenceFields.Get().Repository)
 }
 
-func (d *ImageReferenceDieMut) Tag() diefields.ValueMut[string, *ImageReferenceDieMut] {
+func (d *ImageReferenceDieMut) Tag() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, imageReferenceFields.Get().Tag)
 }
 
-func (d *ImageReferenceDieMut) Digest() diefields.ValueMut[string, *ImageReferenceDieMut] {
+func (d *ImageReferenceDieMut) Digest() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, imageReferenceFields.Get().Digest)
 }
 
@@ -294,7 +294,7 @@ func (d *ImageReferenceDieMut) Digest() diefields.ValueMut[string, *ImageReferen
 // sidecar, and a builder that isn't a container but can be presented as one.
 //
 // PipelineDie is immutable: it reads.
-// [PipelineDieMut], its mutable die, also writes, as DieWith passes it.
+// [PipelineDieMut], its mutable die, also writes, as DieStamp passes it.
 type PipelineDie struct {
 	diebase.DieBase[Pipeline, *PipelineDie, *PipelineDieMut]
 }
@@ -353,7 +353,7 @@ func (d *PipelineDieMut) Builder() *BuilderDieMut {
 // PodSpecable is anything that runs pods: its metadata and its pod template.
 //
 // PodSpecableDie is immutable: it reads.
-// [PodSpecableDieMut], its mutable die, also writes, as DieWith passes it.
+// [PodSpecableDieMut], its mutable die, also writes, as DieStamp passes it.
 type PodSpecableDie struct {
 	diebase.DieBase[PodSpecable, *PodSpecableDie, *PodSpecableDieMut]
 }
@@ -405,7 +405,7 @@ func (d *PodSpecableDieMut) Template() *diecorev1.PodTemplateSpecDieMut {
 // container, wherever it is, and the volumes.
 //
 // WorkloadDie is immutable: it reads.
-// [WorkloadDieMut], its mutable die, also writes, as DieWith passes it.
+// [WorkloadDieMut], its mutable die, also writes, as DieStamp passes it.
 type WorkloadDie struct {
 	diebase.DieBase[Workload, *WorkloadDie, *WorkloadDieMut]
 }

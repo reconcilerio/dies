@@ -20,6 +20,7 @@ package v1_test
 
 import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dielists "reconciler.io/dies/v2/die/lists"
 	dieobjects "reconciler.io/dies/v2/die/objects"
 	duckv1 "reconciler.io/dies/v2/examples/knative/duck/v1"
 	testing "testing"
@@ -64,7 +65,7 @@ func TestDiesMatchTypes(t *testing.T) {
 	}
 }
 
-// typed and object dies have the methods of their interfaces
+// typed, object and list dies have the methods of their interfaces
 var (
 	_ dieobjects.DieObjectOf[duckv1.AddressableType, *duckv1.AddressableTypeDie, *duckv1.AddressableTypeDieMut]                = (*duckv1.AddressableTypeDie)(nil)
 	_ dieobjects.DieObjectMutOf[duckv1.AddressableType, *duckv1.AddressableTypeDie, *duckv1.AddressableTypeDieMut]             = (*duckv1.AddressableTypeDieMut)(nil)
@@ -82,4 +83,12 @@ var (
 	_ dieobjects.DieObjectMutOf[duckv1.Source, *duckv1.SourceDie, *duckv1.SourceDieMut]                                        = (*duckv1.SourceDieMut)(nil)
 	_ dieobjects.DieObjectOf[duckv1.WithPod, *duckv1.WithPodDie, *duckv1.WithPodDieMut]                                        = (*duckv1.WithPodDie)(nil)
 	_ dieobjects.DieObjectMutOf[duckv1.WithPod, *duckv1.WithPodDie, *duckv1.WithPodDieMut]                                     = (*duckv1.WithPodDieMut)(nil)
+	_ dielists.DieListOf[*duckv1.AddressableTypeDieMut]                                                                        = (*duckv1.AddressableTypeListDie)(nil)
+	_ dielists.DieListOf[*duckv1.AuthenticatableTypeDieMut]                                                                    = (*duckv1.AuthenticatableTypeListDie)(nil)
+	_ dielists.DieListOf[*duckv1.BindingDieMut]                                                                                = (*duckv1.BindingListDie)(nil)
+	_ dielists.DieListOf[*duckv1.CronJobDieMut]                                                                                = (*duckv1.CronJobListDie)(nil)
+	_ dielists.DieListOf[*duckv1.KResourceDieMut]                                                                              = (*duckv1.KResourceListDie)(nil)
+	_ dielists.DieListOf[*duckv1.WithPodDieMut]                                                                                = (*duckv1.PodListDie)(nil)
+	_ dielists.DieListOf[*duckv1.SourceDieMut]                                                                                 = (*duckv1.SourceListDie)(nil)
+	_ dielists.DieListOf[*duckv1.WithPodDieMut]                                                                                = (*duckv1.WithPodListDie)(nil)
 )

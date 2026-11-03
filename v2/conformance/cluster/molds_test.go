@@ -27,6 +27,8 @@ import (
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	"reconciler.io/dies/v2/conformance/internal/harness"
+	"reconciler.io/dies/v2/die"
+	"reconciler.io/dies/v2/die/dietest"
 	dieunstructured "reconciler.io/dies/v2/die/unstructured"
 )
 
@@ -46,22 +48,22 @@ func TestUnstructuredBuiltInAppliesAsTyped(t *testing.T) {
 	ns := harness.Namespace(t, dies)
 	blank := harness.MoldedBlank(t, harness.Molds(t, config), deploymentGVK)
 	change := func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Namespace().Set(ns)
-		d.Metadata().Name().Set("web")
-		d.Spec().Replicas().Set(0)
-		d.Spec().Paused().Set(true)
-		d.Spec().MinReadySeconds().Clear()
-		d.Spec().Selector().MatchLabels().Set("app", "web")
-		d.Spec().Template().Metadata().Labels().Set("app", "web")
-		d.Spec().Template().Spec().Containers().At("app").Image().Set("registry.example/app:1")
+		dietest.NoError(t, d.Metadata().Namespace().Set(ns))
+		dietest.NoError(t, d.Metadata().Name().Set("web"))
+		dietest.NoError(t, d.Spec().Replicas().Set(0))
+		dietest.NoError(t, d.Spec().Paused().Set(true))
+		dietest.NoError(t, d.Spec().MinReadySeconds().Clear())
+		dietest.NoError(t, d.Spec().Selector().MatchLabels().Set("app", "web"))
+		dietest.NoError(t, d.Spec().Template().Metadata().Labels().Set("app", "web"))
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("registry.example/app:1"))
 	}
-	typed := dieappsv1.DeploymentBlank.DieWith(change)
-	u := blank.DieWith(func(u *dieunstructured.ObjectMut) {
+	typed := dieappsv1.DeploymentBlank.DieStamp(change)
+	u := blank.DieStamp(func(u *dieunstructured.ObjectMut) {
 		change(dieunstructured.JigAsMut[*dieappsv1.DeploymentDieMut](u.Node()))
 	})
 
-	want, _ := typed.DieReleaseApplyPatchE()
-	got, err := u.DieReleaseApplyPatchE()
+	want, _ := die.ReleaseApplyPatchE(typed)
+	got, err := die.ReleaseApplyPatchE(u)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -76,22 +78,22 @@ func TestUnstructuredBuiltInAppliesAsTyped(t *testing.T) {
 // removed.
 func TestUnstructuredCustomResource(t *testing.T) {
 	ns := harness.Namespace(t, dies)
-	blank := harness.MoldedBlank(t, harness.Molds(t, config), widgetGVK).DieWith(func(d *dieunstructured.ObjectMut) {
+	blank := harness.MoldedBlank(t, harness.Molds(t, config), widgetGVK).DieStamp(func(d *dieunstructured.ObjectMut) {
 		d.SetNamespace(ns)
 		d.SetName("web")
 	})
-	apply(t, blank.DieWith(func(d *dieunstructured.ObjectMut) {
+	apply(t, blank.DieStamp(func(d *dieunstructured.ObjectMut) {
 		match := d.Node().Field("spec").Field("match")
-		match.Field("equal").Set(true)
-		match.Field("note").Set("set by matcher")
-		d.Node().Field("spec").Field("ports").Item("name", "http").Field("port").Set(int64(80))
+		dietest.NoError(t, match.Field("equal").Set(true))
+		dietest.NoError(t, match.Field("note").Set("set by matcher"))
+		dietest.NoError(t, d.Node().Field("spec").Field("ports").Item("name", "http").Field("port").Set(int64(80)))
 	}), "matcher", false)
 
-	got := apply(t, blank.DieWith(func(d *dieunstructured.ObjectMut) {
+	got := apply(t, blank.DieStamp(func(d *dieunstructured.ObjectMut) {
 		match := d.Node().Field("spec").Field("match")
-		match.Field("equal").Clear()
-		match.Field("note").Clear()
-		d.Node().Field("spec").Field("ports").Item("name", "metrics").Field("port").Set(int64(9090))
+		dietest.NoError(t, match.Field("equal").Clear())
+		dietest.NoError(t, match.Field("note").Clear())
+		dietest.NoError(t, d.Node().Field("spec").Field("ports").Item("name", "metrics").Field("port").Set(int64(9090)))
 	}), "clearer", false)
 	spec := got.Node().Field("spec")
 	if spec.Field("match").Field("note").Has() || !spec.Field("match").Field("equal").Has() {
@@ -122,23 +124,23 @@ func wardle(t *testing.T) *dieunstructured.Molds {
 func TestAggregatedAPI(t *testing.T) {
 	molds := wardle(t)
 	ns := harness.Namespace(t, dies)
-	flunder := harness.MoldedBlank(t, molds, flunderGVK).DieWith(func(d *dieunstructured.ObjectMut) {
+	flunder := harness.MoldedBlank(t, molds, flunderGVK).DieStamp(func(d *dieunstructured.ObjectMut) {
 		d.SetNamespace(ns)
 		d.SetName("web")
 	})
-	apply(t, flunder.DieWith(func(d *dieunstructured.ObjectMut) {
-		d.Node().Field("spec").Field("reference").Set("other")
+	apply(t, flunder.DieStamp(func(d *dieunstructured.ObjectMut) {
+		dietest.NoError(t, d.Node().Field("spec").Field("reference").Set("other"))
 	}), "referrer", false)
-	got := apply(t, flunder.DieWith(func(d *dieunstructured.ObjectMut) {
-		d.Node().Field("spec").Field("referenceType").Set("Flunder")
+	got := apply(t, flunder.DieStamp(func(d *dieunstructured.ObjectMut) {
+		dietest.NoError(t, d.Node().Field("spec").Field("referenceType").Set("Flunder"))
 	}), "typer", false)
 	if spec := got.Node().Field("spec"); spec.Field("reference").Get() != "other" || spec.Field("referenceType").Get() != "Flunder" {
 		t.Errorf("spec %v, want each manager's field", spec.Get())
 	}
 	harness.AssertOwned(t, got, "typer", "", ".spec.referenceType")
 
-	got = apply(t, flunder.DieWith(func(d *dieunstructured.ObjectMut) {
-		d.Node().Field("spec").Field("reference").Clear()
+	got = apply(t, flunder.DieStamp(func(d *dieunstructured.ObjectMut) {
+		dietest.NoError(t, d.Node().Field("spec").Field("reference").Clear())
 	}), "clearer", false)
 	if got.Node().Field("spec").Field("reference").Has() {
 		t.Errorf("spec %v, want reference removed", got.Node().Field("spec").Get())
@@ -152,18 +154,18 @@ func TestAggregatedAPIAtomicList(t *testing.T) {
 	molds := wardle(t)
 	name := "dies-" + strings.ToLower(strings.ReplaceAll(t.Name(), "/", "-"))
 	// cluster scoped, so it's labeled and deleted after, as namespaces are
-	fischer := harness.MoldedBlank(t, molds, fischerGVK).DieWith(func(d *dieunstructured.ObjectMut) {
+	fischer := harness.MoldedBlank(t, molds, fischerGVK).DieStamp(func(d *dieunstructured.ObjectMut) {
 		d.SetName(name)
 		d.SetLabels(map[string]string{harness.Label: "true"})
 	})
-	actual := apply(t, fischer.DieWith(func(d *dieunstructured.ObjectMut) {
-		d.Node().Field("disallowedFlunders").Set([]any{"a", "b"})
+	actual := apply(t, fischer.DieStamp(func(d *dieunstructured.ObjectMut) {
+		dietest.NoError(t, d.Node().Field("disallowedFlunders").Set([]any{"a", "b"}))
 	}), "app", false)
 	// t.Context is done by the time cleanups run
 	t.Cleanup(func() { _ = dies.Delete(context.Background(), actual.DieMutable()) })
 
-	got := apply(t, actual.DieWith(func(d *dieunstructured.ObjectMut) {
-		d.Node().Field("disallowedFlunders").Index(1).Set("c")
+	got := apply(t, actual.DieStamp(func(d *dieunstructured.ObjectMut) {
+		dietest.NoError(t, d.Node().Field("disallowedFlunders").Index(1).Set("c"))
 	}), "app", false)
 	if list := got.Node().Field("disallowedFlunders").Get(); !reflect.DeepEqual(list, []any{"a", "c"}) {
 		t.Errorf("disallowedFlunders %v, want [a c]", list)

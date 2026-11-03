@@ -24,7 +24,9 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/openapi"
 
+	"reconciler.io/dies/v2/die"
 	"reconciler.io/dies/v2/die/base"
+	"reconciler.io/dies/v2/die/dietest"
 	dieunstructured "reconciler.io/dies/v2/die/unstructured"
 )
 
@@ -101,7 +103,8 @@ func thingMolds() *dieunstructured.Molds {
 // a thing as the server has it
 func serverThing(t *testing.T, d *dieunstructured.Object) *dieunstructured.Object {
 	t.Helper()
-	return d.DieMutable().DieFeedJSON([]byte(`{
+	m := d.DieMutable()
+	dietest.NoError(t, die.FeedJSON(m, []byte(`{
 		"apiVersion": "acme.dev/v1", "kind": "Thing",
 		"metadata": {"name": "web", "namespace": "default", "labels": {"team": "a"}},
 		"spec": {
@@ -113,7 +116,8 @@ func serverThing(t *testing.T, d *dieunstructured.Object) *dieunstructured.Objec
 			"minReady": 5,
 			"template": {"spec": {"replicas": 1}}
 		}
-	}`)).DieImmutable()
+	}`)))
+	return m.DieImmutable()
 }
 
 // With the server's schema, an unstructured die's apply follows the schema as
@@ -123,26 +127,26 @@ func TestMoldsApplyPatches(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	d := serverThing(t, blank).DieWith(func(d *dieunstructured.ObjectMut) {
+	d := serverThing(t, blank).DieStamp(func(d *dieunstructured.ObjectMut) {
 		spec := d.Node().Field("spec")
 		// an object's nullable field: null; a custom resource's validation
 		// rejects null for another, which is left out
-		spec.Field("minReady").Clear()
-		spec.Field("count").Clear()
+		dietest.NoError(t, spec.Field("minReady").Clear())
+		dietest.NoError(t, spec.Field("count").Clear())
 		// a map entry: left out
-		d.Node().Field("metadata").Field("labels").Field("team").Clear()
-		spec.Field("selector").Field("app").Clear()
+		dietest.NoError(t, d.Node().Field("metadata").Field("labels").Field("team").Clear())
+		dietest.NoError(t, spec.Field("selector").Field("app").Clear())
 		// an atomic list: whole
-		spec.Field("args").Index(1).Set("b")
+		dietest.NoError(t, spec.Field("args").Index(1).Set("b"))
 		// an atomic struct: whole, a granular one: only what changed
-		spec.Field("ref").Field("key").Set("colour")
-		spec.Field("granularRef").Field("key").Set("colour")
+		dietest.NoError(t, spec.Field("ref").Field("key").Set("colour"))
+		dietest.NoError(t, spec.Field("granularRef").Field("key").Set("colour"))
 		// a list map: by key
-		spec.Field("ports").Item("name", "metrics").Field("port").Set(int64(9090))
+		dietest.NoError(t, spec.Field("ports").Item("name", "metrics").Field("port").Set(int64(9090)))
 		// below preserve-unknown-fields, as without a schema: a map
-		spec.Field("template").Field("spec").Field("replicas").Clear()
+		dietest.NoError(t, spec.Field("template").Field("spec").Field("replicas").Clear())
 	})
-	got, err := d.DieReleaseApplyPatchE()
+	got, err := die.ReleaseApplyPatchE(d)
 	assertJSON(t, got, err, `{
 		"apiVersion": "acme.dev/v1", "kind": "Thing",
 		"metadata": {"name": "web", "namespace": "default"},
@@ -158,12 +162,12 @@ func TestMoldsApplyPatches(t *testing.T) {
 	// without a schema, the same intent is guessed at: the field is a map
 	// entry, left out, and so is every other removal; the atomic list is sent
 	// as the element written, and the atomic struct as the field written
-	plain := serverThing(t, dieunstructured.Blank).DieWith(func(d *dieunstructured.ObjectMut) {
+	plain := serverThing(t, dieunstructured.Blank).DieStamp(func(d *dieunstructured.ObjectMut) {
 		spec := d.Node().Field("spec")
-		spec.Field("minReady").Clear()
-		spec.Field("ref").Field("key").Set("colour")
+		dietest.NoError(t, spec.Field("minReady").Clear())
+		dietest.NoError(t, spec.Field("ref").Field("key").Set("colour"))
 	})
-	got, err = plain.DieReleaseApplyPatchE()
+	got, err = die.ReleaseApplyPatchE(plain)
 	assertJSON(t, got, err, `{
 		"apiVersion": "acme.dev/v1", "kind": "Thing",
 		"metadata": {"name": "web", "namespace": "default"},
@@ -181,9 +185,9 @@ func TestMoldsAreKept(t *testing.T) {
 	}
 	clearsAsNull := func(t *testing.T, d *dieunstructured.Object) {
 		t.Helper()
-		got, err := d.DieWith(func(d *dieunstructured.ObjectMut) {
-			d.Node().Field("spec").Field("minReady").Clear()
-		}).DieReleaseApplyPatchE()
+		got, err := die.ReleaseApplyPatchE(d.DieStamp(func(d *dieunstructured.ObjectMut) {
+			dietest.NoError(t, d.Node().Field("spec").Field("minReady").Clear())
+		}))
 		if err != nil || !strings.Contains(string(got), `"minReady":null`) {
 			t.Errorf("apply %s, %v; want the schema's null", got, err)
 		}
@@ -193,7 +197,7 @@ func TestMoldsAreKept(t *testing.T) {
 	clearsAsNull(t, serverThing(t, blank).DeepCopy())
 
 	// a client zeroes the object it decodes into, holder and all
-	read, err := blank.DieWithE(func(d *dieunstructured.ObjectMut) error {
+	read, err := blank.DieStampE(func(d *dieunstructured.ObjectMut) error {
 		*d = dieunstructured.ObjectMut{}
 		return json.Unmarshal([]byte(`{"apiVersion": "acme.dev/v1", "kind": "Thing", "spec": {"minReady": 5}}`), d)
 	})
@@ -232,9 +236,9 @@ func TestMoldsGoTypedKinds(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			got, err := serverThing(t, blank).DieWith(func(d *dieunstructured.ObjectMut) {
-				d.Node().Field("spec").Field("count").Clear()
-			}).DieReleaseApplyPatchE()
+			got, err := die.ReleaseApplyPatchE(serverThing(t, blank).DieStamp(func(d *dieunstructured.ObjectMut) {
+				dietest.NoError(t, d.Node().Field("spec").Field("count").Clear())
+			}))
 			if err != nil || strings.Contains(string(got), `"count":null`) != c.null {
 				t.Errorf("apply %s, %v; want null %v", got, err, c.null)
 			}
@@ -283,8 +287,9 @@ func TestMoldsFeedPatches(t *testing.T) {
 			"ports": [{"name": "metrics", "port": 9090}]
 		}
 	}`)
-	fed := serverThing(t, blank).DieMutable().DieFeedApplyPatch(apply)
-	got, err := fed.DieReleaseApplyPatchE()
+	fed := serverThing(t, blank).DieMutable()
+	dietest.NoError(t, die.FeedApplyPatch(fed, apply))
+	got, err := die.ReleaseApplyPatchE(fed)
 	assertJSON(t, got, err, string(apply))
 	// the list map's other elements are kept, as the element is found by key
 	ports := fed.Node().Field("spec").Field("ports")
@@ -293,8 +298,9 @@ func TestMoldsFeedPatches(t *testing.T) {
 	}
 
 	merge := []byte(`{"metadata": {"labels": {"team": null}}, "spec": {"minReady": 7, "ports": [{"name": "http", "port": 8080}]}}`)
-	fed = serverThing(t, blank).DieMutable().DieFeedMergePatch(merge)
-	got, err = fed.DieReleaseMergePatchE()
+	fed = serverThing(t, blank).DieMutable()
+	dietest.NoError(t, die.FeedMergePatch(fed, merge))
+	got, err = die.ReleaseMergePatchE(fed)
 	assertJSON(t, got, err, string(merge))
 	if fed.Node().Field("metadata").Field("labels").Field("team").Has() || fed.Node().Field("spec").Field("ports").Len() != 1 {
 		t.Errorf("fed %v", fed.Node().Get())
@@ -302,14 +308,15 @@ func TestMoldsFeedPatches(t *testing.T) {
 
 	// without a mold, the list map's element can't be found by key, so the
 	// list is set whole
-	plain := serverThing(t, dieunstructured.Blank).DieMutable().DieFeedApplyPatch(apply)
+	plain := serverThing(t, dieunstructured.Blank).DieMutable()
+	dietest.NoError(t, die.FeedApplyPatch(plain, apply))
 	if ports := plain.Node().Field("spec").Field("ports"); ports.Len() != 1 {
 		t.Errorf("ports %v, want the list set whole", ports.Get())
 	}
 }
 
-// The unstructured API's fluent methods panic with a die's error, and their
-// E variants return it.
+// The unstructured API's fluent reads panic with a die's error, and their E
+// variants return it, as writes do.
 func TestUnstructuredEVariants(t *testing.T) {
 	d := serverThing(t, dieunstructured.Blank)
 	if _, err := d.Node().Field("spec").Field("args").IndexE(-1); err == nil {

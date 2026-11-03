@@ -23,6 +23,7 @@ import (
 	dieappsv1beta1 "reconciler.io/dies/v2/apis/apps/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
+	dielists "reconciler.io/dies/v2/die/lists"
 	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
@@ -59,7 +60,7 @@ func TestDiesMatchTypes(t *testing.T) {
 	}
 }
 
-// typed and object dies have the methods of their interfaces
+// typed, object and list dies have the methods of their interfaces
 var (
 	_ dieobjects.DieObjectOf[dieappsv1beta1.ControllerRevision, *dieappsv1beta1.ControllerRevisionDie, *dieappsv1beta1.ControllerRevisionDieMut]    = (*dieappsv1beta1.ControllerRevisionDie)(nil)
 	_ dieobjects.DieObjectMutOf[dieappsv1beta1.ControllerRevision, *dieappsv1beta1.ControllerRevisionDie, *dieappsv1beta1.ControllerRevisionDieMut] = (*dieappsv1beta1.ControllerRevisionDieMut)(nil)
@@ -71,6 +72,9 @@ var (
 	_ dieobjects.DieObjectMutOf[dieappsv1beta1.Scale, *dieappsv1beta1.ScaleDie, *dieappsv1beta1.ScaleDieMut]                                        = (*dieappsv1beta1.ScaleDieMut)(nil)
 	_ dieobjects.DieObjectOf[dieappsv1beta1.StatefulSet, *dieappsv1beta1.StatefulSetDie, *dieappsv1beta1.StatefulSetDieMut]                         = (*dieappsv1beta1.StatefulSetDie)(nil)
 	_ dieobjects.DieObjectMutOf[dieappsv1beta1.StatefulSet, *dieappsv1beta1.StatefulSetDie, *dieappsv1beta1.StatefulSetDieMut]                      = (*dieappsv1beta1.StatefulSetDieMut)(nil)
+	_ dielists.DieListOf[*dieappsv1beta1.ControllerRevisionDieMut]                                                                                  = (*dieappsv1beta1.ControllerRevisionListDie)(nil)
+	_ dielists.DieListOf[*dieappsv1beta1.DeploymentDieMut]                                                                                          = (*dieappsv1beta1.DeploymentListDie)(nil)
+	_ dielists.DieListOf[*dieappsv1beta1.StatefulSetDieMut]                                                                                         = (*dieappsv1beta1.StatefulSetListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

@@ -57,7 +57,7 @@ import (
 // node.
 //
 // CSIStorageCapacityDie is immutable: it reads.
-// [CSIStorageCapacityDieMut], its mutable die, also writes, as DieWith passes it.
+// [CSIStorageCapacityDieMut], its mutable die, also writes, as DieStamp passes it.
 type CSIStorageCapacityDie struct {
 	diebase.DieObjectBase[CSIStorageCapacity, *CSIStorageCapacityDie, *CSIStorageCapacityDieMut]
 }
@@ -106,26 +106,14 @@ func (d *CSIStorageCapacityDieMut) DieReleaseApplyConfigurationE() (*CSIStorageC
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *CSIStorageCapacityDieMut) DieFeedApplyConfiguration(ac *CSIStorageCapacityApplyConfiguration) *CSIStorageCapacityDieMut {
+func (d *CSIStorageCapacityDieMut) DieFeedApplyConfiguration(ac *CSIStorageCapacityApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *CSIStorageCapacityDieMut) DieStampApplyConfiguration(fn func(ac *CSIStorageCapacityApplyConfiguration)) *CSIStorageCapacityDieMut {
+func (d *CSIStorageCapacityDieMut) DieStampApplyConfiguration(fn func(ac *CSIStorageCapacityApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [CSIStorageCapacityDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *CSIStorageCapacityDieMut) DieFeedApplyConfigurationE(ac *CSIStorageCapacityApplyConfiguration) (*CSIStorageCapacityDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [CSIStorageCapacityDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *CSIStorageCapacityDieMut) DieStampApplyConfigurationE(fn func(ac *CSIStorageCapacityApplyConfiguration)) (*CSIStorageCapacityDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type cSIStorageCapacityFieldsTable struct {
@@ -230,7 +218,7 @@ func (d *CSIStorageCapacityDie) MaximumVolumeSize() diefields.Optional[resource.
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *CSIStorageCapacityDieMut) Kind() diefields.ValueMut[string, *CSIStorageCapacityDieMut] {
+func (d *CSIStorageCapacityDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, cSIStorageCapacityFields.Get().Kind)
 }
 
@@ -238,7 +226,7 @@ func (d *CSIStorageCapacityDieMut) Kind() diefields.ValueMut[string, *CSIStorage
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *CSIStorageCapacityDieMut) APIVersion() diefields.ValueMut[string, *CSIStorageCapacityDieMut] {
+func (d *CSIStorageCapacityDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, cSIStorageCapacityFields.Get().APIVersion)
 }
 
@@ -270,7 +258,7 @@ func (d *CSIStorageCapacityDieMut) NodeTopology() *diemetav1.LabelSelectorDieMut
 // the CSIStorageCapacity object is obsolete and should be removed by its
 // creator.
 // This field is immutable.
-func (d *CSIStorageCapacityDieMut) StorageClassName() diefields.ValueMut[string, *CSIStorageCapacityDieMut] {
+func (d *CSIStorageCapacityDieMut) StorageClassName() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, cSIStorageCapacityFields.Get().StorageClassName)
 }
 
@@ -282,7 +270,7 @@ func (d *CSIStorageCapacityDieMut) StorageClassName() diefields.ValueMut[string,
 // The available capacity, in bytes, of the storage that can be used
 // to provision volumes. If not set, that information is currently
 // unavailable.
-func (d *CSIStorageCapacityDieMut) Capacity() diefields.OptionalMut[resource.Quantity, *CSIStorageCapacityDieMut] {
+func (d *CSIStorageCapacityDieMut) Capacity() diefields.OptionalMut[resource.Quantity] {
 	return diefields.OptionalMutOf(d, cSIStorageCapacityFields.Get().Capacity)
 }
 
@@ -296,7 +284,7 @@ func (d *CSIStorageCapacityDieMut) Capacity() diefields.OptionalMut[resource.Qua
 // create a volume with the same parameters as those in
 // GetCapacityRequest. The corresponding value in the Kubernetes
 // API is ResourceRequirements.Requests in a volume claim.
-func (d *CSIStorageCapacityDieMut) MaximumVolumeSize() diefields.OptionalMut[resource.Quantity, *CSIStorageCapacityDieMut] {
+func (d *CSIStorageCapacityDieMut) MaximumVolumeSize() diefields.OptionalMut[resource.Quantity] {
 	return diefields.OptionalMutOf(d, cSIStorageCapacityFields.Get().MaximumVolumeSize)
 }
 
@@ -304,8 +292,6 @@ func (d *CSIStorageCapacityDieMut) MaximumVolumeSize() diefields.OptionalMut[res
 type CSIStorageCapacityListDie struct {
 	dielists.List[*CSIStorageCapacityDieMut]
 }
-
-var _ dielists.DieListOf[*CSIStorageCapacityDieMut] = (*CSIStorageCapacityListDie)(nil)
 
 // NewCSIStorageCapacityList returns a list with items.
 func NewCSIStorageCapacityList(items ...*CSIStorageCapacityDieMut) *CSIStorageCapacityListDie {
@@ -325,7 +311,7 @@ func (l *CSIStorageCapacityListDie) DeepCopyObject() runtime.Object { return l.D
 // VolumeAttachment objects are non-namespaced.
 //
 // VolumeAttachmentDie is immutable: it reads.
-// [VolumeAttachmentDieMut], its mutable die, also writes, as DieWith passes it.
+// [VolumeAttachmentDieMut], its mutable die, also writes, as DieStamp passes it.
 type VolumeAttachmentDie struct {
 	diebase.DieObjectBase[VolumeAttachment, *VolumeAttachmentDie, *VolumeAttachmentDieMut]
 }
@@ -374,26 +360,14 @@ func (d *VolumeAttachmentDieMut) DieReleaseApplyConfigurationE() (*VolumeAttachm
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *VolumeAttachmentDieMut) DieFeedApplyConfiguration(ac *VolumeAttachmentApplyConfiguration) *VolumeAttachmentDieMut {
+func (d *VolumeAttachmentDieMut) DieFeedApplyConfiguration(ac *VolumeAttachmentApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *VolumeAttachmentDieMut) DieStampApplyConfiguration(fn func(ac *VolumeAttachmentApplyConfiguration)) *VolumeAttachmentDieMut {
+func (d *VolumeAttachmentDieMut) DieStampApplyConfiguration(fn func(ac *VolumeAttachmentApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [VolumeAttachmentDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *VolumeAttachmentDieMut) DieFeedApplyConfigurationE(ac *VolumeAttachmentApplyConfiguration) (*VolumeAttachmentDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [VolumeAttachmentDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *VolumeAttachmentDieMut) DieStampApplyConfigurationE(fn func(ac *VolumeAttachmentApplyConfiguration)) (*VolumeAttachmentDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type volumeAttachmentFieldsTable struct {
@@ -455,7 +429,7 @@ func (d *VolumeAttachmentDie) Status() *VolumeAttachmentStatusDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *VolumeAttachmentDieMut) Kind() diefields.ValueMut[string, *VolumeAttachmentDieMut] {
+func (d *VolumeAttachmentDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, volumeAttachmentFields.Get().Kind)
 }
 
@@ -463,7 +437,7 @@ func (d *VolumeAttachmentDieMut) Kind() diefields.ValueMut[string, *VolumeAttach
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *VolumeAttachmentDieMut) APIVersion() diefields.ValueMut[string, *VolumeAttachmentDieMut] {
+func (d *VolumeAttachmentDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, volumeAttachmentFields.Get().APIVersion)
 }
 
@@ -491,8 +465,6 @@ type VolumeAttachmentListDie struct {
 	dielists.List[*VolumeAttachmentDieMut]
 }
 
-var _ dielists.DieListOf[*VolumeAttachmentDieMut] = (*VolumeAttachmentListDie)(nil)
-
 // NewVolumeAttachmentList returns a list with items.
 func NewVolumeAttachmentList(items ...*VolumeAttachmentDieMut) *VolumeAttachmentListDie {
 	return &VolumeAttachmentListDie{dielists.NewList("storage.k8s.io/v1alpha1", "VolumeAttachmentList", items...)}
@@ -511,7 +483,7 @@ func (l *VolumeAttachmentListDie) DeepCopyObject() runtime.Object { return l.Dee
 // Exactly one member can be set.
 //
 // VolumeAttachmentSourceDie is immutable: it reads.
-// [VolumeAttachmentSourceDieMut], its mutable die, also writes, as DieWith passes it.
+// [VolumeAttachmentSourceDieMut], its mutable die, also writes, as DieStamp passes it.
 type VolumeAttachmentSourceDie struct {
 	diebase.DieBase[VolumeAttachmentSource, *VolumeAttachmentSourceDie, *VolumeAttachmentSourceDieMut]
 }
@@ -560,26 +532,14 @@ func (d *VolumeAttachmentSourceDieMut) DieReleaseApplyConfigurationE() (*VolumeA
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *VolumeAttachmentSourceDieMut) DieFeedApplyConfiguration(ac *VolumeAttachmentSourceApplyConfiguration) *VolumeAttachmentSourceDieMut {
+func (d *VolumeAttachmentSourceDieMut) DieFeedApplyConfiguration(ac *VolumeAttachmentSourceApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *VolumeAttachmentSourceDieMut) DieStampApplyConfiguration(fn func(ac *VolumeAttachmentSourceApplyConfiguration)) *VolumeAttachmentSourceDieMut {
+func (d *VolumeAttachmentSourceDieMut) DieStampApplyConfiguration(fn func(ac *VolumeAttachmentSourceApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [VolumeAttachmentSourceDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *VolumeAttachmentSourceDieMut) DieFeedApplyConfigurationE(ac *VolumeAttachmentSourceApplyConfiguration) (*VolumeAttachmentSourceDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [VolumeAttachmentSourceDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *VolumeAttachmentSourceDieMut) DieStampApplyConfigurationE(fn func(ac *VolumeAttachmentSourceApplyConfiguration)) (*VolumeAttachmentSourceDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type volumeAttachmentSourceFieldsTable struct {
@@ -610,7 +570,7 @@ func (d *VolumeAttachmentSourceDie) InlineVolumeSpec() *diecorev1.PersistentVolu
 }
 
 // persistentVolumeName represents the name of the persistent volume to attach.
-func (d *VolumeAttachmentSourceDieMut) PersistentVolumeName() diefields.OptionalMut[string, *VolumeAttachmentSourceDieMut] {
+func (d *VolumeAttachmentSourceDieMut) PersistentVolumeName() diefields.OptionalMut[string] {
 	return diefields.OptionalMutOf(d, volumeAttachmentSourceFields.Get().PersistentVolumeName)
 }
 
@@ -627,7 +587,7 @@ func (d *VolumeAttachmentSourceDieMut) InlineVolumeSpec() *diecorev1.PersistentV
 // VolumeAttachmentSpec is the specification of a VolumeAttachment request.
 //
 // VolumeAttachmentSpecDie is immutable: it reads.
-// [VolumeAttachmentSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [VolumeAttachmentSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type VolumeAttachmentSpecDie struct {
 	diebase.DieBase[VolumeAttachmentSpec, *VolumeAttachmentSpecDie, *VolumeAttachmentSpecDieMut]
 }
@@ -676,26 +636,14 @@ func (d *VolumeAttachmentSpecDieMut) DieReleaseApplyConfigurationE() (*VolumeAtt
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *VolumeAttachmentSpecDieMut) DieFeedApplyConfiguration(ac *VolumeAttachmentSpecApplyConfiguration) *VolumeAttachmentSpecDieMut {
+func (d *VolumeAttachmentSpecDieMut) DieFeedApplyConfiguration(ac *VolumeAttachmentSpecApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *VolumeAttachmentSpecDieMut) DieStampApplyConfiguration(fn func(ac *VolumeAttachmentSpecApplyConfiguration)) *VolumeAttachmentSpecDieMut {
+func (d *VolumeAttachmentSpecDieMut) DieStampApplyConfiguration(fn func(ac *VolumeAttachmentSpecApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [VolumeAttachmentSpecDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *VolumeAttachmentSpecDieMut) DieFeedApplyConfigurationE(ac *VolumeAttachmentSpecApplyConfiguration) (*VolumeAttachmentSpecDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [VolumeAttachmentSpecDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *VolumeAttachmentSpecDieMut) DieStampApplyConfigurationE(fn func(ac *VolumeAttachmentSpecApplyConfiguration)) (*VolumeAttachmentSpecDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type volumeAttachmentSpecFieldsTable struct {
@@ -730,7 +678,7 @@ func (d *VolumeAttachmentSpecDie) NodeName() diefields.Value[string] {
 
 // attacher indicates the name of the volume driver that MUST handle this
 // request. This is the name returned by GetPluginName().
-func (d *VolumeAttachmentSpecDieMut) Attacher() diefields.ValueMut[string, *VolumeAttachmentSpecDieMut] {
+func (d *VolumeAttachmentSpecDieMut) Attacher() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, volumeAttachmentSpecFields.Get().Attacher)
 }
 
@@ -740,14 +688,14 @@ func (d *VolumeAttachmentSpecDieMut) Source() *VolumeAttachmentSourceDieMut {
 }
 
 // nodeName represents the node that the volume should be attached to.
-func (d *VolumeAttachmentSpecDieMut) NodeName() diefields.ValueMut[string, *VolumeAttachmentSpecDieMut] {
+func (d *VolumeAttachmentSpecDieMut) NodeName() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, volumeAttachmentSpecFields.Get().NodeName)
 }
 
 // VolumeAttachmentStatus is the status of a VolumeAttachment request.
 //
 // VolumeAttachmentStatusDie is immutable: it reads.
-// [VolumeAttachmentStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [VolumeAttachmentStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type VolumeAttachmentStatusDie struct {
 	diebase.DieBase[VolumeAttachmentStatus, *VolumeAttachmentStatusDie, *VolumeAttachmentStatusDieMut]
 }
@@ -796,26 +744,14 @@ func (d *VolumeAttachmentStatusDieMut) DieReleaseApplyConfigurationE() (*VolumeA
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *VolumeAttachmentStatusDieMut) DieFeedApplyConfiguration(ac *VolumeAttachmentStatusApplyConfiguration) *VolumeAttachmentStatusDieMut {
+func (d *VolumeAttachmentStatusDieMut) DieFeedApplyConfiguration(ac *VolumeAttachmentStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *VolumeAttachmentStatusDieMut) DieStampApplyConfiguration(fn func(ac *VolumeAttachmentStatusApplyConfiguration)) *VolumeAttachmentStatusDieMut {
+func (d *VolumeAttachmentStatusDieMut) DieStampApplyConfiguration(fn func(ac *VolumeAttachmentStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [VolumeAttachmentStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *VolumeAttachmentStatusDieMut) DieFeedApplyConfigurationE(ac *VolumeAttachmentStatusApplyConfiguration) (*VolumeAttachmentStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [VolumeAttachmentStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *VolumeAttachmentStatusDieMut) DieStampApplyConfigurationE(fn func(ac *VolumeAttachmentStatusApplyConfiguration)) (*VolumeAttachmentStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type volumeAttachmentStatusFieldsTable struct {
@@ -867,7 +803,7 @@ func (d *VolumeAttachmentStatusDie) DetachError() *VolumeErrorDie {
 // attached indicates the volume is successfully attached.
 // This field must only be set by the entity completing the attach
 // operation, i.e. the external-attacher.
-func (d *VolumeAttachmentStatusDieMut) Attached() diefields.ValueMut[bool, *VolumeAttachmentStatusDieMut] {
+func (d *VolumeAttachmentStatusDieMut) Attached() diefields.ValueMut[bool] {
 	return diefields.ValueMutOf(d, volumeAttachmentStatusFields.Get().Attached)
 }
 
@@ -899,7 +835,7 @@ func (d *VolumeAttachmentStatusDieMut) DetachError() *VolumeErrorDieMut {
 // of PersistentVolumeClaims, and changed in the PersistentVolumeClaim spec after provisioning.
 //
 // VolumeAttributesClassDie is immutable: it reads.
-// [VolumeAttributesClassDieMut], its mutable die, also writes, as DieWith passes it.
+// [VolumeAttributesClassDieMut], its mutable die, also writes, as DieStamp passes it.
 type VolumeAttributesClassDie struct {
 	diebase.DieObjectBase[VolumeAttributesClass, *VolumeAttributesClassDie, *VolumeAttributesClassDieMut]
 }
@@ -948,26 +884,14 @@ func (d *VolumeAttributesClassDieMut) DieReleaseApplyConfigurationE() (*VolumeAt
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *VolumeAttributesClassDieMut) DieFeedApplyConfiguration(ac *VolumeAttributesClassApplyConfiguration) *VolumeAttributesClassDieMut {
+func (d *VolumeAttributesClassDieMut) DieFeedApplyConfiguration(ac *VolumeAttributesClassApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *VolumeAttributesClassDieMut) DieStampApplyConfiguration(fn func(ac *VolumeAttributesClassApplyConfiguration)) *VolumeAttributesClassDieMut {
+func (d *VolumeAttributesClassDieMut) DieStampApplyConfiguration(fn func(ac *VolumeAttributesClassApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [VolumeAttributesClassDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *VolumeAttributesClassDieMut) DieFeedApplyConfigurationE(ac *VolumeAttributesClassApplyConfiguration) (*VolumeAttributesClassDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [VolumeAttributesClassDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *VolumeAttributesClassDieMut) DieStampApplyConfigurationE(fn func(ac *VolumeAttributesClassApplyConfiguration)) (*VolumeAttributesClassDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type volumeAttributesClassFieldsTable struct {
@@ -1039,7 +963,7 @@ func (d *VolumeAttributesClassDie) Parameters() *diefields.Map[string, string] {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *VolumeAttributesClassDieMut) Kind() diefields.ValueMut[string, *VolumeAttributesClassDieMut] {
+func (d *VolumeAttributesClassDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, volumeAttributesClassFields.Get().Kind)
 }
 
@@ -1047,7 +971,7 @@ func (d *VolumeAttributesClassDieMut) Kind() diefields.ValueMut[string, *VolumeA
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *VolumeAttributesClassDieMut) APIVersion() diefields.ValueMut[string, *VolumeAttributesClassDieMut] {
+func (d *VolumeAttributesClassDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, volumeAttributesClassFields.Get().APIVersion)
 }
 
@@ -1059,7 +983,7 @@ func (d *VolumeAttributesClassDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
 
 // driverName is the name of the CSI driver
 // This field is immutable.
-func (d *VolumeAttributesClassDieMut) DriverName() diefields.ValueMut[string, *VolumeAttributesClassDieMut] {
+func (d *VolumeAttributesClassDieMut) DriverName() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, volumeAttributesClassFields.Get().DriverName)
 }
 
@@ -1085,8 +1009,6 @@ type VolumeAttributesClassListDie struct {
 	dielists.List[*VolumeAttributesClassDieMut]
 }
 
-var _ dielists.DieListOf[*VolumeAttributesClassDieMut] = (*VolumeAttributesClassListDie)(nil)
-
 // NewVolumeAttributesClassList returns a list with items.
 func NewVolumeAttributesClassList(items ...*VolumeAttributesClassDieMut) *VolumeAttributesClassListDie {
 	return &VolumeAttributesClassListDie{dielists.NewList("storage.k8s.io/v1alpha1", "VolumeAttributesClassList", items...)}
@@ -1102,7 +1024,7 @@ func (l *VolumeAttributesClassListDie) DeepCopyObject() runtime.Object { return 
 // VolumeError captures an error encountered during a volume operation.
 //
 // VolumeErrorDie is immutable: it reads.
-// [VolumeErrorDieMut], its mutable die, also writes, as DieWith passes it.
+// [VolumeErrorDieMut], its mutable die, also writes, as DieStamp passes it.
 type VolumeErrorDie struct {
 	diebase.DieBase[VolumeError, *VolumeErrorDie, *VolumeErrorDieMut]
 }
@@ -1151,26 +1073,14 @@ func (d *VolumeErrorDieMut) DieReleaseApplyConfigurationE() (*VolumeErrorApplyCo
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *VolumeErrorDieMut) DieFeedApplyConfiguration(ac *VolumeErrorApplyConfiguration) *VolumeErrorDieMut {
+func (d *VolumeErrorDieMut) DieFeedApplyConfiguration(ac *VolumeErrorApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *VolumeErrorDieMut) DieStampApplyConfiguration(fn func(ac *VolumeErrorApplyConfiguration)) *VolumeErrorDieMut {
+func (d *VolumeErrorDieMut) DieStampApplyConfiguration(fn func(ac *VolumeErrorApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [VolumeErrorDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *VolumeErrorDieMut) DieFeedApplyConfigurationE(ac *VolumeErrorApplyConfiguration) (*VolumeErrorDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [VolumeErrorDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *VolumeErrorDieMut) DieStampApplyConfigurationE(fn func(ac *VolumeErrorApplyConfiguration)) (*VolumeErrorDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type volumeErrorFieldsTable struct {
@@ -1207,21 +1117,21 @@ func (d *VolumeErrorDie) ErrorCode() diefields.Optional[int32] {
 }
 
 // time represents the time the error was encountered.
-func (d *VolumeErrorDieMut) Time() diefields.ValueMut[diemetav1.Time, *VolumeErrorDieMut] {
+func (d *VolumeErrorDieMut) Time() diefields.ValueMut[diemetav1.Time] {
 	return diefields.ValueMutOf(d, volumeErrorFields.Get().Time)
 }
 
 // message represents the error encountered during Attach or Detach operation.
 // This string maybe logged, so it should not contain sensitive
 // information.
-func (d *VolumeErrorDieMut) Message() diefields.ValueMut[string, *VolumeErrorDieMut] {
+func (d *VolumeErrorDieMut) Message() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, volumeErrorFields.Get().Message)
 }
 
 // errorCode is a numeric gRPC code representing the error encountered during Attach or Detach operations.
 //
 // This is an optional, alpha field that requires the MutableCSINodeAllocatableCount feature gate being enabled to be set.
-func (d *VolumeErrorDieMut) ErrorCode() diefields.OptionalMut[int32, *VolumeErrorDieMut] {
+func (d *VolumeErrorDieMut) ErrorCode() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, volumeErrorFields.Get().ErrorCode)
 }
 

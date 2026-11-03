@@ -22,6 +22,7 @@ import (
 	admissionregistrationv1beta1 "k8s.io/api/admissionregistration/v1beta1"
 	dieadmissionregistrationv1beta1 "reconciler.io/dies/v2/apis/admissionregistration/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dielists "reconciler.io/dies/v2/die/lists"
 	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
@@ -69,7 +70,7 @@ func TestDiesMatchTypes(t *testing.T) {
 	}
 }
 
-// typed and object dies have the methods of their interfaces
+// typed, object and list dies have the methods of their interfaces
 var (
 	_ dieobjects.DieObjectOf[dieadmissionregistrationv1beta1.MutatingAdmissionPolicy, *dieadmissionregistrationv1beta1.MutatingAdmissionPolicyDie, *dieadmissionregistrationv1beta1.MutatingAdmissionPolicyDieMut]                               = (*dieadmissionregistrationv1beta1.MutatingAdmissionPolicyDie)(nil)
 	_ dieobjects.DieObjectMutOf[dieadmissionregistrationv1beta1.MutatingAdmissionPolicy, *dieadmissionregistrationv1beta1.MutatingAdmissionPolicyDie, *dieadmissionregistrationv1beta1.MutatingAdmissionPolicyDieMut]                            = (*dieadmissionregistrationv1beta1.MutatingAdmissionPolicyDieMut)(nil)
@@ -83,6 +84,12 @@ var (
 	_ dieobjects.DieObjectMutOf[dieadmissionregistrationv1beta1.ValidatingAdmissionPolicyBinding, *dieadmissionregistrationv1beta1.ValidatingAdmissionPolicyBindingDie, *dieadmissionregistrationv1beta1.ValidatingAdmissionPolicyBindingDieMut] = (*dieadmissionregistrationv1beta1.ValidatingAdmissionPolicyBindingDieMut)(nil)
 	_ dieobjects.DieObjectOf[dieadmissionregistrationv1beta1.ValidatingWebhookConfiguration, *dieadmissionregistrationv1beta1.ValidatingWebhookConfigurationDie, *dieadmissionregistrationv1beta1.ValidatingWebhookConfigurationDieMut]          = (*dieadmissionregistrationv1beta1.ValidatingWebhookConfigurationDie)(nil)
 	_ dieobjects.DieObjectMutOf[dieadmissionregistrationv1beta1.ValidatingWebhookConfiguration, *dieadmissionregistrationv1beta1.ValidatingWebhookConfigurationDie, *dieadmissionregistrationv1beta1.ValidatingWebhookConfigurationDieMut]       = (*dieadmissionregistrationv1beta1.ValidatingWebhookConfigurationDieMut)(nil)
+	_ dielists.DieListOf[*dieadmissionregistrationv1beta1.MutatingAdmissionPolicyBindingDieMut]                                                                                                                                                  = (*dieadmissionregistrationv1beta1.MutatingAdmissionPolicyBindingListDie)(nil)
+	_ dielists.DieListOf[*dieadmissionregistrationv1beta1.MutatingAdmissionPolicyDieMut]                                                                                                                                                         = (*dieadmissionregistrationv1beta1.MutatingAdmissionPolicyListDie)(nil)
+	_ dielists.DieListOf[*dieadmissionregistrationv1beta1.MutatingWebhookConfigurationDieMut]                                                                                                                                                    = (*dieadmissionregistrationv1beta1.MutatingWebhookConfigurationListDie)(nil)
+	_ dielists.DieListOf[*dieadmissionregistrationv1beta1.ValidatingAdmissionPolicyBindingDieMut]                                                                                                                                                = (*dieadmissionregistrationv1beta1.ValidatingAdmissionPolicyBindingListDie)(nil)
+	_ dielists.DieListOf[*dieadmissionregistrationv1beta1.ValidatingAdmissionPolicyDieMut]                                                                                                                                                       = (*dieadmissionregistrationv1beta1.ValidatingAdmissionPolicyListDie)(nil)
+	_ dielists.DieListOf[*dieadmissionregistrationv1beta1.ValidatingWebhookConfigurationDieMut]                                                                                                                                                  = (*dieadmissionregistrationv1beta1.ValidatingWebhookConfigurationListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

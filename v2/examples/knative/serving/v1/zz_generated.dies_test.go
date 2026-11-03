@@ -20,6 +20,7 @@ package v1_test
 
 import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dielists "reconciler.io/dies/v2/die/lists"
 	dieobjects "reconciler.io/dies/v2/die/objects"
 	servingv1 "reconciler.io/dies/v2/examples/knative/serving/v1"
 	testing "testing"
@@ -55,7 +56,7 @@ func TestDiesMatchTypes(t *testing.T) {
 	}
 }
 
-// typed and object dies have the methods of their interfaces
+// typed, object and list dies have the methods of their interfaces
 var (
 	_ dieobjects.DieObjectOf[servingv1.Configuration, *servingv1.ConfigurationDie, *servingv1.ConfigurationDieMut]    = (*servingv1.ConfigurationDie)(nil)
 	_ dieobjects.DieObjectMutOf[servingv1.Configuration, *servingv1.ConfigurationDie, *servingv1.ConfigurationDieMut] = (*servingv1.ConfigurationDieMut)(nil)
@@ -65,4 +66,8 @@ var (
 	_ dieobjects.DieObjectMutOf[servingv1.Route, *servingv1.RouteDie, *servingv1.RouteDieMut]                         = (*servingv1.RouteDieMut)(nil)
 	_ dieobjects.DieObjectOf[servingv1.Service, *servingv1.ServiceDie, *servingv1.ServiceDieMut]                      = (*servingv1.ServiceDie)(nil)
 	_ dieobjects.DieObjectMutOf[servingv1.Service, *servingv1.ServiceDie, *servingv1.ServiceDieMut]                   = (*servingv1.ServiceDieMut)(nil)
+	_ dielists.DieListOf[*servingv1.ConfigurationDieMut]                                                              = (*servingv1.ConfigurationListDie)(nil)
+	_ dielists.DieListOf[*servingv1.RevisionDieMut]                                                                   = (*servingv1.RevisionListDie)(nil)
+	_ dielists.DieListOf[*servingv1.RouteDieMut]                                                                      = (*servingv1.RouteListDie)(nil)
+	_ dielists.DieListOf[*servingv1.ServiceDieMut]                                                                    = (*servingv1.ServiceListDie)(nil)
 )

@@ -28,6 +28,7 @@ import (
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
 	"reconciler.io/dies/v2/die"
 	"reconciler.io/dies/v2/die/base"
+	"reconciler.io/dies/v2/die/dietest"
 	"reconciler.io/dies/v2/die/lists"
 	dieunstructured "reconciler.io/dies/v2/die/unstructured"
 )
@@ -58,10 +59,10 @@ var (
 
 // Generic code over DieOf calls a die's methods directly, and writes
 // through its mutable die.
-func stampName[T any, D die.DieObjectOf[T, D, M], M die.DieObjectMutOf[T, D, M]](d D, name string) D {
-	return d.DieWith(func(m M) {
-		m.Metadata().Name().Set(name)
-		m.APIVersion().Set("apps/v1")
+func stampName[T any, D die.DieObjectOf[T, D, M], M die.DieObjectMutOf[T, D, M]](t testing.TB, d D, name string) D {
+	return d.DieStamp(func(m M) {
+		dietest.NoError(t, m.Metadata().Name().Set(name))
+		dietest.NoError(t, m.APIVersion().Set("apps/v1"))
 	})
 }
 
@@ -97,7 +98,7 @@ func describe(d die.Die) string {
 }
 
 func TestDieInterfaces(t *testing.T) {
-	d := stampName(dieappsv1.DeploymentBlank, "web")
+	d := stampName(t, dieappsv1.DeploymentBlank, "web")
 	if d.GetName() != "web" {
 		t.Errorf("name %q", d.GetName())
 	}

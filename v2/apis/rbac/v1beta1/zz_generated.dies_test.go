@@ -22,6 +22,7 @@ import (
 	rbacv1beta1 "k8s.io/api/rbac/v1beta1"
 	dierbacv1beta1 "reconciler.io/dies/v2/apis/rbac/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dielists "reconciler.io/dies/v2/die/lists"
 	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
@@ -47,7 +48,7 @@ func TestDiesMatchTypes(t *testing.T) {
 	}
 }
 
-// typed and object dies have the methods of their interfaces
+// typed, object and list dies have the methods of their interfaces
 var (
 	_ dieobjects.DieObjectOf[dierbacv1beta1.ClusterRole, *dierbacv1beta1.ClusterRoleDie, *dierbacv1beta1.ClusterRoleDieMut]                         = (*dierbacv1beta1.ClusterRoleDie)(nil)
 	_ dieobjects.DieObjectMutOf[dierbacv1beta1.ClusterRole, *dierbacv1beta1.ClusterRoleDie, *dierbacv1beta1.ClusterRoleDieMut]                      = (*dierbacv1beta1.ClusterRoleDieMut)(nil)
@@ -57,6 +58,10 @@ var (
 	_ dieobjects.DieObjectMutOf[dierbacv1beta1.Role, *dierbacv1beta1.RoleDie, *dierbacv1beta1.RoleDieMut]                                           = (*dierbacv1beta1.RoleDieMut)(nil)
 	_ dieobjects.DieObjectOf[dierbacv1beta1.RoleBinding, *dierbacv1beta1.RoleBindingDie, *dierbacv1beta1.RoleBindingDieMut]                         = (*dierbacv1beta1.RoleBindingDie)(nil)
 	_ dieobjects.DieObjectMutOf[dierbacv1beta1.RoleBinding, *dierbacv1beta1.RoleBindingDie, *dierbacv1beta1.RoleBindingDieMut]                      = (*dierbacv1beta1.RoleBindingDieMut)(nil)
+	_ dielists.DieListOf[*dierbacv1beta1.ClusterRoleBindingDieMut]                                                                                  = (*dierbacv1beta1.ClusterRoleBindingListDie)(nil)
+	_ dielists.DieListOf[*dierbacv1beta1.ClusterRoleDieMut]                                                                                         = (*dierbacv1beta1.ClusterRoleListDie)(nil)
+	_ dielists.DieListOf[*dierbacv1beta1.RoleBindingDieMut]                                                                                         = (*dierbacv1beta1.RoleBindingListDie)(nil)
+	_ dielists.DieListOf[*dierbacv1beta1.RoleDieMut]                                                                                                = (*dierbacv1beta1.RoleListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

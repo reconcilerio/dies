@@ -24,6 +24,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
+	"reconciler.io/dies/v2/die"
+	"reconciler.io/dies/v2/die/dietest"
 	"reconciler.io/dies/v2/die/jigs"
 	jigsv1 "reconciler.io/dies/v2/examples/jigs/v1"
 )
@@ -48,35 +50,32 @@ func TestDeploymentConditionsAreLossless(t *testing.T) {
 }
 
 func TestHarmonizedConditionsKeepWhatTheJigDoesNotShow(t *testing.T) {
-	deploy := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Name().Set("web")
-		d.Status().DieStamp(func(r *appsv1.DeploymentStatus) { r.Conditions = legacyConditions() })
-	}).DieCommit().DieMutable()
+	deploy := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Name().Set("web"))
+		dietest.NoError(t, die.StampValue(d.Status(), func(r *appsv1.DeploymentStatus) { r.Conditions = legacyConditions() }))
+	}).DieTare().DieMutable()
 
 	c, _ := jigsv1.ConditionedJig.OfMut(deploy.Status())
-	c.Conditions().At("Available").Status().Set(metav1.ConditionTrue)
-	c.Conditions().At("Available").Reason().Set("MinimumReplicasAvailable")
+	dietest.NoError(t, c.Conditions().At("Available").Status().Set(metav1.ConditionTrue))
+	dietest.NoError(t, c.Conditions().At("Available").Reason().Set("MinimumReplicasAvailable"))
 
 	got := deploy.Status().Conditions().At(appsv1.DeploymentAvailable)
 	if got.Status().Get() != corev1.ConditionTrue || got.Reason().Get() != "MinimumReplicasAvailable" {
-		t.Errorf("condition %+v", got.DieRelease())
+		t.Errorf("condition %+v", *got.DieRelease())
 	}
 	// lastUpdateTime isn't in the jig, and is kept
 	if lut := got.LastUpdateTime().Get(); !lut.Equal(&updated) {
 		t.Errorf("lastUpdateTime %v, want it kept", got.LastUpdateTime().Get())
 	}
 	// only the changed fields of the changed condition are intent
-	patch, err := deploy.DieSubresource("status").DieReleaseApplyPatchE()
+	patch, err := die.ReleaseApplyPatchE(deploy, die.Subresource("status"))
 	assertJSON(t, patch, err, `{
 		"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "web"},
 		"status": {"conditions": [{"type": "Available", "status": "True", "reason": "MinimumReplicasAvailable"}]}
 	}`)
 
 	// a deployment condition has nowhere to keep an observed generation
-	defer func() {
-		if recover() == nil {
-			t.Errorf("expected observedGeneration to be refused")
-		}
-	}()
-	c.Conditions().At("Available").ObservedGeneration().Set(3)
+	assertErrorsWith(t, "the transform for .conditions cannot represent", func() error {
+		return c.Conditions().At("Available").ObservedGeneration().Set(3)
+	})
 }

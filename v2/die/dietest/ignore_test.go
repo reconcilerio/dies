@@ -56,33 +56,46 @@ func assertDiffs(t *testing.T, what string, x, y any, contains string, opts ...c
 
 func TestIgnoreFields(t *testing.T) {
 	blank := dieappsv1.DeploymentBlank
-	with := func(fn func(d *deploy)) *dieappsv1.DeploymentDie { return named("web").DieWith(fn) }
+	with := func(fn func(d *deploy)) *dieappsv1.DeploymentDie { return named(t, "web").DieStamp(fn) }
 
-	x := with(func(d *deploy) { d.Metadata().ResourceVersion().Set("1"); d.Spec().Replicas().Set(1) })
-	y := with(func(d *deploy) { d.Metadata().ResourceVersion().Set("2"); d.Spec().Replicas().Set(1) })
+	x := with(func(d *deploy) {
+		dietest.NoError(t, d.Metadata().ResourceVersion().Set("1"))
+		dietest.NoError(t, d.Spec().Replicas().Set(1))
+	})
+	y := with(func(d *deploy) {
+		dietest.NoError(t, d.Metadata().ResourceVersion().Set("2"))
+		dietest.NoError(t, d.Spec().Replicas().Set(1))
+	})
 	assertDiffs(t, "resource versions", x, y, "2")
 	assertNoDiffs(t, "resource versions, ignored", x, y, dietest.IgnoreFields(blank.Metadata().ResourceVersion()))
 	assertNoDiffs(t, "resource versions, metadata ignored", x, y, dietest.IgnoreFields(blank.Metadata()))
 
 	// only what's ignored
-	z := with(func(d *deploy) { d.Metadata().ResourceVersion().Set("2"); d.Spec().Replicas().Set(2) })
+	z := with(func(d *deploy) {
+		dietest.NoError(t, d.Metadata().ResourceVersion().Set("2"))
+		dietest.NoError(t, d.Spec().Replicas().Set(2))
+	})
 	assertDiffs(t, "replicas", x, z, "2", dietest.IgnoreFields(blank.Metadata().ResourceVersion()))
 
 	// an inline field
-	api := with(func(d *deploy) { d.APIVersion().Set("apps/v2") })
-	assertDiffs(t, "apiVersion", named("web"), api, "apps/v2")
-	assertNoDiffs(t, "apiVersion, ignored", named("web"), api, dietest.IgnoreFields(blank.APIVersion()))
+	api := with(func(d *deploy) { dietest.NoError(t, d.APIVersion().Set("apps/v2")) })
+	assertDiffs(t, "apiVersion", named(t, "web"), api, "apps/v2")
+	assertNoDiffs(t, "apiVersion, ignored", named(t, "web"), api, dietest.IgnoreFields(blank.APIVersion()))
 
 	// a subresource
-	ready := with(func(d *deploy) { d.Status().ReadyReplicas().Set(1) })
-	assertNoDiffs(t, "status, ignored", named("web"), ready, dietest.IgnoreFields(blank.Status()))
+	ready := with(func(d *deploy) { dietest.NoError(t, d.Status().ReadyReplicas().Set(1)) })
+	assertNoDiffs(t, "status, ignored", named(t, "web"), ready, dietest.IgnoreFields(blank.Status()))
 
 	// a list-map element by its key, present on either side or both
 	app := func(image string) func(d *deploy) {
-		return func(d *deploy) { d.Spec().Template().Spec().Containers().At("app").Image().Set(image) }
+		return func(d *deploy) {
+			dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set(image))
+		}
 	}
 	sidecar := func(image string) func(d *deploy) {
-		return func(d *deploy) { d.Spec().Template().Spec().Containers().At("sidecar").Image().Set(image) }
+		return func(d *deploy) {
+			dietest.NoError(t, d.Spec().Template().Spec().Containers().At("sidecar").Image().Set(image))
+		}
 	}
 	both := func(fns ...func(d *deploy)) *dieappsv1.DeploymentDie {
 		return with(func(d *deploy) {
@@ -98,8 +111,8 @@ func TestIgnoreFields(t *testing.T) {
 
 	// a field the type doesn't have is compared by content only, and
 	// ignored by an enclosing location
-	future := fedJSON(`{"spec": {"futureField": 1}}`)
-	future2 := fedJSON(`{"spec": {"futureField": 2}}`)
+	future := fedJSON(t, `{"spec": {"futureField": 1}}`)
+	future2 := fedJSON(t, `{"spec": {"futureField": 2}}`)
 	if diff := dietest.Diff(future, future2, dietest.IgnoreFields(blank.Spec())); diff != "" {
 		t.Errorf("unexpected diff:\n%s", diff)
 	}
@@ -108,13 +121,13 @@ func TestIgnoreFields(t *testing.T) {
 // A location within a blank applies to dies of the blank's type only.
 func TestIgnoreFieldsByType(t *testing.T) {
 	cron := func(name string) *diebatchv1.CronJobDie {
-		return diebatchv1.CronJobBlank.DieWith(func(d *diebatchv1.CronJobDieMut) { d.Metadata().Name().Set(name) })
+		return diebatchv1.CronJobBlank.DieStamp(func(d *diebatchv1.CronJobDieMut) { dietest.NoError(t, d.Metadata().Name().Set(name)) })
 	}
 	type pair struct {
 		Deployment *dieappsv1.DeploymentDie
 		CronJob    *diebatchv1.CronJobDie
 	}
-	x, y := pair{named("web"), cron("web")}, pair{named("api"), cron("api")}
+	x, y := pair{named(t, "web"), cron("web")}, pair{named(t, "api"), cron("api")}
 	ignore := dietest.IgnoreFields(dieappsv1.DeploymentBlank.Metadata().Name())
 	assertNoDiffs(t, "deployments", x.Deployment, y.Deployment, ignore)
 	assertDiffs(t, "cron jobs", x.CronJob, y.CronJob, `"api"`, ignore)
@@ -123,7 +136,7 @@ func TestIgnoreFieldsByType(t *testing.T) {
 	list := func(names ...string) *dieappsv1.DeploymentListDie {
 		var items []*deploy
 		for _, n := range names {
-			items = append(items, named("web").DieWith(func(d *deploy) { d.Metadata().ResourceVersion().Set(n) }).DieMutable())
+			items = append(items, named(t, "web").DieStamp(func(d *deploy) { dietest.NoError(t, d.Metadata().ResourceVersion().Set(n)) }).DieMutable())
 		}
 		return dieappsv1.NewDeploymentList(items...)
 	}
@@ -133,9 +146,9 @@ func TestIgnoreFieldsByType(t *testing.T) {
 // Unstructured dies are ignored by the locations of unstructured blanks.
 func TestIgnoreFieldsOfUnstructured(t *testing.T) {
 	obj := func(size int64) *unstructured.Object {
-		return unstructured.BlankFor("example.dev/v1", "Widget").DieWith(func(d *unstructured.ObjectMut) {
-			d.Node().Field("spec").Field("size").Set(size)
-			d.Node().Field("spec").Field("color").Set("blue")
+		return unstructured.BlankFor("example.dev/v1", "Widget").DieStamp(func(d *unstructured.ObjectMut) {
+			dietest.NoError(t, d.Node().Field("spec").Field("size").Set(size))
+			dietest.NoError(t, d.Node().Field("spec").Field("color").Set("blue"))
 		})
 	}
 	assertDiffs(t, "sizes", obj(1), obj(2), "2")

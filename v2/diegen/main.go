@@ -116,7 +116,7 @@ func readHeader(name string) (string, error) {
 		if tok == token.EOF {
 			break
 		}
-		if tok != token.COMMENT && !(tok == token.SEMICOLON && src[fset.Position(pos).Offset] == '\n') {
+		if tok != token.COMMENT && (tok != token.SEMICOLON || src[fset.Position(pos).Offset] != '\n') {
 			return "", fmt.Errorf("%s: a header must hold only comments, found %s", fset.Position(pos), tok)
 		}
 	}

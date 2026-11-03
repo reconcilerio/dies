@@ -60,12 +60,17 @@ func run(m *testing.M) int {
 	}
 	defer cp.stop()
 
+	crds, err := harness.CRDs()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "conformance: %v\n", err)
+		return 1
+	}
 	// envtest runs against the control plane in Docker as an existing
 	// cluster, installing the CRDs the suite uses and waiting for them
 	env := &envtest.Environment{
 		UseExistingCluster: ptr.To(true),
 		Config:             cp.config,
-		CRDs:               harness.CRDs(),
+		CRDs:               crds,
 	}
 	config, err = env.Start()
 	if err != nil {

@@ -76,8 +76,8 @@ func (s *Schema) At(p Path) *Schema {
 		if s == nil {
 			return nil
 		}
-		switch {
-		case st.kind == stepField || st.kind == stepMapKey:
+		switch st.kind {
+		case stepField, stepMapKey:
 			switch s.Kind {
 			case SchemaObject:
 				s = s.Fields[st.name]

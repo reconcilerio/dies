@@ -22,6 +22,7 @@ import (
 	policyv1beta1 "k8s.io/api/policy/v1beta1"
 	diepolicyv1beta1 "reconciler.io/dies/v2/apis/policy/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dielists "reconciler.io/dies/v2/die/lists"
 	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
@@ -40,12 +41,13 @@ func TestDiesMatchTypes(t *testing.T) {
 	}
 }
 
-// typed and object dies have the methods of their interfaces
+// typed, object and list dies have the methods of their interfaces
 var (
 	_ dieobjects.DieObjectOf[diepolicyv1beta1.Eviction, *diepolicyv1beta1.EvictionDie, *diepolicyv1beta1.EvictionDieMut]                                     = (*diepolicyv1beta1.EvictionDie)(nil)
 	_ dieobjects.DieObjectMutOf[diepolicyv1beta1.Eviction, *diepolicyv1beta1.EvictionDie, *diepolicyv1beta1.EvictionDieMut]                                  = (*diepolicyv1beta1.EvictionDieMut)(nil)
 	_ dieobjects.DieObjectOf[diepolicyv1beta1.PodDisruptionBudget, *diepolicyv1beta1.PodDisruptionBudgetDie, *diepolicyv1beta1.PodDisruptionBudgetDieMut]    = (*diepolicyv1beta1.PodDisruptionBudgetDie)(nil)
 	_ dieobjects.DieObjectMutOf[diepolicyv1beta1.PodDisruptionBudget, *diepolicyv1beta1.PodDisruptionBudgetDie, *diepolicyv1beta1.PodDisruptionBudgetDieMut] = (*diepolicyv1beta1.PodDisruptionBudgetDieMut)(nil)
+	_ dielists.DieListOf[*diepolicyv1beta1.PodDisruptionBudgetDieMut]                                                                                        = (*diepolicyv1beta1.PodDisruptionBudgetListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

@@ -33,7 +33,7 @@ import (
 // Lease defines a lease concept.
 //
 // LeaseDie is immutable: it reads.
-// [LeaseDieMut], its mutable die, also writes, as DieWith passes it.
+// [LeaseDieMut], its mutable die, also writes, as DieStamp passes it.
 type LeaseDie struct {
 	diebase.DieObjectBase[Lease, *LeaseDie, *LeaseDieMut]
 }
@@ -82,26 +82,14 @@ func (d *LeaseDieMut) DieReleaseApplyConfigurationE() (*LeaseApplyConfiguration,
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *LeaseDieMut) DieFeedApplyConfiguration(ac *LeaseApplyConfiguration) *LeaseDieMut {
+func (d *LeaseDieMut) DieFeedApplyConfiguration(ac *LeaseApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *LeaseDieMut) DieStampApplyConfiguration(fn func(ac *LeaseApplyConfiguration)) *LeaseDieMut {
+func (d *LeaseDieMut) DieStampApplyConfiguration(fn func(ac *LeaseApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [LeaseDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *LeaseDieMut) DieFeedApplyConfigurationE(ac *LeaseApplyConfiguration) (*LeaseDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [LeaseDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *LeaseDieMut) DieStampApplyConfigurationE(fn func(ac *LeaseApplyConfiguration)) (*LeaseDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type leaseFieldsTable struct {
@@ -152,7 +140,7 @@ func (d *LeaseDie) Spec() *LeaseSpecDie { return diefields.Child(d, leaseFields.
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *LeaseDieMut) Kind() diefields.ValueMut[string, *LeaseDieMut] {
+func (d *LeaseDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, leaseFields.Get().Kind)
 }
 
@@ -160,7 +148,7 @@ func (d *LeaseDieMut) Kind() diefields.ValueMut[string, *LeaseDieMut] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *LeaseDieMut) APIVersion() diefields.ValueMut[string, *LeaseDieMut] {
+func (d *LeaseDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, leaseFields.Get().APIVersion)
 }
 
@@ -178,7 +166,7 @@ func (d *LeaseDieMut) Spec() *LeaseSpecDieMut { return diefields.ChildMut(d, lea
 // Candidates are created such that coordinated leader election will pick the best leader from the list of candidates.
 //
 // LeaseCandidateDie is immutable: it reads.
-// [LeaseCandidateDieMut], its mutable die, also writes, as DieWith passes it.
+// [LeaseCandidateDieMut], its mutable die, also writes, as DieStamp passes it.
 type LeaseCandidateDie struct {
 	diebase.DieObjectBase[LeaseCandidate, *LeaseCandidateDie, *LeaseCandidateDieMut]
 }
@@ -227,26 +215,14 @@ func (d *LeaseCandidateDieMut) DieReleaseApplyConfigurationE() (*LeaseCandidateA
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *LeaseCandidateDieMut) DieFeedApplyConfiguration(ac *LeaseCandidateApplyConfiguration) *LeaseCandidateDieMut {
+func (d *LeaseCandidateDieMut) DieFeedApplyConfiguration(ac *LeaseCandidateApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *LeaseCandidateDieMut) DieStampApplyConfiguration(fn func(ac *LeaseCandidateApplyConfiguration)) *LeaseCandidateDieMut {
+func (d *LeaseCandidateDieMut) DieStampApplyConfiguration(fn func(ac *LeaseCandidateApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [LeaseCandidateDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *LeaseCandidateDieMut) DieFeedApplyConfigurationE(ac *LeaseCandidateApplyConfiguration) (*LeaseCandidateDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [LeaseCandidateDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *LeaseCandidateDieMut) DieStampApplyConfigurationE(fn func(ac *LeaseCandidateApplyConfiguration)) (*LeaseCandidateDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type leaseCandidateFieldsTable struct {
@@ -299,7 +275,7 @@ func (d *LeaseCandidateDie) Spec() *LeaseCandidateSpecDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *LeaseCandidateDieMut) Kind() diefields.ValueMut[string, *LeaseCandidateDieMut] {
+func (d *LeaseCandidateDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, leaseCandidateFields.Get().Kind)
 }
 
@@ -307,7 +283,7 @@ func (d *LeaseCandidateDieMut) Kind() diefields.ValueMut[string, *LeaseCandidate
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *LeaseCandidateDieMut) APIVersion() diefields.ValueMut[string, *LeaseCandidateDieMut] {
+func (d *LeaseCandidateDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, leaseCandidateFields.Get().APIVersion)
 }
 
@@ -328,8 +304,6 @@ type LeaseCandidateListDie struct {
 	dielists.List[*LeaseCandidateDieMut]
 }
 
-var _ dielists.DieListOf[*LeaseCandidateDieMut] = (*LeaseCandidateListDie)(nil)
-
 // NewLeaseCandidateList returns a list with items.
 func NewLeaseCandidateList(items ...*LeaseCandidateDieMut) *LeaseCandidateListDie {
 	return &LeaseCandidateListDie{dielists.NewList("coordination.k8s.io/v1beta1", "LeaseCandidateList", items...)}
@@ -345,7 +319,7 @@ func (l *LeaseCandidateListDie) DeepCopyObject() runtime.Object { return l.DeepC
 // LeaseCandidateSpec is a specification of a Lease.
 //
 // LeaseCandidateSpecDie is immutable: it reads.
-// [LeaseCandidateSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [LeaseCandidateSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type LeaseCandidateSpecDie struct {
 	diebase.DieBase[LeaseCandidateSpec, *LeaseCandidateSpecDie, *LeaseCandidateSpecDieMut]
 }
@@ -394,26 +368,14 @@ func (d *LeaseCandidateSpecDieMut) DieReleaseApplyConfigurationE() (*LeaseCandid
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *LeaseCandidateSpecDieMut) DieFeedApplyConfiguration(ac *LeaseCandidateSpecApplyConfiguration) *LeaseCandidateSpecDieMut {
+func (d *LeaseCandidateSpecDieMut) DieFeedApplyConfiguration(ac *LeaseCandidateSpecApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *LeaseCandidateSpecDieMut) DieStampApplyConfiguration(fn func(ac *LeaseCandidateSpecApplyConfiguration)) *LeaseCandidateSpecDieMut {
+func (d *LeaseCandidateSpecDieMut) DieStampApplyConfiguration(fn func(ac *LeaseCandidateSpecApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [LeaseCandidateSpecDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *LeaseCandidateSpecDieMut) DieFeedApplyConfigurationE(ac *LeaseCandidateSpecApplyConfiguration) (*LeaseCandidateSpecDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [LeaseCandidateSpecDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *LeaseCandidateSpecDieMut) DieStampApplyConfigurationE(fn func(ac *LeaseCandidateSpecApplyConfiguration)) (*LeaseCandidateSpecDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type leaseCandidateSpecFieldsTable struct {
@@ -488,7 +450,7 @@ func (d *LeaseCandidateSpecDie) Strategy() diefields.Value[diecoordinationv1.Coo
 // The limits on this field are the same as on Lease.name. Multiple lease candidates
 // may reference the same Lease.name.
 // This field is immutable.
-func (d *LeaseCandidateSpecDieMut) LeaseName() diefields.ValueMut[string, *LeaseCandidateSpecDieMut] {
+func (d *LeaseCandidateSpecDieMut) LeaseName() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, leaseCandidateSpecFields.Get().LeaseName)
 }
 
@@ -496,7 +458,7 @@ func (d *LeaseCandidateSpecDieMut) LeaseName() diefields.ValueMut[string, *Lease
 // to renew. It is only done during leader election to check if any
 // LeaseCandidates have become ineligible. When PingTime is updated, the
 // LeaseCandidate will respond by updating RenewTime.
-func (d *LeaseCandidateSpecDieMut) PingTime() diefields.OptionalMut[diemetav1.MicroTime, *LeaseCandidateSpecDieMut] {
+func (d *LeaseCandidateSpecDieMut) PingTime() diefields.OptionalMut[diemetav1.MicroTime] {
 	return diefields.OptionalMutOf(d, leaseCandidateSpecFields.Get().PingTime)
 }
 
@@ -507,20 +469,20 @@ func (d *LeaseCandidateSpecDieMut) PingTime() diefields.OptionalMut[diemetav1.Mi
 // Old LeaseCandidate objects are also garbage collected if it has been hours
 // since the last renew. The PingTime field is updated regularly to prevent
 // garbage collection for still active LeaseCandidates.
-func (d *LeaseCandidateSpecDieMut) RenewTime() diefields.OptionalMut[diemetav1.MicroTime, *LeaseCandidateSpecDieMut] {
+func (d *LeaseCandidateSpecDieMut) RenewTime() diefields.OptionalMut[diemetav1.MicroTime] {
 	return diefields.OptionalMutOf(d, leaseCandidateSpecFields.Get().RenewTime)
 }
 
 // binaryVersion is the binary version. It must be in a semver format without leading `v`.
 // This field is required.
-func (d *LeaseCandidateSpecDieMut) BinaryVersion() diefields.ValueMut[string, *LeaseCandidateSpecDieMut] {
+func (d *LeaseCandidateSpecDieMut) BinaryVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, leaseCandidateSpecFields.Get().BinaryVersion)
 }
 
 // emulationVersion is the emulation version. It must be in a semver format without leading `v`.
 // EmulationVersion must be less than or equal to BinaryVersion.
 // This field is required when strategy is "OldestEmulationVersion"
-func (d *LeaseCandidateSpecDieMut) EmulationVersion() diefields.ValueMut[string, *LeaseCandidateSpecDieMut] {
+func (d *LeaseCandidateSpecDieMut) EmulationVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, leaseCandidateSpecFields.Get().EmulationVersion)
 }
 
@@ -528,7 +490,7 @@ func (d *LeaseCandidateSpecDieMut) EmulationVersion() diefields.ValueMut[string,
 // If multiple candidates for the same Lease return different strategies, the strategy provided
 // by the candidate with the latest BinaryVersion will be used. If there is still conflict,
 // this is a user error and coordinated leader election will not operate the Lease until resolved.
-func (d *LeaseCandidateSpecDieMut) Strategy() diefields.ValueMut[diecoordinationv1.CoordinatedLeaseStrategy, *LeaseCandidateSpecDieMut] {
+func (d *LeaseCandidateSpecDieMut) Strategy() diefields.ValueMut[diecoordinationv1.CoordinatedLeaseStrategy] {
 	return diefields.ValueMutOf(d, leaseCandidateSpecFields.Get().Strategy)
 }
 
@@ -536,8 +498,6 @@ func (d *LeaseCandidateSpecDieMut) Strategy() diefields.ValueMut[diecoordination
 type LeaseListDie struct {
 	dielists.List[*LeaseDieMut]
 }
-
-var _ dielists.DieListOf[*LeaseDieMut] = (*LeaseListDie)(nil)
 
 // NewLeaseList returns a list with items.
 func NewLeaseList(items ...*LeaseDieMut) *LeaseListDie {
@@ -552,7 +512,7 @@ func (l *LeaseListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 // LeaseSpec is a specification of a Lease.
 //
 // LeaseSpecDie is immutable: it reads.
-// [LeaseSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [LeaseSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type LeaseSpecDie struct {
 	diebase.DieBase[LeaseSpec, *LeaseSpecDie, *LeaseSpecDieMut]
 }
@@ -601,26 +561,14 @@ func (d *LeaseSpecDieMut) DieReleaseApplyConfigurationE() (*LeaseSpecApplyConfig
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *LeaseSpecDieMut) DieFeedApplyConfiguration(ac *LeaseSpecApplyConfiguration) *LeaseSpecDieMut {
+func (d *LeaseSpecDieMut) DieFeedApplyConfiguration(ac *LeaseSpecApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *LeaseSpecDieMut) DieStampApplyConfiguration(fn func(ac *LeaseSpecApplyConfiguration)) *LeaseSpecDieMut {
+func (d *LeaseSpecDieMut) DieStampApplyConfiguration(fn func(ac *LeaseSpecApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [LeaseSpecDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *LeaseSpecDieMut) DieFeedApplyConfigurationE(ac *LeaseSpecApplyConfiguration) (*LeaseSpecDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [LeaseSpecDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *LeaseSpecDieMut) DieStampApplyConfigurationE(fn func(ac *LeaseSpecApplyConfiguration)) (*LeaseSpecDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type leaseSpecFieldsTable struct {
@@ -691,43 +639,43 @@ func (d *LeaseSpecDie) PreferredHolder() diefields.Optional[string] {
 // holderIdentity contains the identity of the holder of a current lease.
 // If Coordinated Leader Election is used, the holder identity must be
 // equal to the elected LeaseCandidate.metadata.name field.
-func (d *LeaseSpecDieMut) HolderIdentity() diefields.OptionalMut[string, *LeaseSpecDieMut] {
+func (d *LeaseSpecDieMut) HolderIdentity() diefields.OptionalMut[string] {
 	return diefields.OptionalMutOf(d, leaseSpecFields.Get().HolderIdentity)
 }
 
 // leaseDurationSeconds is a duration that candidates for a lease need
 // to wait to force acquire it. This is measure against time of last
 // observed renewTime.
-func (d *LeaseSpecDieMut) LeaseDurationSeconds() diefields.OptionalMut[int32, *LeaseSpecDieMut] {
+func (d *LeaseSpecDieMut) LeaseDurationSeconds() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, leaseSpecFields.Get().LeaseDurationSeconds)
 }
 
 // acquireTime is a time when the current lease was acquired.
-func (d *LeaseSpecDieMut) AcquireTime() diefields.OptionalMut[diemetav1.MicroTime, *LeaseSpecDieMut] {
+func (d *LeaseSpecDieMut) AcquireTime() diefields.OptionalMut[diemetav1.MicroTime] {
 	return diefields.OptionalMutOf(d, leaseSpecFields.Get().AcquireTime)
 }
 
 // renewTime is a time when the current holder of a lease has last
 // updated the lease.
-func (d *LeaseSpecDieMut) RenewTime() diefields.OptionalMut[diemetav1.MicroTime, *LeaseSpecDieMut] {
+func (d *LeaseSpecDieMut) RenewTime() diefields.OptionalMut[diemetav1.MicroTime] {
 	return diefields.OptionalMutOf(d, leaseSpecFields.Get().RenewTime)
 }
 
 // leaseTransitions is the number of transitions of a lease between
 // holders.
-func (d *LeaseSpecDieMut) LeaseTransitions() diefields.OptionalMut[int32, *LeaseSpecDieMut] {
+func (d *LeaseSpecDieMut) LeaseTransitions() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, leaseSpecFields.Get().LeaseTransitions)
 }
 
 // strategy indicates the strategy for picking the leader for coordinated leader election.
 // (Alpha) Using this field requires the CoordinatedLeaderElection feature gate to be enabled.
-func (d *LeaseSpecDieMut) Strategy() diefields.OptionalMut[diecoordinationv1.CoordinatedLeaseStrategy, *LeaseSpecDieMut] {
+func (d *LeaseSpecDieMut) Strategy() diefields.OptionalMut[diecoordinationv1.CoordinatedLeaseStrategy] {
 	return diefields.OptionalMutOf(d, leaseSpecFields.Get().Strategy)
 }
 
 // preferredHolder signals to a lease holder that the lease has a
 // more optimal holder and should be given up.
-func (d *LeaseSpecDieMut) PreferredHolder() diefields.OptionalMut[string, *LeaseSpecDieMut] {
+func (d *LeaseSpecDieMut) PreferredHolder() diefields.OptionalMut[string] {
 	return diefields.OptionalMutOf(d, leaseSpecFields.Get().PreferredHolder)
 }
 

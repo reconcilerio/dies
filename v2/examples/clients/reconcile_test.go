@@ -19,6 +19,7 @@ package clients_test
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"reflect"
 	"testing"
@@ -34,7 +35,8 @@ import (
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
-	"reconciler.io/dies/v2/die/base"
+	"reconciler.io/dies/v2/die"
+	"reconciler.io/dies/v2/die/dietest"
 	dieunstructured "reconciler.io/dies/v2/die/unstructured"
 )
 
@@ -42,29 +44,33 @@ import (
 // status this controller owns, and apply only that, from a blank, to the
 // status subresource.
 func reconcile(ctx context.Context, c client.Client, key client.ObjectKey) error {
-	actual, err := dieappsv1.DeploymentBlank.DieWithE(func(d *dieappsv1.DeploymentDieMut) error {
+	actual, err := dieappsv1.DeploymentBlank.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
 		return c.Get(ctx, key, d)
 	})
 	if err != nil {
 		return err
 	}
 
-	status := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Namespace().Set(actual.GetNamespace())
-		d.Metadata().Name().Set(actual.GetName())
-		d.Status().ObservedGeneration().Set(actual.GetGeneration())
-		d.Status().Replicas().Set(actual.Spec().Replicas().Get())
-		d.Status().Conditions().At(dieappsv1.DeploymentAvailable).DieWith(func(c *dieappsv1.DeploymentConditionDieMut) {
-			c.Status().Set(diecorev1.ConditionTrue)
-			c.Reason().Set("Reconciled")
-		})
-	}).DieSubresource("status")
-	body, err := status.DieReleaseApplyPatchE()
+	status, err := dieappsv1.DeploymentBlank.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
+		available := d.Status().Conditions().At(dieappsv1.DeploymentAvailable)
+		return errors.Join(
+			d.Metadata().Namespace().Set(actual.GetNamespace()),
+			d.Metadata().Name().Set(actual.GetName()),
+			d.Status().ObservedGeneration().Set(actual.GetGeneration()),
+			d.Status().Replicas().Set(actual.Spec().Replicas().Get()),
+			available.Status().Set(diecorev1.ConditionTrue),
+			available.Reason().Set("Reconciled"),
+		)
+	})
+	if err != nil {
+		return err
+	}
+	body, err := die.ReleaseApplyPatchE(status, die.Subresource("status"))
 	if err != nil {
 		return err
 	}
 	// the client decodes the server's response into the die it's given
-	applied, err := status.DieWithE(func(d *dieappsv1.DeploymentDieMut) error {
+	applied, err := status.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
 		return c.Status().Patch(ctx, d, client.RawPatch(types.ApplyPatchType, body), client.FieldOwner("litmus"), client.ForceOwnership)
 	})
 	if err != nil {
@@ -85,23 +91,23 @@ func TestReconcileAppliesOnlyWhatItOwns(t *testing.T) {
 	mapper := meta.NewDefaultRESTMapper(nil)
 	mapper.Add(gvk, meta.RESTScopeNamespace)
 
-	seed := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Namespace().Set("default")
-		d.Metadata().Name().Set("web")
-		d.Spec().Replicas().Set(2)
-		d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1")
-	}).DieCommit().DieMutable()
+	seed := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Namespace().Set("default"))
+		dietest.NoError(t, d.Metadata().Name().Set("web"))
+		dietest.NoError(t, d.Spec().Replicas().Set(2))
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
+	}).DieTare().DieMutable()
 	c := fake.NewClientBuilder().WithScheme(scheme).WithRESTMapper(mapper).
 		WithObjects(seed).WithStatusSubresource(&dieappsv1.DeploymentDieMut{}).WithReturnManagedFields().Build()
 	ctx := context.Background()
 
 	// another controller owns a condition of its own
-	other := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Namespace().Set("default")
-		d.Metadata().Name().Set("web")
-		d.Status().Conditions().At(dieappsv1.DeploymentProgressing).Status().Set(diecorev1.ConditionTrue)
-	}).DieSubresource("status")
-	body, err := other.DieReleaseApplyPatchE()
+	other := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Namespace().Set("default"))
+		dietest.NoError(t, d.Metadata().Name().Set("web"))
+		dietest.NoError(t, d.Status().Conditions().At(dieappsv1.DeploymentProgressing).Status().Set(diecorev1.ConditionTrue))
+	})
+	body, err := die.ReleaseApplyPatchE(other, die.Subresource("status"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -125,14 +131,14 @@ func TestReconcileAppliesOnlyWhatItOwns(t *testing.T) {
 	}
 	conditions := status.Conditions()
 	if conditions.At(dieappsv1.DeploymentAvailable).Reason().Get() != "Reconciled" {
-		t.Errorf("available %+v", conditions.At(dieappsv1.DeploymentAvailable).DieRelease())
+		t.Errorf("available %+v", *conditions.At(dieappsv1.DeploymentAvailable).DieRelease())
 	}
 	// the other owner's condition, and the spec, are as they were
 	if conditions.At(dieappsv1.DeploymentProgressing).Status().Get() != diecorev1.ConditionTrue {
-		t.Errorf("progressing %+v", conditions.At(dieappsv1.DeploymentProgressing).DieRelease())
+		t.Errorf("progressing %+v", *conditions.At(dieappsv1.DeploymentProgressing).DieRelease())
 	}
 	if got.Spec().Template().Spec().Containers().At("app").Image().Get() != "app:1" {
-		t.Errorf("spec %+v", got.Spec().DieRelease())
+		t.Errorf("spec %+v", *got.Spec().DieRelease())
 	}
 	// each controller applied as its own field owner (the fake client does not
 	// record the subresource an apply was made to)
@@ -171,7 +177,7 @@ func TestUpdateKeepsUnknownFields(t *testing.T) {
 	if err := c.Get(ctx, key(), d); err != nil {
 		t.Fatal(err)
 	}
-	d.Spec().Replicas().Set(3)
+	dietest.NoError(t, d.Spec().Replicas().Set(3))
 	if err := c.Update(ctx, d); err != nil {
 		t.Fatal(err)
 	}
@@ -203,11 +209,11 @@ func TestApplyConfigurationRoundTrip(t *testing.T) {
 	c := fake.NewClientBuilder().WithScheme(scheme).WithRESTMapper(mapper).WithReturnManagedFields().Build()
 	ctx := context.Background()
 
-	applied := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Namespace().Set("default")
-		d.Metadata().Name().Set("web")
-		d.Spec().Replicas().Set(2)
-		d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1")
+	applied := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Namespace().Set("default"))
+		dietest.NoError(t, d.Metadata().Name().Set("web"))
+		dietest.NoError(t, d.Spec().Replicas().Set(2))
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
 	})
 	if err := c.Apply(ctx, applied.DieReleaseApplyConfiguration(), client.FieldOwner("litmus")); err != nil {
 		t.Fatal(err)
@@ -221,13 +227,13 @@ func TestApplyConfigurationRoundTrip(t *testing.T) {
 	if err := c.Get(ctx, key(), live); err != nil {
 		t.Fatal(err)
 	}
-	obj := live.DieRelease()
+	obj := *live.DieRelease()
 	owned, err := appsv1ac.ExtractDeployment(&obj, "litmus")
 	if err != nil {
 		t.Fatal(err)
 	}
-	mine := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) { d.DieFeedApplyConfiguration(owned) })
-	got, err := mine.DieReleaseApplyPatchE()
+	mine := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietest.NoError(t, d.DieFeedApplyConfiguration(owned)) })
+	got, err := die.ReleaseApplyPatchE(mine)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -266,27 +272,27 @@ func TestApplyingAnyDie(t *testing.T) {
 	c := fake.NewClientBuilder().WithScheme(scheme).WithRESTMapper(mapper).Build()
 	ctx := context.Background()
 
-	deploy := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Namespace().Set("default")
-		d.Metadata().Name().Set("web")
-		d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1")
+	deploy := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Namespace().Set("default"))
+		dietest.NoError(t, d.Metadata().Name().Set("web"))
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
 	})
-	ac := base.ApplyConfigurationOf(deploy)
+	ac := die.ApplyConfigurationOf(deploy)
 	if err := c.Apply(ctx, ac, client.FieldOwner("litmus")); err != nil {
 		t.Fatal(err)
 	}
 	// the object as the server returned it
-	applied := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) { d.DieFeedJSON(ac.Result()) })
+	applied := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietest.NoError(t, die.FeedJSON(d, ac.Result())) })
 	if applied.GetResourceVersion() == "" || applied.Spec().Template().Spec().Containers().At("app").Image().Get() != "app:1" {
 		t.Errorf("result %s", ac.Result())
 	}
 
-	workload := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieWith(func(d *dieunstructured.ObjectMut) {
+	workload := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieStamp(func(d *dieunstructured.ObjectMut) {
 		d.SetNamespace("default")
 		d.SetName("web")
-		d.Node().Field("spec").Field("replicas").Set(2)
+		dietest.NoError(t, d.Node().Field("spec").Field("replicas").Set(2))
 	})
-	if err := c.Apply(ctx, base.ApplyConfigurationOf(workload), client.FieldOwner("litmus")); err != nil {
+	if err := c.Apply(ctx, die.ApplyConfigurationOf(workload), client.FieldOwner("litmus")); err != nil {
 		t.Fatal(err)
 	}
 	var got unstructured.Unstructured

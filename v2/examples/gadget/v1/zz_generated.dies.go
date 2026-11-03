@@ -26,7 +26,7 @@ import (
 )
 
 // GadgetPartDie is immutable: it reads.
-// [GadgetPartDieMut], its mutable die, also writes, as DieWith passes it.
+// [GadgetPartDieMut], its mutable die, also writes, as DieStamp passes it.
 type GadgetPartDie struct {
 	diebase.DieBase[GadgetPart, *GadgetPartDie, *GadgetPartDieMut]
 }
@@ -60,7 +60,7 @@ func (d *GadgetPartDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, gadgetPartFields.Get().Name)
 }
 
-func (d *GadgetPartDieMut) Name() diefields.ValueMut[string, *GadgetPartDieMut] {
+func (d *GadgetPartDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, gadgetPartFields.Get().Name)
 }
 
@@ -68,7 +68,7 @@ func (d *GadgetPartDieMut) Name() diefields.ValueMut[string, *GadgetPartDieMut] 
 // the +die marker overrides to atomic.
 //
 // GadgetSpecDie is immutable: it reads.
-// [GadgetSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [GadgetSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type GadgetSpecDie struct {
 	diebase.DieBase[GadgetSpec, *GadgetSpecDie, *GadgetSpecDieMut]
 }
@@ -102,7 +102,7 @@ func (d *GadgetSpecDie) Parts() diefields.Value[[]GadgetPart] {
 	return diefields.ValueOf(d, gadgetSpecFields.Get().Parts)
 }
 
-func (d *GadgetSpecDieMut) Parts() diefields.ValueMut[[]GadgetPart, *GadgetSpecDieMut] {
+func (d *GadgetSpecDieMut) Parts() diefields.ValueMut[[]GadgetPart] {
 	return diefields.ValueMutOf(d, gadgetSpecFields.Get().Parts)
 }
 

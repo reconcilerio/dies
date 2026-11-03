@@ -355,11 +355,19 @@ type EndpointPort = corev1.EndpointPort
 // +die:field:name=addresses,listType=atomic
 // +die:field:name=notReadyAddresses,listType=atomic
 // +die:field:name=ports,listType=atomic
-type EndpointSubset = corev1.EndpointSubset
+//
+// Deprecated: This API is deprecated in v1.33+.
+//
+//lint:ignore SA1019 an alias is of its type, deprecated or not
+type EndpointSubset = corev1.EndpointSubset //nolint:staticcheck // an alias is of its type, deprecated or not
 
 // +die:object:apiVersion=v1,kind=Endpoints
 // +die:field:name=subsets,listType=atomic
-type Endpoints = corev1.Endpoints
+//
+// Deprecated: This API is deprecated in v1.33+. Use discoveryv1.EndpointSlice.
+//
+//lint:ignore SA1019 an alias is of its type, deprecated or not
+type Endpoints = corev1.Endpoints //nolint:staticcheck // an alias is of its type, deprecated or not
 
 const EndpointsLastChangeTriggerTime = corev1.EndpointsLastChangeTriggerTime
 
@@ -539,7 +547,10 @@ const (
 	IPFamilyPolicySingleStack      = corev1.IPFamilyPolicySingleStack
 )
 
-type IPFamilyPolicyType = corev1.IPFamilyPolicyType
+// Deprecated: use IPFamilyPolicy instead.
+//
+//lint:ignore SA1019 an alias is of its type, deprecated or not
+type IPFamilyPolicyType = corev1.IPFamilyPolicyType //nolint:staticcheck // an alias is of its type, deprecated or not
 
 // +die
 // +die:field:name=iscsiInterface,default="default"
@@ -1140,7 +1151,10 @@ const PodReasonTerminationByKubelet = corev1.PodReasonTerminationByKubelet
 
 const PodReasonUnschedulable = corev1.PodReasonUnschedulable
 
-type PodResizeStatus = corev1.PodResizeStatus
+// Deprecated: PodResizeStatus shows status of desired resize of a pod's containers.
+//
+//lint:ignore SA1019 an alias is of its type, deprecated or not
+type PodResizeStatus = corev1.PodResizeStatus //nolint:staticcheck // an alias is of its type, deprecated or not
 
 const (
 	PodResizeStatusDeferred   = corev1.PodResizeStatusDeferred
@@ -1593,7 +1607,10 @@ const (
 	ServiceExternalTrafficPolicyTypeLocal   = corev1.ServiceExternalTrafficPolicyTypeLocal
 )
 
-type ServiceExternalTrafficPolicyType = corev1.ServiceExternalTrafficPolicyType
+// Deprecated: use ServiceExternalTrafficPolicy instead.
+//
+//lint:ignore SA1019 an alias is of its type, deprecated or not
+type ServiceExternalTrafficPolicyType = corev1.ServiceExternalTrafficPolicyType //nolint:staticcheck // an alias is of its type, deprecated or not
 
 type ServiceInternalTrafficPolicy = corev1.ServiceInternalTrafficPolicy
 
@@ -1602,7 +1619,10 @@ const (
 	ServiceInternalTrafficPolicyLocal   = corev1.ServiceInternalTrafficPolicyLocal
 )
 
-type ServiceInternalTrafficPolicyType = corev1.ServiceInternalTrafficPolicyType
+// Deprecated: use ServiceInternalTrafficPolicy instead.
+//
+//lint:ignore SA1019 an alias is of its type, deprecated or not
+type ServiceInternalTrafficPolicyType = corev1.ServiceInternalTrafficPolicyType //nolint:staticcheck // an alias is of its type, deprecated or not
 
 // +die:object:apiVersion=v1,kind=ServiceList
 type ServiceList = corev1.ServiceList

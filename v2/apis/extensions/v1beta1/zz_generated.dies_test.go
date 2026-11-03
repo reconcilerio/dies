@@ -23,6 +23,7 @@ import (
 	dieextensionsv1beta1 "reconciler.io/dies/v2/apis/extensions/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
+	dielists "reconciler.io/dies/v2/die/lists"
 	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
@@ -81,7 +82,7 @@ func TestDiesMatchTypes(t *testing.T) {
 	}
 }
 
-// typed and object dies have the methods of their interfaces
+// typed, object and list dies have the methods of their interfaces
 var (
 	_ dieobjects.DieObjectOf[dieextensionsv1beta1.DaemonSet, *dieextensionsv1beta1.DaemonSetDie, *dieextensionsv1beta1.DaemonSetDieMut]                             = (*dieextensionsv1beta1.DaemonSetDie)(nil)
 	_ dieobjects.DieObjectMutOf[dieextensionsv1beta1.DaemonSet, *dieextensionsv1beta1.DaemonSetDie, *dieextensionsv1beta1.DaemonSetDieMut]                          = (*dieextensionsv1beta1.DaemonSetDieMut)(nil)
@@ -97,6 +98,11 @@ var (
 	_ dieobjects.DieObjectMutOf[dieextensionsv1beta1.ReplicaSet, *dieextensionsv1beta1.ReplicaSetDie, *dieextensionsv1beta1.ReplicaSetDieMut]                       = (*dieextensionsv1beta1.ReplicaSetDieMut)(nil)
 	_ dieobjects.DieObjectOf[dieextensionsv1beta1.Scale, *dieextensionsv1beta1.ScaleDie, *dieextensionsv1beta1.ScaleDieMut]                                         = (*dieextensionsv1beta1.ScaleDie)(nil)
 	_ dieobjects.DieObjectMutOf[dieextensionsv1beta1.Scale, *dieextensionsv1beta1.ScaleDie, *dieextensionsv1beta1.ScaleDieMut]                                      = (*dieextensionsv1beta1.ScaleDieMut)(nil)
+	_ dielists.DieListOf[*dieextensionsv1beta1.DaemonSetDieMut]                                                                                                     = (*dieextensionsv1beta1.DaemonSetListDie)(nil)
+	_ dielists.DieListOf[*dieextensionsv1beta1.DeploymentDieMut]                                                                                                    = (*dieextensionsv1beta1.DeploymentListDie)(nil)
+	_ dielists.DieListOf[*dieextensionsv1beta1.IngressDieMut]                                                                                                       = (*dieextensionsv1beta1.IngressListDie)(nil)
+	_ dielists.DieListOf[*dieextensionsv1beta1.NetworkPolicyDieMut]                                                                                                 = (*dieextensionsv1beta1.NetworkPolicyListDie)(nil)
+	_ dielists.DieListOf[*dieextensionsv1beta1.ReplicaSetDieMut]                                                                                                    = (*dieextensionsv1beta1.ReplicaSetListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
+	"reconciler.io/dies/v2/die"
 	"reconciler.io/dies/v2/die/dietest"
 )
 
@@ -28,10 +29,10 @@ var web = dietest.FeedYAMLFile(dieappsv1.DeploymentBlank, "testdata/web.yaml")
 
 func TestFeedYAMLFile(t *testing.T) {
 	if web.GetName() != "web" || web.Spec().Template().Spec().Containers().At("app").Image().Get() != "app:1" || !web.Spec().Paused().Has() {
-		t.Errorf("fed %s", web.DieReleaseJSON())
+		t.Errorf("fed %s", die.ReleaseJSON(web))
 	}
-	if !strings.Contains(string(web.DieReleaseYAML()), "futureField: from a newer API") {
-		t.Errorf("released %s", web.DieReleaseYAML())
+	if !strings.Contains(string(die.ReleaseYAML(web)), "futureField: from a newer API") {
+		t.Errorf("released %s", die.ReleaseYAML(web))
 	}
 	defer func() {
 		if r := recover(); r == nil || !strings.Contains(r.(error).Error(), "no such file") {

@@ -42,11 +42,9 @@ func (*DeploymentDieMut) DieFrom(b base.DieMutBase[Deployment, *DeploymentDie, *
 	return &DeploymentDieMut{b}
 }
 
-var DeploymentBlank = base.Blank[Deployment, *DeploymentDie, *DeploymentDieMut]().DieMutable().
-	APIVersion().Set("apps/v1").
-	Kind().Set("Deployment").
-	DieCommit().
-	DieImmutable()
+var DeploymentBlank = base.BlankOf[Deployment, *DeploymentDie, *DeploymentDieMut](Deployment{
+	TypeMeta: metav1.TypeMeta{APIVersion: "apps/v1", Kind: "Deployment"},
+})
 
 var deploymentFields = struct {
 	APIVersion fields.Field[Deployment, string]
@@ -66,7 +64,7 @@ func (d *DeploymentDie) APIVersion() die.Value[string] {
 	return fields.ValueOf(d, deploymentFields.APIVersion)
 }
 
-func (d *DeploymentDieMut) APIVersion() die.ValueMut[string, *DeploymentDieMut] {
+func (d *DeploymentDieMut) APIVersion() die.ValueMut[string] {
 	return fields.ValueMutOf(d, deploymentFields.APIVersion)
 }
 
@@ -74,7 +72,7 @@ func (d *DeploymentDie) Kind() die.Value[string] {
 	return fields.ValueOf(d, deploymentFields.Kind)
 }
 
-func (d *DeploymentDieMut) Kind() die.ValueMut[string, *DeploymentDieMut] {
+func (d *DeploymentDieMut) Kind() die.ValueMut[string] {
 	return fields.ValueMutOf(d, deploymentFields.Kind)
 }
 
@@ -132,7 +130,7 @@ func (d *DeploymentSpecDie) Replicas() die.Optional[int32] {
 	return fields.OptionalOf(d, deploymentSpecFields.Replicas)
 }
 
-func (d *DeploymentSpecDieMut) Replicas() die.OptionalMut[int32, *DeploymentSpecDieMut] {
+func (d *DeploymentSpecDieMut) Replicas() die.OptionalMut[int32] {
 	return fields.OptionalMutOf(d, deploymentSpecFields.Replicas)
 }
 
@@ -140,7 +138,7 @@ func (d *DeploymentSpecDie) Paused() die.Value[bool] {
 	return fields.ValueOf(d, deploymentSpecFields.Paused)
 }
 
-func (d *DeploymentSpecDieMut) Paused() die.ValueMut[bool, *DeploymentSpecDieMut] {
+func (d *DeploymentSpecDieMut) Paused() die.ValueMut[bool] {
 	return fields.ValueMutOf(d, deploymentSpecFields.Paused)
 }
 
@@ -186,7 +184,7 @@ func (d *DeploymentStatusDie) ObservedGeneration() die.Value[int64] {
 	return fields.ValueOf(d, deploymentStatusFields.ObservedGeneration)
 }
 
-func (d *DeploymentStatusDieMut) ObservedGeneration() die.ValueMut[int64, *DeploymentStatusDieMut] {
+func (d *DeploymentStatusDieMut) ObservedGeneration() die.ValueMut[int64] {
 	return fields.ValueMutOf(d, deploymentStatusFields.ObservedGeneration)
 }
 
@@ -194,7 +192,7 @@ func (d *DeploymentStatusDie) Replicas() die.Value[int32] {
 	return fields.ValueOf(d, deploymentStatusFields.Replicas)
 }
 
-func (d *DeploymentStatusDieMut) Replicas() die.ValueMut[int32, *DeploymentStatusDieMut] {
+func (d *DeploymentStatusDieMut) Replicas() die.ValueMut[int32] {
 	return fields.ValueMutOf(d, deploymentStatusFields.Replicas)
 }
 

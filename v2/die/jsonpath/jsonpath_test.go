@@ -31,16 +31,17 @@ import (
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
 	dierbacv1 "reconciler.io/dies/v2/apis/rbac/v1"
 	"reconciler.io/dies/v2/die"
+	"reconciler.io/dies/v2/die/dietest"
 	"reconciler.io/dies/v2/die/jsonpath"
 	"reconciler.io/dies/v2/die/unstructured"
 )
 
 // comparisons are on numbers
 func TestFilterComparisons(t *testing.T) {
-	d := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
+	d := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
 		ports := d.Spec().Template().Spec().Containers().At("app").Ports()
-		ports.At(diecorev1.ContainerPortKey{ContainerPort: 80}).Name().Set("http")
-		ports.At(diecorev1.ContainerPortKey{ContainerPort: 8443}).Name().Set("https")
+		dietest.NoError(t, ports.At(diecorev1.ContainerPortKey{ContainerPort: 80}).Name().Set("http"))
+		dietest.NoError(t, ports.At(diecorev1.ContainerPortKey{ContainerPort: 8443}).Name().Set("https"))
 	})
 	for expr, want := range map[string][]string{
 		"$..ports[?(@.containerPort > 1024)].name": {".spec.template.spec.containers[name=app].ports[containerPort=8443,protocol=TCP].name"},
@@ -48,21 +49,21 @@ func TestFilterComparisons(t *testing.T) {
 		"$..ports[?(@.containerPort >= 80)].name":  {".spec.template.spec.containers[name=app].ports[containerPort=80,protocol=TCP].name", ".spec.template.spec.containers[name=app].ports[containerPort=8443,protocol=TCP].name"},
 		"$..ports[?(@.name < 'z')].name":           {},
 	} {
-		if got := paths(t, d, expr); !reflect.DeepEqual(got, want) && !(len(got) == 0 && len(want) == 0) {
+		if got := paths(t, d, expr); !reflect.DeepEqual(got, want) && (len(got) != 0 || len(want) != 0) {
 			t.Errorf("%s\n got %v\nwant %v", expr, got, want)
 		}
 	}
 }
 
-func web() *dieappsv1.DeploymentDie {
-	return dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Name().Set("web")
-		d.Metadata().Labels().Set("app", "web")
+func web(t testing.TB) *dieappsv1.DeploymentDie {
+	return dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Name().Set("web"))
+		dietest.NoError(t, d.Metadata().Labels().Set("app", "web"))
 		spec := d.Spec().Template().Spec()
-		spec.Containers().At("app").Image().Set("app:1")
-		spec.Containers().At("proxy").Image().Set("proxy:1")
-		spec.Tolerations().Set([]upstreamcorev1.Toleration{{Key: "a"}, {Key: "b"}})
-	}).DieCommit()
+		dietest.NoError(t, spec.Containers().At("app").Image().Set("app:1"))
+		dietest.NoError(t, spec.Containers().At("proxy").Image().Set("proxy:1"))
+		dietest.NoError(t, spec.Tolerations().Set([]upstreamcorev1.Toleration{{Key: "a"}, {Key: "b"}}))
+	}).DieTare()
 }
 
 func paths(t *testing.T, d die.Die, expr string) []string {
@@ -93,7 +94,7 @@ func assertJSON(t *testing.T, got []byte, err error, want string) {
 
 // Matches are found as accessors find them.
 func TestFind(t *testing.T) {
-	d := web()
+	d := web(t)
 	for expr, want := range map[string][]string{
 		// elements of a list map, by their keys, however they're selected
 		"$.spec.template.spec.containers[0].image":                    {".spec.template.spec.containers[name=app].image"},
@@ -121,7 +122,7 @@ func TestFind(t *testing.T) {
 		"$.spec.template.spec.containers[?(@.name=='sidecar')]": {},
 		"$.spec.template.spec.containers[5]":                    {},
 	} {
-		if got := paths(t, d, expr); !reflect.DeepEqual(got, want) && !(len(got) == 0 && len(want) == 0) {
+		if got := paths(t, d, expr); !reflect.DeepEqual(got, want) && (len(got) != 0 || len(want) != 0) {
 			t.Errorf("%s\n got %v\nwant %v", expr, got, want)
 		}
 	}
@@ -142,27 +143,27 @@ func TestFind(t *testing.T) {
 
 // Writes through matches are intent, keyed as accessors key them.
 func TestWritesThroughMatches(t *testing.T) {
-	d := web().DieWith(func(d *dieappsv1.DeploymentDieMut) {
+	d := web(t).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
 		images, err := jsonpath.ValuesMutE[string](d, "$.spec.template.spec.containers[?(@.name=='app')].image")
 		if err != nil || len(images) != 1 {
 			t.Fatalf("images %v, %v", images, err)
 		}
-		images[0].Set("app:2")
+		dietest.NoError(t, images[0].Set("app:2"))
 
 		// a definite path finds a value that isn't set, to set it
 		ready, err := jsonpath.ValuesMutE[int32](d, "$.spec.minReadySeconds")
 		if err != nil {
 			t.Fatal(err)
 		}
-		ready[0].Set(5)
+		dietest.NoError(t, ready[0].Set(5))
 
 		containers, err := jsonpath.DiesMutE[*diecorev1.ContainerDieMut](d, "$..containers[*]")
 		if err != nil || len(containers) != 2 {
 			t.Fatalf("containers %v, %v", containers, err)
 		}
-		containers[1].Args().Set([]string{"--verbose"})
+		dietest.NoError(t, containers[1].Args().Set([]string{"--verbose"}))
 	})
-	got, err := d.DieReleaseApplyPatchE()
+	got, err := die.ReleaseApplyPatchE(d)
 	assertJSON(t, got, err, `{
 		"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "web"},
 		"spec": {"minReadySeconds": 5, "template": {"spec": {"containers": [
@@ -182,12 +183,12 @@ func TestWritesThroughMatches(t *testing.T) {
 
 // Unstructured dies find nodes.
 func TestUnstructuredFind(t *testing.T) {
-	d := unstructured.BlankFor("acme.dev/v1", "Workload").DieWith(func(d *unstructured.ObjectMut) {
-		d.Node().Field("spec").Field("containers").Set([]any{
+	d := unstructured.BlankFor("acme.dev/v1", "Workload").DieStamp(func(d *unstructured.ObjectMut) {
+		dietest.NoError(t, d.Node().Field("spec").Field("containers").Set([]any{
 			map[string]any{"name": "app", "image": "app:1"},
 			map[string]any{"name": "proxy", "image": "proxy:1"},
-		})
-	}).DieCommit()
+		}))
+	}).DieTare()
 
 	find := func(d *unstructured.Object, expr string) []*unstructured.Node {
 		t.Helper()
@@ -217,17 +218,17 @@ func TestUnstructuredFind(t *testing.T) {
 		t.Errorf("images %v", got)
 	}
 
-	d = d.DieWith(func(d *unstructured.ObjectMut) {
-		findMut(d, "$.spec.containers[?(@.name=='app')].image")[0].Set("app:2")
+	d = d.DieStamp(func(d *unstructured.ObjectMut) {
+		dietest.NoError(t, findMut(d, "$.spec.containers[?(@.name=='app')].image")[0].Set("app:2"))
 		// a definite path finds a node with no value, to set it
-		findMut(d, "$.spec.replicas")[0].Set(3)
+		dietest.NoError(t, findMut(d, "$.spec.replicas")[0].Set(3))
 	})
-	got, err := d.DieReleaseMergePatchE()
+	got, err := die.ReleaseMergePatchE(d)
 	assertJSON(t, got, err, `{"spec": {"replicas": 3, "containers": [{"name": "app", "image": "app:2"}, {"name": "proxy", "image": "proxy:1"}]}}`)
 
 	// the items of an unstructured list, as dies
-	list := unstructured.BlankFor("acme.dev/v1", "WorkloadList").DieWith(func(l *unstructured.ObjectMut) {
-		l.Node().Field("items").Set([]any{map[string]any{"metadata": map[string]any{"name": "a"}}})
+	list := unstructured.BlankFor("acme.dev/v1", "WorkloadList").DieStamp(func(l *unstructured.ObjectMut) {
+		dietest.NoError(t, l.Node().Field("items").Set([]any{map[string]any{"metadata": map[string]any{"name": "a"}}}))
 	})
 	items, err := jsonpath.DiesE[*unstructured.Object](list, "$.items[*]")
 	if err != nil || len(items) != 1 || items[0].GetName() != "a" {
@@ -238,7 +239,7 @@ func TestUnstructuredFind(t *testing.T) {
 // . is the die queried and $ its root: the paths found are within the root
 // either way, as every path is.
 func TestFindFromAChildDie(t *testing.T) {
-	spec := web().Spec().Template().Spec()
+	spec := web(t).Spec().Template().Spec()
 	for expr, want := range map[string][]string{
 		".containers[0].image":   {".spec.template.spec.containers[name=app].image"},
 		"{.containers[0].image}": {".spec.template.spec.containers[name=app].image"},
@@ -274,7 +275,7 @@ func validateSubject(s *dierbacv1.SubjectDieMut) error {
 	case objectNamespace == "":
 		// a cluster-scoped object may bind subjects of any namespace
 	case ns == "":
-		s.Namespace().Set(objectNamespace)
+		return s.Namespace().Set(objectNamespace)
 	case ns != objectNamespace:
 		return fmt.Errorf("%s: namespace %q must be %q, the namespace of the binding", s.DiePath(), ns, objectNamespace)
 	}
@@ -298,9 +299,9 @@ func TestValidatingInTheContextOfTheObject(t *testing.T) {
 		{Kind: dierbacv1.ServiceAccountKind, Name: "builder"},
 		{Kind: dierbacv1.ServiceAccountKind, Name: "deployer", Namespace: "prod"},
 	}
-	binding := dierbacv1.RoleBindingBlank.DieWith(func(d *dierbacv1.RoleBindingDieMut) {
-		d.Metadata().Namespace().Set("prod")
-		d.Subjects().Set(subjects)
+	binding := dierbacv1.RoleBindingBlank.DieStamp(func(d *dierbacv1.RoleBindingDieMut) {
+		dietest.NoError(t, d.Metadata().Namespace().Set("prod"))
+		dietest.NoError(t, d.Subjects().Set(subjects))
 	}).DieMutable()
 	if err := validateSubjects(binding); err != nil {
 		t.Errorf("unexpected error: %v", err)
@@ -310,14 +311,14 @@ func TestValidatingInTheContextOfTheObject(t *testing.T) {
 		t.Errorf("defaulted namespace %q", got)
 	}
 
-	binding.Metadata().Namespace().Set("dev")
+	dietest.NoError(t, binding.Metadata().Namespace().Set("dev"))
 	if err := validateSubjects(binding); err == nil || !strings.Contains(err.Error(), `.subjects[1]: namespace "prod" must be "dev"`) {
 		t.Errorf("error %v", err)
 	}
 
 	// a cluster role binding has no namespace, and constrains none
-	cluster := dierbacv1.ClusterRoleBindingBlank.DieWith(func(d *dierbacv1.ClusterRoleBindingDieMut) {
-		d.Subjects().Set(subjects)
+	cluster := dierbacv1.ClusterRoleBindingBlank.DieStamp(func(d *dierbacv1.ClusterRoleBindingDieMut) {
+		dietest.NoError(t, d.Subjects().Set(subjects))
 	}).DieMutable()
 	if err := validateSubjects(cluster); err != nil {
 		t.Errorf("unexpected error: %v", err)
@@ -330,9 +331,9 @@ func TestValidatingInTheContextOfTheObject(t *testing.T) {
 // A value outside the die queried reads as any does; writing it needs a
 // mutable die.
 func TestValuesOutsideTheDie(t *testing.T) {
-	binding := dierbacv1.RoleBindingBlank.DieWith(func(d *dierbacv1.RoleBindingDieMut) {
-		d.Metadata().Namespace().Set("prod")
-		d.Subjects().Set([]upstreamrbacv1.Subject{{Kind: dierbacv1.ServiceAccountKind, Name: "builder"}})
+	binding := dierbacv1.RoleBindingBlank.DieStamp(func(d *dierbacv1.RoleBindingDieMut) {
+		dietest.NoError(t, d.Metadata().Namespace().Set("prod"))
+		dietest.NoError(t, d.Subjects().Set([]upstreamrbacv1.Subject{{Kind: dierbacv1.ServiceAccountKind, Name: "builder"}}))
 	})
 	subjects, err := jsonpath.DiesE[*dierbacv1.SubjectDie](binding, "$.subjects[*]")
 	if err != nil {
@@ -349,7 +350,7 @@ func TestValuesOutsideTheDie(t *testing.T) {
 	// values only read, as ValuesMut and DiesMut only take mutable dies
 	m := binding.DieMutable()
 	ms := jsonpath.DiesMut[*dierbacv1.SubjectDieMut](m, "$.subjects[*]")
-	jsonpath.ValuesMut[string](ms[0], "$.metadata.namespace")[0].Set("dev")
+	dietest.NoError(t, jsonpath.ValuesMut[string](ms[0], "$.metadata.namespace")[0].Set("dev"))
 	if m.GetNamespace() != "dev" || binding.GetNamespace() != "prod" {
 		t.Errorf("namespace %q, the immutable die's %q", m.GetNamespace(), binding.GetNamespace())
 	}

@@ -22,6 +22,7 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	dierbacv1 "reconciler.io/dies/v2/apis/rbac/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dielists "reconciler.io/dies/v2/die/lists"
 	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
@@ -47,7 +48,7 @@ func TestDiesMatchTypes(t *testing.T) {
 	}
 }
 
-// typed and object dies have the methods of their interfaces
+// typed, object and list dies have the methods of their interfaces
 var (
 	_ dieobjects.DieObjectOf[dierbacv1.ClusterRole, *dierbacv1.ClusterRoleDie, *dierbacv1.ClusterRoleDieMut]                         = (*dierbacv1.ClusterRoleDie)(nil)
 	_ dieobjects.DieObjectMutOf[dierbacv1.ClusterRole, *dierbacv1.ClusterRoleDie, *dierbacv1.ClusterRoleDieMut]                      = (*dierbacv1.ClusterRoleDieMut)(nil)
@@ -57,6 +58,10 @@ var (
 	_ dieobjects.DieObjectMutOf[dierbacv1.Role, *dierbacv1.RoleDie, *dierbacv1.RoleDieMut]                                           = (*dierbacv1.RoleDieMut)(nil)
 	_ dieobjects.DieObjectOf[dierbacv1.RoleBinding, *dierbacv1.RoleBindingDie, *dierbacv1.RoleBindingDieMut]                         = (*dierbacv1.RoleBindingDie)(nil)
 	_ dieobjects.DieObjectMutOf[dierbacv1.RoleBinding, *dierbacv1.RoleBindingDie, *dierbacv1.RoleBindingDieMut]                      = (*dierbacv1.RoleBindingDieMut)(nil)
+	_ dielists.DieListOf[*dierbacv1.ClusterRoleBindingDieMut]                                                                        = (*dierbacv1.ClusterRoleBindingListDie)(nil)
+	_ dielists.DieListOf[*dierbacv1.ClusterRoleDieMut]                                                                               = (*dierbacv1.ClusterRoleListDie)(nil)
+	_ dielists.DieListOf[*dierbacv1.RoleBindingDieMut]                                                                               = (*dierbacv1.RoleBindingListDie)(nil)
+	_ dielists.DieListOf[*dierbacv1.RoleDieMut]                                                                                      = (*dierbacv1.RoleListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

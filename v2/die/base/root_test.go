@@ -23,15 +23,16 @@ import (
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
+	"reconciler.io/dies/v2/die/dietest"
 	dieunstructured "reconciler.io/dies/v2/die/unstructured"
 	jigsv1 "reconciler.io/dies/v2/examples/jigs/v1"
 )
 
 // A die within another returns its root die, sharing its state.
 func TestDieRoot(t *testing.T) {
-	d := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
-		d.Metadata().Namespace().Set("default")
-		d.Metadata().Name().Set("web")
+	d := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietest.NoError(t, d.Metadata().Namespace().Set("default"))
+		dietest.NoError(t, d.Metadata().Name().Set("web"))
 	}).DieMutable()
 	spec := d.Spec().Template().Spec()
 
@@ -40,7 +41,7 @@ func TestDieRoot(t *testing.T) {
 		t.Fatalf("root %T", spec.DieRoot())
 	}
 	// it shares the tree's state
-	root.Spec().Replicas().Set(3)
+	dietest.NoError(t, root.Spec().Replicas().Set(3))
 	if d.Spec().Replicas().Get() != 3 {
 		t.Errorf("a write through the root didn't reach the die")
 	}

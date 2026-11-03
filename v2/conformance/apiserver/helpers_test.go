@@ -37,7 +37,6 @@ func namespace(t *testing.T) string {
 }
 
 var (
-	owned       = harness.Owned
 	assertOwned = harness.AssertOwned
 	assertOwns  = harness.AssertOwns
 )

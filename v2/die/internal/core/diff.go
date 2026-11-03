@@ -21,7 +21,7 @@ import (
 )
 
 // diffInto records the changes from before to after, both of type t at p, as
-// intent. DieStamp uses it so raw mutations are tracked like setter calls. A
+// intent. die.StampValue uses it so raw mutations are tracked like setter calls. A
 // raw assignment that does not change the value cannot be seen, so explicit
 // zero values must be written with setters.
 func DiffInto(ov *Onode, p Path, t reflect.Type, before, after reflect.Value) (*Onode, error) {

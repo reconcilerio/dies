@@ -21,7 +21,9 @@ import (
 	"reflect"
 	"testing"
 
+	"reconciler.io/dies/v2/die"
 	"reconciler.io/dies/v2/die/base"
+	"reconciler.io/dies/v2/die/dietest"
 	gadgetv1 "reconciler.io/dies/v2/examples/gadget/v1"
 	widgetv1 "reconciler.io/dies/v2/examples/widget/v1"
 )
@@ -44,17 +46,17 @@ func assertJSON(t *testing.T, got []byte, err error, want string) {
 }
 
 func TestLocalTypeDies(t *testing.T) {
-	w := widgetv1.WidgetBlank.DieWith(func(d *widgetv1.WidgetDieMut) {
-		d.Metadata().Name().Set("my-widget")
+	w := widgetv1.WidgetBlank.DieStamp(func(d *widgetv1.WidgetDieMut) {
+		dietest.NoError(t, d.Metadata().Name().Set("my-widget"))
 		// a list map from the local type's own markers
-		d.Spec().Ports().At("http").Port().Set(8080)
+		dietest.NoError(t, d.Spec().Ports().At("http").Port().Set(8080))
 		// an upstream type, through the core/v1 dies
-		d.Spec().Template().Spec().Containers().At("app").Image().Set("busybox")
+		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("busybox"))
 		// upstream metav1.Condition, through the meta/v1 dies
-		d.Status().Conditions().At("Ready").Status().Set("True")
+		dietest.NoError(t, d.Status().Conditions().At("Ready").Status().Set("True"))
 	})
 
-	got, err := w.DieMain().DieReleaseApplyPatchE()
+	got, err := die.ReleaseApplyPatchE(w, die.MainResource())
 	assertJSON(t, got, err, `{
 		"apiVersion": "example.dev/v1",
 		"kind": "Widget",
@@ -66,7 +68,7 @@ func TestLocalTypeDies(t *testing.T) {
 	}`)
 
 	// +kubebuilder:subresource:status splits off the status
-	got, err = w.DieSubresource("status").DieReleaseApplyPatchE()
+	got, err = die.ReleaseApplyPatchE(w, die.Subresource("status"))
 	assertJSON(t, got, err, `{
 		"apiVersion": "example.dev/v1",
 		"kind": "Widget",
@@ -74,15 +76,16 @@ func TestLocalTypeDies(t *testing.T) {
 		"status": {"conditions": [{"type": "Ready", "status": "True"}]}
 	}`)
 
-	var released widgetv1.Widget = w.DieRelease()
+	released := *w.DieRelease()
 	if released.Spec.Ports[0].Port != 8080 {
 		t.Errorf("released %+v", released.Spec)
 	}
 }
 
 func TestHandWrittenMethod(t *testing.T) {
-	w := widgetv1.WidgetBlank.DieMutable().Ready("Available")
-	got, err := w.DieSubresource("status").DieReleaseApplyPatchE()
+	w := widgetv1.WidgetBlank.DieMutable()
+	dietest.NoError(t, w.Ready("Available"))
+	got, err := die.ReleaseApplyPatchE(w, die.Subresource("status"))
 	assertJSON(t, got, err, `{
 		"apiVersion": "example.dev/v1",
 		"kind": "Widget",
@@ -93,16 +96,16 @@ func TestHandWrittenMethod(t *testing.T) {
 // WidgetGadget embeds gadget's GadgetSpec, whose die package overrides parts
 // to atomic. The widget's dies and the runtime both follow that override.
 func TestEmbeddedTypeFromAnotherDiePackage(t *testing.T) {
-	w := widgetv1.WidgetBlank.DieWith(func(d *widgetv1.WidgetDieMut) {
-		d.Spec().Gadget().Label().Set("knob")
-		d.Spec().Gadget().Parts().Set([]gadgetv1.GadgetPart{{Name: "a"}, {Name: "b"}})
+	w := widgetv1.WidgetBlank.DieStamp(func(d *widgetv1.WidgetDieMut) {
+		dietest.NoError(t, d.Spec().Gadget().Label().Set("knob"))
+		dietest.NoError(t, d.Spec().Gadget().Parts().Set([]gadgetv1.GadgetPart{{Name: "a"}, {Name: "b"}}))
 	})
 	for _, f := range base.ManagedFields[widgetv1.WidgetGadget]() {
 		if f.Wire == "parts" && f.Kind != base.FieldValue {
 			t.Errorf("parts is %s, want a whole value", f.Kind)
 		}
 	}
-	got, err := w.DieReleaseApplyPatchE()
+	got, err := die.ReleaseApplyPatchE(w)
 	assertJSON(t, got, err, `{
 		"apiVersion": "example.dev/v1",
 		"kind": "Widget",
@@ -111,8 +114,8 @@ func TestEmbeddedTypeFromAnotherDiePackage(t *testing.T) {
 }
 
 func TestRenamedAccessor(t *testing.T) {
-	w := widgetv1.WidgetBlank.DieWith(func(d *widgetv1.WidgetDieMut) {
-		d.Spec().Match().Exact().Set(true)
+	w := widgetv1.WidgetBlank.DieStamp(func(d *widgetv1.WidgetDieMut) {
+		dietest.NoError(t, d.Spec().Match().Exact().Set(true))
 	})
 	if !w.Spec().Match().Exact().Get() || !w.DieRelease().Spec.Match.Equal {
 		t.Errorf("exact match not set")
@@ -121,7 +124,7 @@ func TestRenamedAccessor(t *testing.T) {
 	if !w.Spec().Match().Equal(w.Spec().Match()) {
 		t.Errorf("a die should equal itself")
 	}
-	got, err := w.DieReleaseApplyPatchE()
+	got, err := die.ReleaseApplyPatchE(w)
 	assertJSON(t, got, err, `{
 		"apiVersion": "example.dev/v1",
 		"kind": "Widget",

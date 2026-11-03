@@ -60,7 +60,7 @@ func (k *ObjectKind) setGroupVersionKind(gvk schema.GroupVersionKind) error {
 		return Errorf("die: SetGroupVersionKind: %w", ErrImmutable)
 	}
 	if !h.Mutable {
-		return Errorf("die: SetGroupVersionKind on an immutable die, which would lose the change; use a mutable die, such as within DieWith")
+		return Errorf("die: SetGroupVersionKind on an immutable die, which would lose the change; use a mutable die, such as within DieStamp")
 	}
 	apiVersion, kind := gvk.ToAPIVersionAndKind()
 	var paths []Path
@@ -87,7 +87,7 @@ func (k *ObjectKind) setGroupVersionKind(gvk schema.GroupVersionKind) error {
 // SetAt sets a value in place, which requires a mutable die.
 func SetAt[V any](h *Holder, at Path, method string, rel Path, v V) error {
 	if !h.Mutable {
-		return Errorf("die: %s on an immutable die, which would lose the change; use a mutable die, such as within DieWith", method)
+		return Errorf("die: %s on an immutable die, which would lose the change; use a mutable die, such as within DieStamp", method)
 	}
 	_, err := h.Write(at, rel, SetOp(OpSet, DeepCopy(reflect.ValueOf(&v).Elem())), true)
 	return err

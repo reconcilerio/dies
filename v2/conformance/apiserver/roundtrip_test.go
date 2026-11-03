@@ -31,6 +31,7 @@ import (
 	diebatchv1 "reconciler.io/dies/v2/apis/batch/v1"
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
 	dierbacv1 "reconciler.io/dies/v2/apis/rbac/v1"
+	"reconciler.io/dies/v2/die/dietest"
 	widgetv1 "reconciler.io/dies/v2/examples/widget/v1"
 )
 
@@ -44,53 +45,53 @@ type roundTrip struct {
 	object, blank client.Object
 }
 
-func roundTrips(ns string) []roundTrip {
+func roundTrips(t testing.TB, ns string) []roundTrip {
 	return []roundTrip{
-		{"Deployment", deployment(ns).DieMutable(), dieappsv1.DeploymentBlank.DieMutable()},
-		{"Pod", diecorev1.PodBlank.DieWith(func(d *diecorev1.PodDieMut) {
-			d.Metadata().Namespace().Set(ns)
-			d.Metadata().Name().Set("web")
-			d.Spec().Containers().At("app").DieWith(func(c *diecorev1.ContainerDieMut) {
-				c.Image().Set("app:1")
-				c.Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("http")
-				c.Env().At("COLOR").ValueFrom().ConfigMapKeyRef().DieWith(func(r *diecorev1.ConfigMapKeySelectorDieMut) {
-					r.Name().Set("settings")
-					r.Key().Set("color")
+		{"Deployment", deployment(t, ns).DieMutable(), dieappsv1.DeploymentBlank.DieMutable()},
+		{"Pod", diecorev1.PodBlank.DieStamp(func(d *diecorev1.PodDieMut) {
+			dietest.NoError(t, d.Metadata().Namespace().Set(ns))
+			dietest.NoError(t, d.Metadata().Name().Set("web"))
+			d.Spec().Containers().At("app").DieStamp(func(c *diecorev1.ContainerDieMut) {
+				dietest.NoError(t, c.Image().Set("app:1"))
+				dietest.NoError(t, c.Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("http"))
+				c.Env().At("COLOR").ValueFrom().ConfigMapKeyRef().DieStamp(func(r *diecorev1.ConfigMapKeySelectorDieMut) {
+					dietest.NoError(t, r.Name().Set("settings"))
+					dietest.NoError(t, r.Key().Set("color"))
 				})
 			})
 		}).DieMutable(), diecorev1.PodBlank.DieMutable()},
-		{"Service", diecorev1.ServiceBlank.DieWith(func(d *diecorev1.ServiceDieMut) {
-			d.Metadata().Namespace().Set(ns)
-			d.Metadata().Name().Set("web")
-			d.Spec().Selector().Set(map[string]string{"app": "web"})
-			d.Spec().Ports().At(diecorev1.ServicePortKey{Port: 80}).TargetPort().Set(intstr.FromInt32(8080))
+		{"Service", diecorev1.ServiceBlank.DieStamp(func(d *diecorev1.ServiceDieMut) {
+			dietest.NoError(t, d.Metadata().Namespace().Set(ns))
+			dietest.NoError(t, d.Metadata().Name().Set("web"))
+			dietest.NoError(t, d.Spec().Selector().Set(map[string]string{"app": "web"}))
+			dietest.NoError(t, d.Spec().Ports().At(diecorev1.ServicePortKey{Port: 80}).TargetPort().Set(intstr.FromInt32(8080)))
 		}).DieMutable(), diecorev1.ServiceBlank.DieMutable()},
-		{"ConfigMap", diecorev1.ConfigMapBlank.DieWith(func(d *diecorev1.ConfigMapDieMut) {
-			d.Metadata().Namespace().Set(ns)
-			d.Metadata().Name().Set("web")
-			d.Data().Set("color", "")
-			d.BinaryData().Set("blob", []byte{0, 1, 2})
+		{"ConfigMap", diecorev1.ConfigMapBlank.DieStamp(func(d *diecorev1.ConfigMapDieMut) {
+			dietest.NoError(t, d.Metadata().Namespace().Set(ns))
+			dietest.NoError(t, d.Metadata().Name().Set("web"))
+			dietest.NoError(t, d.Data().Set("color", ""))
+			dietest.NoError(t, d.BinaryData().Set("blob", []byte{0, 1, 2}))
 		}).DieMutable(), diecorev1.ConfigMapBlank.DieMutable()},
-		{"CronJob", diebatchv1.CronJobBlank.DieWith(func(d *diebatchv1.CronJobDieMut) {
-			d.Metadata().Namespace().Set(ns)
-			d.Metadata().Name().Set("web")
-			d.Spec().Schedule().Set("@hourly")
-			d.Spec().JobTemplate().Spec().Template().Spec().DieWith(func(p *diecorev1.PodSpecDieMut) {
-				p.RestartPolicy().Set(diecorev1.RestartPolicyNever)
-				p.Containers().At("job").Image().Set("job:1")
+		{"CronJob", diebatchv1.CronJobBlank.DieStamp(func(d *diebatchv1.CronJobDieMut) {
+			dietest.NoError(t, d.Metadata().Namespace().Set(ns))
+			dietest.NoError(t, d.Metadata().Name().Set("web"))
+			dietest.NoError(t, d.Spec().Schedule().Set("@hourly"))
+			d.Spec().JobTemplate().Spec().Template().Spec().DieStamp(func(p *diecorev1.PodSpecDieMut) {
+				dietest.NoError(t, p.RestartPolicy().Set(diecorev1.RestartPolicyNever))
+				dietest.NoError(t, p.Containers().At("job").Image().Set("job:1"))
 			})
 		}).DieMutable(), diebatchv1.CronJobBlank.DieMutable()},
-		{"Role", dierbacv1.RoleBlank.DieWith(func(d *dierbacv1.RoleDieMut) {
-			d.Metadata().Namespace().Set(ns)
-			d.Metadata().Name().Set("web")
-			d.Rules().Set([]dierbacv1.PolicyRule{{APIGroups: []string{""}, Resources: []string{"configmaps"}, Verbs: []string{"get"}}})
+		{"Role", dierbacv1.RoleBlank.DieStamp(func(d *dierbacv1.RoleDieMut) {
+			dietest.NoError(t, d.Metadata().Namespace().Set(ns))
+			dietest.NoError(t, d.Metadata().Name().Set("web"))
+			dietest.NoError(t, d.Rules().Set([]dierbacv1.PolicyRule{{APIGroups: []string{""}, Resources: []string{"configmaps"}, Verbs: []string{"get"}}}))
 		}).DieMutable(), dierbacv1.RoleBlank.DieMutable()},
-		{"Widget", widgetv1.WidgetBlank.DieWith(func(d *widgetv1.WidgetDieMut) {
-			d.Metadata().Namespace().Set(ns)
-			d.Metadata().Name().Set("web")
-			d.Spec().Ports().At("http").Port().Set(80)
-			d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1")
-			d.Spec().Match().Exact().Set(false)
+		{"Widget", widgetv1.WidgetBlank.DieStamp(func(d *widgetv1.WidgetDieMut) {
+			dietest.NoError(t, d.Metadata().Namespace().Set(ns))
+			dietest.NoError(t, d.Metadata().Name().Set("web"))
+			dietest.NoError(t, d.Spec().Ports().At("http").Port().Set(80))
+			dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
+			dietest.NoError(t, d.Spec().Match().Exact().Set(false))
 		}).DieMutable(), widgetv1.WidgetBlank.DieMutable()},
 	}
 }
@@ -98,7 +99,7 @@ func roundTrips(ns string) []roundTrip {
 func TestServerObjectsRoundTripThroughDies(t *testing.T) {
 	ns := namespace(t)
 	ctx := context.Background()
-	for _, rt := range roundTrips(ns) {
+	for _, rt := range roundTrips(t, ns) {
 		t.Run(rt.name, func(t *testing.T) {
 			if err := dies.Create(ctx, rt.object); err != nil {
 				t.Fatal(err)
@@ -146,16 +147,16 @@ func TestServerObjectsRoundTripThroughDies(t *testing.T) {
 func TestUpdateFromADieKeepsWhatTheServerSet(t *testing.T) {
 	ns := namespace(t)
 	ctx := context.Background()
-	svc := diecorev1.ServiceBlank.DieWith(func(d *diecorev1.ServiceDieMut) {
-		d.Metadata().Namespace().Set(ns)
-		d.Metadata().Name().Set("web")
-		d.Spec().Selector().Set(map[string]string{"app": "web"})
-		d.Spec().Ports().At(diecorev1.ServicePortKey{Port: 80}).TargetPort().Set(intstr.FromInt32(8080))
+	svc := diecorev1.ServiceBlank.DieStamp(func(d *diecorev1.ServiceDieMut) {
+		dietest.NoError(t, d.Metadata().Namespace().Set(ns))
+		dietest.NoError(t, d.Metadata().Name().Set("web"))
+		dietest.NoError(t, d.Spec().Selector().Set(map[string]string{"app": "web"}))
+		dietest.NoError(t, d.Spec().Ports().At(diecorev1.ServicePortKey{Port: 80}).TargetPort().Set(intstr.FromInt32(8080)))
 	}).DieMutable()
 	if err := dies.Create(ctx, svc); err != nil {
 		t.Fatal(err)
 	}
-	before := svc.Spec().DieRelease()
+	before := *svc.Spec().DieRelease()
 	if before.ClusterIP == "" {
 		t.Fatal("the server allocated no cluster IP")
 	}
@@ -164,11 +165,11 @@ func TestUpdateFromADieKeepsWhatTheServerSet(t *testing.T) {
 	if err := dies.Get(ctx, keyOf(ns, "web"), read); err != nil {
 		t.Fatal(err)
 	}
-	read.Metadata().Labels().Set("tier", "web")
+	dietest.NoError(t, read.Metadata().Labels().Set("tier", "web"))
 	if err := dies.Update(ctx, read); err != nil {
 		t.Fatal(err)
 	}
-	if after := read.Spec().DieRelease(); !reflect.DeepEqual(after, before) {
+	if after := *read.Spec().DieRelease(); !reflect.DeepEqual(after, before) {
 		t.Errorf("spec changed:\n%+v\nwas:\n%+v", after, before)
 	}
 	if read.GetLabels()["tier"] != "web" {
@@ -181,10 +182,10 @@ func TestListIntoListDies(t *testing.T) {
 	ns := namespace(t)
 	ctx := context.Background()
 	for _, name := range []string{"a", "b"} {
-		cm := diecorev1.ConfigMapBlank.DieWith(func(d *diecorev1.ConfigMapDieMut) {
-			d.Metadata().Namespace().Set(ns)
-			d.Metadata().Name().Set(name)
-			d.Data().Set("name", name)
+		cm := diecorev1.ConfigMapBlank.DieStamp(func(d *diecorev1.ConfigMapDieMut) {
+			dietest.NoError(t, d.Metadata().Namespace().Set(ns))
+			dietest.NoError(t, d.Metadata().Name().Set(name))
+			dietest.NoError(t, d.Data().Set("name", name))
 		}).DieMutable()
 		if err := dies.Create(ctx, cm); err != nil {
 			t.Fatal(err)

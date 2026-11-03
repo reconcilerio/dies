@@ -48,7 +48,7 @@ func init() {
 		"fields":  {"DieTypedOf", "DieTypedMutOf", "Field", "NewField", "Struct", "NewStruct", "ListMapField", "NewListMap", "MapField", "NewMap", "Value", "ValueOf", "ValueMut", "ValueMutOf", "Optional", "OptionalOf", "OptionalMut", "OptionalMutOf", "Child", "ChildMut", "ListMap", "ListMapOf", "ListMapMut", "ListMapMutOf", "Map", "MapOf", "MapMut", "MapMutOf", "Table"},
 		"lists":   {"List", "NewList", "DieListOf"},
 		"objects": {"DieObjectOf", "DieObjectMutOf"},
-		"codegen": {"Register", "Package", "Annotate", "Object", "CheckManaged", "CheckList", "CheckRegistered", "ReleaseApplyConfiguration", "FeedApplyConfiguration", "StampApplyConfiguration", "ReleaseApplyConfigurationE", "FeedApplyConfigurationE", "StampApplyConfigurationE"},
+		"codegen": {"Register", "Package", "Annotate", "Object", "CheckManaged", "CheckList", "CheckRegistered", "TypedBlank", "ReleaseApplyConfiguration", "FeedApplyConfiguration", "StampApplyConfiguration", "ReleaseApplyConfigurationE"},
 	} {
 		for _, n := range names {
 			diePackages[n] = "reconciler.io/dies/v2/die/" + pkg
@@ -160,6 +160,19 @@ func (f *file) write(dir, name string) error {
 	out, err := format.Source(src.Bytes())
 	if err != nil {
 		return fmt.Errorf("formatting %s in %s: %w\n%s", name, dir, err, src.Bytes())
+	}
+	// formatting a doc comment copied from a type, such as a list whose items
+	// are separated by blank lines only some of the time, can change it again,
+	// so it is formatted until gofmt leaves it as it is
+	for range 3 {
+		again, err := format.Source(out)
+		if err != nil {
+			return fmt.Errorf("formatting %s in %s: %w", name, dir, err)
+		}
+		if bytes.Equal(again, out) {
+			break
+		}
+		out = again
 	}
 	file := filepath.Join(dir, name)
 	if old, err := os.ReadFile(file); err == nil && bytes.Equal(old, out) {

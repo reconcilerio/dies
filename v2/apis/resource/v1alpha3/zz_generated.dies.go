@@ -33,7 +33,7 @@ import (
 // CELDeviceSelector contains a CEL expression for selecting a device.
 //
 // CELDeviceSelectorDie is immutable: it reads.
-// [CELDeviceSelectorDieMut], its mutable die, also writes, as DieWith passes it.
+// [CELDeviceSelectorDieMut], its mutable die, also writes, as DieStamp passes it.
 type CELDeviceSelectorDie struct {
 	diebase.DieBase[CELDeviceSelector, *CELDeviceSelectorDie, *CELDeviceSelectorDieMut]
 }
@@ -185,14 +185,14 @@ func (d *CELDeviceSelectorDie) Expression() diefields.Value[string] {
 // The length of the expression must be smaller or equal to 10 Ki. The
 // cost of evaluating it is also limited based on the estimated number
 // of logical steps.
-func (d *CELDeviceSelectorDieMut) Expression() diefields.ValueMut[string, *CELDeviceSelectorDieMut] {
+func (d *CELDeviceSelectorDieMut) Expression() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, cELDeviceSelectorFields.Get().Expression)
 }
 
 // DeviceSelector must have exactly one field set.
 //
 // DeviceSelectorDie is immutable: it reads.
-// [DeviceSelectorDieMut], its mutable die, also writes, as DieWith passes it.
+// [DeviceSelectorDieMut], its mutable die, also writes, as DieStamp passes it.
 type DeviceSelectorDie struct {
 	diebase.DieBase[DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut]
 }
@@ -237,7 +237,7 @@ func (d *DeviceSelectorDieMut) CEL() *CELDeviceSelectorDieMut {
 // to pods using the claim.
 //
 // DeviceTaintDie is immutable: it reads.
-// [DeviceTaintDieMut], its mutable die, also writes, as DieWith passes it.
+// [DeviceTaintDieMut], its mutable die, also writes, as DieStamp passes it.
 type DeviceTaintDie struct {
 	diebase.DieBase[DeviceTaint, *DeviceTaintDie, *DeviceTaintDieMut]
 }
@@ -286,26 +286,14 @@ func (d *DeviceTaintDieMut) DieReleaseApplyConfigurationE() (*DeviceTaintApplyCo
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *DeviceTaintDieMut) DieFeedApplyConfiguration(ac *DeviceTaintApplyConfiguration) *DeviceTaintDieMut {
+func (d *DeviceTaintDieMut) DieFeedApplyConfiguration(ac *DeviceTaintApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *DeviceTaintDieMut) DieStampApplyConfiguration(fn func(ac *DeviceTaintApplyConfiguration)) *DeviceTaintDieMut {
+func (d *DeviceTaintDieMut) DieStampApplyConfiguration(fn func(ac *DeviceTaintApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [DeviceTaintDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeviceTaintDieMut) DieFeedApplyConfigurationE(ac *DeviceTaintApplyConfiguration) (*DeviceTaintDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [DeviceTaintDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeviceTaintDieMut) DieStampApplyConfigurationE(fn func(ac *DeviceTaintApplyConfiguration)) (*DeviceTaintDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type deviceTaintFieldsTable struct {
@@ -363,13 +351,13 @@ func (d *DeviceTaintDie) TimeAdded() diefields.Optional[diemetav1.Time] {
 
 // The taint key to be applied to a device.
 // Must be a label name.
-func (d *DeviceTaintDieMut) Key() diefields.ValueMut[string, *DeviceTaintDieMut] {
+func (d *DeviceTaintDieMut) Key() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, deviceTaintFields.Get().Key)
 }
 
 // The taint value corresponding to the taint key.
 // Must be a label value.
-func (d *DeviceTaintDieMut) Value() diefields.ValueMut[string, *DeviceTaintDieMut] {
+func (d *DeviceTaintDieMut) Value() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, deviceTaintFields.Get().Value)
 }
 
@@ -379,7 +367,7 @@ func (d *DeviceTaintDieMut) Value() diefields.ValueMut[string, *DeviceTaintDieMu
 // Valid effects are None, NoSchedule and NoExecute. PreferNoSchedule as used for
 // nodes is not valid here. More effects may get added in the future.
 // Consumers must treat unknown effects like None.
-func (d *DeviceTaintDieMut) Effect() diefields.ValueMut[DeviceTaintEffect, *DeviceTaintDieMut] {
+func (d *DeviceTaintDieMut) Effect() diefields.ValueMut[DeviceTaintEffect] {
 	return diefields.ValueMutOf(d, deviceTaintFields.Get().Effect)
 }
 
@@ -394,7 +382,7 @@ func (d *DeviceTaintDieMut) Effect() diefields.ValueMut[DeviceTaintEffect, *Devi
 // is possible and does not update the time stamp because the eviction
 // which uses it is either already started (NoExecute) or
 // not started yet (NoEffect, NoSchedule).
-func (d *DeviceTaintDieMut) TimeAdded() diefields.OptionalMut[diemetav1.Time, *DeviceTaintDieMut] {
+func (d *DeviceTaintDieMut) TimeAdded() diefields.OptionalMut[diemetav1.Time] {
 	return diefields.OptionalMutOf(d, deviceTaintFields.Get().TimeAdded)
 }
 
@@ -403,7 +391,7 @@ func (d *DeviceTaintDieMut) TimeAdded() diefields.OptionalMut[diemetav1.Time, *D
 // in the ResourceSlice by the DRA driver.
 //
 // DeviceTaintRuleDie is immutable: it reads.
-// [DeviceTaintRuleDieMut], its mutable die, also writes, as DieWith passes it.
+// [DeviceTaintRuleDieMut], its mutable die, also writes, as DieStamp passes it.
 type DeviceTaintRuleDie struct {
 	diebase.DieObjectBase[DeviceTaintRule, *DeviceTaintRuleDie, *DeviceTaintRuleDieMut]
 }
@@ -452,26 +440,14 @@ func (d *DeviceTaintRuleDieMut) DieReleaseApplyConfigurationE() (*DeviceTaintRul
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *DeviceTaintRuleDieMut) DieFeedApplyConfiguration(ac *DeviceTaintRuleApplyConfiguration) *DeviceTaintRuleDieMut {
+func (d *DeviceTaintRuleDieMut) DieFeedApplyConfiguration(ac *DeviceTaintRuleApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *DeviceTaintRuleDieMut) DieStampApplyConfiguration(fn func(ac *DeviceTaintRuleApplyConfiguration)) *DeviceTaintRuleDieMut {
+func (d *DeviceTaintRuleDieMut) DieStampApplyConfiguration(fn func(ac *DeviceTaintRuleApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [DeviceTaintRuleDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeviceTaintRuleDieMut) DieFeedApplyConfigurationE(ac *DeviceTaintRuleApplyConfiguration) (*DeviceTaintRuleDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [DeviceTaintRuleDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeviceTaintRuleDieMut) DieStampApplyConfigurationE(fn func(ac *DeviceTaintRuleApplyConfiguration)) (*DeviceTaintRuleDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type deviceTaintRuleFieldsTable struct {
@@ -531,7 +507,7 @@ func (d *DeviceTaintRuleDie) Status() *DeviceTaintRuleStatusDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *DeviceTaintRuleDieMut) Kind() diefields.ValueMut[string, *DeviceTaintRuleDieMut] {
+func (d *DeviceTaintRuleDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, deviceTaintRuleFields.Get().Kind)
 }
 
@@ -539,7 +515,7 @@ func (d *DeviceTaintRuleDieMut) Kind() diefields.ValueMut[string, *DeviceTaintRu
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *DeviceTaintRuleDieMut) APIVersion() diefields.ValueMut[string, *DeviceTaintRuleDieMut] {
+func (d *DeviceTaintRuleDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, deviceTaintRuleFields.Get().APIVersion)
 }
 
@@ -565,8 +541,6 @@ type DeviceTaintRuleListDie struct {
 	dielists.List[*DeviceTaintRuleDieMut]
 }
 
-var _ dielists.DieListOf[*DeviceTaintRuleDieMut] = (*DeviceTaintRuleListDie)(nil)
-
 // NewDeviceTaintRuleList returns a list with items.
 func NewDeviceTaintRuleList(items ...*DeviceTaintRuleDieMut) *DeviceTaintRuleListDie {
 	return &DeviceTaintRuleListDie{dielists.NewList("resource.k8s.io/v1alpha3", "DeviceTaintRuleList", items...)}
@@ -582,7 +556,7 @@ func (l *DeviceTaintRuleListDie) DeepCopyObject() runtime.Object { return l.Deep
 // DeviceTaintRuleSpec specifies the selector and one taint.
 //
 // DeviceTaintRuleSpecDie is immutable: it reads.
-// [DeviceTaintRuleSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [DeviceTaintRuleSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type DeviceTaintRuleSpecDie struct {
 	diebase.DieBase[DeviceTaintRuleSpec, *DeviceTaintRuleSpecDie, *DeviceTaintRuleSpecDieMut]
 }
@@ -631,26 +605,14 @@ func (d *DeviceTaintRuleSpecDieMut) DieReleaseApplyConfigurationE() (*DeviceTain
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *DeviceTaintRuleSpecDieMut) DieFeedApplyConfiguration(ac *DeviceTaintRuleSpecApplyConfiguration) *DeviceTaintRuleSpecDieMut {
+func (d *DeviceTaintRuleSpecDieMut) DieFeedApplyConfiguration(ac *DeviceTaintRuleSpecApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *DeviceTaintRuleSpecDieMut) DieStampApplyConfiguration(fn func(ac *DeviceTaintRuleSpecApplyConfiguration)) *DeviceTaintRuleSpecDieMut {
+func (d *DeviceTaintRuleSpecDieMut) DieStampApplyConfiguration(fn func(ac *DeviceTaintRuleSpecApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [DeviceTaintRuleSpecDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeviceTaintRuleSpecDieMut) DieFeedApplyConfigurationE(ac *DeviceTaintRuleSpecApplyConfiguration) (*DeviceTaintRuleSpecDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [DeviceTaintRuleSpecDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeviceTaintRuleSpecDieMut) DieStampApplyConfigurationE(fn func(ac *DeviceTaintRuleSpecApplyConfiguration)) (*DeviceTaintRuleSpecDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type deviceTaintRuleSpecFieldsTable struct {
@@ -694,7 +656,7 @@ func (d *DeviceTaintRuleSpecDieMut) Taint() *DeviceTaintDieMut {
 // DeviceTaintRuleStatus provides information about an on-going pod eviction.
 //
 // DeviceTaintRuleStatusDie is immutable: it reads.
-// [DeviceTaintRuleStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [DeviceTaintRuleStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type DeviceTaintRuleStatusDie struct {
 	diebase.DieBase[DeviceTaintRuleStatus, *DeviceTaintRuleStatusDie, *DeviceTaintRuleStatusDieMut]
 }
@@ -743,26 +705,14 @@ func (d *DeviceTaintRuleStatusDieMut) DieReleaseApplyConfigurationE() (*DeviceTa
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *DeviceTaintRuleStatusDieMut) DieFeedApplyConfiguration(ac *DeviceTaintRuleStatusApplyConfiguration) *DeviceTaintRuleStatusDieMut {
+func (d *DeviceTaintRuleStatusDieMut) DieFeedApplyConfiguration(ac *DeviceTaintRuleStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *DeviceTaintRuleStatusDieMut) DieStampApplyConfiguration(fn func(ac *DeviceTaintRuleStatusApplyConfiguration)) *DeviceTaintRuleStatusDieMut {
+func (d *DeviceTaintRuleStatusDieMut) DieStampApplyConfiguration(fn func(ac *DeviceTaintRuleStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [DeviceTaintRuleStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeviceTaintRuleStatusDieMut) DieFeedApplyConfigurationE(ac *DeviceTaintRuleStatusApplyConfiguration) (*DeviceTaintRuleStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [DeviceTaintRuleStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeviceTaintRuleStatusDieMut) DieStampApplyConfigurationE(fn func(ac *DeviceTaintRuleStatusApplyConfiguration)) (*DeviceTaintRuleStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type deviceTaintRuleStatusFieldsTable struct {
@@ -828,7 +778,7 @@ func (d *DeviceTaintRuleStatusDieMut) Conditions() *diefields.ListMapMut[diemeta
 // are matched.
 //
 // DeviceTaintSelectorDie is immutable: it reads.
-// [DeviceTaintSelectorDieMut], its mutable die, also writes, as DieWith passes it.
+// [DeviceTaintSelectorDieMut], its mutable die, also writes, as DieStamp passes it.
 type DeviceTaintSelectorDie struct {
 	diebase.DieBase[DeviceTaintSelector, *DeviceTaintSelectorDie, *DeviceTaintSelectorDieMut]
 }
@@ -877,26 +827,14 @@ func (d *DeviceTaintSelectorDieMut) DieReleaseApplyConfigurationE() (*DeviceTain
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *DeviceTaintSelectorDieMut) DieFeedApplyConfiguration(ac *DeviceTaintSelectorApplyConfiguration) *DeviceTaintSelectorDieMut {
+func (d *DeviceTaintSelectorDieMut) DieFeedApplyConfiguration(ac *DeviceTaintSelectorApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *DeviceTaintSelectorDieMut) DieStampApplyConfiguration(fn func(ac *DeviceTaintSelectorApplyConfiguration)) *DeviceTaintSelectorDieMut {
+func (d *DeviceTaintSelectorDieMut) DieStampApplyConfiguration(fn func(ac *DeviceTaintSelectorApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [DeviceTaintSelectorDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeviceTaintSelectorDieMut) DieFeedApplyConfigurationE(ac *DeviceTaintSelectorApplyConfiguration) (*DeviceTaintSelectorDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [DeviceTaintSelectorDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *DeviceTaintSelectorDieMut) DieStampApplyConfigurationE(fn func(ac *DeviceTaintSelectorApplyConfiguration)) (*DeviceTaintSelectorDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type deviceTaintSelectorFieldsTable struct {
@@ -942,7 +880,7 @@ func (d *DeviceTaintSelectorDie) Device() diefields.Optional[string] {
 
 // If driver is set, only devices from that driver are selected.
 // This fields corresponds to slice.spec.driver.
-func (d *DeviceTaintSelectorDieMut) Driver() diefields.OptionalMut[string, *DeviceTaintSelectorDieMut] {
+func (d *DeviceTaintSelectorDieMut) Driver() diefields.OptionalMut[string] {
 	return diefields.OptionalMutOf(d, deviceTaintSelectorFields.Get().Driver)
 }
 
@@ -954,7 +892,7 @@ func (d *DeviceTaintSelectorDieMut) Driver() diefields.OptionalMut[string, *Devi
 // different drivers may also be useful, for example when
 // drivers with node-local devices use the node name as
 // their pool name.
-func (d *DeviceTaintSelectorDieMut) Pool() diefields.OptionalMut[string, *DeviceTaintSelectorDieMut] {
+func (d *DeviceTaintSelectorDieMut) Pool() diefields.OptionalMut[string] {
 	return diefields.OptionalMutOf(d, deviceTaintSelectorFields.Get().Pool)
 }
 
@@ -963,7 +901,7 @@ func (d *DeviceTaintSelectorDieMut) Pool() diefields.OptionalMut[string, *Device
 //
 // Setting also driver and pool may be required to avoid ambiguity,
 // but is not required.
-func (d *DeviceTaintSelectorDieMut) Device() diefields.OptionalMut[string, *DeviceTaintSelectorDieMut] {
+func (d *DeviceTaintSelectorDieMut) Device() diefields.OptionalMut[string] {
 	return diefields.OptionalMutOf(d, deviceTaintSelectorFields.Get().Device)
 }
 
@@ -971,7 +909,7 @@ func (d *DeviceTaintSelectorDieMut) Device() diefields.OptionalMut[string, *Devi
 // identified by the value of a grouping attribute.
 //
 // PartitionTypeStatusDie is immutable: it reads.
-// [PartitionTypeStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [PartitionTypeStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type PartitionTypeStatusDie struct {
 	diebase.DieBase[PartitionTypeStatus, *PartitionTypeStatusDie, *PartitionTypeStatusDieMut]
 }
@@ -1020,26 +958,14 @@ func (d *PartitionTypeStatusDieMut) DieReleaseApplyConfigurationE() (*PartitionT
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *PartitionTypeStatusDieMut) DieFeedApplyConfiguration(ac *PartitionTypeStatusApplyConfiguration) *PartitionTypeStatusDieMut {
+func (d *PartitionTypeStatusDieMut) DieFeedApplyConfiguration(ac *PartitionTypeStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *PartitionTypeStatusDieMut) DieStampApplyConfiguration(fn func(ac *PartitionTypeStatusApplyConfiguration)) *PartitionTypeStatusDieMut {
+func (d *PartitionTypeStatusDieMut) DieStampApplyConfiguration(fn func(ac *PartitionTypeStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [PartitionTypeStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PartitionTypeStatusDieMut) DieFeedApplyConfigurationE(ac *PartitionTypeStatusApplyConfiguration) (*PartitionTypeStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [PartitionTypeStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PartitionTypeStatusDieMut) DieStampApplyConfigurationE(fn func(ac *PartitionTypeStatusApplyConfiguration)) (*PartitionTypeStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type partitionTypeStatusFieldsTable struct {
@@ -1086,30 +1012,30 @@ func (d *PartitionTypeStatusDie) Allocatable() diefields.Optional[int32] {
 // groups this entry. It is the PartitionTypeAttribute declared by the
 // devices' own slice, or the default named in the request when their slice
 // declares none.
-func (d *PartitionTypeStatusDieMut) Attribute() diefields.ValueMut[string, *PartitionTypeStatusDieMut] {
+func (d *PartitionTypeStatusDieMut) Attribute() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, partitionTypeStatusFields.Get().Attribute)
 }
 
 // Type is the partition type value (e.g. "Full" or "Half").
-func (d *PartitionTypeStatusDieMut) Type() diefields.ValueMut[string, *PartitionTypeStatusDieMut] {
+func (d *PartitionTypeStatusDieMut) Type() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, partitionTypeStatusFields.Get().Type)
 }
 
 // Total is the number of devices of this partition type in the pool.
-func (d *PartitionTypeStatusDieMut) Total() diefields.OptionalMut[int32, *PartitionTypeStatusDieMut] {
+func (d *PartitionTypeStatusDieMut) Total() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, partitionTypeStatusFields.Get().Total)
 }
 
 // Allocatable is the number of additional devices of this partition type
 // that could still be allocated given current shared-counter consumption.
-func (d *PartitionTypeStatusDieMut) Allocatable() diefields.OptionalMut[int32, *PartitionTypeStatusDieMut] {
+func (d *PartitionTypeStatusDieMut) Allocatable() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, partitionTypeStatusFields.Get().Allocatable)
 }
 
 // PoolStatus contains status information for a single resource pool.
 //
 // PoolStatusDie is immutable: it reads.
-// [PoolStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [PoolStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type PoolStatusDie struct {
 	diebase.DieBase[PoolStatus, *PoolStatusDie, *PoolStatusDieMut]
 }
@@ -1158,26 +1084,14 @@ func (d *PoolStatusDieMut) DieReleaseApplyConfigurationE() (*PoolStatusApplyConf
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *PoolStatusDieMut) DieFeedApplyConfiguration(ac *PoolStatusApplyConfiguration) *PoolStatusDieMut {
+func (d *PoolStatusDieMut) DieFeedApplyConfiguration(ac *PoolStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *PoolStatusDieMut) DieStampApplyConfiguration(fn func(ac *PoolStatusApplyConfiguration)) *PoolStatusDieMut {
+func (d *PoolStatusDieMut) DieStampApplyConfiguration(fn func(ac *PoolStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [PoolStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PoolStatusDieMut) DieFeedApplyConfigurationE(ac *PoolStatusApplyConfiguration) (*PoolStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [PoolStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PoolStatusDieMut) DieStampApplyConfigurationE(fn func(ac *PoolStatusApplyConfiguration)) (*PoolStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type poolStatusFieldsTable struct {
@@ -1303,13 +1217,13 @@ func (d *PoolStatusDie) ShareableSummary() *ShareableSummaryStatusDie {
 
 // Driver is the DRA driver name for this pool.
 // Must be a DNS subdomain (e.g., "gpu.example.com").
-func (d *PoolStatusDieMut) Driver() diefields.ValueMut[string, *PoolStatusDieMut] {
+func (d *PoolStatusDieMut) Driver() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, poolStatusFields.Get().Driver)
 }
 
 // PoolName is the name of the pool.
 // Must be a valid resource pool name (DNS subdomains separated by "/").
-func (d *PoolStatusDieMut) PoolName() diefields.ValueMut[string, *PoolStatusDieMut] {
+func (d *PoolStatusDieMut) PoolName() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, poolStatusFields.Get().PoolName)
 }
 
@@ -1317,27 +1231,27 @@ func (d *PoolStatusDieMut) PoolName() diefields.ValueMut[string, *PoolStatusDieM
 // in this pool. Only the latest generation is reported. During a generation
 // rollout, if not all slices at the latest generation have been published,
 // the pool is included with a validationError and device counts unset.
-func (d *PoolStatusDieMut) Generation() diefields.ValueMut[int64, *PoolStatusDieMut] {
+func (d *PoolStatusDieMut) Generation() diefields.ValueMut[int64] {
 	return diefields.ValueMutOf(d, poolStatusFields.Get().Generation)
 }
 
 // ResourceSliceCount is the number of ResourceSlices that make up this pool.
 // May be unset when validationError is set.
-func (d *PoolStatusDieMut) ResourceSliceCount() diefields.OptionalMut[int32, *PoolStatusDieMut] {
+func (d *PoolStatusDieMut) ResourceSliceCount() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, poolStatusFields.Get().ResourceSliceCount)
 }
 
 // TotalDevices is the total number of devices in the pool across all slices.
 // A value of 0 means the pool has no devices.
 // May be unset when validationError is set.
-func (d *PoolStatusDieMut) TotalDevices() diefields.OptionalMut[int32, *PoolStatusDieMut] {
+func (d *PoolStatusDieMut) TotalDevices() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, poolStatusFields.Get().TotalDevices)
 }
 
 // AllocatedDevices is the number of devices currently allocated to claims.
 // A value of 0 means no devices are allocated.
 // May be unset when validationError is set.
-func (d *PoolStatusDieMut) AllocatedDevices() diefields.OptionalMut[int32, *PoolStatusDieMut] {
+func (d *PoolStatusDieMut) AllocatedDevices() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, poolStatusFields.Get().AllocatedDevices)
 }
 
@@ -1345,7 +1259,7 @@ func (d *PoolStatusDieMut) AllocatedDevices() diefields.OptionalMut[int32, *Pool
 // This equals TotalDevices - AllocatedDevices - UnavailableDevices.
 // A value of 0 means no devices are currently available.
 // May be unset when validationError is set.
-func (d *PoolStatusDieMut) AvailableDevices() diefields.OptionalMut[int32, *PoolStatusDieMut] {
+func (d *PoolStatusDieMut) AvailableDevices() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, poolStatusFields.Get().AvailableDevices)
 }
 
@@ -1353,21 +1267,21 @@ func (d *PoolStatusDieMut) AvailableDevices() diefields.OptionalMut[int32, *Pool
 // due to taints or other conditions, but are not allocated.
 // A value of 0 means all unallocated devices are available.
 // May be unset when validationError is set.
-func (d *PoolStatusDieMut) UnavailableDevices() diefields.OptionalMut[int32, *PoolStatusDieMut] {
+func (d *PoolStatusDieMut) UnavailableDevices() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, poolStatusFields.Get().UnavailableDevices)
 }
 
 // NodeName is the node this pool is associated with.
 // When omitted, the pool is not associated with a specific node.
 // Must be a valid DNS subdomain name (RFC1123).
-func (d *PoolStatusDieMut) NodeName() diefields.OptionalMut[string, *PoolStatusDieMut] {
+func (d *PoolStatusDieMut) NodeName() diefields.OptionalMut[string] {
 	return diefields.OptionalMutOf(d, poolStatusFields.Get().NodeName)
 }
 
 // ValidationError is set when the pool's data could not be fully
 // validated (e.g., incomplete slice publication). When set, device
 // count fields and ResourceSliceCount may be unset.
-func (d *PoolStatusDieMut) ValidationError() diefields.OptionalMut[string, *PoolStatusDieMut] {
+func (d *PoolStatusDieMut) ValidationError() diefields.OptionalMut[string] {
 	return diefields.OptionalMutOf(d, poolStatusFields.Get().ValidationError)
 }
 
@@ -1379,7 +1293,7 @@ func (d *PoolStatusDieMut) ValidationError() diefields.OptionalMut[string, *Pool
 // declared under different attributes reports each independently. When no
 // slice declares an attribute and the request names no default, the pool
 // reports no partition summary.
-func (d *PoolStatusDieMut) PartitionSummary() diefields.ValueMut[[]PartitionTypeStatus, *PoolStatusDieMut] {
+func (d *PoolStatusDieMut) PartitionSummary() diefields.ValueMut[[]PartitionTypeStatus] {
 	return diefields.ValueMutOf(d, poolStatusFields.Get().PartitionSummary)
 }
 
@@ -1395,7 +1309,7 @@ func (d *PoolStatusDieMut) ShareableSummary() *ShareableSummaryStatusDieMut {
 // Users should delete and recreate requests to get updated information.
 //
 // ResourcePoolStatusRequestDie is immutable: it reads.
-// [ResourcePoolStatusRequestDieMut], its mutable die, also writes, as DieWith passes it.
+// [ResourcePoolStatusRequestDieMut], its mutable die, also writes, as DieStamp passes it.
 type ResourcePoolStatusRequestDie struct {
 	diebase.DieObjectBase[ResourcePoolStatusRequest, *ResourcePoolStatusRequestDie, *ResourcePoolStatusRequestDieMut]
 }
@@ -1444,26 +1358,14 @@ func (d *ResourcePoolStatusRequestDieMut) DieReleaseApplyConfigurationE() (*Reso
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ResourcePoolStatusRequestDieMut) DieFeedApplyConfiguration(ac *ResourcePoolStatusRequestApplyConfiguration) *ResourcePoolStatusRequestDieMut {
+func (d *ResourcePoolStatusRequestDieMut) DieFeedApplyConfiguration(ac *ResourcePoolStatusRequestApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ResourcePoolStatusRequestDieMut) DieStampApplyConfiguration(fn func(ac *ResourcePoolStatusRequestApplyConfiguration)) *ResourcePoolStatusRequestDieMut {
+func (d *ResourcePoolStatusRequestDieMut) DieStampApplyConfiguration(fn func(ac *ResourcePoolStatusRequestApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ResourcePoolStatusRequestDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ResourcePoolStatusRequestDieMut) DieFeedApplyConfigurationE(ac *ResourcePoolStatusRequestApplyConfiguration) (*ResourcePoolStatusRequestDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ResourcePoolStatusRequestDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ResourcePoolStatusRequestDieMut) DieStampApplyConfigurationE(fn func(ac *ResourcePoolStatusRequestApplyConfiguration)) (*ResourcePoolStatusRequestDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type resourcePoolStatusRequestFieldsTable struct {
@@ -1524,7 +1426,7 @@ func (d *ResourcePoolStatusRequestDie) Status() *ResourcePoolStatusRequestStatus
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *ResourcePoolStatusRequestDieMut) Kind() diefields.ValueMut[string, *ResourcePoolStatusRequestDieMut] {
+func (d *ResourcePoolStatusRequestDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, resourcePoolStatusRequestFields.Get().Kind)
 }
 
@@ -1532,7 +1434,7 @@ func (d *ResourcePoolStatusRequestDieMut) Kind() diefields.ValueMut[string, *Res
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *ResourcePoolStatusRequestDieMut) APIVersion() diefields.ValueMut[string, *ResourcePoolStatusRequestDieMut] {
+func (d *ResourcePoolStatusRequestDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, resourcePoolStatusRequestFields.Get().APIVersion)
 }
 
@@ -1559,8 +1461,6 @@ type ResourcePoolStatusRequestListDie struct {
 	dielists.List[*ResourcePoolStatusRequestDieMut]
 }
 
-var _ dielists.DieListOf[*ResourcePoolStatusRequestDieMut] = (*ResourcePoolStatusRequestListDie)(nil)
-
 // NewResourcePoolStatusRequestList returns a list with items.
 func NewResourcePoolStatusRequestList(items ...*ResourcePoolStatusRequestDieMut) *ResourcePoolStatusRequestListDie {
 	return &ResourcePoolStatusRequestListDie{dielists.NewList("resource.k8s.io/v1alpha3", "ResourcePoolStatusRequestList", items...)}
@@ -1576,7 +1476,7 @@ func (l *ResourcePoolStatusRequestListDie) DeepCopyObject() runtime.Object { ret
 // ResourcePoolStatusRequestSpec defines the filters for the pool status request.
 //
 // ResourcePoolStatusRequestSpecDie is immutable: it reads.
-// [ResourcePoolStatusRequestSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [ResourcePoolStatusRequestSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type ResourcePoolStatusRequestSpecDie struct {
 	diebase.DieBase[ResourcePoolStatusRequestSpec, *ResourcePoolStatusRequestSpecDie, *ResourcePoolStatusRequestSpecDieMut]
 }
@@ -1625,26 +1525,14 @@ func (d *ResourcePoolStatusRequestSpecDieMut) DieReleaseApplyConfigurationE() (*
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ResourcePoolStatusRequestSpecDieMut) DieFeedApplyConfiguration(ac *ResourcePoolStatusRequestSpecApplyConfiguration) *ResourcePoolStatusRequestSpecDieMut {
+func (d *ResourcePoolStatusRequestSpecDieMut) DieFeedApplyConfiguration(ac *ResourcePoolStatusRequestSpecApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ResourcePoolStatusRequestSpecDieMut) DieStampApplyConfiguration(fn func(ac *ResourcePoolStatusRequestSpecApplyConfiguration)) *ResourcePoolStatusRequestSpecDieMut {
+func (d *ResourcePoolStatusRequestSpecDieMut) DieStampApplyConfiguration(fn func(ac *ResourcePoolStatusRequestSpecApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ResourcePoolStatusRequestSpecDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ResourcePoolStatusRequestSpecDieMut) DieFeedApplyConfigurationE(ac *ResourcePoolStatusRequestSpecApplyConfiguration) (*ResourcePoolStatusRequestSpecDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ResourcePoolStatusRequestSpecDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ResourcePoolStatusRequestSpecDieMut) DieStampApplyConfigurationE(fn func(ac *ResourcePoolStatusRequestSpecApplyConfiguration)) (*ResourcePoolStatusRequestSpecDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type resourcePoolStatusRequestSpecFieldsTable struct {
@@ -1708,7 +1596,7 @@ func (d *ResourcePoolStatusRequestSpecDie) DefaultPartitionTypeAttribute() diefi
 // Driver specifies the DRA driver name to filter pools.
 // Only pools from ResourceSlices with this driver will be included.
 // Must be a DNS subdomain (e.g., "gpu.example.com").
-func (d *ResourcePoolStatusRequestSpecDieMut) Driver() diefields.ValueMut[string, *ResourcePoolStatusRequestSpecDieMut] {
+func (d *ResourcePoolStatusRequestSpecDieMut) Driver() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, resourcePoolStatusRequestSpecFields.Get().Driver)
 }
 
@@ -1716,7 +1604,7 @@ func (d *ResourcePoolStatusRequestSpecDieMut) Driver() diefields.ValueMut[string
 // If not specified, all pools from the specified driver are included.
 // When specified, must be a non-empty valid resource pool name
 // (DNS subdomains separated by "/").
-func (d *ResourcePoolStatusRequestSpecDieMut) PoolName() diefields.OptionalMut[string, *ResourcePoolStatusRequestSpecDieMut] {
+func (d *ResourcePoolStatusRequestSpecDieMut) PoolName() diefields.OptionalMut[string] {
 	return diefields.OptionalMutOf(d, resourcePoolStatusRequestSpecFields.Get().PoolName)
 }
 
@@ -1727,7 +1615,7 @@ func (d *ResourcePoolStatusRequestSpecDieMut) PoolName() diefields.OptionalMut[s
 // Default: 100
 // Minimum: 1
 // Maximum: 1000
-func (d *ResourcePoolStatusRequestSpecDieMut) Limit() diefields.OptionalMut[int32, *ResourcePoolStatusRequestSpecDieMut] {
+func (d *ResourcePoolStatusRequestSpecDieMut) Limit() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, resourcePoolStatusRequestSpecFields.Get().Limit)
 }
 
@@ -1743,14 +1631,14 @@ func (d *ResourcePoolStatusRequestSpecDieMut) Limit() diefields.OptionalMut[int3
 // an attribute, a partitionable pool reports no partitionSummary.
 //
 // Must include the domain qualifier.
-func (d *ResourcePoolStatusRequestSpecDieMut) DefaultPartitionTypeAttribute() diefields.OptionalMut[string, *ResourcePoolStatusRequestSpecDieMut] {
+func (d *ResourcePoolStatusRequestSpecDieMut) DefaultPartitionTypeAttribute() diefields.OptionalMut[string] {
 	return diefields.OptionalMutOf(d, resourcePoolStatusRequestSpecFields.Get().DefaultPartitionTypeAttribute)
 }
 
 // ResourcePoolStatusRequestStatus contains the calculated pool status information.
 //
 // ResourcePoolStatusRequestStatusDie is immutable: it reads.
-// [ResourcePoolStatusRequestStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [ResourcePoolStatusRequestStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type ResourcePoolStatusRequestStatusDie struct {
 	diebase.DieBase[ResourcePoolStatusRequestStatus, *ResourcePoolStatusRequestStatusDie, *ResourcePoolStatusRequestStatusDieMut]
 }
@@ -1799,26 +1687,14 @@ func (d *ResourcePoolStatusRequestStatusDieMut) DieReleaseApplyConfigurationE() 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ResourcePoolStatusRequestStatusDieMut) DieFeedApplyConfiguration(ac *ResourcePoolStatusRequestStatusApplyConfiguration) *ResourcePoolStatusRequestStatusDieMut {
+func (d *ResourcePoolStatusRequestStatusDieMut) DieFeedApplyConfiguration(ac *ResourcePoolStatusRequestStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ResourcePoolStatusRequestStatusDieMut) DieStampApplyConfiguration(fn func(ac *ResourcePoolStatusRequestStatusApplyConfiguration)) *ResourcePoolStatusRequestStatusDieMut {
+func (d *ResourcePoolStatusRequestStatusDieMut) DieStampApplyConfiguration(fn func(ac *ResourcePoolStatusRequestStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ResourcePoolStatusRequestStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ResourcePoolStatusRequestStatusDieMut) DieFeedApplyConfigurationE(ac *ResourcePoolStatusRequestStatusApplyConfiguration) (*ResourcePoolStatusRequestStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ResourcePoolStatusRequestStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ResourcePoolStatusRequestStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ResourcePoolStatusRequestStatusApplyConfiguration)) (*ResourcePoolStatusRequestStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type resourcePoolStatusRequestStatusFieldsTable struct {
@@ -1865,14 +1741,14 @@ func (d *ResourcePoolStatusRequestStatusDie) Conditions() *diefields.ListMap[die
 // regardless of truncation. This helps users understand how many pools exist
 // even when the response is truncated. A value of 0 means no pools matched
 // the filter criteria.
-func (d *ResourcePoolStatusRequestStatusDieMut) PoolCount() diefields.OptionalMut[int32, *ResourcePoolStatusRequestStatusDieMut] {
+func (d *ResourcePoolStatusRequestStatusDieMut) PoolCount() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, resourcePoolStatusRequestStatusFields.Get().PoolCount)
 }
 
 // Pools contains the first `spec.limit` matching pools, sorted by driver
 // then pool name. If `len(pools) < poolCount`, the list was truncated.
 // When omitted, no pools matched the request filters.
-func (d *ResourcePoolStatusRequestStatusDieMut) Pools() diefields.ValueMut[[]PoolStatus, *ResourcePoolStatusRequestStatusDieMut] {
+func (d *ResourcePoolStatusRequestStatusDieMut) Pools() diefields.ValueMut[[]PoolStatus] {
 	return diefields.ValueMutOf(d, resourcePoolStatusRequestStatusFields.Get().Pools)
 }
 
@@ -1891,7 +1767,7 @@ func (d *ResourcePoolStatusRequestStatusDieMut) Conditions() *diefields.ListMapM
 // capacity key.
 //
 // ShareableCapacityStatusDie is immutable: it reads.
-// [ShareableCapacityStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [ShareableCapacityStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type ShareableCapacityStatusDie struct {
 	diebase.DieBase[ShareableCapacityStatus, *ShareableCapacityStatusDie, *ShareableCapacityStatusDieMut]
 }
@@ -1940,26 +1816,14 @@ func (d *ShareableCapacityStatusDieMut) DieReleaseApplyConfigurationE() (*Sharea
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ShareableCapacityStatusDieMut) DieFeedApplyConfiguration(ac *ShareableCapacityStatusApplyConfiguration) *ShareableCapacityStatusDieMut {
+func (d *ShareableCapacityStatusDieMut) DieFeedApplyConfiguration(ac *ShareableCapacityStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ShareableCapacityStatusDieMut) DieStampApplyConfiguration(fn func(ac *ShareableCapacityStatusApplyConfiguration)) *ShareableCapacityStatusDieMut {
+func (d *ShareableCapacityStatusDieMut) DieStampApplyConfiguration(fn func(ac *ShareableCapacityStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ShareableCapacityStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ShareableCapacityStatusDieMut) DieFeedApplyConfigurationE(ac *ShareableCapacityStatusApplyConfiguration) (*ShareableCapacityStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ShareableCapacityStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ShareableCapacityStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ShareableCapacityStatusApplyConfiguration)) (*ShareableCapacityStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type shareableCapacityStatusFieldsTable struct {
@@ -1999,22 +1863,22 @@ func (d *ShareableCapacityStatusDie) Available() diefields.Optional[resource.Qua
 }
 
 // Name is the capacity name.
-func (d *ShareableCapacityStatusDieMut) Name() diefields.ValueMut[string, *ShareableCapacityStatusDieMut] {
+func (d *ShareableCapacityStatusDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, shareableCapacityStatusFields.Get().Name)
 }
 
 // Total is the sum of this capacity across shareable devices in the pool.
-func (d *ShareableCapacityStatusDieMut) Total() diefields.OptionalMut[resource.Quantity, *ShareableCapacityStatusDieMut] {
+func (d *ShareableCapacityStatusDieMut) Total() diefields.OptionalMut[resource.Quantity] {
 	return diefields.OptionalMutOf(d, shareableCapacityStatusFields.Get().Total)
 }
 
 // Consumed is the amount drawn by current allocations.
-func (d *ShareableCapacityStatusDieMut) Consumed() diefields.OptionalMut[resource.Quantity, *ShareableCapacityStatusDieMut] {
+func (d *ShareableCapacityStatusDieMut) Consumed() diefields.OptionalMut[resource.Quantity] {
 	return diefields.OptionalMutOf(d, shareableCapacityStatusFields.Get().Consumed)
 }
 
 // Available is Total minus Consumed, never negative.
-func (d *ShareableCapacityStatusDieMut) Available() diefields.OptionalMut[resource.Quantity, *ShareableCapacityStatusDieMut] {
+func (d *ShareableCapacityStatusDieMut) Available() diefields.OptionalMut[resource.Quantity] {
 	return diefields.OptionalMutOf(d, shareableCapacityStatusFields.Get().Available)
 }
 
@@ -2022,7 +1886,7 @@ func (d *ShareableCapacityStatusDieMut) Available() diefields.OptionalMut[resour
 // devices with AllowMultipleAllocations.
 //
 // ShareableSummaryStatusDie is immutable: it reads.
-// [ShareableSummaryStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [ShareableSummaryStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type ShareableSummaryStatusDie struct {
 	diebase.DieBase[ShareableSummaryStatus, *ShareableSummaryStatusDie, *ShareableSummaryStatusDieMut]
 }
@@ -2071,26 +1935,14 @@ func (d *ShareableSummaryStatusDieMut) DieReleaseApplyConfigurationE() (*Shareab
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ShareableSummaryStatusDieMut) DieFeedApplyConfiguration(ac *ShareableSummaryStatusApplyConfiguration) *ShareableSummaryStatusDieMut {
+func (d *ShareableSummaryStatusDieMut) DieFeedApplyConfiguration(ac *ShareableSummaryStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ShareableSummaryStatusDieMut) DieStampApplyConfiguration(fn func(ac *ShareableSummaryStatusApplyConfiguration)) *ShareableSummaryStatusDieMut {
+func (d *ShareableSummaryStatusDieMut) DieStampApplyConfiguration(fn func(ac *ShareableSummaryStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ShareableSummaryStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ShareableSummaryStatusDieMut) DieFeedApplyConfigurationE(ac *ShareableSummaryStatusApplyConfiguration) (*ShareableSummaryStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ShareableSummaryStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ShareableSummaryStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ShareableSummaryStatusApplyConfiguration)) (*ShareableSummaryStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type shareableSummaryStatusFieldsTable struct {
@@ -2127,19 +1979,19 @@ func (d *ShareableSummaryStatusDie) Capacity() diefields.Value[[]ShareableCapaci
 
 // FullyAvailableDevices is the number of shareable devices with no
 // capacity consumed.
-func (d *ShareableSummaryStatusDieMut) FullyAvailableDevices() diefields.OptionalMut[int32, *ShareableSummaryStatusDieMut] {
+func (d *ShareableSummaryStatusDieMut) FullyAvailableDevices() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, shareableSummaryStatusFields.Get().FullyAvailableDevices)
 }
 
 // PartiallyAvailableDevices is the number of shareable devices with some
 // but not all capacity consumed.
-func (d *ShareableSummaryStatusDieMut) PartiallyAvailableDevices() diefields.OptionalMut[int32, *ShareableSummaryStatusDieMut] {
+func (d *ShareableSummaryStatusDieMut) PartiallyAvailableDevices() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, shareableSummaryStatusFields.Get().PartiallyAvailableDevices)
 }
 
 // Capacity reports aggregate total, consumed, and available amounts per
 // shareable capacity key across the pool.
-func (d *ShareableSummaryStatusDieMut) Capacity() diefields.ValueMut[[]ShareableCapacityStatus, *ShareableSummaryStatusDieMut] {
+func (d *ShareableSummaryStatusDieMut) Capacity() diefields.ValueMut[[]ShareableCapacityStatus] {
 	return diefields.ValueMutOf(d, shareableSummaryStatusFields.Get().Capacity)
 }
 

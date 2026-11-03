@@ -309,7 +309,7 @@ func (v *Viewing) replaySource(n *Onode, p Path) error {
 	return nil
 }
 
-// replay writes each operation of an overlay, such as the changes DieStamp
+// replay writes each operation of an overlay, such as the changes die.StampValue
 // finds, through the view.
 func (v *Viewing) replay(n *Onode, p Path) error {
 	if n == nil {

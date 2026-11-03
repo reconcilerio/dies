@@ -43,7 +43,7 @@ func newReporter(w io.Writer) *reporter {
 }
 
 func (r *reporter) logf(format string, args ...any) {
-	fmt.Fprintf(r.w, "diegen: "+format+"\n", args...)
+	_, _ = fmt.Fprintf(r.w, "diegen: "+format+"\n", args...)
 }
 
 // generated reports a die package as its dies are generated.

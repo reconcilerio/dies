@@ -70,8 +70,15 @@ type DownwardAPIVolumeSourceApplyConfiguration = corev1ac.DownwardAPIVolumeSourc
 type EmptyDirVolumeSourceApplyConfiguration = corev1ac.EmptyDirVolumeSourceApplyConfiguration
 type EndpointAddressApplyConfiguration = corev1ac.EndpointAddressApplyConfiguration
 type EndpointPortApplyConfiguration = corev1ac.EndpointPortApplyConfiguration
-type EndpointSubsetApplyConfiguration = corev1ac.EndpointSubsetApplyConfiguration
-type EndpointsApplyConfiguration = corev1ac.EndpointsApplyConfiguration
+
+// Deprecated: This API is deprecated in v1.33+.
+//
+//lint:ignore SA1019 an alias is of its type, deprecated or not
+type EndpointSubsetApplyConfiguration = corev1ac.EndpointSubsetApplyConfiguration //nolint:staticcheck // an alias is of its type, deprecated or not
+// Deprecated: This API is deprecated in v1.33+. Use discoveryv1.EndpointSlice.
+//
+//lint:ignore SA1019 an alias is of its type, deprecated or not
+type EndpointsApplyConfiguration = corev1ac.EndpointsApplyConfiguration //nolint:staticcheck // an alias is of its type, deprecated or not
 type EnvFromSourceApplyConfiguration = corev1ac.EnvFromSourceApplyConfiguration
 type EnvVarApplyConfiguration = corev1ac.EnvVarApplyConfiguration
 type EnvVarSourceApplyConfiguration = corev1ac.EnvVarSourceApplyConfiguration

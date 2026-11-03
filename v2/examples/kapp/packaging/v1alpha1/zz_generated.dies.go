@@ -36,7 +36,7 @@ import (
 // A PackageInstall CR must reference a Package CR.
 //
 // PackageInstallDie is immutable: it reads.
-// [PackageInstallDieMut], its mutable die, also writes, as DieWith passes it.
+// [PackageInstallDieMut], its mutable die, also writes, as DieStamp passes it.
 type PackageInstallDie struct {
 	diebase.DieObjectBase[PackageInstall, *PackageInstallDie, *PackageInstallDieMut]
 }
@@ -109,7 +109,7 @@ func (d *PackageInstallDie) Status() *PackageInstallStatusDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *PackageInstallDieMut) Kind() diefields.ValueMut[string, *PackageInstallDieMut] {
+func (d *PackageInstallDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, packageInstallFields.Get().Kind)
 }
 
@@ -117,7 +117,7 @@ func (d *PackageInstallDieMut) Kind() diefields.ValueMut[string, *PackageInstall
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *PackageInstallDieMut) APIVersion() diefields.ValueMut[string, *PackageInstallDieMut] {
+func (d *PackageInstallDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, packageInstallFields.Get().APIVersion)
 }
 
@@ -138,8 +138,6 @@ type PackageInstallListDie struct {
 	dielists.List[*PackageInstallDieMut]
 }
 
-var _ dielists.DieListOf[*PackageInstallDieMut] = (*PackageInstallListDie)(nil)
-
 // NewPackageInstallList returns a list with items.
 func NewPackageInstallList(items ...*PackageInstallDieMut) *PackageInstallListDie {
 	return &PackageInstallListDie{dielists.NewList("packaging.carvel.dev/v1alpha1", "PackageInstallList", items...)}
@@ -153,7 +151,7 @@ func (l *PackageInstallListDie) DeepCopy() *PackageInstallListDie {
 func (l *PackageInstallListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // PackageInstallSpecDie is immutable: it reads.
-// [PackageInstallSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [PackageInstallSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type PackageInstallSpecDie struct {
 	diebase.DieBase[PackageInstallSpec, *PackageInstallSpecDie, *PackageInstallSpecDieMut]
 }
@@ -253,7 +251,7 @@ func (d *PackageInstallSpecDie) DefaultNamespace() diefields.Value[string] {
 }
 
 // Specifies service account that will be used to install underlying package contents
-func (d *PackageInstallSpecDieMut) ServiceAccountName() diefields.ValueMut[string, *PackageInstallSpecDieMut] {
+func (d *PackageInstallSpecDieMut) ServiceAccountName() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, packageInstallSpecFields.Get().ServiceAccountName)
 }
 
@@ -270,43 +268,43 @@ func (d *PackageInstallSpecDieMut) PackageRef() *PackageRefDieMut {
 
 // Values to be included in package's templating step
 // (currently only included in the first templating step) (optional)
-func (d *PackageInstallSpecDieMut) Values() diefields.ValueMut[[]PackageInstallValues, *PackageInstallSpecDieMut] {
+func (d *PackageInstallSpecDieMut) Values() diefields.ValueMut[[]PackageInstallValues] {
 	return diefields.ValueMutOf(d, packageInstallSpecFields.Get().Values)
 }
 
 // Paused when set to true will ignore all pending changes,
 // once it set back to false, pending changes will be applied
-func (d *PackageInstallSpecDieMut) Paused() diefields.ValueMut[bool, *PackageInstallSpecDieMut] {
+func (d *PackageInstallSpecDieMut) Paused() diefields.ValueMut[bool] {
 	return diefields.ValueMutOf(d, packageInstallSpecFields.Get().Paused)
 }
 
 // Canceled when set to true will stop all active changes
-func (d *PackageInstallSpecDieMut) Canceled() diefields.ValueMut[bool, *PackageInstallSpecDieMut] {
+func (d *PackageInstallSpecDieMut) Canceled() diefields.ValueMut[bool] {
 	return diefields.ValueMutOf(d, packageInstallSpecFields.Get().Canceled)
 }
 
 // Controls frequency of App reconciliation in time + unit
 // format. Always >= 30s. If value below 30s is specified,
 // 30s will be used.
-func (d *PackageInstallSpecDieMut) SyncPeriod() diefields.OptionalMut[diemetav1.Duration, *PackageInstallSpecDieMut] {
+func (d *PackageInstallSpecDieMut) SyncPeriod() diefields.OptionalMut[diemetav1.Duration] {
 	return diefields.OptionalMutOf(d, packageInstallSpecFields.Get().SyncPeriod)
 }
 
 // When NoopDelete set to true, PackageInstall deletion
 // should delete PackageInstall/App CR but preserve App's
 // associated resources.
-func (d *PackageInstallSpecDieMut) NoopDelete() diefields.ValueMut[bool, *PackageInstallSpecDieMut] {
+func (d *PackageInstallSpecDieMut) NoopDelete() diefields.ValueMut[bool] {
 	return diefields.ValueMutOf(d, packageInstallSpecFields.Get().NoopDelete)
 }
 
 // Specifies the default namespace to install the Package resources, by default this is
 // same as the PackageInstall namespace (optional; v0.48.0+)
-func (d *PackageInstallSpecDieMut) DefaultNamespace() diefields.ValueMut[string, *PackageInstallSpecDieMut] {
+func (d *PackageInstallSpecDieMut) DefaultNamespace() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, packageInstallSpecFields.Get().DefaultNamespace)
 }
 
 // PackageInstallStatusDie is immutable: it reads.
-// [PackageInstallStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [PackageInstallStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type PackageInstallStatusDie struct {
 	diebase.DieBase[PackageInstallStatus, *PackageInstallStatusDie, *PackageInstallStatusDieMut]
 }
@@ -379,35 +377,35 @@ func (d *PackageInstallStatusDie) LastAttemptedVersion() diefields.Value[string]
 // Populated based on metadata.generation when controller
 // observes a change to the resource; if this value is
 // out of data, other status fields do not reflect latest state
-func (d *PackageInstallStatusDieMut) ObservedGeneration() diefields.ValueMut[int64, *PackageInstallStatusDieMut] {
+func (d *PackageInstallStatusDieMut) ObservedGeneration() diefields.ValueMut[int64] {
 	return diefields.ValueMutOf(d, packageInstallStatusFields.Get().ObservedGeneration)
 }
 
-func (d *PackageInstallStatusDieMut) Conditions() diefields.ValueMut[[]kappctrlv1alpha1.Condition, *PackageInstallStatusDieMut] {
+func (d *PackageInstallStatusDieMut) Conditions() diefields.ValueMut[[]kappctrlv1alpha1.Condition] {
 	return diefields.ValueMutOf(d, packageInstallStatusFields.Get().Conditions)
 }
 
-func (d *PackageInstallStatusDieMut) FriendlyDescription() diefields.ValueMut[string, *PackageInstallStatusDieMut] {
+func (d *PackageInstallStatusDieMut) FriendlyDescription() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, packageInstallStatusFields.Get().FriendlyDescription)
 }
 
-func (d *PackageInstallStatusDieMut) UsefulErrorMessage() diefields.ValueMut[string, *PackageInstallStatusDieMut] {
+func (d *PackageInstallStatusDieMut) UsefulErrorMessage() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, packageInstallStatusFields.Get().UsefulErrorMessage)
 }
 
 // TODO this is desired resolved version (not actually deployed)
-func (d *PackageInstallStatusDieMut) Version() diefields.ValueMut[string, *PackageInstallStatusDieMut] {
+func (d *PackageInstallStatusDieMut) Version() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, packageInstallStatusFields.Get().Version)
 }
 
 // LastAttemptedVersion specifies what version was last attempted to be installed.
 // It does _not_ indicate it was successfully installed.
-func (d *PackageInstallStatusDieMut) LastAttemptedVersion() diefields.ValueMut[string, *PackageInstallStatusDieMut] {
+func (d *PackageInstallStatusDieMut) LastAttemptedVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, packageInstallStatusFields.Get().LastAttemptedVersion)
 }
 
 // PackageInstallValuesDie is immutable: it reads.
-// [PackageInstallValuesDieMut], its mutable die, also writes, as DieWith passes it.
+// [PackageInstallValuesDieMut], its mutable die, also writes, as DieStamp passes it.
 type PackageInstallValuesDie struct {
 	diebase.DieBase[PackageInstallValues, *PackageInstallValuesDie, *PackageInstallValuesDieMut]
 }
@@ -446,7 +444,7 @@ func (d *PackageInstallValuesDieMut) SecretRef() *PackageInstallValuesSecretRefD
 }
 
 // PackageInstallValuesSecretRefDie is immutable: it reads.
-// [PackageInstallValuesSecretRefDieMut], its mutable die, also writes, as DieWith passes it.
+// [PackageInstallValuesSecretRefDieMut], its mutable die, also writes, as DieStamp passes it.
 type PackageInstallValuesSecretRefDie struct {
 	diebase.DieBase[PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie, *PackageInstallValuesSecretRefDieMut]
 }
@@ -486,16 +484,16 @@ func (d *PackageInstallValuesSecretRefDie) Key() diefields.Value[string] {
 	return diefields.ValueOf(d, packageInstallValuesSecretRefFields.Get().Key)
 }
 
-func (d *PackageInstallValuesSecretRefDieMut) Name() diefields.ValueMut[string, *PackageInstallValuesSecretRefDieMut] {
+func (d *PackageInstallValuesSecretRefDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, packageInstallValuesSecretRefFields.Get().Name)
 }
 
-func (d *PackageInstallValuesSecretRefDieMut) Key() diefields.ValueMut[string, *PackageInstallValuesSecretRefDieMut] {
+func (d *PackageInstallValuesSecretRefDieMut) Key() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, packageInstallValuesSecretRefFields.Get().Key)
 }
 
 // PackageRefDie is immutable: it reads.
-// [PackageRefDieMut], its mutable die, also writes, as DieWith passes it.
+// [PackageRefDieMut], its mutable die, also writes, as DieStamp passes it.
 type PackageRefDie struct {
 	diebase.DieBase[PackageRef, *PackageRefDie, *PackageRefDieMut]
 }
@@ -535,7 +533,7 @@ func (d *PackageRefDie) VersionSelection() *vendirv1alpha1.VersionSelectionSemve
 	return diefields.Child(d, packageRefFields.Get().VersionSelection)
 }
 
-func (d *PackageRefDieMut) RefName() diefields.ValueMut[string, *PackageRefDieMut] {
+func (d *PackageRefDieMut) RefName() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, packageRefFields.Get().RefName)
 }
 
@@ -547,7 +545,7 @@ func (d *PackageRefDieMut) VersionSelection() *vendirv1alpha1.VersionSelectionSe
 // Similar to a maven repository or a rpm repository, adding a package repository to a cluster gives users of that cluster the ability to install any of the packages from that repository.
 //
 // PackageRepositoryDie is immutable: it reads.
-// [PackageRepositoryDieMut], its mutable die, also writes, as DieWith passes it.
+// [PackageRepositoryDieMut], its mutable die, also writes, as DieStamp passes it.
 type PackageRepositoryDie struct {
 	diebase.DieObjectBase[PackageRepository, *PackageRepositoryDie, *PackageRepositoryDieMut]
 }
@@ -620,7 +618,7 @@ func (d *PackageRepositoryDie) Status() *PackageRepositoryStatusDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *PackageRepositoryDieMut) Kind() diefields.ValueMut[string, *PackageRepositoryDieMut] {
+func (d *PackageRepositoryDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, packageRepositoryFields.Get().Kind)
 }
 
@@ -628,7 +626,7 @@ func (d *PackageRepositoryDieMut) Kind() diefields.ValueMut[string, *PackageRepo
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *PackageRepositoryDieMut) APIVersion() diefields.ValueMut[string, *PackageRepositoryDieMut] {
+func (d *PackageRepositoryDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, packageRepositoryFields.Get().APIVersion)
 }
 
@@ -646,7 +644,7 @@ func (d *PackageRepositoryDieMut) Status() *PackageRepositoryStatusDieMut {
 }
 
 // PackageRepositoryFetchDie is immutable: it reads.
-// [PackageRepositoryFetchDieMut], its mutable die, also writes, as DieWith passes it.
+// [PackageRepositoryFetchDieMut], its mutable die, also writes, as DieStamp passes it.
 type PackageRepositoryFetchDie struct {
 	diebase.DieBase[PackageRepositoryFetch, *PackageRepositoryFetchDie, *PackageRepositoryFetchDieMut]
 }
@@ -740,8 +738,6 @@ type PackageRepositoryListDie struct {
 	dielists.List[*PackageRepositoryDieMut]
 }
 
-var _ dielists.DieListOf[*PackageRepositoryDieMut] = (*PackageRepositoryListDie)(nil)
-
 // NewPackageRepositoryList returns a list with items.
 func NewPackageRepositoryList(items ...*PackageRepositoryDieMut) *PackageRepositoryListDie {
 	return &PackageRepositoryListDie{dielists.NewList("packaging.carvel.dev/v1alpha1", "PackageRepositoryList", items...)}
@@ -755,7 +751,7 @@ func (l *PackageRepositoryListDie) DeepCopy() *PackageRepositoryListDie {
 func (l *PackageRepositoryListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // PackageRepositorySpecDie is immutable: it reads.
-// [PackageRepositorySpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [PackageRepositorySpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type PackageRepositorySpecDie struct {
 	diebase.DieBase[PackageRepositorySpec, *PackageRepositorySpecDie, *PackageRepositorySpecDieMut]
 }
@@ -806,12 +802,12 @@ func (d *PackageRepositorySpecDie) Fetch() *PackageRepositoryFetchDie {
 
 // Paused when set to true will ignore all pending changes,
 // once it set back to false, pending changes will be applied
-func (d *PackageRepositorySpecDieMut) Paused() diefields.ValueMut[bool, *PackageRepositorySpecDieMut] {
+func (d *PackageRepositorySpecDieMut) Paused() diefields.ValueMut[bool] {
 	return diefields.ValueMutOf(d, packageRepositorySpecFields.Get().Paused)
 }
 
 // Controls frequency of PackageRepository reconciliation
-func (d *PackageRepositorySpecDieMut) SyncPeriod() diefields.OptionalMut[diemetav1.Duration, *PackageRepositorySpecDieMut] {
+func (d *PackageRepositorySpecDieMut) SyncPeriod() diefields.OptionalMut[diemetav1.Duration] {
 	return diefields.OptionalMutOf(d, packageRepositorySpecFields.Get().SyncPeriod)
 }
 
@@ -820,7 +816,7 @@ func (d *PackageRepositorySpecDieMut) Fetch() *PackageRepositoryFetchDieMut {
 }
 
 // PackageRepositoryStatusDie is immutable: it reads.
-// [PackageRepositoryStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [PackageRepositoryStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type PackageRepositoryStatusDie struct {
 	diebase.DieBase[PackageRepositoryStatus, *PackageRepositoryStatusDie, *PackageRepositoryStatusDieMut]
 }
@@ -917,30 +913,30 @@ func (d *PackageRepositoryStatusDieMut) Deploy() *kappctrlv1alpha1.AppStatusDepl
 	return diefields.ChildMut(d, packageRepositoryStatusFields.Get().Deploy)
 }
 
-func (d *PackageRepositoryStatusDieMut) ConsecutiveReconcileSuccesses() diefields.ValueMut[int, *PackageRepositoryStatusDieMut] {
+func (d *PackageRepositoryStatusDieMut) ConsecutiveReconcileSuccesses() diefields.ValueMut[int] {
 	return diefields.ValueMutOf(d, packageRepositoryStatusFields.Get().ConsecutiveReconcileSuccesses)
 }
 
-func (d *PackageRepositoryStatusDieMut) ConsecutiveReconcileFailures() diefields.ValueMut[int, *PackageRepositoryStatusDieMut] {
+func (d *PackageRepositoryStatusDieMut) ConsecutiveReconcileFailures() diefields.ValueMut[int] {
 	return diefields.ValueMutOf(d, packageRepositoryStatusFields.Get().ConsecutiveReconcileFailures)
 }
 
 // Populated based on metadata.generation when controller
 // observes a change to the resource; if this value is
 // out of data, other status fields do not reflect latest state
-func (d *PackageRepositoryStatusDieMut) ObservedGeneration() diefields.ValueMut[int64, *PackageRepositoryStatusDieMut] {
+func (d *PackageRepositoryStatusDieMut) ObservedGeneration() diefields.ValueMut[int64] {
 	return diefields.ValueMutOf(d, packageRepositoryStatusFields.Get().ObservedGeneration)
 }
 
-func (d *PackageRepositoryStatusDieMut) Conditions() diefields.ValueMut[[]kappctrlv1alpha1.Condition, *PackageRepositoryStatusDieMut] {
+func (d *PackageRepositoryStatusDieMut) Conditions() diefields.ValueMut[[]kappctrlv1alpha1.Condition] {
 	return diefields.ValueMutOf(d, packageRepositoryStatusFields.Get().Conditions)
 }
 
-func (d *PackageRepositoryStatusDieMut) FriendlyDescription() diefields.ValueMut[string, *PackageRepositoryStatusDieMut] {
+func (d *PackageRepositoryStatusDieMut) FriendlyDescription() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, packageRepositoryStatusFields.Get().FriendlyDescription)
 }
 
-func (d *PackageRepositoryStatusDieMut) UsefulErrorMessage() diefields.ValueMut[string, *PackageRepositoryStatusDieMut] {
+func (d *PackageRepositoryStatusDieMut) UsefulErrorMessage() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, packageRepositoryStatusFields.Get().UsefulErrorMessage)
 }
 

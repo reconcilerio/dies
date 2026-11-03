@@ -55,7 +55,7 @@ import (
 // imperative Eviction API (pods/<name>/eviction subresource).
 //
 // EvictionDie is immutable: it reads.
-// [EvictionDieMut], its mutable die, also writes, as DieWith passes it.
+// [EvictionDieMut], its mutable die, also writes, as DieStamp passes it.
 type EvictionDie struct {
 	diebase.DieObjectBase[Eviction, *EvictionDie, *EvictionDieMut]
 }
@@ -104,26 +104,14 @@ func (d *EvictionDieMut) DieReleaseApplyConfigurationE() (*EvictionApplyConfigur
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *EvictionDieMut) DieFeedApplyConfiguration(ac *EvictionApplyConfiguration) *EvictionDieMut {
+func (d *EvictionDieMut) DieFeedApplyConfiguration(ac *EvictionApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *EvictionDieMut) DieStampApplyConfiguration(fn func(ac *EvictionApplyConfiguration)) *EvictionDieMut {
+func (d *EvictionDieMut) DieStampApplyConfiguration(fn func(ac *EvictionApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [EvictionDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionDieMut) DieFeedApplyConfigurationE(ac *EvictionApplyConfiguration) (*EvictionDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [EvictionDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionApplyConfiguration)) (*EvictionDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type evictionFieldsTable struct {
@@ -192,7 +180,7 @@ func (d *EvictionDie) Status() *EvictionStatusDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *EvictionDieMut) Kind() diefields.ValueMut[string, *EvictionDieMut] {
+func (d *EvictionDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, evictionFields.Get().Kind)
 }
 
@@ -200,7 +188,7 @@ func (d *EvictionDieMut) Kind() diefields.ValueMut[string, *EvictionDieMut] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *EvictionDieMut) APIVersion() diefields.ValueMut[string, *EvictionDieMut] {
+func (d *EvictionDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, evictionFields.Get().APIVersion)
 }
 
@@ -237,8 +225,6 @@ type EvictionListDie struct {
 	dielists.List[*EvictionDieMut]
 }
 
-var _ dielists.DieListOf[*EvictionDieMut] = (*EvictionListDie)(nil)
-
 // NewEvictionList returns a list with items.
 func NewEvictionList(items ...*EvictionDieMut) *EvictionListDie {
 	return &EvictionListDie{dielists.NewList("lifecycle.k8s.io/v1alpha1", "EvictionList", items...)}
@@ -253,7 +239,7 @@ func (l *EvictionListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() 
 // namespace.
 //
 // EvictionPodReferenceDie is immutable: it reads.
-// [EvictionPodReferenceDieMut], its mutable die, also writes, as DieWith passes it.
+// [EvictionPodReferenceDieMut], its mutable die, also writes, as DieStamp passes it.
 type EvictionPodReferenceDie struct {
 	diebase.DieBase[EvictionPodReference, *EvictionPodReferenceDie, *EvictionPodReferenceDieMut]
 }
@@ -302,26 +288,14 @@ func (d *EvictionPodReferenceDieMut) DieReleaseApplyConfigurationE() (*EvictionP
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *EvictionPodReferenceDieMut) DieFeedApplyConfiguration(ac *EvictionPodReferenceApplyConfiguration) *EvictionPodReferenceDieMut {
+func (d *EvictionPodReferenceDieMut) DieFeedApplyConfiguration(ac *EvictionPodReferenceApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *EvictionPodReferenceDieMut) DieStampApplyConfiguration(fn func(ac *EvictionPodReferenceApplyConfiguration)) *EvictionPodReferenceDieMut {
+func (d *EvictionPodReferenceDieMut) DieStampApplyConfiguration(fn func(ac *EvictionPodReferenceApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [EvictionPodReferenceDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionPodReferenceDieMut) DieFeedApplyConfigurationE(ac *EvictionPodReferenceApplyConfiguration) (*EvictionPodReferenceDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [EvictionPodReferenceDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionPodReferenceDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionPodReferenceApplyConfiguration)) (*EvictionPodReferenceDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type evictionPodReferenceFieldsTable struct {
@@ -351,14 +325,14 @@ func (d *EvictionPodReferenceDie) UID() diefields.Value[types.UID] {
 
 // name of the target.
 // This field is required.
-func (d *EvictionPodReferenceDieMut) Name() diefields.ValueMut[string, *EvictionPodReferenceDieMut] {
+func (d *EvictionPodReferenceDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, evictionPodReferenceFields.Get().Name)
 }
 
 // uid of the target.
 // It can be found in .metadata.uid of the target and is a lowercase UUID in 8-4-4-4-12 format.
 // This field is required.
-func (d *EvictionPodReferenceDieMut) UID() diefields.ValueMut[types.UID, *EvictionPodReferenceDieMut] {
+func (d *EvictionPodReferenceDieMut) UID() diefields.ValueMut[types.UID] {
 	return diefields.ValueMutOf(d, evictionPodReferenceFields.Get().UID)
 }
 
@@ -381,7 +355,7 @@ func (d *EvictionPodReferenceDieMut) UID() diefields.ValueMut[types.UID, *Evicti
 // garbage collected.
 //
 // EvictionRequestDie is immutable: it reads.
-// [EvictionRequestDieMut], its mutable die, also writes, as DieWith passes it.
+// [EvictionRequestDieMut], its mutable die, also writes, as DieStamp passes it.
 type EvictionRequestDie struct {
 	diebase.DieObjectBase[EvictionRequest, *EvictionRequestDie, *EvictionRequestDieMut]
 }
@@ -430,26 +404,14 @@ func (d *EvictionRequestDieMut) DieReleaseApplyConfigurationE() (*EvictionReques
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *EvictionRequestDieMut) DieFeedApplyConfiguration(ac *EvictionRequestApplyConfiguration) *EvictionRequestDieMut {
+func (d *EvictionRequestDieMut) DieFeedApplyConfiguration(ac *EvictionRequestApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *EvictionRequestDieMut) DieStampApplyConfiguration(fn func(ac *EvictionRequestApplyConfiguration)) *EvictionRequestDieMut {
+func (d *EvictionRequestDieMut) DieStampApplyConfiguration(fn func(ac *EvictionRequestApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [EvictionRequestDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionRequestDieMut) DieFeedApplyConfigurationE(ac *EvictionRequestApplyConfiguration) (*EvictionRequestDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [EvictionRequestDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionRequestDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionRequestApplyConfiguration)) (*EvictionRequestDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type evictionRequestFieldsTable struct {
@@ -509,7 +471,7 @@ func (d *EvictionRequestDie) Status() *EvictionRequestStatusDie {
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *EvictionRequestDieMut) Kind() diefields.ValueMut[string, *EvictionRequestDieMut] {
+func (d *EvictionRequestDieMut) Kind() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, evictionRequestFields.Get().Kind)
 }
 
@@ -517,7 +479,7 @@ func (d *EvictionRequestDieMut) Kind() diefields.ValueMut[string, *EvictionReque
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *EvictionRequestDieMut) APIVersion() diefields.ValueMut[string, *EvictionRequestDieMut] {
+func (d *EvictionRequestDieMut) APIVersion() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, evictionRequestFields.Get().APIVersion)
 }
 
@@ -543,8 +505,6 @@ type EvictionRequestListDie struct {
 	dielists.List[*EvictionRequestDieMut]
 }
 
-var _ dielists.DieListOf[*EvictionRequestDieMut] = (*EvictionRequestListDie)(nil)
-
 // NewEvictionRequestList returns a list with items.
 func NewEvictionRequestList(items ...*EvictionRequestDieMut) *EvictionRequestListDie {
 	return &EvictionRequestListDie{dielists.NewList("lifecycle.k8s.io/v1alpha1", "EvictionRequestList", items...)}
@@ -561,7 +521,7 @@ func (l *EvictionRequestListDie) DeepCopyObject() runtime.Object { return l.Deep
 // same namespace.
 //
 // EvictionRequestPodReferenceDie is immutable: it reads.
-// [EvictionRequestPodReferenceDieMut], its mutable die, also writes, as DieWith passes it.
+// [EvictionRequestPodReferenceDieMut], its mutable die, also writes, as DieStamp passes it.
 type EvictionRequestPodReferenceDie struct {
 	diebase.DieBase[EvictionRequestPodReference, *EvictionRequestPodReferenceDie, *EvictionRequestPodReferenceDieMut]
 }
@@ -610,26 +570,14 @@ func (d *EvictionRequestPodReferenceDieMut) DieReleaseApplyConfigurationE() (*Ev
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *EvictionRequestPodReferenceDieMut) DieFeedApplyConfiguration(ac *EvictionRequestPodReferenceApplyConfiguration) *EvictionRequestPodReferenceDieMut {
+func (d *EvictionRequestPodReferenceDieMut) DieFeedApplyConfiguration(ac *EvictionRequestPodReferenceApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *EvictionRequestPodReferenceDieMut) DieStampApplyConfiguration(fn func(ac *EvictionRequestPodReferenceApplyConfiguration)) *EvictionRequestPodReferenceDieMut {
+func (d *EvictionRequestPodReferenceDieMut) DieStampApplyConfiguration(fn func(ac *EvictionRequestPodReferenceApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [EvictionRequestPodReferenceDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionRequestPodReferenceDieMut) DieFeedApplyConfigurationE(ac *EvictionRequestPodReferenceApplyConfiguration) (*EvictionRequestPodReferenceDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [EvictionRequestPodReferenceDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionRequestPodReferenceDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionRequestPodReferenceApplyConfiguration)) (*EvictionRequestPodReferenceDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type evictionRequestPodReferenceFieldsTable struct {
@@ -659,21 +607,21 @@ func (d *EvictionRequestPodReferenceDie) UID() diefields.Value[types.UID] {
 
 // name of the target.
 // This field is required.
-func (d *EvictionRequestPodReferenceDieMut) Name() diefields.ValueMut[string, *EvictionRequestPodReferenceDieMut] {
+func (d *EvictionRequestPodReferenceDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, evictionRequestPodReferenceFields.Get().Name)
 }
 
 // uid of the target.
 // It can be found in .metadata.uid of the target and is a lowercase UUID in 8-4-4-4-12 format.
 // This field is required.
-func (d *EvictionRequestPodReferenceDieMut) UID() diefields.ValueMut[types.UID, *EvictionRequestPodReferenceDieMut] {
+func (d *EvictionRequestPodReferenceDieMut) UID() diefields.ValueMut[types.UID] {
 	return diefields.ValueMutOf(d, evictionRequestPodReferenceFields.Get().UID)
 }
 
 // EvictionRequestSpec is a specification of an EvictionRequest.
 //
 // EvictionRequestSpecDie is immutable: it reads.
-// [EvictionRequestSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [EvictionRequestSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type EvictionRequestSpecDie struct {
 	diebase.DieBase[EvictionRequestSpec, *EvictionRequestSpecDie, *EvictionRequestSpecDieMut]
 }
@@ -722,26 +670,14 @@ func (d *EvictionRequestSpecDieMut) DieReleaseApplyConfigurationE() (*EvictionRe
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *EvictionRequestSpecDieMut) DieFeedApplyConfiguration(ac *EvictionRequestSpecApplyConfiguration) *EvictionRequestSpecDieMut {
+func (d *EvictionRequestSpecDieMut) DieFeedApplyConfiguration(ac *EvictionRequestSpecApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *EvictionRequestSpecDieMut) DieStampApplyConfiguration(fn func(ac *EvictionRequestSpecApplyConfiguration)) *EvictionRequestSpecDieMut {
+func (d *EvictionRequestSpecDieMut) DieStampApplyConfiguration(fn func(ac *EvictionRequestSpecApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [EvictionRequestSpecDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionRequestSpecDieMut) DieFeedApplyConfigurationE(ac *EvictionRequestSpecApplyConfiguration) (*EvictionRequestSpecDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [EvictionRequestSpecDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionRequestSpecDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionRequestSpecApplyConfiguration)) (*EvictionRequestSpecDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type evictionRequestSpecFieldsTable struct {
@@ -797,7 +733,7 @@ func (d *EvictionRequestSpecDieMut) Target() *EvictionRequestTargetDieMut {
 // It must be a valid domain-prefixed key (such as "acme.io/foo").
 // Domain names *.k8s.io and *.kubernetes.io are reserved.
 // This field is required and immutable.
-func (d *EvictionRequestSpecDieMut) Requester() diefields.ValueMut[string, *EvictionRequestSpecDieMut] {
+func (d *EvictionRequestSpecDieMut) Requester() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, evictionRequestSpecFields.Get().Requester)
 }
 
@@ -810,14 +746,14 @@ func (d *EvictionRequestSpecDieMut) Requester() diefields.ValueMut[string, *Evic
 //   - Inactive responders will never run.
 //   - Active responders are expected to cancel the eviction.
 //   - Completed or Interrupted responders should not take any action.
-func (d *EvictionRequestSpecDieMut) Intent() diefields.ValueMut[EvictionRequestIntent, *EvictionRequestSpecDieMut] {
+func (d *EvictionRequestSpecDieMut) Intent() diefields.ValueMut[EvictionRequestIntent] {
 	return diefields.ValueMutOf(d, evictionRequestSpecFields.Get().Intent)
 }
 
 // EvictionRequestStatus represents the last observed status of the eviction request.
 //
 // EvictionRequestStatusDie is immutable: it reads.
-// [EvictionRequestStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [EvictionRequestStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type EvictionRequestStatusDie struct {
 	diebase.DieBase[EvictionRequestStatus, *EvictionRequestStatusDie, *EvictionRequestStatusDieMut]
 }
@@ -866,26 +802,14 @@ func (d *EvictionRequestStatusDieMut) DieReleaseApplyConfigurationE() (*Eviction
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *EvictionRequestStatusDieMut) DieFeedApplyConfiguration(ac *EvictionRequestStatusApplyConfiguration) *EvictionRequestStatusDieMut {
+func (d *EvictionRequestStatusDieMut) DieFeedApplyConfiguration(ac *EvictionRequestStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *EvictionRequestStatusDieMut) DieStampApplyConfiguration(fn func(ac *EvictionRequestStatusApplyConfiguration)) *EvictionRequestStatusDieMut {
+func (d *EvictionRequestStatusDieMut) DieStampApplyConfiguration(fn func(ac *EvictionRequestStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [EvictionRequestStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionRequestStatusDieMut) DieFeedApplyConfigurationE(ac *EvictionRequestStatusApplyConfiguration) (*EvictionRequestStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [EvictionRequestStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionRequestStatusDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionRequestStatusApplyConfiguration)) (*EvictionRequestStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type evictionRequestStatusFieldsTable struct {
@@ -944,14 +868,14 @@ func (d *EvictionRequestStatusDieMut) Conditions() *diefields.ListMapMut[diemeta
 // The observed generation value cannot be negative and can only be incremented.
 // The minimum value is 1.
 // This field is managed by evictionrequest-controller.
-func (d *EvictionRequestStatusDieMut) ObservedGeneration() diefields.OptionalMut[int64, *EvictionRequestStatusDieMut] {
+func (d *EvictionRequestStatusDieMut) ObservedGeneration() diefields.OptionalMut[int64] {
 	return diefields.OptionalMutOf(d, evictionRequestStatusFields.Get().ObservedGeneration)
 }
 
 // EvictionRequestTarget contains a reference to an object that should be evicted.
 //
 // EvictionRequestTargetDie is immutable: it reads.
-// [EvictionRequestTargetDieMut], its mutable die, also writes, as DieWith passes it.
+// [EvictionRequestTargetDieMut], its mutable die, also writes, as DieStamp passes it.
 type EvictionRequestTargetDie struct {
 	diebase.DieBase[EvictionRequestTarget, *EvictionRequestTargetDie, *EvictionRequestTargetDieMut]
 }
@@ -1000,26 +924,14 @@ func (d *EvictionRequestTargetDieMut) DieReleaseApplyConfigurationE() (*Eviction
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *EvictionRequestTargetDieMut) DieFeedApplyConfiguration(ac *EvictionRequestTargetApplyConfiguration) *EvictionRequestTargetDieMut {
+func (d *EvictionRequestTargetDieMut) DieFeedApplyConfiguration(ac *EvictionRequestTargetApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *EvictionRequestTargetDieMut) DieStampApplyConfiguration(fn func(ac *EvictionRequestTargetApplyConfiguration)) *EvictionRequestTargetDieMut {
+func (d *EvictionRequestTargetDieMut) DieStampApplyConfiguration(fn func(ac *EvictionRequestTargetApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [EvictionRequestTargetDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionRequestTargetDieMut) DieFeedApplyConfigurationE(ac *EvictionRequestTargetApplyConfiguration) (*EvictionRequestTargetDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [EvictionRequestTargetDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionRequestTargetDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionRequestTargetApplyConfiguration)) (*EvictionRequestTargetDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type evictionRequestTargetFieldsTable struct {
@@ -1047,7 +959,7 @@ func (d *EvictionRequestTargetDieMut) Pod() *EvictionRequestPodReferenceDieMut {
 // EvictionSpec is a specification of an Eviction.
 //
 // EvictionSpecDie is immutable: it reads.
-// [EvictionSpecDieMut], its mutable die, also writes, as DieWith passes it.
+// [EvictionSpecDieMut], its mutable die, also writes, as DieStamp passes it.
 type EvictionSpecDie struct {
 	diebase.DieBase[EvictionSpec, *EvictionSpecDie, *EvictionSpecDieMut]
 }
@@ -1096,26 +1008,14 @@ func (d *EvictionSpecDieMut) DieReleaseApplyConfigurationE() (*EvictionSpecApply
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *EvictionSpecDieMut) DieFeedApplyConfiguration(ac *EvictionSpecApplyConfiguration) *EvictionSpecDieMut {
+func (d *EvictionSpecDieMut) DieFeedApplyConfiguration(ac *EvictionSpecApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *EvictionSpecDieMut) DieStampApplyConfiguration(fn func(ac *EvictionSpecApplyConfiguration)) *EvictionSpecDieMut {
+func (d *EvictionSpecDieMut) DieStampApplyConfiguration(fn func(ac *EvictionSpecApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [EvictionSpecDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionSpecDieMut) DieFeedApplyConfigurationE(ac *EvictionSpecApplyConfiguration) (*EvictionSpecDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [EvictionSpecDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionSpecDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionSpecApplyConfiguration)) (*EvictionSpecDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type evictionSpecFieldsTable struct {
@@ -1143,7 +1043,7 @@ func (d *EvictionSpecDieMut) Target() *EvictionTargetDieMut {
 // EvictionStatus represents the last observed status of the eviction request.
 //
 // EvictionStatusDie is immutable: it reads.
-// [EvictionStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [EvictionStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type EvictionStatusDie struct {
 	diebase.DieBase[EvictionStatus, *EvictionStatusDie, *EvictionStatusDieMut]
 }
@@ -1192,26 +1092,14 @@ func (d *EvictionStatusDieMut) DieReleaseApplyConfigurationE() (*EvictionStatusA
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *EvictionStatusDieMut) DieFeedApplyConfiguration(ac *EvictionStatusApplyConfiguration) *EvictionStatusDieMut {
+func (d *EvictionStatusDieMut) DieFeedApplyConfiguration(ac *EvictionStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *EvictionStatusDieMut) DieStampApplyConfiguration(fn func(ac *EvictionStatusApplyConfiguration)) *EvictionStatusDieMut {
+func (d *EvictionStatusDieMut) DieStampApplyConfiguration(fn func(ac *EvictionStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [EvictionStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionStatusDieMut) DieFeedApplyConfigurationE(ac *EvictionStatusApplyConfiguration) (*EvictionStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [EvictionStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionStatusDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionStatusApplyConfiguration)) (*EvictionStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type evictionStatusFieldsTable struct {
@@ -1319,7 +1207,7 @@ func (d *EvictionStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Cond
 // The observed generation value cannot be negative and can only be incremented.
 // The minimum value is 1.
 // This field is managed by evictionrequest-controller.
-func (d *EvictionStatusDieMut) ObservedGeneration() diefields.OptionalMut[int64, *EvictionStatusDieMut] {
+func (d *EvictionStatusDieMut) ObservedGeneration() diefields.OptionalMut[int64] {
 	return diefields.OptionalMutOf(d, evictionStatusFields.Get().ObservedGeneration)
 }
 
@@ -1371,7 +1259,7 @@ func (d *EvictionStatusDieMut) Responders() *diefields.ListMapMut[ResponderStatu
 // EvictionTarget contains a reference to an object that should be evicted.
 //
 // EvictionTargetDie is immutable: it reads.
-// [EvictionTargetDieMut], its mutable die, also writes, as DieWith passes it.
+// [EvictionTargetDieMut], its mutable die, also writes, as DieStamp passes it.
 type EvictionTargetDie struct {
 	diebase.DieBase[EvictionTarget, *EvictionTargetDie, *EvictionTargetDieMut]
 }
@@ -1420,26 +1308,14 @@ func (d *EvictionTargetDieMut) DieReleaseApplyConfigurationE() (*EvictionTargetA
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *EvictionTargetDieMut) DieFeedApplyConfiguration(ac *EvictionTargetApplyConfiguration) *EvictionTargetDieMut {
+func (d *EvictionTargetDieMut) DieFeedApplyConfiguration(ac *EvictionTargetApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *EvictionTargetDieMut) DieStampApplyConfiguration(fn func(ac *EvictionTargetApplyConfiguration)) *EvictionTargetDieMut {
+func (d *EvictionTargetDieMut) DieStampApplyConfiguration(fn func(ac *EvictionTargetApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [EvictionTargetDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionTargetDieMut) DieFeedApplyConfigurationE(ac *EvictionTargetApplyConfiguration) (*EvictionTargetDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [EvictionTargetDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionTargetDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionTargetApplyConfiguration)) (*EvictionTargetDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type evictionTargetFieldsTable struct {
@@ -1467,7 +1343,7 @@ func (d *EvictionTargetDieMut) Pod() *EvictionPodReferenceDieMut {
 // Requester allows you to identify the entity, that requested the eviction of the target.
 //
 // RequesterDie is immutable: it reads.
-// [RequesterDieMut], its mutable die, also writes, as DieWith passes it.
+// [RequesterDieMut], its mutable die, also writes, as DieStamp passes it.
 type RequesterDie struct {
 	diebase.DieBase[Requester, *RequesterDie, *RequesterDieMut]
 }
@@ -1516,26 +1392,14 @@ func (d *RequesterDieMut) DieReleaseApplyConfigurationE() (*RequesterApplyConfig
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *RequesterDieMut) DieFeedApplyConfiguration(ac *RequesterApplyConfiguration) *RequesterDieMut {
+func (d *RequesterDieMut) DieFeedApplyConfiguration(ac *RequesterApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *RequesterDieMut) DieStampApplyConfiguration(fn func(ac *RequesterApplyConfiguration)) *RequesterDieMut {
+func (d *RequesterDieMut) DieStampApplyConfiguration(fn func(ac *RequesterApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [RequesterDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *RequesterDieMut) DieFeedApplyConfigurationE(ac *RequesterApplyConfiguration) (*RequesterDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [RequesterDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *RequesterDieMut) DieStampApplyConfigurationE(fn func(ac *RequesterApplyConfiguration)) (*RequesterDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type requesterFieldsTable struct {
@@ -1577,7 +1441,7 @@ func (d *RequesterDie) Intent() diefields.Value[RequesterIntent] {
 // It must be a valid domain-prefixed key (such as "acme.io/foo").
 // This field must be unique for each requester.
 // This field is required.
-func (d *RequesterDieMut) Name() diefields.ValueMut[string, *RequesterDieMut] {
+func (d *RequesterDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, requesterFields.Get().Name)
 }
 
@@ -1590,7 +1454,7 @@ func (d *RequesterDieMut) Name() diefields.ValueMut[string, *RequesterDieMut] {
 //   - Inactive responders will never run.
 //   - Active responders are expected to cancel the eviction.
 //   - Completed or Interrupted responders should not take any action.
-func (d *RequesterDieMut) Intent() diefields.ValueMut[RequesterIntent, *RequesterDieMut] {
+func (d *RequesterDieMut) Intent() diefields.ValueMut[RequesterIntent] {
 	return diefields.ValueMutOf(d, requesterFields.Get().Intent)
 }
 
@@ -1598,7 +1462,7 @@ func (d *RequesterDieMut) Intent() diefields.ValueMut[RequesterIntent, *Requeste
 // It should be only updated by the designated responder whose name is .name field.
 //
 // ResponderStatusDie is immutable: it reads.
-// [ResponderStatusDieMut], its mutable die, also writes, as DieWith passes it.
+// [ResponderStatusDieMut], its mutable die, also writes, as DieStamp passes it.
 type ResponderStatusDie struct {
 	diebase.DieBase[ResponderStatus, *ResponderStatusDie, *ResponderStatusDieMut]
 }
@@ -1647,26 +1511,14 @@ func (d *ResponderStatusDieMut) DieReleaseApplyConfigurationE() (*ResponderStatu
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *ResponderStatusDieMut) DieFeedApplyConfiguration(ac *ResponderStatusApplyConfiguration) *ResponderStatusDieMut {
+func (d *ResponderStatusDieMut) DieFeedApplyConfiguration(ac *ResponderStatusApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *ResponderStatusDieMut) DieStampApplyConfiguration(fn func(ac *ResponderStatusApplyConfiguration)) *ResponderStatusDieMut {
+func (d *ResponderStatusDieMut) DieStampApplyConfiguration(fn func(ac *ResponderStatusApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [ResponderStatusDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ResponderStatusDieMut) DieFeedApplyConfigurationE(ac *ResponderStatusApplyConfiguration) (*ResponderStatusDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [ResponderStatusDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ResponderStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ResponderStatusApplyConfiguration)) (*ResponderStatusDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type responderStatusFieldsTable struct {
@@ -1745,7 +1597,7 @@ func (d *ResponderStatusDie) Message() diefields.Optional[string] {
 // It must be a valid domain-prefixed key (such as "acme.io/foo").
 // This field is initialized by Kubernetes and must be unique for each responder.
 // This field is required.
-func (d *ResponderStatusDieMut) Name() diefields.ValueMut[string, *ResponderStatusDieMut] {
+func (d *ResponderStatusDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, responderStatusFields.Get().Name)
 }
 
@@ -1754,7 +1606,7 @@ func (d *ResponderStatusDieMut) Name() diefields.ValueMut[string, *ResponderStat
 // It should reflect the present time when set.
 // This field is initialized by Kubernetes when this responder becomes active.
 // This field becomes immutable once set.
-func (d *ResponderStatusDieMut) StartTime() diefields.OptionalMut[diemetav1.Time, *ResponderStatusDieMut] {
+func (d *ResponderStatusDieMut) StartTime() diefields.OptionalMut[diemetav1.Time] {
 	return diefields.OptionalMutOf(d, responderStatusFields.Get().StartTime)
 }
 
@@ -1763,7 +1615,7 @@ func (d *ResponderStatusDieMut) StartTime() diefields.OptionalMut[diemetav1.Time
 // It should reflect the present time when set.
 // Responders should avoid heartbeats more frequent than 20 seconds to avoid overloading the
 // control-plane.
-func (d *ResponderStatusDieMut) HeartbeatTime() diefields.OptionalMut[diemetav1.Time, *ResponderStatusDieMut] {
+func (d *ResponderStatusDieMut) HeartbeatTime() diefields.OptionalMut[diemetav1.Time] {
 	return diefields.OptionalMutOf(d, responderStatusFields.Get().HeartbeatTime)
 }
 
@@ -1771,7 +1623,7 @@ func (d *ResponderStatusDieMut) HeartbeatTime() diefields.OptionalMut[diemetav1.
 // responder.
 // The time cannot be set to the past.
 // May be omitted if no estimate can be made.
-func (d *ResponderStatusDieMut) ExpectedCompletionTime() diefields.OptionalMut[diemetav1.Time, *ResponderStatusDieMut] {
+func (d *ResponderStatusDieMut) ExpectedCompletionTime() diefields.OptionalMut[diemetav1.Time] {
 	return diefields.OptionalMutOf(d, responderStatusFields.Get().ExpectedCompletionTime)
 }
 
@@ -1780,14 +1632,14 @@ func (d *ResponderStatusDieMut) ExpectedCompletionTime() diefields.OptionalMut[d
 // eviction process, which may have resulted in target eviction (e.g. pod termination).
 // It should reflect the present time when set.
 // This field becomes immutable once set.
-func (d *ResponderStatusDieMut) CompletionTime() diefields.OptionalMut[diemetav1.Time, *ResponderStatusDieMut] {
+func (d *ResponderStatusDieMut) CompletionTime() diefields.OptionalMut[diemetav1.Time] {
 	return diefields.OptionalMutOf(d, responderStatusFields.Get().CompletionTime)
 }
 
 // message provides human-readable details about the state of the responder and the eviction
 // process.
 // Maximum length is 4000 characters.
-func (d *ResponderStatusDieMut) Message() diefields.OptionalMut[string, *ResponderStatusDieMut] {
+func (d *ResponderStatusDieMut) Message() diefields.OptionalMut[string] {
 	return diefields.OptionalMutOf(d, responderStatusFields.Get().Message)
 }
 
@@ -1796,7 +1648,7 @@ func (d *ResponderStatusDieMut) Message() diefields.OptionalMut[string, *Respond
 // with the graceful eviction of a target (e.g. termination of a pod).
 //
 // TargetResponderDie is immutable: it reads.
-// [TargetResponderDieMut], its mutable die, also writes, as DieWith passes it.
+// [TargetResponderDieMut], its mutable die, also writes, as DieStamp passes it.
 type TargetResponderDie struct {
 	diebase.DieBase[TargetResponder, *TargetResponderDie, *TargetResponderDieMut]
 }
@@ -1845,26 +1697,14 @@ func (d *TargetResponderDieMut) DieReleaseApplyConfigurationE() (*TargetResponde
 // DieFeedApplyConfiguration replaces the die's intent with an apply
 // configuration's, such as the fields a manager owns that Extract returns:
 // each value it sets becomes intent, over the die's value.
-func (d *TargetResponderDieMut) DieFeedApplyConfiguration(ac *TargetResponderApplyConfiguration) *TargetResponderDieMut {
+func (d *TargetResponderDieMut) DieFeedApplyConfiguration(ac *TargetResponderApplyConfiguration) error {
 	return diecodegen.FeedApplyConfiguration(d, ac)
 }
 
 // DieStampApplyConfiguration passes the die's intent, as an apply
 // configuration, to fn, and feeds back what fn makes of it.
-func (d *TargetResponderDieMut) DieStampApplyConfiguration(fn func(ac *TargetResponderApplyConfiguration)) *TargetResponderDieMut {
+func (d *TargetResponderDieMut) DieStampApplyConfiguration(fn func(ac *TargetResponderApplyConfiguration)) error {
 	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
-// DieFeedApplyConfigurationE is [TargetResponderDieMut.DieFeedApplyConfiguration],
-// returning an error rather than panicking.
-func (d *TargetResponderDieMut) DieFeedApplyConfigurationE(ac *TargetResponderApplyConfiguration) (*TargetResponderDieMut, error) {
-	return diecodegen.FeedApplyConfigurationE(d, ac)
-}
-
-// DieStampApplyConfigurationE is [TargetResponderDieMut.DieStampApplyConfiguration],
-// returning an error rather than panicking.
-func (d *TargetResponderDieMut) DieStampApplyConfigurationE(fn func(ac *TargetResponderApplyConfiguration)) (*TargetResponderDieMut, error) {
-	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type targetResponderFieldsTable struct {
@@ -1920,10 +1760,13 @@ func (d *TargetResponderDie) Priority() diefields.Optional[int32] {
 //     If .status.responders[].heartbeatTime field is not updated within the heartbeat deadline defined
 //     by the Eviction API (currently 20 minutes), the eviction is passed over to the next responder
 //     with a lower priority. Only one responder can be active at a time.
+//
 //   - Interrupted means that the responder has failed to start or failed to update
 //     heartbeatTime in ResponderStatus in a timely manner.
+//
 //   - Canceled means that the responder has been canceled. In other words, there	is no
 //     EvictionRequest with the same target and Eviction intent in .spec.intent.
+//
 //   - Completed means that the responder has successfully completed and set completionTime
 //     in ResponderStatus.
 //
@@ -1937,7 +1780,7 @@ func (d *TargetResponderDie) State() diefields.Value[ResponderStateType] {
 // It must be a valid domain-prefixed key (such as "acme.io/foo").
 // This field must be unique for each responder.
 // This field is required.
-func (d *TargetResponderDieMut) Name() diefields.ValueMut[string, *TargetResponderDieMut] {
+func (d *TargetResponderDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, targetResponderFields.Get().Name)
 }
 
@@ -1953,7 +1796,7 @@ func (d *TargetResponderDieMut) Name() diefields.ValueMut[string, *TargetRespond
 // The minimum value is 0 and the maximum value is 100000.
 // The interval 0-999 is reserved for responders with *.k8s.io suffix.
 // This field is required and immutable.
-func (d *TargetResponderDieMut) Priority() diefields.OptionalMut[int32, *TargetResponderDieMut] {
+func (d *TargetResponderDieMut) Priority() diefields.OptionalMut[int32] {
 	return diefields.OptionalMutOf(d, targetResponderFields.Get().Priority)
 }
 
@@ -1971,15 +1814,18 @@ func (d *TargetResponderDieMut) Priority() diefields.OptionalMut[int32, *TargetR
 //     If .status.responders[].heartbeatTime field is not updated within the heartbeat deadline defined
 //     by the Eviction API (currently 20 minutes), the eviction is passed over to the next responder
 //     with a lower priority. Only one responder can be active at a time.
+//
 //   - Interrupted means that the responder has failed to start or failed to update
 //     heartbeatTime in ResponderStatus in a timely manner.
+//
 //   - Canceled means that the responder has been canceled. In other words, there	is no
 //     EvictionRequest with the same target and Eviction intent in .spec.intent.
+//
 //   - Completed means that the responder has successfully completed and set completionTime
 //     in ResponderStatus.
 //
 // Please refer to the ResponderStatus in .status.responders for more details on each responder.
-func (d *TargetResponderDieMut) State() diefields.ValueMut[ResponderStateType, *TargetResponderDieMut] {
+func (d *TargetResponderDieMut) State() diefields.ValueMut[ResponderStateType] {
 	return diefields.ValueMutOf(d, targetResponderFields.Get().State)
 }
 

@@ -149,7 +149,7 @@ func (v *Viewing) elements(b Binding) ([]element, error) {
 	add := func(m *Member, at Path, index int, detached *Holder) error {
 		e := element{member: m, at: at, index: index, detached: detached}
 		if m.View != nil {
-			var src source = v.Src
+			src := v.Src
 			sat := at
 			if detached != nil {
 				src, sat = HolderSource{H: detached}, nil
