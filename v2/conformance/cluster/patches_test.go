@@ -27,7 +27,7 @@ import (
 	diemetav1 "reconciler.io/dies/v2/apis/meta/v1"
 	"reconciler.io/dies/v2/conformance/internal/harness"
 	"reconciler.io/dies/v2/die"
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 	widgetv1 "reconciler.io/dies/v2/examples/widget/v1"
 )
 
@@ -43,19 +43,19 @@ func keyOf(namespace, name string) client.ObjectKey {
 // identity is a Deployment with only its identity, to apply nothing else.
 func identity(t testing.TB, ns string) *dieappsv1.DeploymentDie {
 	return dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Namespace().Set(ns))
-		dietest.NoError(t, d.Metadata().Name().Set("web"))
+		dietesting.NoError(t, d.Metadata().Namespace().Set(ns))
+		dietesting.NoError(t, d.Metadata().Name().Set("web"))
 	})
 }
 
 // deployment is a valid Deployment that runs nothing.
 func deployment(t testing.TB, ns string) *dieappsv1.DeploymentDie {
 	return identity(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Replicas().Set(0))
-		dietest.NoError(t, d.Spec().Paused().Set(true))
-		dietest.NoError(t, d.Spec().Selector().MatchLabels().Set("app", "web"))
-		dietest.NoError(t, d.Spec().Template().Metadata().Labels().Set("app", "web"))
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("registry.example/app:1"))
+		dietesting.NoError(t, d.Spec().Replicas().Set(0))
+		dietesting.NoError(t, d.Spec().Paused().Set(true))
+		dietesting.NoError(t, d.Spec().Selector().MatchLabels().Set("app", "web"))
+		dietesting.NoError(t, d.Spec().Template().Metadata().Labels().Set("app", "web"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("registry.example/app:1"))
 	})
 }
 
@@ -71,7 +71,7 @@ func apply[T any, D die.DieOf[T, D, M], M interface {
 	if status {
 		scopes = append(scopes, die.Subresource("status"))
 	}
-	body, err := die.ReleaseApplyPatchE(d, scopes...)
+	body, err := die.ReleaseApplyPatch(d, scopes...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -108,7 +108,7 @@ func TestApplyMergesListMapsByKey(t *testing.T) {
 	ns := harness.Namespace(t, dies)
 	apply(t, deployment(t, ns), "app", false)
 	got := apply(t, identity(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("sidecar").Image().Set("registry.example/sidecar:1"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("sidecar").Image().Set("registry.example/sidecar:1"))
 	}), "sidecar", false)
 	if keys := got.Spec().Template().Spec().Containers().Keys(); len(keys) != 2 {
 		t.Fatalf("containers %v, want app and sidecar", keys)
@@ -126,13 +126,13 @@ func TestApplyMergesListMapsByKey(t *testing.T) {
 func TestApplyClearsAndRemoves(t *testing.T) {
 	ns := harness.Namespace(t, dies)
 	apply(t, deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().MinReadySeconds().Set(5))
-		dietest.NoError(t, d.Metadata().Labels().Set("tier", "web"))
+		dietesting.NoError(t, d.Spec().MinReadySeconds().Set(5))
+		dietesting.NoError(t, d.Metadata().Labels().Set("tier", "web"))
 	}), "app", false)
 
 	got := apply(t, identity(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().MinReadySeconds().Clear())
-		dietest.NoError(t, d.Metadata().Labels().Remove("tier"))
+		dietesting.NoError(t, d.Spec().MinReadySeconds().Clear())
+		dietesting.NoError(t, d.Metadata().Labels().Remove("tier"))
 	}), "clearer", false)
 	if got.Spec().MinReadySeconds().Has() {
 		t.Errorf("minReadySeconds %d, want it removed", got.Spec().MinReadySeconds().Get())
@@ -149,12 +149,12 @@ func TestApplySendsAtomicStructsWhole(t *testing.T) {
 	ns := harness.Namespace(t, dies)
 	actual := apply(t, deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
 		ref := d.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef()
-		dietest.NoError(t, ref.Name().Set("settings"))
-		dietest.NoError(t, ref.Key().Set("color"))
+		dietesting.NoError(t, ref.Name().Set("settings"))
+		dietesting.NoError(t, ref.Key().Set("color"))
 	}), "app", false)
 
 	got := apply(t, actual.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef().Key().Set("colour"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef().Key().Set("colour"))
 	}), "localizer", false)
 	ref := got.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef()
 	if ref.Name().Get() != "settings" || ref.Key().Get() != "colour" {
@@ -167,19 +167,19 @@ func TestApplySendsAtomicStructsWhole(t *testing.T) {
 func TestApplyCustomResourceStatus(t *testing.T) {
 	ns := harness.Namespace(t, dies)
 	widget := widgetv1.WidgetBlank.DieStamp(func(d *widgetv1.WidgetDieMut) {
-		dietest.NoError(t, d.Metadata().Namespace().Set(ns))
-		dietest.NoError(t, d.Metadata().Name().Set("web"))
+		dietesting.NoError(t, d.Metadata().Namespace().Set(ns))
+		dietesting.NoError(t, d.Metadata().Name().Set("web"))
 	})
 	apply(t, widget.DieStamp(func(d *widgetv1.WidgetDieMut) {
-		dietest.NoError(t, d.Spec().Ports().At("http").Port().Set(80))
+		dietesting.NoError(t, d.Spec().Ports().At("http").Port().Set(80))
 	}), "web", false)
 
 	var got *widgetv1.WidgetDie
 	for _, manager := range []string{"Ready", "Healthy"} {
 		got = apply(t, widget.DieStamp(func(d *widgetv1.WidgetDieMut) {
 			d.Status().Conditions().At(manager).DieStamp(func(c *diemetav1.ConditionDieMut) {
-				dietest.NoError(t, c.Status().Set(diemetav1.ConditionTrue))
-				dietest.NoError(t, c.Reason().Set("Checked"))
+				dietesting.NoError(t, c.Status().Set(diemetav1.ConditionTrue))
+				dietesting.NoError(t, c.Reason().Set("Checked"))
 			})
 		}), manager, true)
 	}
@@ -198,7 +198,7 @@ func TestMergePatchCarriesOnlyIntent(t *testing.T) {
 	ns := harness.Namespace(t, dies)
 	ctx := context.Background()
 	apply(t, deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Labels().Set("canary", "true"))
+		dietesting.NoError(t, d.Metadata().Labels().Set("canary", "true"))
 	}), "app", false)
 
 	current, err := dieappsv1.DeploymentBlank.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
@@ -208,14 +208,14 @@ func TestMergePatchCarriesOnlyIntent(t *testing.T) {
 		t.Fatal(err)
 	}
 	apply(t, identity(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Labels().Set("team", "a"))
+		dietesting.NoError(t, d.Metadata().Labels().Set("team", "a"))
 	}), "other", false)
 
 	update := current.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Labels().Remove("canary"))
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("registry.example/app:2"))
+		dietesting.NoError(t, d.Metadata().Labels().Remove("canary"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("registry.example/app:2"))
 	})
-	body, err := die.ReleaseMergePatchE(update)
+	body, err := die.ReleaseMergePatch(update)
 	if err != nil {
 		t.Fatal(err)
 	}

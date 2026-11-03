@@ -33,7 +33,7 @@ import (
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	"reconciler.io/dies/v2/die"
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 	dieunstructured "reconciler.io/dies/v2/die/unstructured"
 	jigsv1 "reconciler.io/dies/v2/examples/jigs/v1"
 )
@@ -94,7 +94,7 @@ func TestClientTakesARegisteredUnstructuredDie(t *testing.T) {
 	mapper := meta.NewDefaultRESTMapper(nil)
 	mapper.Add(workloadGVK, meta.RESTScopeNamespace)
 	seed := dieunstructured.Blank.DieMutable()
-	dietest.NoError(t, die.FeedUnstructured(seed, stored(t)))
+	dietesting.NoError(t, die.FeedUnstructured(seed, stored(t)))
 	c := fake.NewClientBuilder().WithScheme(scheme).WithRESTMapper(mapper).WithObjects(seed).Build()
 
 	d := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieMutable()
@@ -103,9 +103,9 @@ func TestClientTakesARegisteredUnstructuredDie(t *testing.T) {
 	}
 
 	// change it through a typed jig, and write it back with an exact patch
-	ps, _ := jigsv1.PodSpecableJig.OfMut(d)
-	dietest.NoError(t, ps.Template().Spec().Containers().At("app").Image().Set("app:2"))
-	patch, err := die.ReleaseMergePatchE(d)
+	ps, _ := jigsv1.PodSpecableJig.MustHoldMut(d)
+	dietesting.NoError(t, ps.Template().Spec().Containers().At("app").Image().Set("app:2"))
+	patch, err := die.ReleaseMergePatch(d)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -127,14 +127,14 @@ func TestClientTakesARegisteredUnstructuredDie(t *testing.T) {
 	}
 
 	// update and create take it too
-	dietest.NoError(t, got.Node().Field("metadata").Field("labels").Field("tier").Set("web"))
+	dietesting.NoError(t, got.Node().Field("metadata").Field("labels").Field("tier").Set("web"))
 	if err := c.Update(ctx, got); err != nil {
 		t.Fatal(err)
 	}
 	created := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieStamp(func(d *dieunstructured.ObjectMut) {
 		d.SetNamespace("default")
 		d.SetName("api")
-		dietest.NoError(t, d.Node().Field("spec").Field("replicas").Set(1))
+		dietesting.NoError(t, d.Node().Field("spec").Field("replicas").Set(1))
 	}).DieMutable()
 	if err := c.Create(ctx, created); err != nil {
 		t.Fatal(err)
@@ -211,13 +211,13 @@ func TestClientListsIntoRegisteredListDies(t *testing.T) {
 	// the fake client keeps objects as they are given; seeded as unstructured
 	// objects, they would list as unstructured objects, which aren't dies
 	web := dieunstructured.Blank.DieMutable()
-	dietest.NoError(t, die.FeedUnstructured(web, stored(t)))
+	dietesting.NoError(t, die.FeedUnstructured(web, stored(t)))
 	api := web.DeepCopy()
 	api.SetName("api")
 	deploy := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Namespace().Set("default"))
-		dietest.NoError(t, d.Metadata().Name().Set("web"))
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
+		dietesting.NoError(t, d.Metadata().Namespace().Set("default"))
+		dietesting.NoError(t, d.Metadata().Name().Set("web"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
 	}).DieTare().DieMutable()
 	c := fake.NewClientBuilder().WithScheme(scheme).WithRESTMapper(mapper).WithObjects(web, api, deploy).Build()
 	ctx := context.Background()
@@ -247,7 +247,7 @@ func TestClientListsIntoRegisteredListDies(t *testing.T) {
 	}
 	// items are mutable dies, ready to change and write back
 	item := deployments.Items[0]
-	dietest.NoError(t, item.Spec().Replicas().Set(3))
+	dietesting.NoError(t, item.Spec().Replicas().Set(3))
 	if err := c.Update(ctx, item); err != nil {
 		t.Fatal(err)
 	}

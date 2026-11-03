@@ -57,27 +57,27 @@ var PriorityClassBlank = diebase.BlankOf[PriorityClass, *PriorityClassDie, *Prio
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *PriorityClassDie) DieReleaseApplyConfiguration() *PriorityClassApplyConfiguration {
+func (d *PriorityClassDie) DieReleaseApplyConfiguration() (*PriorityClassApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[PriorityClassApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [PriorityClassDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PriorityClassDie) DieReleaseApplyConfigurationE() (*PriorityClassApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[PriorityClassApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [PriorityClassDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *PriorityClassDie) DieMustReleaseApplyConfiguration() *PriorityClassApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[PriorityClassApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *PriorityClassDieMut) DieReleaseApplyConfiguration() *PriorityClassApplyConfiguration {
+func (d *PriorityClassDieMut) DieReleaseApplyConfiguration() (*PriorityClassApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[PriorityClassApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [PriorityClassDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PriorityClassDieMut) DieReleaseApplyConfigurationE() (*PriorityClassApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[PriorityClassApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [PriorityClassDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *PriorityClassDieMut) DieMustReleaseApplyConfiguration() *PriorityClassApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[PriorityClassApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply

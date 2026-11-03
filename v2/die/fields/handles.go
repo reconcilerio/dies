@@ -66,29 +66,31 @@ type ValueMut[V any] struct{ Value[V] }
 // nothing.
 func (Value[V]) DieValue(*V) {}
 
-// ValueAt returns the handle for the value of type V at a path within d's
-// root, such as one a JSONPath expression found. It panics if the value at
-// the path isn't a V.
-func ValueAt[V any](d base.Die, p base.Path) Value[V] { return core.Must(ValueAtE[V](d, p)) }
-
-// ValueAtE is [ValueAt], returning an error rather than panicking.
-func ValueAtE[V any](d base.Die, p base.Path) (Value[V], error) {
+// LocateValueAt returns the handle for the value of type V at a path within d's
+// root, such as one a JSONPath expression found. It returns an error if the
+// value at the path isn't a V.
+func LocateValueAt[V any](d base.Die, p base.Path) (Value[V], error) {
 	l, err := leafAt[V](d, p)
 	return Value[V]{l}, err
 }
 
-// ValueMutAt returns the handle for the value of type V at a path within a
-// mutable die's root. The path may be outside d
-// itself, such as the namespace of the object a subject is part of. It
-// panics if the value at the path isn't a V.
-func ValueMutAt[V any](d base.MutableDie, p base.Path) ValueMut[V] {
-	return core.Must(ValueMutAtE[V](d, p))
+// MustLocateValueAt is [LocateValueAt], panicking rather than returning an error.
+func MustLocateValueAt[V any](d base.Die, p base.Path) Value[V] {
+	return core.Must(LocateValueAt[V](d, p))
 }
 
-// ValueMutAtE is [ValueMutAt], returning an error rather than panicking.
-func ValueMutAtE[V any](d base.MutableDie, p base.Path) (ValueMut[V], error) {
+// LocateValueMutAt returns the handle for the value of type V at a path within a
+// mutable die's root. The path may be outside d itself, such as the namespace
+// of the object a subject is part of. It panics if the value at the path isn't
+// a V.
+func LocateValueMutAt[V any](d base.MutableDie, p base.Path) (ValueMut[V], error) {
 	l, err := leafAt[V](d, p)
 	return ValueMut[V]{Value[V]{l}}, err
+}
+
+// MustLocateValueMutAt is [LocateValueMutAt], panicking rather than returning an error.
+func MustLocateValueMutAt[V any](d base.MutableDie, p base.Path) ValueMut[V] {
+	return core.Must(LocateValueMutAt[V](d, p))
 }
 
 func leafAt[V any](d base.Die, p base.Path) (leaf, error) {
@@ -114,23 +116,15 @@ func ValueMutOf[T, V any](d base.LocatedAs[T], f Field[T, V]) ValueMut[V] {
 }
 
 // Get returns a copy of the current value.
-func (v Value[V]) Get() V { return core.Must(v.GetE()) }
-
-// GetE is [Value.Get], returning an error rather than panicking.
-func (v Value[V]) GetE() (V, error) {
-	val, err := v.l.h.ValueAt(v.l.path())
-	if err != nil {
-		var zero V
-		return zero, err
-	}
-	return val.Interface().(V), nil
+func (v Value[V]) Get() V {
+	val := core.Must(v.l.h.ValueAt(v.l.path()))
+	return val.Interface().(V)
 }
 
 // Has reports whether the field is present.
-func (v Value[V]) Has() bool { return core.Must(v.HasE()) }
-
-// HasE is [Value.Has], returning an error rather than panicking.
-func (v Value[V]) HasE() (bool, error) { return v.l.h.Has(v.l.path()) }
+func (v Value[V]) Has() bool {
+	return core.Must(v.l.h.Has(v.l.path()))
+}
 
 func (v Value[V]) DiePath() base.Path { return v.l.path() }
 
@@ -174,35 +168,24 @@ func OptionalMutOf[T, V any](d base.LocatedAs[T], f Field[T, *V]) OptionalMut[V]
 }
 
 // Get returns the current value, or the zero value when absent.
-func (o Optional[V]) Get() V { return core.Must(o.GetE()) }
-
-// GetE is [Optional.Get], returning an error rather than panicking.
-func (o Optional[V]) GetE() (V, error) {
-	p, err := o.PtrE()
-	if err != nil || p == nil {
-		var zero V
-		return zero, err
+func (o Optional[V]) Get() V {
+	if p := o.Ptr(); p != nil {
+		return *p
 	}
-	return *p, nil
+	var zero V
+	return zero
 }
 
 // Ptr returns a copy of the current value, or nil when absent.
-func (o Optional[V]) Ptr() *V { return core.Must(o.PtrE()) }
-
-// PtrE is [Optional.Ptr], returning an error rather than panicking.
-func (o Optional[V]) PtrE() (*V, error) {
-	val, err := o.l.h.ValueAt(o.l.path())
-	if err != nil {
-		return nil, err
-	}
-	return val.Interface().(*V), nil
+func (o Optional[V]) Ptr() *V {
+	val := core.Must(o.l.h.ValueAt(o.l.path()))
+	return val.Interface().(*V)
 }
 
 // Has reports whether the field is present.
-func (o Optional[V]) Has() bool { return core.Must(o.HasE()) }
-
-// HasE is [Optional.Has], returning an error rather than panicking.
-func (o Optional[V]) HasE() (bool, error) { return o.l.h.Has(o.l.path()) }
+func (o Optional[V]) Has() bool {
+	return core.Must(o.l.h.Has(o.l.path()))
+}
 
 func (o Optional[V]) DiePath() base.Path { return o.l.path() }
 

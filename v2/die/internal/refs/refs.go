@@ -56,14 +56,16 @@ func NewHolder(t reflect.Type) *core.Holder {
 
 // Root returns the holder of a root die that isn't a jig, for the methods
 // only it supports.
-func (r Ref) Root(method string) (*core.Holder, error) {
+// It panics on a die within another, or a jig: which kind of die it is is a
+// fact of the code, not the data.
+func (r Ref) Root(method string) *core.Holder {
 	if len(r.At) > 0 {
-		return nil, core.Errorf("die: %s is only supported on a root die, not at %s", method, r.At)
+		panic(core.Errorf("die: %s is only supported on a root die, not at %s", method, r.At))
 	}
 	if r.H.View != nil {
-		return nil, core.Errorf("die: %s is not supported on a jig; use it on the jig's source", method)
+		panic(core.Errorf("die: %s is not supported on a jig; use it on the jig's source", method))
 	}
-	return r.H, nil
+	return r.H
 }
 
 // CopyOf returns a new root holder with a copy of the die: a root's value
@@ -168,10 +170,7 @@ func (r Ref) ReleaseUnstructured() (*unstructured.Unstructured, error) {
 }
 
 func (r Ref) ReleaseApplyPatch() ([]byte, error) {
-	h, err := r.Root("ReleaseApplyPatch")
-	if err != nil {
-		return nil, err
-	}
+	h := r.Root("ReleaseApplyPatch")
 	patch, err := h.ApplyPatch()
 	if err != nil {
 		return nil, core.Errorf("die: encoding the intent of %s as an apply: %w", r.T, err)
@@ -180,10 +179,7 @@ func (r Ref) ReleaseApplyPatch() ([]byte, error) {
 }
 
 func (r Ref) ReleaseMergePatch() ([]byte, error) {
-	h, err := r.Root("ReleaseMergePatch")
-	if err != nil {
-		return nil, err
-	}
+	h := r.Root("ReleaseMergePatch")
 	patch, err := h.MergePatch()
 	if err != nil {
 		return nil, core.Errorf("die: encoding the intent of %s as a merge patch: %w", r.T, err)
@@ -193,10 +189,7 @@ func (r Ref) ReleaseMergePatch() ([]byte, error) {
 
 // Tare returns a new holder of the die's value with its intent folded in.
 func (r Ref) Tare() (*core.Holder, error) {
-	h, err := r.Root("DieTare")
-	if err != nil {
-		return nil, err
-	}
+	h := r.Root("DieTare")
 	v, err := h.Materialize()
 	if err != nil {
 		return nil, err
@@ -227,6 +220,9 @@ func (r Ref) Clear() error {
 func (r Ref) Feed(v reflect.Value) error {
 	v = core.DeepCopy(v)
 	if len(r.At) == 0 && r.H.View == nil {
+		if err := core.CheckKeys(v); err != nil {
+			return err
+		}
 		r.H.Base, r.H.Ov, r.H.Wire = v, nil, nil
 		return nil
 	}
@@ -263,6 +259,9 @@ func (r Ref) FeedJSON(data []byte) error {
 	}
 	if len(r.At) > 0 || r.H.View != nil {
 		return r.Feed(v)
+	}
+	if err := core.CheckKeys(v); err != nil {
+		return core.Errorf("die: feeding %s from JSON: %w", r.T, err)
 	}
 	w, err := core.DecodeWire(r.T, data)
 	if err != nil {
@@ -313,6 +312,9 @@ func (r Ref) Stamp(fn func(p any)) error {
 	p.Elem().Set(core.DeepCopy(before))
 	fn(p.Interface())
 	after := p.Elem()
+	if err := core.CheckKeys(after); err != nil {
+		return err
+	}
 	if core.FirstIndex(r.At) >= 0 {
 		// within a list element found by its index, which a write sets whole
 		if reflect.DeepEqual(before.Interface(), after.Interface()) {
@@ -325,22 +327,24 @@ func (r Ref) Stamp(fn func(p any)) error {
 	if err != nil {
 		return err
 	}
+	if r.H.View == nil {
+		if err := core.CheckRekeyed(&core.Holder{Base: r.H.Base, Ov: ov}, r.At); err != nil {
+			return err
+		}
+	}
 	_, err = r.H.Replace(r.At, ov)
 	return err
 }
 
 // FeedPatch feeds a patch as intent over the value.
 func (r Ref) FeedPatch(method string, kind core.PatchKind, patch []byte) error {
-	h, err := r.Root(method)
-	if err != nil {
-		return err
-	}
+	h := r.Root(method)
 	var raw map[string]any
 	// numbers are int64 where they can be, as unstructured values hold them
 	if err := utiljson.Unmarshal(patch, &raw); err != nil {
 		return core.Errorf("die: %s: %w", method, err)
 	}
-	_, err = core.FeedPatch(h, kind, raw)
+	_, err := core.FeedPatch(h, kind, raw)
 	return err
 }
 
@@ -348,10 +352,13 @@ func (r Ref) FeedPatch(method string, kind core.PatchKind, patch []byte) error {
 // reapplied on top of the decoded value.
 func (r Ref) Unmarshal(data []byte) error {
 	if len(r.At) > 0 || r.H.View != nil {
-		return core.Errorf("die: can only unmarshal into a root die")
+		panic(core.Errorf("die: can only unmarshal into a root die"))
 	}
 	v, err := r.decode(data)
 	if err != nil {
+		return err
+	}
+	if err := core.CheckKeys(v); err != nil {
 		return err
 	}
 	w, err := core.DecodeWire(r.T, data)
@@ -365,10 +372,7 @@ func (r Ref) Unmarshal(data []byte) error {
 // Keep returns a new holder of a root's value keeping the intent at the
 // locations, or all but it, with the rest folded into the base.
 func Keep(h *core.Holder, at []core.Located, only bool) (*core.Holder, error) {
-	paths, err := pathsOf(h.Base.Type(), at)
-	if err != nil {
-		return nil, err
-	}
+	paths := pathsOf(h.Base.Type(), at)
 	kept, fold := core.Only(h.Ov, paths), core.Except(h.Ov, paths)
 	if !only {
 		kept, fold = fold, kept
@@ -380,15 +384,17 @@ func Keep(h *core.Holder, at []core.Located, only bool) (*core.Holder, error) {
 	return &core.Holder{Base: base, Ov: kept, Wire: core.CommitWire(h.Wire, fold), Mutable: h.Mutable, Schema: h.Schema}, nil
 }
 
-func pathsOf(root reflect.Type, at []core.Located) ([]core.Path, error) {
+// It panics on a location within a die of another type, a mistake in the
+// code.
+func pathsOf(root reflect.Type, at []core.Located) []core.Path {
 	paths := make([]core.Path, len(at))
 	for i, l := range at {
 		if r, ok := l.(core.Rooted); ok && r.DieRootType() != root {
-			return nil, core.Errorf("die: location %s is within %s, not %s", l.DiePath(), r.DieRootType(), root)
+			panic(core.Errorf("die: location %s is within %s, not %s", l.DiePath(), r.DieRootType(), root))
 		}
 		paths[i] = l.DiePath()
 	}
-	return paths, nil
+	return paths
 }
 
 // Subresources returns the locations of a type's fields served through

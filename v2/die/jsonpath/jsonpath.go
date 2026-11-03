@@ -57,10 +57,7 @@ import (
 )
 
 // Find returns the locations within a die that an expression matches.
-func Find(d base.Die, expr string) []base.Path { return core.Must(FindE(d, expr)) }
-
-// FindE is [Find], returning an error rather than panicking.
-func FindE(d base.Die, expr string) ([]base.Path, error) {
+func Find(d base.Die, expr string) ([]base.Path, error) {
 	h, at, ok := core.StateOf(d)
 	if !ok {
 		return nil, core.Errorf("die: %T is not a die", d)
@@ -68,29 +65,31 @@ func FindE(d base.Die, expr string) ([]base.Path, error) {
 	return core.ResolveJSONPath(h, at, expr)
 }
 
-// Dies returns the matches of an expression within an immutable die as
+// MustFind is [Find], panicking rather than returning an error.
+func MustFind(d base.Die, expr string) []base.Path { return core.Must(Find(d, expr)) }
+
+// FindDies returns the matches of an expression within an immutable die as
 // immutable dies of type CD, such as *ContainerDie, each a die within d. It
 // fails if a match isn't a value of CD's type. An unstructured die is a die
 // for any unstructured value.
-func Dies[CD base.ImmutableDie](d base.ImmutableDie, expr string) []CD {
-	return core.Must(DiesE[CD](d, expr))
-}
-
-// DiesE is [Dies], returning an error rather than panicking.
-func DiesE[CD base.ImmutableDie](d base.ImmutableDie, expr string) ([]CD, error) {
+func FindDies[CD base.ImmutableDie](d base.ImmutableDie, expr string) ([]CD, error) {
 	return matches[CD](d, expr)
 }
 
-// DiesMut returns the matches of an expression within a mutable die as
-// mutable dies of type CDM, such as *ContainerDieMut, whose writes are writes
-// to d.
-func DiesMut[CDM base.MutableDie](d base.MutableDie, expr string) []CDM {
-	return core.Must(DiesMutE[CDM](d, expr))
+// MustFindDies is [FindDies], panicking rather than returning an error.
+func MustFindDies[CD base.ImmutableDie](d base.ImmutableDie, expr string) []CD {
+	return core.Must(FindDies[CD](d, expr))
 }
 
-// DiesMutE is [DiesMut], returning an error rather than panicking.
-func DiesMutE[CDM base.MutableDie](d base.MutableDie, expr string) ([]CDM, error) {
+// FindDiesMut returns the matches of an expression within a mutable die as mutable
+// dies of type CDM, such as *ContainerDieMut, whose writes are writes to d.
+func FindDiesMut[CDM base.MutableDie](d base.MutableDie, expr string) ([]CDM, error) {
 	return matches[CDM](d, expr)
+}
+
+// MustFindDiesMut is [FindDiesMut], panicking rather than returning an error.
+func MustFindDiesMut[CDM base.MutableDie](d base.MutableDie, expr string) []CDM {
+	return core.Must(FindDiesMut[CDM](d, expr))
 }
 
 func matches[CD base.Die](d base.Die, expr string) ([]CD, error) {
@@ -114,46 +113,46 @@ func matches[CD base.Die](d base.Die, expr string) ([]CD, error) {
 	return out, nil
 }
 
-// Values returns the matches of an expression as handles to values of type
-// V within d. It fails if a match isn't a V.
-func Values[V any](d base.Die, expr string) []fields.Value[V] {
-	return core.Must(ValuesE[V](d, expr))
-}
-
-// ValuesE is [Values], returning an error rather than panicking.
-func ValuesE[V any](d base.Die, expr string) ([]fields.Value[V], error) {
+// FindValues returns the matches of an expression as handles to values of type V
+// within d. It fails if a match isn't a V.
+func FindValues[V any](d base.Die, expr string) ([]fields.Value[V], error) {
 	paths, err := valuePaths[V](d, expr)
 	if err != nil {
 		return nil, err
 	}
 	out := make([]fields.Value[V], len(paths))
 	for i, p := range paths {
-		if out[i], err = fields.ValueAtE[V](d, p); err != nil {
+		if out[i], err = fields.LocateValueAt[V](d, p); err != nil {
 			return nil, err
 		}
 	}
 	return out, nil
 }
 
-// ValuesMut returns the matches of an expression as handles to values of
-// type V within a mutable die. It fails if a match isn't a V.
-func ValuesMut[V any](d base.MutableDie, expr string) []fields.ValueMut[V] {
-	return core.Must(ValuesMutE[V](d, expr))
+// MustFindValues is [FindValues], panicking rather than returning an error.
+func MustFindValues[V any](d base.Die, expr string) []fields.Value[V] {
+	return core.Must(FindValues[V](d, expr))
 }
 
-// ValuesMutE is [ValuesMut], returning an error rather than panicking.
-func ValuesMutE[V any](d base.MutableDie, expr string) ([]fields.ValueMut[V], error) {
+// FindValuesMut returns the matches of an expression as handles to values of type
+// V within a mutable die. It fails if a match isn't a V.
+func FindValuesMut[V any](d base.MutableDie, expr string) ([]fields.ValueMut[V], error) {
 	paths, err := valuePaths[V](d, expr)
 	if err != nil {
 		return nil, err
 	}
 	out := make([]fields.ValueMut[V], len(paths))
 	for i, p := range paths {
-		if out[i], err = fields.ValueMutAtE[V](d, p); err != nil {
+		if out[i], err = fields.LocateValueMutAt[V](d, p); err != nil {
 			return nil, err
 		}
 	}
 	return out, nil
+}
+
+// MustFindValuesMut is [FindValuesMut], panicking rather than returning an error.
+func MustFindValuesMut[V any](d base.MutableDie, expr string) []fields.ValueMut[V] {
+	return core.Must(FindValuesMut[V](d, expr))
 }
 
 func valuePaths[V any](d base.Die, expr string) ([]base.Path, error) {

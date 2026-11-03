@@ -270,18 +270,18 @@ func NewList(apiVersion, kind string, items ...*ObjectMut) *ObjectList {
 	return &ObjectList{lists.NewList(apiVersion, kind, items...)}
 }
 
-// ListFrom returns a list of an unstructured list's content. Its
-// items are mutable, as decoded items are.
-func ListFrom(u *unstructured.UnstructuredList) *ObjectList { return core.Must(ListFromE(u)) }
-
-// ListFromE is [ListFrom], returning an error rather than panicking.
-func ListFromE(u *unstructured.UnstructuredList) (*ObjectList, error) {
+// ListFrom returns a list of an unstructured list's content. Its items are
+// mutable, as decoded items are.
+func ListFrom(u *unstructured.UnstructuredList) (*ObjectList, error) {
 	l := &ObjectList{}
 	if err := l.setContent(u.UnstructuredContent()); err != nil {
 		return nil, err
 	}
 	return l, nil
 }
+
+// MustListFrom is [ListFrom], panicking rather than returning an error.
+func MustListFrom(u *unstructured.UnstructuredList) *ObjectList { return core.Must(ListFrom(u)) }
 
 // UnstructuredList returns the list as an unstructured list.
 func (l *ObjectList) UnstructuredList() *unstructured.UnstructuredList {
@@ -396,37 +396,15 @@ func (n *NodeMut) Field(name string) *NodeMut { return &NodeMut{n.field(name)} }
 
 // Item returns the node for the element of this list with key fields: see
 // [Node.Item].
-func (n *NodeMut) Item(keysAndValues ...any) *NodeMut {
-	return core.Must(n.ItemE(keysAndValues...))
-}
-
-// ItemE is [NodeMut.Item], returning an error rather than panicking.
-func (n *NodeMut) ItemE(keysAndValues ...any) (*NodeMut, error) {
-	m, err := n.item(keysAndValues)
-	if err != nil {
-		return nil, err
-	}
-	return &NodeMut{m}, nil
-}
+func (n *NodeMut) Item(keysAndValues ...any) *NodeMut { return &NodeMut{n.item(keysAndValues)} }
 
 // Index returns the node for the element of this list at an index: see
 // [Node.Index].
-func (n *NodeMut) Index(i int) *NodeMut { return core.Must(n.IndexE(i)) }
+func (n *NodeMut) Index(i int) *NodeMut { return &NodeMut{n.index(i)} }
 
-// IndexE is [NodeMut.Index], returning an error rather than panicking.
-func (n *NodeMut) IndexE(i int) (*NodeMut, error) {
-	m, err := n.index(i)
-	if err != nil {
-		return nil, err
-	}
-	return &NodeMut{m}, nil
-}
-
-// Find returns the nodes that a JSONPath expression matches: see [Node.Find].
-func (n *NodeMut) Find(expr string) []*NodeMut { return core.Must(n.FindE(expr)) }
-
-// FindE is [NodeMut.Find], returning an error rather than panicking.
-func (n *NodeMut) FindE(expr string) ([]*NodeMut, error) {
+// Find returns the nodes that a JSONPath expression matches: see
+// [Node.Find].
+func (n *NodeMut) Find(expr string) ([]*NodeMut, error) {
 	found, err := n.find(expr)
 	if err != nil {
 		return nil, err
@@ -438,6 +416,9 @@ func (n *NodeMut) FindE(expr string) ([]*NodeMut, error) {
 	return nodes, nil
 }
 
+// MustFind is [NodeMut.Find], panicking rather than returning an error.
+func (n *NodeMut) MustFind(expr string) []*NodeMut { return core.Must(n.Find(expr)) }
+
 // Field returns the node for a field of this object.
 func (n *Node) Field(name string) *Node { return &Node{n.field(name)} }
 
@@ -447,73 +428,50 @@ func (n *node) field(name string) node {
 
 // Item returns the node for the element of this list with key fields, given
 // as name and value pairs: Item("name", "app"). A list without keys of its
-// own is addressed by the key fields its elements are known by. A key that
-// is not unique is ambiguous.
-func (n *Node) Item(keysAndValues ...any) *Node { return core.Must(n.ItemE(keysAndValues...)) }
+// own is addressed by the key fields its elements are known by. It panics if
+// its arguments aren't pairs of string names and values. A key that is not
+// unique is ambiguous, so reading or writing through it panics, as an
+// unstructured die has no schema to refuse such content with when it is fed;
+// [Node.Find] with a filter finds every element with a key.
+func (n *Node) Item(keysAndValues ...any) *Node { return &Node{n.item(keysAndValues)} }
 
-// ItemE is [Node.Item], returning an error rather than panicking.
-func (n *Node) ItemE(keysAndValues ...any) (*Node, error) {
-	m, err := n.item(keysAndValues)
-	if err != nil {
-		return nil, err
-	}
-	return &Node{m}, nil
-}
-
-func (n *node) item(keysAndValues []any) (node, error) {
+func (n *node) item(keysAndValues []any) node {
 	if len(keysAndValues) == 0 || len(keysAndValues)%2 != 0 {
-		return node{}, core.Errorf("die: Item takes key names and values, in pairs")
+		panic(core.Errorf("die: Item takes key names and values, in pairs"))
 	}
 	var keys []string
 	var vals []any
 	for i := 0; i < len(keysAndValues); i += 2 {
 		k, ok := keysAndValues[i].(string)
 		if !ok {
-			return node{}, core.Errorf("die: Item key %v is not a string", keysAndValues[i])
-		}
-		v, err := core.ToUnstructured(reflect.ValueOf(keysAndValues[i+1]))
-		if err != nil {
-			return node{}, err
+			panic(core.Errorf("die: Item key %v is not a string", keysAndValues[i]))
 		}
 		keys = append(keys, k)
-		vals = append(vals, v)
+		vals = append(vals, core.Must(core.ToUnstructured(reflect.ValueOf(keysAndValues[i+1]))))
 	}
-	return node{h: n.h, at: core.ChildPath(n.at, core.UnstructuredKeyStep(keys, vals))}, nil
+	return node{h: n.h, at: core.ChildPath(n.at, core.UnstructuredKeyStep(keys, vals))}
 }
 
 // Index returns the node for the element of this list at an index. Unlike
 // [Node.Item], it is for lists whose elements have no keys: the element is
 // found by its position in the list as it is, and a write through it sets the
-// whole list. Clearing the element removes it from the list. Writing an
-// element past the end of the list is an error.
-func (n *Node) Index(i int) *Node { return core.Must(n.IndexE(i)) }
+// whole list. Clearing the element removes it from the list. Reading an
+// element past the end of the list reads as absent, and writing one panics,
+// as reflect's Index does; [Node.Len] says how long the list is. A negative
+// index panics.
+func (n *Node) Index(i int) *Node { return &Node{n.index(i)} }
 
-// IndexE is [Node.Index], returning an error rather than panicking.
-func (n *Node) IndexE(i int) (*Node, error) {
-	m, err := n.index(i)
-	if err != nil {
-		return nil, err
-	}
-	return &Node{m}, nil
+func (n *node) index(i int) node {
+	return node{h: n.h, at: core.ChildPath(n.at, core.IndexStep(i))}
 }
 
-func (n *node) index(i int) (node, error) {
-	if i < 0 {
-		return node{}, core.Errorf("die: index %d is negative", i)
-	}
-	return node{h: n.h, at: core.ChildPath(n.at, core.IndexStep(i))}, nil
-}
-
-// Find returns the nodes that a JSONPath expression matches, as the
-// jsonpath package resolves them: $ is the die's root, and an expression that
-// doesn't start with it starts at this node; an element of a list is found by
-// the field a filter matched it by when it matched one element by one field,
+// Find returns the nodes that a JSONPath expression matches, as the jsonpath
+// package resolves them: $ is the die's root, and an expression that doesn't
+// start with it starts at this node; an element of a list is found by the
+// field a filter matched it by when it matched one element by one field,
 // otherwise by its index, and a definite path finds a node whether or not it
 // has a value, so that setting it creates it.
-func (n *Node) Find(expr string) []*Node { return core.Must(n.FindE(expr)) }
-
-// FindE is [Node.Find], returning an error rather than panicking.
-func (n *Node) FindE(expr string) ([]*Node, error) {
+func (n *Node) Find(expr string) ([]*Node, error) {
 	found, err := n.find(expr)
 	if err != nil {
 		return nil, err
@@ -524,6 +482,9 @@ func (n *Node) FindE(expr string) ([]*Node, error) {
 	}
 	return nodes, nil
 }
+
+// MustFind is [Node.Find], panicking rather than returning an error.
+func (n *Node) MustFind(expr string) []*Node { return core.Must(n.Find(expr)) }
 
 func (n *node) find(expr string) ([]node, error) {
 	paths, err := core.ResolveJSONPath(n.h, n.at, expr)
@@ -546,15 +507,12 @@ func (n *node) DieRoot() base.Die { return base.RootOf(n.h) }
 func (n *node) DieRootType() reflect.Type { return n.h.Base.Type() }
 
 // Get returns a copy of the value, in unstructured form, or nil.
-func (n *node) Get() any { return core.Must(n.GetE()) }
-
-// GetE is [Node.Get], returning an error rather than panicking.
-func (n *node) GetE() (any, error) {
-	v, err := n.h.ValueAt(n.at)
-	if err != nil || !v.IsValid() || (v.Kind() == reflect.Interface && v.IsNil()) {
-		return nil, err
+func (n *node) Get() any {
+	v := core.Must(n.h.ValueAt(n.at))
+	if !v.IsValid() || (v.Kind() == reflect.Interface && v.IsNil()) {
+		return nil
 	}
-	return v.Interface(), nil
+	return v.Interface()
 }
 
 // Location is a location in an unstructured die, immutable or mutable: the
@@ -590,13 +548,13 @@ func (n *node) unstructuredAt() (*core.Holder, base.Path) { return n.h, n.at }
 
 // GetAs reads the value of an unstructured die or node as a T. A die is read
 // as a detached copy; to keep it linked, use [JigAs].
-func GetAs[T any](u Location) T { return core.Must(GetAsE[T](u)) }
-
-// GetAsE is [GetAs], returning an error rather than panicking.
-func GetAsE[T any](u Location) (T, error) {
+func GetAs[T any](u Location) (T, error) {
 	h, at := u.unstructuredAt()
 	return core.GetAt[T](h, at, nil)
 }
+
+// MustGetAs is [GetAs], panicking rather than returning an error.
+func MustGetAs[T any](u Location) T { return core.Must(GetAs[T](u)) }
 
 // JigAs presents an immutable unstructured die or node as an immutable
 // typed die, D, such as a *DeploymentDie or a *ContainerDie. Like any jig,
@@ -620,10 +578,7 @@ func jigAs[D base.Die](u Location) D {
 }
 
 // Has reports whether the value is present.
-func (n *node) Has() bool { return core.Must(n.HasE()) }
-
-// HasE is [Node.Has], returning an error rather than panicking.
-func (n *node) HasE() (bool, error) { return n.h.Has(n.at) }
+func (n *node) Has() bool { return core.Must(n.h.Has(n.at)) }
 
 // Set records the value as intent. Typed values, such as structs, are
 // converted to unstructured form.
@@ -652,37 +607,26 @@ func (n *NodeMut) EmptyList() error {
 }
 
 // Keys returns the fields of this object, sorted.
-func (n *node) Keys() []string { return core.Must(n.KeysE()) }
-
-// KeysE is [Node.Keys], returning an error rather than panicking.
-func (n *node) KeysE() ([]string, error) {
-	v, err := n.GetE()
-	if err != nil {
-		return nil, err
-	}
-	m, _ := v.(map[string]any)
+func (n *node) Keys() []string {
+	m, _ := n.Get().(map[string]any)
 	keys := make([]string, 0, len(m))
 	for k := range m {
 		keys = append(keys, k)
 	}
 	slices.Sort(keys)
-	return keys, nil
+	return keys
 }
 
 // Len returns the length of this list, or the number of fields of this
 // object.
-func (n *node) Len() int { return core.Must(n.LenE()) }
-
-// LenE is [Node.Len], returning an error rather than panicking.
-func (n *node) LenE() (int, error) {
-	v, err := n.GetE()
-	switch v := v.(type) {
+func (n *node) Len() int {
+	switch v := n.Get().(type) {
 	case []any:
-		return len(v), err
+		return len(v)
 	case map[string]any:
-		return len(v), err
+		return len(v)
 	}
-	return 0, err
+	return 0
 }
 
 // Type is the JSON type of an unstructured value. Each is held as one Go
@@ -729,28 +673,26 @@ func (t Type) String() string {
 // Type returns the JSON type of this value. Unstructured objects hold
 // integers as int64 and other numbers as float64, but a value that was fed in
 // another Go form is classified by its kind.
-func (n *node) Type() Type { return core.Must(n.TypeE()) }
-
-// TypeE is [Node.Type], returning an error rather than panicking.
-func (n *node) TypeE() (Type, error) {
-	v, err := n.GetE()
-	if err != nil || v == nil {
-		return TypeAbsent, err
+func (n *node) Type() Type {
+	v := n.Get()
+	if v == nil {
+		return TypeAbsent
 	}
 	switch reflect.ValueOf(v).Kind() {
 	case reflect.Map:
-		return TypeObject, nil
+		return TypeObject
 	case reflect.Slice, reflect.Array:
-		return TypeList, nil
+		return TypeList
 	case reflect.String:
-		return TypeString, nil
+		return TypeString
 	case reflect.Bool:
-		return TypeBool, nil
+		return TypeBool
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return TypeInt, nil
+		return TypeInt
 	case reflect.Float32, reflect.Float64:
-		return TypeFloat, nil
+		return TypeFloat
 	}
-	return TypeAbsent, core.Errorf("die: %s holds %T, which is not an unstructured value", n.at, v)
+	// writes convert what they set to unstructured form, so it can't be held
+	panic(core.Errorf("die: %s holds %T, which is not an unstructured value", n.at, v))
 }

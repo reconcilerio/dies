@@ -56,27 +56,27 @@ var APIServiceBlank = diebase.BlankOf[APIService, *APIServiceDie, *APIServiceDie
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *APIServiceDie) DieReleaseApplyConfiguration() *APIServiceApplyConfiguration {
+func (d *APIServiceDie) DieReleaseApplyConfiguration() (*APIServiceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[APIServiceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [APIServiceDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *APIServiceDie) DieReleaseApplyConfigurationE() (*APIServiceApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[APIServiceApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [APIServiceDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *APIServiceDie) DieMustReleaseApplyConfiguration() *APIServiceApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[APIServiceApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *APIServiceDieMut) DieReleaseApplyConfiguration() *APIServiceApplyConfiguration {
+func (d *APIServiceDieMut) DieReleaseApplyConfiguration() (*APIServiceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[APIServiceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [APIServiceDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *APIServiceDieMut) DieReleaseApplyConfigurationE() (*APIServiceApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[APIServiceApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [APIServiceDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *APIServiceDieMut) DieMustReleaseApplyConfiguration() *APIServiceApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[APIServiceApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -202,27 +202,27 @@ var APIServiceConditionBlank = diebase.Blank[APIServiceCondition, *APIServiceCon
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *APIServiceConditionDie) DieReleaseApplyConfiguration() *APIServiceConditionApplyConfiguration {
+func (d *APIServiceConditionDie) DieReleaseApplyConfiguration() (*APIServiceConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[APIServiceConditionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [APIServiceConditionDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *APIServiceConditionDie) DieReleaseApplyConfigurationE() (*APIServiceConditionApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[APIServiceConditionApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [APIServiceConditionDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *APIServiceConditionDie) DieMustReleaseApplyConfiguration() *APIServiceConditionApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[APIServiceConditionApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *APIServiceConditionDieMut) DieReleaseApplyConfiguration() *APIServiceConditionApplyConfiguration {
+func (d *APIServiceConditionDieMut) DieReleaseApplyConfiguration() (*APIServiceConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[APIServiceConditionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [APIServiceConditionDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *APIServiceConditionDieMut) DieReleaseApplyConfigurationE() (*APIServiceConditionApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[APIServiceConditionApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [APIServiceConditionDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *APIServiceConditionDieMut) DieMustReleaseApplyConfiguration() *APIServiceConditionApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[APIServiceConditionApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -350,27 +350,27 @@ var APIServiceSpecBlank = diebase.Blank[APIServiceSpec, *APIServiceSpecDie, *API
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *APIServiceSpecDie) DieReleaseApplyConfiguration() *APIServiceSpecApplyConfiguration {
+func (d *APIServiceSpecDie) DieReleaseApplyConfiguration() (*APIServiceSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[APIServiceSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [APIServiceSpecDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *APIServiceSpecDie) DieReleaseApplyConfigurationE() (*APIServiceSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[APIServiceSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [APIServiceSpecDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *APIServiceSpecDie) DieMustReleaseApplyConfiguration() *APIServiceSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[APIServiceSpecApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *APIServiceSpecDieMut) DieReleaseApplyConfiguration() *APIServiceSpecApplyConfiguration {
+func (d *APIServiceSpecDieMut) DieReleaseApplyConfiguration() (*APIServiceSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[APIServiceSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [APIServiceSpecDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *APIServiceSpecDieMut) DieReleaseApplyConfigurationE() (*APIServiceSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[APIServiceSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [APIServiceSpecDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *APIServiceSpecDieMut) DieMustReleaseApplyConfiguration() *APIServiceSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[APIServiceSpecApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -542,27 +542,27 @@ var APIServiceStatusBlank = diebase.Blank[APIServiceStatus, *APIServiceStatusDie
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *APIServiceStatusDie) DieReleaseApplyConfiguration() *APIServiceStatusApplyConfiguration {
+func (d *APIServiceStatusDie) DieReleaseApplyConfiguration() (*APIServiceStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[APIServiceStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [APIServiceStatusDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *APIServiceStatusDie) DieReleaseApplyConfigurationE() (*APIServiceStatusApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[APIServiceStatusApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [APIServiceStatusDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *APIServiceStatusDie) DieMustReleaseApplyConfiguration() *APIServiceStatusApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[APIServiceStatusApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *APIServiceStatusDieMut) DieReleaseApplyConfiguration() *APIServiceStatusApplyConfiguration {
+func (d *APIServiceStatusDieMut) DieReleaseApplyConfiguration() (*APIServiceStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[APIServiceStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [APIServiceStatusDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *APIServiceStatusDieMut) DieReleaseApplyConfigurationE() (*APIServiceStatusApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[APIServiceStatusApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [APIServiceStatusDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *APIServiceStatusDieMut) DieMustReleaseApplyConfiguration() *APIServiceStatusApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[APIServiceStatusApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -624,27 +624,27 @@ var ServiceReferenceBlank = diebase.Blank[ServiceReference, *ServiceReferenceDie
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ServiceReferenceDie) DieReleaseApplyConfiguration() *ServiceReferenceApplyConfiguration {
+func (d *ServiceReferenceDie) DieReleaseApplyConfiguration() (*ServiceReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ServiceReferenceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ServiceReferenceDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ServiceReferenceDie) DieReleaseApplyConfigurationE() (*ServiceReferenceApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ServiceReferenceApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ServiceReferenceDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ServiceReferenceDie) DieMustReleaseApplyConfiguration() *ServiceReferenceApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ServiceReferenceApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ServiceReferenceDieMut) DieReleaseApplyConfiguration() *ServiceReferenceApplyConfiguration {
+func (d *ServiceReferenceDieMut) DieReleaseApplyConfiguration() (*ServiceReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ServiceReferenceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ServiceReferenceDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ServiceReferenceDieMut) DieReleaseApplyConfigurationE() (*ServiceReferenceApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ServiceReferenceApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ServiceReferenceDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ServiceReferenceDieMut) DieMustReleaseApplyConfiguration() *ServiceReferenceApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ServiceReferenceApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply

@@ -25,7 +25,7 @@ import (
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	"reconciler.io/dies/v2/die"
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 )
 
 // JSON merge patches: what a die sends is its intent against what it read,
@@ -42,7 +42,7 @@ func get(t *testing.T, ns string) *dieappsv1.DeploymentDie {
 
 func mergePatch(t *testing.T, d *dieappsv1.DeploymentDie) *dieappsv1.DeploymentDie {
 	t.Helper()
-	body, err := die.ReleaseMergePatchE(d)
+	body, err := die.ReleaseMergePatch(d)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -56,24 +56,24 @@ func mergePatch(t *testing.T, d *dieappsv1.DeploymentDie) *dieappsv1.DeploymentD
 func TestMergePatchCarriesOnlyIntent(t *testing.T) {
 	ns := namespace(t)
 	apply(t, deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Labels().Set("tier", "web"))
-		dietest.NoError(t, d.Spec().Replicas().Set(2))
-		dietest.NoError(t, d.Spec().Paused().Set(true))
-		dietest.NoError(t, d.Spec().MinReadySeconds().Set(5))
+		dietesting.NoError(t, d.Metadata().Labels().Set("tier", "web"))
+		dietesting.NoError(t, d.Spec().Replicas().Set(2))
+		dietesting.NoError(t, d.Spec().Paused().Set(true))
+		dietesting.NoError(t, d.Spec().MinReadySeconds().Set(5))
 	}), "app")
 	read := get(t, ns)
 
 	// another writer changes the object after it was read
 	other := identity(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Labels().Set("team", "a"))
+		dietesting.NoError(t, d.Metadata().Labels().Set("team", "a"))
 	})
 	apply(t, other, "other")
 
 	got := mergePatch(t, read.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Replicas().Set(0))
-		dietest.NoError(t, d.Spec().Paused().Set(false))
-		dietest.NoError(t, d.Spec().MinReadySeconds().Clear())
-		dietest.NoError(t, d.Metadata().Labels().Remove("tier"))
+		dietesting.NoError(t, d.Spec().Replicas().Set(0))
+		dietesting.NoError(t, d.Spec().Paused().Set(false))
+		dietesting.NoError(t, d.Spec().MinReadySeconds().Clear())
+		dietesting.NoError(t, d.Metadata().Labels().Remove("tier"))
 	}))
 
 	if r := got.Spec().Replicas().Ptr(); r == nil || *r != 0 {
@@ -99,11 +99,11 @@ func TestMergePatchCarriesOnlyIntent(t *testing.T) {
 func TestMergePatchSendsListsWhole(t *testing.T) {
 	ns := namespace(t)
 	apply(t, deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("sidecar").Image().Set("sidecar:1"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("sidecar").Image().Set("sidecar:1"))
 	}), "app")
 
 	got := mergePatch(t, get(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:2"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:2"))
 	}))
 	containers := got.Spec().Template().Spec().Containers()
 	if containers.At("app").Image().Get() != "app:2" || containers.At("sidecar").Image().Get() != "sidecar:1" {
@@ -122,8 +122,8 @@ func TestMergePatchSteps(t *testing.T) {
 	ns := namespace(t)
 	ctx := context.Background()
 	apply(t, deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Labels().Set("canary", "true"))
-		dietest.NoError(t, d.Spec().Replicas().Set(2))
+		dietesting.NoError(t, d.Metadata().Labels().Set("canary", "true"))
+		dietesting.NoError(t, d.Spec().Replicas().Set(2))
 	}), "app")
 
 	current, err := dieappsv1.DeploymentBlank.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
@@ -133,10 +133,10 @@ func TestMergePatchSteps(t *testing.T) {
 		t.Fatal(err)
 	}
 	update := current.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Replicas().Set(0))
-		dietest.NoError(t, d.Metadata().Labels().Remove("canary"))
+		dietesting.NoError(t, d.Spec().Replicas().Set(0))
+		dietesting.NoError(t, d.Metadata().Labels().Remove("canary"))
 	})
-	body, err := die.ReleaseMergePatchE(update)
+	body, err := die.ReleaseMergePatch(update)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -69,16 +69,10 @@ func (l *ListMap[C, CD, K]) At(k K) CD {
 }
 
 // Has reports whether an element with key k exists.
-func (l *ListMap[C, CD, K]) Has(k K) bool { return core.Must(l.HasE(k)) }
-
-// HasE is [ListMap.Has], returning an error rather than panicking.
-func (l *ListMap[C, CD, K]) HasE(k K) (bool, error) {
-	list, err := l.h.ValueAt(l.at)
-	if err != nil {
-		return false, err
-	}
-	i, err := core.FindElem(list, l.step(k))
-	return i >= 0, err
+func (l *ListMap[C, CD, K]) Has(k K) bool {
+	list := core.Must(l.h.ValueAt(l.at))
+	i := core.Must(core.FindElem(list, l.step(k)))
+	return i >= 0
 }
 
 // write writes through the list, returning it.
@@ -103,37 +97,23 @@ func (l *ListMapMut[C, CDM, K]) Empty() error {
 }
 
 // Len returns the number of elements.
-func (l *ListMap[C, CD, K]) Len() int { return core.Must(l.LenE()) }
-
-// LenE is [ListMap.Len], returning an error rather than panicking.
-func (l *ListMap[C, CD, K]) LenE() (int, error) {
-	list, err := l.h.ValueAt(l.at)
-	if err != nil {
-		return 0, err
-	}
-	return list.Len(), nil
+func (l *ListMap[C, CD, K]) Len() int {
+	list := core.Must(l.h.ValueAt(l.at))
+	return list.Len()
 }
 
 // Keys returns the element keys in list order, with defaulted key fields
 // filled in.
-func (l *ListMap[C, CD, K]) Keys() []K { return core.Must(l.KeysE()) }
-
-// KeysE is [ListMap.Keys], returning an error rather than panicking.
-func (l *ListMap[C, CD, K]) KeysE() ([]K, error) {
-	list, err := l.h.ValueAt(l.at)
-	if err != nil {
-		return nil, err
-	}
+func (l *ListMap[C, CD, K]) Keys() []K {
+	list := core.Must(l.h.ValueAt(l.at))
 	keys := make([]K, list.Len())
 	for i := range list.Len() {
 		keys[i] = l.keyOf(core.WithKeyDefaults(list.Index(i), l.keys).Interface().(C))
 	}
-	return keys, nil
+	return keys
 }
 
-// All yields each element's key and attached die, in list order. It panics,
-// as [ListMap.Keys] does, if the keys can't be read; use [ListMap.KeysE] and
-// [ListMap.At] to handle that.
+// All yields each element's key and attached die, in list order.
 func (l *ListMap[C, CD, K]) All() iter.Seq2[K, CD] {
 	return func(yield func(K, CD) bool) {
 		for _, k := range l.Keys() {
@@ -166,23 +146,15 @@ func (m *Map[K, V]) DieRootType() reflect.Type { return m.h.Base.Type() }
 func (m *Map[K, V]) entry(k K) base.Path { return core.ChildPath(m.at, core.MapKeyStep(string(k))) }
 
 // At returns the value for key k, or the zero value.
-func (m *Map[K, V]) At(k K) V { return core.Must(m.AtE(k)) }
-
-// AtE is [Map.At], returning an error rather than panicking.
-func (m *Map[K, V]) AtE(k K) (V, error) {
-	v, err := m.h.ValueAt(m.entry(k))
-	if err != nil {
-		var zero V
-		return zero, err
-	}
-	return v.Interface().(V), nil
+func (m *Map[K, V]) At(k K) V {
+	v := core.Must(m.h.ValueAt(m.entry(k)))
+	return v.Interface().(V)
 }
 
 // Has reports whether the map has key k.
-func (m *Map[K, V]) Has(k K) bool { return core.Must(m.HasE(k)) }
-
-// HasE is [Map.Has], returning an error rather than panicking.
-func (m *Map[K, V]) HasE(k K) (bool, error) { return m.h.Has(m.entry(k)) }
+func (m *Map[K, V]) Has(k K) bool {
+	return core.Must(m.h.Has(m.entry(k)))
+}
 
 // write writes through the map, returning it.
 func (m *MapMut[K, V]) write(rel base.Path, o core.Op, v reflect.Value, union bool) error {
@@ -211,36 +183,23 @@ func (m *MapMut[K, V]) Empty() error {
 }
 
 // Len returns the number of entries.
-func (m *Map[K, V]) Len() int { return core.Must(m.LenE()) }
-
-// LenE is [Map.Len], returning an error rather than panicking.
-func (m *Map[K, V]) LenE() (int, error) {
-	v, err := m.h.ValueAt(m.at)
-	if err != nil {
-		return 0, err
-	}
-	return v.Len(), nil
+func (m *Map[K, V]) Len() int {
+	v := core.Must(m.h.ValueAt(m.at))
+	return v.Len()
 }
 
 // Keys returns the keys in sorted order.
-func (m *Map[K, V]) Keys() []K { return core.Must(m.KeysE()) }
-
-// KeysE is [Map.Keys], returning an error rather than panicking.
-func (m *Map[K, V]) KeysE() ([]K, error) {
-	v, err := m.h.ValueAt(m.at)
-	if err != nil {
-		return nil, err
-	}
+func (m *Map[K, V]) Keys() []K {
+	v := core.Must(m.h.ValueAt(m.at))
 	keys := make([]K, 0, v.Len())
 	for _, k := range v.MapKeys() {
 		keys = append(keys, K(k.String()))
 	}
 	slices.Sort(keys)
-	return keys, nil
+	return keys
 }
 
-// All yields each entry in sorted key order. It panics, as [Map.Keys] does,
-// if the map can't be read; use [Map.KeysE] and [Map.AtE] to handle that.
+// All yields each entry in sorted key order.
 func (m *Map[K, V]) All() iter.Seq2[K, V] {
 	return func(yield func(K, V) bool) {
 		v := core.Must(m.h.ValueAt(m.at))

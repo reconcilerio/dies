@@ -46,22 +46,16 @@ type ApplyConfiguration struct {
 
 var _ runtime.ApplyConfiguration = (*ApplyConfiguration)(nil)
 
-// ApplyConfigurationOf returns a root die's intent as an apply configuration,
-// or the part of it scopes keep, as [ReleaseApplyPatch] does. It panics on a
-// die within another, as ReleaseApplyPatch does.
-func ApplyConfigurationOf(d Die, scopes ...Scope) *ApplyConfiguration {
-	return core.Must(ApplyConfigurationOfE(d, scopes...))
-}
-
-// ApplyConfigurationOfE is [ApplyConfigurationOf], returning an error rather
-// than panicking.
-func ApplyConfigurationOfE(d Die, scopes ...Scope) (*ApplyConfiguration, error) {
-	r, err := scoped(d, "ApplyConfigurationOf", scopes)
+// ReleaseApplyConfiguration returns a root die's intent as an apply configuration,
+// or the part of it scopes keep, as [ReleaseApplyPatch] does. It panics on
+// a die within another, as ReleaseApplyPatch does.
+func ReleaseApplyConfiguration(d Die, scopes ...Scope) (*ApplyConfiguration, error) {
+	r, err := scoped(d, "ReleaseApplyConfiguration", scopes)
 	if err != nil {
 		return nil, err
 	}
 	if len(r.At) > 0 {
-		return nil, core.Errorf("die: ApplyConfigurationOf is only supported on a root die, not at %s", r.At)
+		return nil, core.Errorf("die: ReleaseApplyConfiguration is only supported on a root die, not at %s", r.At)
 	}
 	patch, err := r.H.ApplyPatch()
 	if err != nil {
@@ -72,6 +66,12 @@ func ApplyConfigurationOfE(d Die, scopes ...Scope) (*ApplyConfiguration, error) 
 		return nil, core.Errorf("die: decoding the identity of %T: %w", d, err)
 	}
 	return ac, nil
+}
+
+// MustReleaseApplyConfiguration is [ReleaseApplyConfiguration], panicking rather than returning an
+// error.
+func MustReleaseApplyConfiguration(d Die, scopes ...Scope) *ApplyConfiguration {
+	return core.Must(ReleaseApplyConfiguration(d, scopes...))
 }
 
 func (*ApplyConfiguration) IsApplyConfiguration() {}

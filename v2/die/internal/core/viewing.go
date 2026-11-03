@@ -116,6 +116,17 @@ func (v *Viewing) within(p Path) (Binding, Path, bool) {
 	return best, p[len(best.view):], true
 }
 
+// Bound reports whether a jig binds a location, at or within a binding or
+// above some: a write elsewhere panics. Every location of a die that isn't a
+// jig is bound.
+func (h *Holder) Bound(p Path) bool {
+	if h.View == nil {
+		return true
+	}
+	_, _, within := h.View.within(p)
+	return within || len(h.View.below(p)) > 0
+}
+
 // below finds the bindings for locations under a view path.
 func (v *Viewing) below(p Path) []Binding {
 	var out []Binding
@@ -205,7 +216,8 @@ func (v *Viewing) has(p Path) (bool, error) {
 
 func (v *Viewing) write(p Path, o Op, val reflect.Value) error {
 	if !v.Src.Mutable() {
-		return ErrReadOnlyJig
+		// the types don't allow it: a jig of an immutable die is immutable
+		panic(ErrReadOnlyJig)
 	}
 	if b, rest, ok := v.within(p); ok {
 		return v.writeBinding(b, rest, o, val)
@@ -213,7 +225,9 @@ func (v *Viewing) write(p Path, o Op, val reflect.Value) error {
 	// a write above the bindings is split across them
 	bs := v.below(p)
 	if len(bs) == 0 {
-		return Errorf("die: %s is not bound in this jig of %s", p, v.Src)
+		// a fact of the jig and the source's type, not the data: check with
+		// IsBound first, where a jig may not bind a location
+		panic(Errorf("die: %s is not bound in this jig of %s", p, v.Src))
 	}
 	for _, b := range bs {
 		sub := val
@@ -429,4 +443,52 @@ func graft(n *Onode, p Path, k *Onode) *Onode {
 		c.setKid(last, k)
 		return c
 	})
+}
+
+// CheckShapes returns an error if the path of a binding into an untyped
+// source steps into a value of another kind, such as a field of a string,
+// which the jig couldn't write through. A typed source's shape is its type's.
+func (v *Viewing) CheckShapes() error {
+	for _, b := range v.Binds {
+		paths := []Path{v.source(b, nil)}
+		if b.agg != nil {
+			paths = nil
+			for _, m := range b.agg.Members {
+				paths = append(paths, v.At.join(m.Src))
+			}
+		}
+		for _, p := range paths {
+			for i := 1; i < len(p); i++ {
+				raw, err := rawAt(v.Src, p[:i])
+				if err != nil {
+					return err
+				}
+				if raw == nil {
+					break
+				}
+				val := reflect.ValueOf(raw)
+				if !stepsInto(val.Kind(), p[i].kind) {
+					return Errorf("die: %s is a %s, which the binding to %s can't step into", p[:i], unstructuredKind(val), p)
+				}
+			}
+		}
+	}
+	return nil
+}
+
+// rawAt returns the unstructured value at a path within an untyped source,
+// or nil for a typed one, whose shape its type gives.
+func rawAt(s source, p Path) (any, error) {
+	switch s := s.(type) {
+	case DieSource:
+		v, err := s.H.ValueAt(p)
+		if err != nil || !v.IsValid() || (v.Kind() == reflect.Interface && v.IsNil()) {
+			return nil, err
+		}
+		return v.Interface(), nil
+	case UnstructuredSource:
+		raw, _, err := s.get(p)
+		return raw, err
+	}
+	return nil, nil
 }

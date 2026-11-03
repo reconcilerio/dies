@@ -36,7 +36,7 @@ import (
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
 	"reconciler.io/dies/v2/die"
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 	dieunstructured "reconciler.io/dies/v2/die/unstructured"
 )
 
@@ -65,7 +65,7 @@ func reconcile(ctx context.Context, c client.Client, key client.ObjectKey) error
 	if err != nil {
 		return err
 	}
-	body, err := die.ReleaseApplyPatchE(status, die.Subresource("status"))
+	body, err := die.ReleaseApplyPatch(status, die.Subresource("status"))
 	if err != nil {
 		return err
 	}
@@ -92,10 +92,10 @@ func TestReconcileAppliesOnlyWhatItOwns(t *testing.T) {
 	mapper.Add(gvk, meta.RESTScopeNamespace)
 
 	seed := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Namespace().Set("default"))
-		dietest.NoError(t, d.Metadata().Name().Set("web"))
-		dietest.NoError(t, d.Spec().Replicas().Set(2))
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
+		dietesting.NoError(t, d.Metadata().Namespace().Set("default"))
+		dietesting.NoError(t, d.Metadata().Name().Set("web"))
+		dietesting.NoError(t, d.Spec().Replicas().Set(2))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
 	}).DieTare().DieMutable()
 	c := fake.NewClientBuilder().WithScheme(scheme).WithRESTMapper(mapper).
 		WithObjects(seed).WithStatusSubresource(&dieappsv1.DeploymentDieMut{}).WithReturnManagedFields().Build()
@@ -103,11 +103,11 @@ func TestReconcileAppliesOnlyWhatItOwns(t *testing.T) {
 
 	// another controller owns a condition of its own
 	other := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Namespace().Set("default"))
-		dietest.NoError(t, d.Metadata().Name().Set("web"))
-		dietest.NoError(t, d.Status().Conditions().At(dieappsv1.DeploymentProgressing).Status().Set(diecorev1.ConditionTrue))
+		dietesting.NoError(t, d.Metadata().Namespace().Set("default"))
+		dietesting.NoError(t, d.Metadata().Name().Set("web"))
+		dietesting.NoError(t, d.Status().Conditions().At(dieappsv1.DeploymentProgressing).Status().Set(diecorev1.ConditionTrue))
 	})
-	body, err := die.ReleaseApplyPatchE(other, die.Subresource("status"))
+	body, err := die.ReleaseApplyPatch(other, die.Subresource("status"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -177,7 +177,7 @@ func TestUpdateKeepsUnknownFields(t *testing.T) {
 	if err := c.Get(ctx, key(), d); err != nil {
 		t.Fatal(err)
 	}
-	dietest.NoError(t, d.Spec().Replicas().Set(3))
+	dietesting.NoError(t, d.Spec().Replicas().Set(3))
 	if err := c.Update(ctx, d); err != nil {
 		t.Fatal(err)
 	}
@@ -210,12 +210,12 @@ func TestApplyConfigurationRoundTrip(t *testing.T) {
 	ctx := context.Background()
 
 	applied := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Namespace().Set("default"))
-		dietest.NoError(t, d.Metadata().Name().Set("web"))
-		dietest.NoError(t, d.Spec().Replicas().Set(2))
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
+		dietesting.NoError(t, d.Metadata().Namespace().Set("default"))
+		dietesting.NoError(t, d.Metadata().Name().Set("web"))
+		dietesting.NoError(t, d.Spec().Replicas().Set(2))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
 	})
-	if err := c.Apply(ctx, applied.DieReleaseApplyConfiguration(), client.FieldOwner("litmus")); err != nil {
+	if err := c.Apply(ctx, applied.DieMustReleaseApplyConfiguration(), client.FieldOwner("litmus")); err != nil {
 		t.Fatal(err)
 	}
 	// another manager changes something else
@@ -232,8 +232,8 @@ func TestApplyConfigurationRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	mine := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietest.NoError(t, d.DieFeedApplyConfiguration(owned)) })
-	got, err := die.ReleaseApplyPatchE(mine)
+	mine := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietesting.NoError(t, d.DieFeedApplyConfiguration(owned)) })
+	got, err := die.ReleaseApplyPatch(mine)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -273,16 +273,16 @@ func TestApplyingAnyDie(t *testing.T) {
 	ctx := context.Background()
 
 	deploy := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Namespace().Set("default"))
-		dietest.NoError(t, d.Metadata().Name().Set("web"))
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
+		dietesting.NoError(t, d.Metadata().Namespace().Set("default"))
+		dietesting.NoError(t, d.Metadata().Name().Set("web"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
 	})
-	ac := die.ApplyConfigurationOf(deploy)
+	ac := die.MustReleaseApplyConfiguration(deploy)
 	if err := c.Apply(ctx, ac, client.FieldOwner("litmus")); err != nil {
 		t.Fatal(err)
 	}
 	// the object as the server returned it
-	applied := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietest.NoError(t, die.FeedJSON(d, ac.Result())) })
+	applied := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietesting.NoError(t, die.FeedJSON(d, ac.Result())) })
 	if applied.GetResourceVersion() == "" || applied.Spec().Template().Spec().Containers().At("app").Image().Get() != "app:1" {
 		t.Errorf("result %s", ac.Result())
 	}
@@ -290,9 +290,9 @@ func TestApplyingAnyDie(t *testing.T) {
 	workload := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieStamp(func(d *dieunstructured.ObjectMut) {
 		d.SetNamespace("default")
 		d.SetName("web")
-		dietest.NoError(t, d.Node().Field("spec").Field("replicas").Set(2))
+		dietesting.NoError(t, d.Node().Field("spec").Field("replicas").Set(2))
 	})
-	if err := c.Apply(ctx, die.ApplyConfigurationOf(workload), client.FieldOwner("litmus")); err != nil {
+	if err := c.Apply(ctx, die.MustReleaseApplyConfiguration(workload), client.FieldOwner("litmus")); err != nil {
 		t.Fatal(err)
 	}
 	var got unstructured.Unstructured

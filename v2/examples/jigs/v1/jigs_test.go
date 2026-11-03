@@ -25,7 +25,7 @@ import (
 	diebatchv1 "reconciler.io/dies/v2/apis/batch/v1"
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
 	"reconciler.io/dies/v2/die"
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 	jigsv1 "reconciler.io/dies/v2/examples/jigs/v1"
 )
 
@@ -57,26 +57,26 @@ func injectSidecar(ps *jigsv1.PodSpecableDieMut) error {
 
 func TestJigWritesThroughToEachSource(t *testing.T) {
 	deploy := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Name().Set("web"))
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
+		dietesting.NoError(t, d.Metadata().Name().Set("web"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
 	}).DieTare().DieMutable()
 	cron := diebatchv1.CronJobBlank.DieStamp(func(d *diebatchv1.CronJobDieMut) {
-		dietest.NoError(t, d.Metadata().Name().Set("nightly"))
+		dietesting.NoError(t, d.Metadata().Name().Set("nightly"))
 	}).DieTare().DieMutable()
 	pod := diecorev1.PodBlank.DieStamp(func(d *diecorev1.PodDieMut) {
-		dietest.NoError(t, d.Metadata().Name().Set("debug"))
+		dietesting.NoError(t, d.Metadata().Name().Set("debug"))
 	}).DieTare().DieMutable()
 
 	for _, source := range []die.MutableDie{deploy, cron, pod} {
-		ps, ok := jigsv1.PodSpecableJig.OfMut(source)
+		ps, ok := jigsv1.PodSpecableJig.MustHoldMut(source)
 		if !ok {
 			t.Fatalf("no jig of %T", source)
 		}
-		dietest.NoError(t, injectSidecar(ps))
+		dietesting.NoError(t, injectSidecar(ps))
 	}
 
 	// each change landed at its source's own location, as intent
-	got, err := die.ReleaseApplyPatchE(deploy)
+	got, err := die.ReleaseApplyPatch(deploy)
 	assertJSON(t, got, err, `{
 		"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "web"},
 		"spec": {"template": {
@@ -84,7 +84,7 @@ func TestJigWritesThroughToEachSource(t *testing.T) {
 			"spec": {"containers": [{"name": "sidecar", "image": "proxy:1"}]}
 		}}
 	}`)
-	got, err = die.ReleaseApplyPatchE(cron)
+	got, err = die.ReleaseApplyPatch(cron)
 	assertJSON(t, got, err, `{
 		"apiVersion": "batch/v1", "kind": "CronJob", "metadata": {"name": "nightly"},
 		"spec": {"jobTemplate": {"spec": {"template": {
@@ -93,7 +93,7 @@ func TestJigWritesThroughToEachSource(t *testing.T) {
 		}}}}
 	}`)
 	// a pod's template metadata is the pod's own metadata
-	got, err = die.ReleaseApplyPatchE(pod)
+	got, err = die.ReleaseApplyPatch(pod)
 	assertJSON(t, got, err, `{
 		"apiVersion": "v1", "kind": "Pod",
 		"metadata": {"name": "debug", "annotations": {"sidecar.example.dev/injected": "true"}},
@@ -108,10 +108,10 @@ func TestJigWritesThroughToEachSource(t *testing.T) {
 
 func TestJigReads(t *testing.T) {
 	pod := diecorev1.PodBlank.DieStamp(func(d *diecorev1.PodDieMut) {
-		dietest.NoError(t, d.Metadata().Name().Set("debug"))
-		dietest.NoError(t, d.Spec().Containers().At("app").Image().Set("app:1"))
+		dietesting.NoError(t, d.Metadata().Name().Set("debug"))
+		dietesting.NoError(t, d.Spec().Containers().At("app").Image().Set("app:1"))
 	})
-	ps, _ := jigsv1.PodSpecableJig.Of(pod)
+	ps, _ := jigsv1.PodSpecableJig.MustHold(pod)
 
 	// reads through bound locations, including the overlapping metadata
 	if ps.Metadata().Name().Get() != "debug" || ps.Template().Metadata().Name().Get() != "debug" {
@@ -127,21 +127,21 @@ func TestJigReads(t *testing.T) {
 // The jig of an immutable die is immutable, and of a mutable die mutable:
 // a read-only jig of a mutable die would see its writes.
 func TestJigOfAnImmutableDieIsImmutable(t *testing.T) {
-	ps, _ := jigsv1.PodSpecableJig.Of(dieappsv1.DeploymentBlank)
+	ps, _ := jigsv1.PodSpecableJig.MustHold(dieappsv1.DeploymentBlank)
 	if ps.Template().Spec().Containers().Len() != 0 {
 		t.Errorf("expected no containers")
 	}
 	// DieStamp on the jig works on a copy, which is not linked to the source
 	written := ps.DieStamp(func(ps *jigsv1.PodSpecableDieMut) {
-		dietest.NoError(t, ps.Template().Spec().Containers().At("app").Image().Set("x"))
+		dietesting.NoError(t, ps.Template().Spec().Containers().At("app").Image().Set("x"))
 	})
 	if written.Template().Spec().Containers().At("app").Image().Get() != "x" || dieappsv1.DeploymentBlank.Spec().Template().Spec().Containers().Len() != 0 {
-		t.Errorf("written %s", die.ReleaseJSON(written))
+		t.Errorf("written %s", die.MustReleaseJSON(written))
 	}
 }
 
 func TestJigOfAnUnknownType(t *testing.T) {
-	if _, ok := jigsv1.PodSpecableJig.Of(diecorev1.ServiceBlank); ok {
+	if _, ok := jigsv1.PodSpecableJig.MustHold(diecorev1.ServiceBlank); ok {
 		t.Errorf("a service is not PodSpecable")
 	}
 	// Of only takes dies, so a value that isn't one doesn't compile
@@ -149,8 +149,8 @@ func TestJigOfAnUnknownType(t *testing.T) {
 
 func TestStampThroughAJig(t *testing.T) {
 	deploy := dieappsv1.DeploymentBlank.DieMutable()
-	ps, _ := jigsv1.PodSpecableJig.OfMut(deploy)
-	dietest.NoError(t, die.StampValue(ps.Template(), func(r *diecorev1.PodTemplateSpec) {
+	ps, _ := jigsv1.PodSpecableJig.MustHoldMut(deploy)
+	dietesting.NoError(t, die.StampValue(ps.Template(), func(r *diecorev1.PodTemplateSpec) {
 		r.Labels = map[string]string{"app": "web"}
 	}))
 	if got := deploy.Spec().Template().Metadata().Labels().At("app"); got != "web" {
@@ -163,27 +163,27 @@ func TestStampThroughAJig(t *testing.T) {
 // the other at once, including through dies and handles obtained earlier.
 func TestOverlappingBindingsShareTheSource(t *testing.T) {
 	pod := diecorev1.PodBlank.DieMutable()
-	ps, _ := jigsv1.PodSpecableJig.OfMut(pod)
+	ps, _ := jigsv1.PodSpecableJig.MustHoldMut(pod)
 
 	// obtained before any write
 	templateLabels := ps.Template().Metadata().Labels()
 	templateName := ps.Template().Metadata().Name()
 
-	dietest.NoError(t, ps.Metadata().Labels().Set("app", "web"))
-	dietest.NoError(t, ps.Metadata().Name().Set("debug"))
+	dietesting.NoError(t, ps.Metadata().Labels().Set("app", "web"))
+	dietesting.NoError(t, ps.Metadata().Name().Set("debug"))
 	if templateLabels.At("app") != "web" || templateName.Get() != "debug" {
 		t.Errorf("template metadata %v %q, want the write through metadata", templateLabels.Keys(), templateName.Get())
 	}
 
 	// and the other way
-	dietest.NoError(t, ps.Template().Metadata().Annotations().Set("note", "hi"))
+	dietesting.NoError(t, ps.Template().Metadata().Annotations().Set("note", "hi"))
 	if got := ps.Metadata().Annotations().At("note"); got != "hi" {
 		t.Errorf("annotation %q, want the write through template metadata", got)
 	}
 
 	// a value already read is a copy, and does not change
 	snapshot := *ps.Metadata().DieRelease()
-	dietest.NoError(t, ps.Metadata().Labels().Set("app", "api"))
+	dietesting.NoError(t, ps.Metadata().Labels().Set("app", "api"))
 	if snapshot.Labels["app"] != "web" || ps.Template().Metadata().Labels().At("app") != "api" {
 		t.Errorf("snapshot %v, live %v", snapshot.Labels, ps.Template().Metadata().Labels().Keys())
 	}
@@ -193,12 +193,12 @@ func TestOverlappingBindingsShareTheSource(t *testing.T) {
 // and writes to it stay in the copy.
 func TestJigCopyIsUnlinked(t *testing.T) {
 	deploy := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
 	}).DieTare().DieMutable()
-	ps, _ := jigsv1.PodSpecableJig.OfMut(deploy)
+	ps, _ := jigsv1.PodSpecableJig.MustHoldMut(deploy)
 
 	copied := ps.DeepCopy()
-	dietest.NoError(t, copied.Template().Spec().Containers().At("app").Image().Set("app:2"))
+	dietesting.NoError(t, copied.Template().Spec().Containers().At("app").Image().Set("app:2"))
 	if got := copied.Template().Spec().Containers().At("app").Image().Get(); got != "app:2" {
 		t.Errorf("copy image %q", got)
 	}
@@ -206,6 +206,6 @@ func TestJigCopyIsUnlinked(t *testing.T) {
 		t.Errorf("source image %q", got)
 	}
 	// the copy is a root of its own, whose intent is only what was written to it
-	got, err := die.ReleaseApplyPatchE(copied)
+	got, err := die.ReleaseApplyPatch(copied)
 	assertJSON(t, got, err, `{"template": {"spec": {"containers": [{"name": "app", "image": "app:2"}]}}}`)
 }

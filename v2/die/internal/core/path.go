@@ -161,6 +161,16 @@ func (p Path) join(q Path) Path {
 }
 
 // indexed returns the position of the first index step in a path, or -1.
+// keyed reports whether a path passes through a list-map element by key.
+func (p Path) keyed() bool {
+	for _, s := range p {
+		if s.kind == stepKey {
+			return true
+		}
+	}
+	return false
+}
+
 func (p Path) indexed() int {
 	for i, s := range p {
 		if s.kind == stepIndex {

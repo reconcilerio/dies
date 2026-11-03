@@ -151,7 +151,8 @@ func TypedBlank[T any, D base.DieOf[T, D, M], M fields.DieTypedMutOf[T, D, M]](a
 		if err := m.Kind().Set(kind); err != nil {
 			return err
 		}
-		return m.DieTare()
+		m.DieTare()
+		return nil
 	}))
 }
 

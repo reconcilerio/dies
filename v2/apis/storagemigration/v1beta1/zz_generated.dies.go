@@ -56,27 +56,27 @@ var StorageVersionMigrationBlank = diebase.BlankOf[StorageVersionMigration, *Sto
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *StorageVersionMigrationDie) DieReleaseApplyConfiguration() *StorageVersionMigrationApplyConfiguration {
+func (d *StorageVersionMigrationDie) DieReleaseApplyConfiguration() (*StorageVersionMigrationApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionMigrationApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [StorageVersionMigrationDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StorageVersionMigrationDie) DieReleaseApplyConfigurationE() (*StorageVersionMigrationApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[StorageVersionMigrationApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [StorageVersionMigrationDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *StorageVersionMigrationDie) DieMustReleaseApplyConfiguration() *StorageVersionMigrationApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[StorageVersionMigrationApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *StorageVersionMigrationDieMut) DieReleaseApplyConfiguration() *StorageVersionMigrationApplyConfiguration {
+func (d *StorageVersionMigrationDieMut) DieReleaseApplyConfiguration() (*StorageVersionMigrationApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionMigrationApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [StorageVersionMigrationDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StorageVersionMigrationDieMut) DieReleaseApplyConfigurationE() (*StorageVersionMigrationApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[StorageVersionMigrationApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [StorageVersionMigrationDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *StorageVersionMigrationDieMut) DieMustReleaseApplyConfiguration() *StorageVersionMigrationApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[StorageVersionMigrationApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -219,27 +219,27 @@ var StorageVersionMigrationSpecBlank = diebase.Blank[StorageVersionMigrationSpec
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *StorageVersionMigrationSpecDie) DieReleaseApplyConfiguration() *StorageVersionMigrationSpecApplyConfiguration {
+func (d *StorageVersionMigrationSpecDie) DieReleaseApplyConfiguration() (*StorageVersionMigrationSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionMigrationSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [StorageVersionMigrationSpecDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StorageVersionMigrationSpecDie) DieReleaseApplyConfigurationE() (*StorageVersionMigrationSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[StorageVersionMigrationSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [StorageVersionMigrationSpecDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *StorageVersionMigrationSpecDie) DieMustReleaseApplyConfiguration() *StorageVersionMigrationSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[StorageVersionMigrationSpecApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *StorageVersionMigrationSpecDieMut) DieReleaseApplyConfiguration() *StorageVersionMigrationSpecApplyConfiguration {
+func (d *StorageVersionMigrationSpecDieMut) DieReleaseApplyConfiguration() (*StorageVersionMigrationSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionMigrationSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [StorageVersionMigrationSpecDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StorageVersionMigrationSpecDieMut) DieReleaseApplyConfigurationE() (*StorageVersionMigrationSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[StorageVersionMigrationSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [StorageVersionMigrationSpecDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *StorageVersionMigrationSpecDieMut) DieMustReleaseApplyConfiguration() *StorageVersionMigrationSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[StorageVersionMigrationSpecApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -305,27 +305,27 @@ var StorageVersionMigrationStatusBlank = diebase.Blank[StorageVersionMigrationSt
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *StorageVersionMigrationStatusDie) DieReleaseApplyConfiguration() *StorageVersionMigrationStatusApplyConfiguration {
+func (d *StorageVersionMigrationStatusDie) DieReleaseApplyConfiguration() (*StorageVersionMigrationStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionMigrationStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [StorageVersionMigrationStatusDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StorageVersionMigrationStatusDie) DieReleaseApplyConfigurationE() (*StorageVersionMigrationStatusApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[StorageVersionMigrationStatusApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [StorageVersionMigrationStatusDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *StorageVersionMigrationStatusDie) DieMustReleaseApplyConfiguration() *StorageVersionMigrationStatusApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[StorageVersionMigrationStatusApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *StorageVersionMigrationStatusDieMut) DieReleaseApplyConfiguration() *StorageVersionMigrationStatusApplyConfiguration {
+func (d *StorageVersionMigrationStatusDieMut) DieReleaseApplyConfiguration() (*StorageVersionMigrationStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionMigrationStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [StorageVersionMigrationStatusDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *StorageVersionMigrationStatusDieMut) DieReleaseApplyConfigurationE() (*StorageVersionMigrationStatusApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[StorageVersionMigrationStatusApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [StorageVersionMigrationStatusDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *StorageVersionMigrationStatusDieMut) DieMustReleaseApplyConfiguration() *StorageVersionMigrationStatusApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[StorageVersionMigrationStatusApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply

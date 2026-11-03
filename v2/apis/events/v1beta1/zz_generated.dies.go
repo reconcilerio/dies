@@ -61,27 +61,27 @@ var EventBlank = diebase.BlankOf[Event, *EventDie, *EventDieMut](Event{TypeMeta:
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *EventDie) DieReleaseApplyConfiguration() *EventApplyConfiguration {
+func (d *EventDie) DieReleaseApplyConfiguration() (*EventApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[EventApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [EventDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EventDie) DieReleaseApplyConfigurationE() (*EventApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[EventApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [EventDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *EventDie) DieMustReleaseApplyConfiguration() *EventApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[EventApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *EventDieMut) DieReleaseApplyConfiguration() *EventApplyConfiguration {
+func (d *EventDieMut) DieReleaseApplyConfiguration() (*EventApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[EventApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [EventDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EventDieMut) DieReleaseApplyConfigurationE() (*EventApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[EventApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [EventDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *EventDieMut) DieMustReleaseApplyConfiguration() *EventApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[EventApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -385,27 +385,27 @@ var EventSeriesBlank = diebase.Blank[EventSeries, *EventSeriesDie, *EventSeriesD
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *EventSeriesDie) DieReleaseApplyConfiguration() *EventSeriesApplyConfiguration {
+func (d *EventSeriesDie) DieReleaseApplyConfiguration() (*EventSeriesApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[EventSeriesApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [EventSeriesDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EventSeriesDie) DieReleaseApplyConfigurationE() (*EventSeriesApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[EventSeriesApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [EventSeriesDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *EventSeriesDie) DieMustReleaseApplyConfiguration() *EventSeriesApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[EventSeriesApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *EventSeriesDieMut) DieReleaseApplyConfiguration() *EventSeriesApplyConfiguration {
+func (d *EventSeriesDieMut) DieReleaseApplyConfiguration() (*EventSeriesApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[EventSeriesApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [EventSeriesDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EventSeriesDieMut) DieReleaseApplyConfigurationE() (*EventSeriesApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[EventSeriesApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [EventSeriesDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *EventSeriesDieMut) DieMustReleaseApplyConfiguration() *EventSeriesApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[EventSeriesApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply

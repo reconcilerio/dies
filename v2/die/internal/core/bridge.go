@@ -22,12 +22,12 @@ import "reflect"
 // own. The die package installs these at init, for the packages of handles,
 // views and unstructured dies to reach that state.
 var (
-	// stateOf returns a die's holder and its location within it, or false
+	// StateOf returns a die's holder and its location within it, or false
 	// for a value that isn't a die.
 	StateOf func(d any) (*Holder, Path, bool)
-	// setState sets the state of a die that has none yet.
+	// SetState sets the state of a die that has none yet.
 	SetState func(d any, h *Holder, at Path)
-	// valueTypeOf returns the type of a die's value.
+	// ValueTypeOf returns the type of a die's value.
 	ValueTypeOf func(d any) reflect.Type
 	// IsMutable reports whether a die is a mutable die.
 	IsMutable func(d any) bool

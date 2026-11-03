@@ -58,27 +58,27 @@ var EvictionBlank = diebase.BlankOf[Eviction, *EvictionDie, *EvictionDieMut](Evi
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *EvictionDie) DieReleaseApplyConfiguration() *EvictionApplyConfiguration {
+func (d *EvictionDie) DieReleaseApplyConfiguration() (*EvictionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[EvictionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [EvictionDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionDie) DieReleaseApplyConfigurationE() (*EvictionApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[EvictionApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [EvictionDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *EvictionDie) DieMustReleaseApplyConfiguration() *EvictionApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[EvictionApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *EvictionDieMut) DieReleaseApplyConfiguration() *EvictionApplyConfiguration {
+func (d *EvictionDieMut) DieReleaseApplyConfiguration() (*EvictionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[EvictionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [EvictionDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *EvictionDieMut) DieReleaseApplyConfigurationE() (*EvictionApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[EvictionApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [EvictionDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *EvictionDieMut) DieMustReleaseApplyConfiguration() *EvictionApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[EvictionApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -190,27 +190,27 @@ var PodDisruptionBudgetBlank = diebase.BlankOf[PodDisruptionBudget, *PodDisrupti
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *PodDisruptionBudgetDie) DieReleaseApplyConfiguration() *PodDisruptionBudgetApplyConfiguration {
+func (d *PodDisruptionBudgetDie) DieReleaseApplyConfiguration() (*PodDisruptionBudgetApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[PodDisruptionBudgetApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [PodDisruptionBudgetDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PodDisruptionBudgetDie) DieReleaseApplyConfigurationE() (*PodDisruptionBudgetApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[PodDisruptionBudgetApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [PodDisruptionBudgetDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *PodDisruptionBudgetDie) DieMustReleaseApplyConfiguration() *PodDisruptionBudgetApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[PodDisruptionBudgetApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *PodDisruptionBudgetDieMut) DieReleaseApplyConfiguration() *PodDisruptionBudgetApplyConfiguration {
+func (d *PodDisruptionBudgetDieMut) DieReleaseApplyConfiguration() (*PodDisruptionBudgetApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[PodDisruptionBudgetApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [PodDisruptionBudgetDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PodDisruptionBudgetDieMut) DieReleaseApplyConfigurationE() (*PodDisruptionBudgetApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[PodDisruptionBudgetApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [PodDisruptionBudgetDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *PodDisruptionBudgetDieMut) DieMustReleaseApplyConfiguration() *PodDisruptionBudgetApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[PodDisruptionBudgetApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -353,27 +353,27 @@ var PodDisruptionBudgetSpecBlank = diebase.Blank[PodDisruptionBudgetSpec, *PodDi
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *PodDisruptionBudgetSpecDie) DieReleaseApplyConfiguration() *PodDisruptionBudgetSpecApplyConfiguration {
+func (d *PodDisruptionBudgetSpecDie) DieReleaseApplyConfiguration() (*PodDisruptionBudgetSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[PodDisruptionBudgetSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [PodDisruptionBudgetSpecDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PodDisruptionBudgetSpecDie) DieReleaseApplyConfigurationE() (*PodDisruptionBudgetSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[PodDisruptionBudgetSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [PodDisruptionBudgetSpecDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *PodDisruptionBudgetSpecDie) DieMustReleaseApplyConfiguration() *PodDisruptionBudgetSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[PodDisruptionBudgetSpecApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *PodDisruptionBudgetSpecDieMut) DieReleaseApplyConfiguration() *PodDisruptionBudgetSpecApplyConfiguration {
+func (d *PodDisruptionBudgetSpecDieMut) DieReleaseApplyConfiguration() (*PodDisruptionBudgetSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[PodDisruptionBudgetSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [PodDisruptionBudgetSpecDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PodDisruptionBudgetSpecDieMut) DieReleaseApplyConfigurationE() (*PodDisruptionBudgetSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[PodDisruptionBudgetSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [PodDisruptionBudgetSpecDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *PodDisruptionBudgetSpecDieMut) DieMustReleaseApplyConfiguration() *PodDisruptionBudgetSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[PodDisruptionBudgetSpecApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -534,27 +534,27 @@ var PodDisruptionBudgetStatusBlank = diebase.Blank[PodDisruptionBudgetStatus, *P
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *PodDisruptionBudgetStatusDie) DieReleaseApplyConfiguration() *PodDisruptionBudgetStatusApplyConfiguration {
+func (d *PodDisruptionBudgetStatusDie) DieReleaseApplyConfiguration() (*PodDisruptionBudgetStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[PodDisruptionBudgetStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [PodDisruptionBudgetStatusDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PodDisruptionBudgetStatusDie) DieReleaseApplyConfigurationE() (*PodDisruptionBudgetStatusApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[PodDisruptionBudgetStatusApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [PodDisruptionBudgetStatusDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *PodDisruptionBudgetStatusDie) DieMustReleaseApplyConfiguration() *PodDisruptionBudgetStatusApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[PodDisruptionBudgetStatusApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *PodDisruptionBudgetStatusDieMut) DieReleaseApplyConfiguration() *PodDisruptionBudgetStatusApplyConfiguration {
+func (d *PodDisruptionBudgetStatusDieMut) DieReleaseApplyConfiguration() (*PodDisruptionBudgetStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[PodDisruptionBudgetStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [PodDisruptionBudgetStatusDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PodDisruptionBudgetStatusDieMut) DieReleaseApplyConfigurationE() (*PodDisruptionBudgetStatusApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[PodDisruptionBudgetStatusApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [PodDisruptionBudgetStatusDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *PodDisruptionBudgetStatusDieMut) DieMustReleaseApplyConfiguration() *PodDisruptionBudgetStatusApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[PodDisruptionBudgetStatusApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply

@@ -28,7 +28,7 @@ import (
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	"reconciler.io/dies/v2/conformance/internal/harness"
 	"reconciler.io/dies/v2/die"
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 	dieunstructured "reconciler.io/dies/v2/die/unstructured"
 )
 
@@ -48,22 +48,22 @@ func TestUnstructuredBuiltInAppliesAsTyped(t *testing.T) {
 	ns := harness.Namespace(t, dies)
 	blank := harness.MoldedBlank(t, harness.Molds(t, config), deploymentGVK)
 	change := func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Namespace().Set(ns))
-		dietest.NoError(t, d.Metadata().Name().Set("web"))
-		dietest.NoError(t, d.Spec().Replicas().Set(0))
-		dietest.NoError(t, d.Spec().Paused().Set(true))
-		dietest.NoError(t, d.Spec().MinReadySeconds().Clear())
-		dietest.NoError(t, d.Spec().Selector().MatchLabels().Set("app", "web"))
-		dietest.NoError(t, d.Spec().Template().Metadata().Labels().Set("app", "web"))
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("registry.example/app:1"))
+		dietesting.NoError(t, d.Metadata().Namespace().Set(ns))
+		dietesting.NoError(t, d.Metadata().Name().Set("web"))
+		dietesting.NoError(t, d.Spec().Replicas().Set(0))
+		dietesting.NoError(t, d.Spec().Paused().Set(true))
+		dietesting.NoError(t, d.Spec().MinReadySeconds().Clear())
+		dietesting.NoError(t, d.Spec().Selector().MatchLabels().Set("app", "web"))
+		dietesting.NoError(t, d.Spec().Template().Metadata().Labels().Set("app", "web"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("registry.example/app:1"))
 	}
 	typed := dieappsv1.DeploymentBlank.DieStamp(change)
 	u := blank.DieStamp(func(u *dieunstructured.ObjectMut) {
 		change(dieunstructured.JigAsMut[*dieappsv1.DeploymentDieMut](u.Node()))
 	})
 
-	want, _ := die.ReleaseApplyPatchE(typed)
-	got, err := die.ReleaseApplyPatchE(u)
+	want, _ := die.ReleaseApplyPatch(typed)
+	got, err := die.ReleaseApplyPatch(u)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -84,16 +84,16 @@ func TestUnstructuredCustomResource(t *testing.T) {
 	})
 	apply(t, blank.DieStamp(func(d *dieunstructured.ObjectMut) {
 		match := d.Node().Field("spec").Field("match")
-		dietest.NoError(t, match.Field("equal").Set(true))
-		dietest.NoError(t, match.Field("note").Set("set by matcher"))
-		dietest.NoError(t, d.Node().Field("spec").Field("ports").Item("name", "http").Field("port").Set(int64(80)))
+		dietesting.NoError(t, match.Field("equal").Set(true))
+		dietesting.NoError(t, match.Field("note").Set("set by matcher"))
+		dietesting.NoError(t, d.Node().Field("spec").Field("ports").Item("name", "http").Field("port").Set(int64(80)))
 	}), "matcher", false)
 
 	got := apply(t, blank.DieStamp(func(d *dieunstructured.ObjectMut) {
 		match := d.Node().Field("spec").Field("match")
-		dietest.NoError(t, match.Field("equal").Clear())
-		dietest.NoError(t, match.Field("note").Clear())
-		dietest.NoError(t, d.Node().Field("spec").Field("ports").Item("name", "metrics").Field("port").Set(int64(9090)))
+		dietesting.NoError(t, match.Field("equal").Clear())
+		dietesting.NoError(t, match.Field("note").Clear())
+		dietesting.NoError(t, d.Node().Field("spec").Field("ports").Item("name", "metrics").Field("port").Set(int64(9090)))
 	}), "clearer", false)
 	spec := got.Node().Field("spec")
 	if spec.Field("match").Field("note").Has() || !spec.Field("match").Field("equal").Has() {
@@ -109,7 +109,7 @@ func TestUnstructuredCustomResource(t *testing.T) {
 func wardle(t *testing.T) *dieunstructured.Molds {
 	t.Helper()
 	molds := harness.Molds(t, config)
-	if _, err := molds.BlankE(flunderGVK); err != nil {
+	if _, err := molds.Blank(flunderGVK); err != nil {
 		if strings.Contains(err.Error(), "no OpenAPI schema") {
 			t.Skip("the cluster doesn't serve wardle.example.com/v1alpha1; hack/conformance-cluster.sh installs Kubernetes' sample-apiserver, which does, behind an APIService")
 		}
@@ -129,10 +129,10 @@ func TestAggregatedAPI(t *testing.T) {
 		d.SetName("web")
 	})
 	apply(t, flunder.DieStamp(func(d *dieunstructured.ObjectMut) {
-		dietest.NoError(t, d.Node().Field("spec").Field("reference").Set("other"))
+		dietesting.NoError(t, d.Node().Field("spec").Field("reference").Set("other"))
 	}), "referrer", false)
 	got := apply(t, flunder.DieStamp(func(d *dieunstructured.ObjectMut) {
-		dietest.NoError(t, d.Node().Field("spec").Field("referenceType").Set("Flunder"))
+		dietesting.NoError(t, d.Node().Field("spec").Field("referenceType").Set("Flunder"))
 	}), "typer", false)
 	if spec := got.Node().Field("spec"); spec.Field("reference").Get() != "other" || spec.Field("referenceType").Get() != "Flunder" {
 		t.Errorf("spec %v, want each manager's field", spec.Get())
@@ -140,7 +140,7 @@ func TestAggregatedAPI(t *testing.T) {
 	harness.AssertOwned(t, got, "typer", "", ".spec.referenceType")
 
 	got = apply(t, flunder.DieStamp(func(d *dieunstructured.ObjectMut) {
-		dietest.NoError(t, d.Node().Field("spec").Field("reference").Clear())
+		dietesting.NoError(t, d.Node().Field("spec").Field("reference").Clear())
 	}), "clearer", false)
 	if got.Node().Field("spec").Field("reference").Has() {
 		t.Errorf("spec %v, want reference removed", got.Node().Field("spec").Get())
@@ -159,13 +159,13 @@ func TestAggregatedAPIAtomicList(t *testing.T) {
 		d.SetLabels(map[string]string{harness.Label: "true"})
 	})
 	actual := apply(t, fischer.DieStamp(func(d *dieunstructured.ObjectMut) {
-		dietest.NoError(t, d.Node().Field("disallowedFlunders").Set([]any{"a", "b"}))
+		dietesting.NoError(t, d.Node().Field("disallowedFlunders").Set([]any{"a", "b"}))
 	}), "app", false)
 	// t.Context is done by the time cleanups run
 	t.Cleanup(func() { _ = dies.Delete(context.Background(), actual.DieMutable()) })
 
 	got := apply(t, actual.DieStamp(func(d *dieunstructured.ObjectMut) {
-		dietest.NoError(t, d.Node().Field("disallowedFlunders").Index(1).Set("c"))
+		dietesting.NoError(t, d.Node().Field("disallowedFlunders").Index(1).Set("c"))
 	}), "app", false)
 	if list := got.Node().Field("disallowedFlunders").Get(); !reflect.DeepEqual(list, []any{"a", "c"}) {
 		t.Errorf("disallowedFlunders %v, want [a c]", list)

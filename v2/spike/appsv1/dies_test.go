@@ -25,7 +25,7 @@ import (
 	"k8s.io/utils/ptr"
 
 	"reconciler.io/dies/v2/die"
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 	"reconciler.io/dies/v2/spike/corev1"
 	"reconciler.io/dies/v2/spike/metav1"
 )
@@ -90,7 +90,7 @@ func TestGetChainCreatesOnWrite(t *testing.T) {
 		if d.DieIntent() != "" {
 			t.Errorf("reads recorded intent: %s", d.DieIntent())
 		}
-		dietest.NoError(t, c.Image().Set("busybox"))
+		dietesting.NoError(t, c.Image().Set("busybox"))
 	})
 
 	want := []corev1.Container{{Name: "app", Image: "busybox"}}
@@ -104,8 +104,8 @@ func TestGetChainCreatesOnWrite(t *testing.T) {
 }
 
 func TestImmutability(t *testing.T) {
-	a := DeploymentBlank.DieStamp(func(d *DeploymentDieMut) { dietest.NoError(t, d.Metadata().Name().Set("a")) })
-	b := a.DieStamp(func(d *DeploymentDieMut) { dietest.NoError(t, d.Metadata().Name().Set("b")) })
+	a := DeploymentBlank.DieStamp(func(d *DeploymentDieMut) { dietesting.NoError(t, d.Metadata().Name().Set("a")) })
+	b := a.DieStamp(func(d *DeploymentDieMut) { dietesting.NoError(t, d.Metadata().Name().Set("b")) })
 	if DeploymentBlank.Metadata().Name().Get() != "" || a.Metadata().Name().Get() != "a" || b.Metadata().Name().Get() != "b" {
 		t.Errorf("names: blank=%q a=%q b=%q", DeploymentBlank.Metadata().Name().Get(), a.Metadata().Name().Get(), b.Metadata().Name().Get())
 	}
@@ -113,21 +113,21 @@ func TestImmutability(t *testing.T) {
 	// an immutable die has no writes: its mutable copy writes, without
 	// reaching it
 	c := corev1.ContainerBlank.DieMutable()
-	dietest.NoError(t, c.Name().Set("app"))
-	dietest.NoError(t, c.Image().Set("busybox"))
+	dietesting.NoError(t, c.Name().Set("app"))
+	dietesting.NoError(t, c.Image().Set("busybox"))
 	if corev1.ContainerBlank.Name().Get() != "" || c.Name().Get() != "app" || c.Image().Get() != "busybox" {
 		t.Errorf("unexpected container %+v", *c.DieRelease())
 	}
 	// nor does an immutable copy of it see its later writes
 	frozen := c.DieImmutable()
-	dietest.NoError(t, c.Image().Set("nginx"))
+	dietesting.NoError(t, c.Image().Set("nginx"))
 	if frozen.Image().Get() != "busybox" {
 		t.Errorf("an immutable copy saw a later write: %q", frozen.Image().Get())
 	}
 
 	// the zero value of a mutable die is a mutable blank, ready for a decoder
 	var z DeploymentDieMut
-	dietest.NoError(t, z.Metadata().Name().Set("z"))
+	dietesting.NoError(t, z.Metadata().Name().Set("z"))
 	if z.Metadata().Name().Get() != "z" {
 		t.Errorf("zero value die is not mutable")
 	}
@@ -135,19 +135,19 @@ func TestImmutability(t *testing.T) {
 
 func TestApplyPatchFromBlank(t *testing.T) {
 	d := DeploymentBlank.DieStamp(func(d *DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Name().Set("my-app"))
-		dietest.NoError(t, d.Metadata().Namespace().Set("default"))
+		dietesting.NoError(t, d.Metadata().Name().Set("my-app"))
+		dietesting.NoError(t, d.Metadata().Namespace().Set("default"))
 		// explicit zero values, including an omitempty bool
-		dietest.NoError(t, d.Spec().Replicas().Set(0))
-		dietest.NoError(t, d.Spec().Paused().Set(false))
+		dietesting.NoError(t, d.Spec().Replicas().Set(0))
+		dietesting.NoError(t, d.Spec().Paused().Set(false))
 		ps := d.Spec().Template().Spec()
-		dietest.NoError(t, ps.NodeSelector().Clear())
-		dietest.NoError(t, ps.InitContainers().Empty())
-		dietest.NoError(t, ps.Containers().At("app").Image().Set("busybox"))
+		dietesting.NoError(t, ps.NodeSelector().Clear())
+		dietesting.NoError(t, ps.InitContainers().Empty())
+		dietesting.NoError(t, ps.Containers().At("app").Image().Set("busybox"))
 	})
 
 	// containers is not omitempty, yet untouched fields never appear as null
-	got, err := die.ReleaseApplyPatchE(d)
+	got, err := die.ReleaseApplyPatch(d)
 	assertJSON(t, got, err, `{
 		"apiVersion": "apps/v1",
 		"kind": "Deployment",
@@ -165,13 +165,13 @@ func TestApplyPatchFromBlank(t *testing.T) {
 }
 
 func TestPatchesFromServerState(t *testing.T) {
-	d := DeploymentBlank.DieStamp(func(d *DeploymentDieMut) { dietest.NoError(t, d.DieFeed(new(serverDeployment()))) }).DieStamp(func(d *DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Env().At("FOO").Value().Set("bar"))
-		dietest.NoError(t, d.Metadata().Labels().Remove("team"))
+	d := DeploymentBlank.DieStamp(func(d *DeploymentDieMut) { dietesting.NoError(t, d.DieFeed(new(serverDeployment()))) }).DieStamp(func(d *DeploymentDieMut) {
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Env().At("FOO").Value().Set("bar"))
+		dietesting.NoError(t, d.Metadata().Labels().Remove("team"))
 	})
 
 	// apply only states what was stamped
-	got, err := die.ReleaseApplyPatchE(d)
+	got, err := die.ReleaseApplyPatch(d)
 	// an apply can't remove a label: null would set it to "", so it's left
 	// out, and the server removes it if this manager owned it
 	assertJSON(t, got, err, `{
@@ -184,7 +184,7 @@ func TestPatchesFromServerState(t *testing.T) {
 	}`)
 
 	// merge patches can only replace lists, so the whole list is sent
-	got, err = die.ReleaseMergePatchE(d)
+	got, err = die.ReleaseMergePatch(d)
 	assertJSON(t, got, err, `{
 		"metadata": {"labels": {"team": null}},
 		"spec": {"template": {"spec": {"containers": [
@@ -195,12 +195,12 @@ func TestPatchesFromServerState(t *testing.T) {
 }
 
 func TestUnionOverInlinedStruct(t *testing.T) {
-	d := DeploymentBlank.DieStamp(func(d *DeploymentDieMut) { dietest.NoError(t, d.DieFeed(new(serverDeployment()))) }).DieStamp(func(d *DeploymentDieMut) {
+	d := DeploymentBlank.DieStamp(func(d *DeploymentDieMut) { dietesting.NoError(t, d.DieFeed(new(serverDeployment()))) }).DieStamp(func(d *DeploymentDieMut) {
 		v := d.Spec().Template().Spec().Volumes().At("creds")
 		if !v.Secret().DieHas() {
 			t.Errorf("expected secret volume")
 		}
-		dietest.NoError(t, v.EmptyDir().Medium().Set("Memory"))
+		dietesting.NoError(t, v.EmptyDir().Medium().Set("Memory"))
 		if v.Secret().DieHas() || !v.EmptyDir().DieHas() {
 			t.Errorf("setting emptyDir did not clear secret")
 		}
@@ -215,7 +215,7 @@ func TestUnionOverInlinedStruct(t *testing.T) {
 	if got := d.DieRelease().Spec.Template.Spec.Volumes; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %+v, want %+v", got, want)
 	}
-	got, err := die.ReleaseApplyPatchE(d)
+	got, err := die.ReleaseApplyPatch(d)
 	assertJSON(t, got, err, `{
 		"apiVersion": "apps/v1",
 		"kind": "Deployment",
@@ -228,7 +228,7 @@ func TestUnionOverInlinedStruct(t *testing.T) {
 
 func TestMultiKeyListMap(t *testing.T) {
 	c := corev1.ContainerBlank.DieStamp(func(c *corev1.ContainerDieMut) {
-		dietest.NoError(t, c.Ports().At(corev1.PortKey{ContainerPort: 80, Protocol: "TCP"}).Name().Set("http"))
+		dietesting.NoError(t, c.Ports().At(corev1.PortKey{ContainerPort: 80, Protocol: "TCP"}).Name().Set("http"))
 	})
 	want := []corev1.ContainerPort{{Name: "http", ContainerPort: 80, Protocol: "TCP"}}
 	if got := c.DieRelease().Ports; !reflect.DeepEqual(got, want) {
@@ -243,7 +243,7 @@ func TestMultiKeyListMap(t *testing.T) {
 func TestDefaultedListMapKey(t *testing.T) {
 	// as created by a client, before the server defaults the protocol
 	c := corev1.ContainerBlank.DieStamp(func(d *corev1.ContainerDieMut) {
-		dietest.NoError(t, d.DieFeed(&corev1.Container{
+		dietesting.NoError(t, d.DieFeed(&corev1.Container{
 			Name:  "app",
 			Ports: []corev1.ContainerPort{{ContainerPort: 80}},
 		}))
@@ -264,9 +264,9 @@ func TestDefaultedListMapKey(t *testing.T) {
 
 	c = c.DieStamp(func(c *corev1.ContainerDieMut) {
 		// updates the existing element rather than adding a second one
-		dietest.NoError(t, c.Ports().At(corev1.PortKey{ContainerPort: 80}).Name().Set("http"))
+		dietesting.NoError(t, c.Ports().At(corev1.PortKey{ContainerPort: 80}).Name().Set("http"))
 		// a new element gets the default written explicitly
-		dietest.NoError(t, c.Ports().At(corev1.PortKey{ContainerPort: 8080}).Name().Set("alt"))
+		dietesting.NoError(t, c.Ports().At(corev1.PortKey{ContainerPort: 8080}).Name().Set("alt"))
 	})
 	want := []corev1.ContainerPort{
 		{Name: "http", ContainerPort: 80},
@@ -282,7 +282,7 @@ func TestDefaultedListMapKey(t *testing.T) {
 
 	// keys are always sent in full, so the server never has to default them
 	// to identify the element
-	got, err := die.ReleaseApplyPatchE(c)
+	got, err := die.ReleaseApplyPatch(c)
 	assertJSON(t, got, err, `{"ports": [
 		{"containerPort": 80, "protocol": "TCP", "name": "http"},
 		{"containerPort": 8080, "protocol": "TCP", "name": "alt"}
@@ -290,7 +290,7 @@ func TestDefaultedListMapKey(t *testing.T) {
 
 	// diffing a stamp matches elements by their defaulted keys
 	s := c.DieTare().DieMutable()
-	dietest.NoError(t, die.StampValue(s, func(r *corev1.Container) {
+	dietesting.NoError(t, die.StampValue(s, func(r *corev1.Container) {
 		r.Ports[0].Protocol = "TCP"
 		r.Ports[1].Protocol = ""
 	}))
@@ -302,13 +302,13 @@ func TestDefaultedListMapKey(t *testing.T) {
 
 func TestStampRecordsIntent(t *testing.T) {
 	c := corev1.ContainerBlank.DieStamp(func(d *corev1.ContainerDieMut) {
-		dietest.NoError(t, d.DieFeed(&corev1.Container{
+		dietesting.NoError(t, d.DieFeed(&corev1.Container{
 			Name:  "app",
 			Image: "busybox:1",
 			Env:   []corev1.EnvVar{{Name: "A", Value: "1"}, {Name: "B", Value: "2"}},
 		}))
 	}).DieMutable()
-	dietest.NoError(t, die.StampValue(c, func(r *corev1.Container) {
+	dietesting.NoError(t, die.StampValue(c, func(r *corev1.Container) {
 		r.Image = "busybox:2"
 		r.Env = r.Env[:1]
 	}))
@@ -320,7 +320,7 @@ func TestStampRecordsIntent(t *testing.T) {
 
 func TestUnmarshalRebasesIntent(t *testing.T) {
 	d := DeploymentBlank.DieMutable()
-	dietest.NoError(t, d.DieFeed(new(serverDeployment())), d.Spec().Template().Spec().Containers().At("app").Image().Set("busybox:2"))
+	dietesting.NoError(t, d.DieFeed(new(serverDeployment())), d.Spec().Template().Spec().Containers().At("app").Image().Set("busybox:2"))
 
 	// someone else scaled the deployment; decoding the latest state into the
 	// die keeps our intent on top of it
@@ -339,7 +339,7 @@ func TestUnmarshalRebasesIntent(t *testing.T) {
 	assertIntent(t, d.DieIntent(), `set .spec.template.spec.containers[name=app].image = "busybox:2"`)
 
 	// after a successful write the intent is tared
-	dietest.NoError(t, d.DieTare())
+	d.DieTare()
 	assertIntent(t, d.DieIntent())
 	if got := d.Spec().Template().Spec().Containers().At("app").Image().Get(); got != "busybox:2" {
 		t.Errorf("image %q, want busybox:2", got)
@@ -353,20 +353,20 @@ func TestUnmarshalRebasesIntent(t *testing.T) {
 
 func TestSubresourceSplit(t *testing.T) {
 	d := DeploymentBlank.DieStamp(func(d *DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Name().Set("my-app"))
-		dietest.NoError(t, d.Spec().Replicas().Set(2))
-		dietest.NoError(t, d.Status().ObservedGeneration().Set(4))
-		dietest.NoError(t, d.Status().Conditions().At("Ready").True("Available"))
+		dietesting.NoError(t, d.Metadata().Name().Set("my-app"))
+		dietesting.NoError(t, d.Spec().Replicas().Set(2))
+		dietesting.NoError(t, d.Status().ObservedGeneration().Set(4))
+		dietesting.NoError(t, d.Status().Conditions().At("Ready").True("Available"))
 	})
 
-	got, err := die.ReleaseApplyPatchE(d, die.MainResource())
+	got, err := die.ReleaseApplyPatch(d, die.MainResource())
 	assertJSON(t, got, err, `{
 		"apiVersion": "apps/v1",
 		"kind": "Deployment",
 		"metadata": {"name": "my-app"},
 		"spec": {"replicas": 2}
 	}`)
-	got, err = die.ReleaseApplyPatchE(d, die.Subresource("status"))
+	got, err = die.ReleaseApplyPatch(d, die.Subresource("status"))
 	assertJSON(t, got, err, `{
 		"apiVersion": "apps/v1",
 		"kind": "Deployment",
@@ -378,7 +378,7 @@ func TestSubresourceSplit(t *testing.T) {
 	}`)
 
 	// handles and child dies are locations, so no path needs spelling out
-	got, err = die.ReleaseApplyPatchE(d, die.Only(d.Spec().Replicas(), d.Status().Conditions()))
+	got, err = die.ReleaseApplyPatch(d, die.Only(d.Spec().Replicas(), d.Status().Conditions()))
 	assertJSON(t, got, err, `{
 		"apiVersion": "apps/v1",
 		"kind": "Deployment",
@@ -396,12 +396,12 @@ func TestPresenceOfOptionalScalars(t *testing.T) {
 		if ps.AutomountServiceAccountToken().Has() {
 			t.Errorf("unset field is present")
 		}
-		dietest.NoError(t, ps.AutomountServiceAccountToken().Set(false))
+		dietesting.NoError(t, ps.AutomountServiceAccountToken().Set(false))
 		if !ps.AutomountServiceAccountToken().Has() || ps.AutomountServiceAccountToken().Get() {
 			t.Errorf("explicit false is not present")
 		}
 	})
-	got, err := die.ReleaseApplyPatchE(d)
+	got, err := die.ReleaseApplyPatch(d)
 	assertJSON(t, got, err, `{
 		"apiVersion": "apps/v1",
 		"kind": "Deployment",
@@ -409,12 +409,12 @@ func TestPresenceOfOptionalScalars(t *testing.T) {
 	}`)
 
 	d = d.DieStamp(func(d *DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Template().Spec().AutomountServiceAccountToken().Clear())
+		dietesting.NoError(t, d.Spec().Template().Spec().AutomountServiceAccountToken().Clear())
 	})
 	if d.Spec().Template().Spec().AutomountServiceAccountToken().Has() {
 		t.Errorf("cleared field is present")
 	}
-	got, err = die.ReleaseApplyPatchE(d)
+	got, err = die.ReleaseApplyPatch(d)
 	assertJSON(t, got, err, `{
 		"apiVersion": "apps/v1",
 		"kind": "Deployment",
@@ -426,12 +426,12 @@ func TestPresenceOfOptionalScalars(t *testing.T) {
 // no diff.
 func TestEqualComparesIntent(t *testing.T) {
 	fed := DeploymentBlank.DieStamp(func(d *DeploymentDieMut) {
-		dietest.NoError(t, d.DieFeed(&Deployment{
+		dietesting.NoError(t, d.DieFeed(&Deployment{
 			TypeMeta:   metav1.TypeMeta{APIVersion: "apps/v1", Kind: "Deployment"},
 			ObjectMeta: metav1.ObjectMeta{Name: "x"},
 		}))
 	})
-	stamped := DeploymentBlank.DieStamp(func(d *DeploymentDieMut) { dietest.NoError(t, d.Metadata().Name().Set("x")) })
+	stamped := DeploymentBlank.DieStamp(func(d *DeploymentDieMut) { dietesting.NoError(t, d.Metadata().Name().Set("x")) })
 	if fed.Equal(stamped) {
 		t.Errorf("equal values with different intent should not be equal")
 	}
@@ -446,8 +446,8 @@ func TestEqualComparesIntent(t *testing.T) {
 func TestDeepCopyIsIndependent(t *testing.T) {
 	m := DeploymentBlank.DieMutable()
 	c := m.DeepCopy()
-	dietest.NoError(t, c.Metadata().Name().Set("c"))
-	dietest.NoError(t, c.Metadata().Labels().Set("k", "v"))
+	dietesting.NoError(t, c.Metadata().Name().Set("c"))
+	dietesting.NoError(t, c.Metadata().Labels().Set("k", "v"))
 	if m.Metadata().Name().Get() != "" || m.Metadata().Labels().Len() != 0 {
 		t.Errorf("copy shares state with original")
 	}

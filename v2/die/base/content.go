@@ -43,11 +43,8 @@ type Content struct {
 	Intent []string
 }
 
-// ContentOf returns the content of a die, or nil for a nil die.
-func ContentOf(d Die) *Content { return core.Must(ContentOfE(d)) }
-
-// ContentOfE is [ContentOf], returning an error rather than panicking.
-func ContentOfE(d Die) (*Content, error) {
+// ExtractContentOf returns the content of a die, or nil for a nil die.
+func ExtractContentOf(d Die) (*Content, error) {
 	if d == nil {
 		return nil, nil
 	}
@@ -60,6 +57,10 @@ func ContentOfE(d Die) (*Content, error) {
 	}
 	return content(r)
 }
+
+// MustExtractContentOf is [ExtractContentOf], panicking rather than returning
+// an error.
+func MustExtractContentOf(d Die) *Content { return core.Must(ExtractContentOf(d)) }
 
 func content(r refs.Ref) (*Content, error) {
 	data, err := r.MarshalJSON()
@@ -105,7 +106,7 @@ func equal(a refs.Ref, b Die) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	theirs, err := ContentOfE(b)
+	theirs, err := ExtractContentOf(b)
 	if err != nil {
 		return false, err
 	}
@@ -113,25 +114,18 @@ func equal(a refs.Ref, b Die) (bool, error) {
 }
 
 // ReleaseOf returns the current value of a die as its type has it, as
-// [DieBase.DieRelease] does, but boxed as a value; or nil for a nil die. Unlike [Content],
-// it holds neither intent nor fields the type doesn't have.
-func ReleaseOf(d Die) any { return core.Must(ReleaseOfE(d)) }
-
-// ReleaseOfE is [ReleaseOf], returning an error rather than panicking.
-func ReleaseOfE(d Die) (any, error) {
+// [DieBase.DieRelease] does, but boxed as a value; or nil for a nil die.
+// Unlike [Content], it holds neither intent nor fields the type doesn't have.
+func ReleaseOf(d Die) any {
 	if d == nil {
-		return nil, nil
+		return nil
 	}
 	if v := reflect.ValueOf(d); v.Kind() == reflect.Pointer && v.IsNil() {
-		return nil, nil
+		return nil
 	}
 	r, ok := refs.Of(d)
 	if !ok {
-		return nil, core.Errorf("die: %T is not a die", d)
+		panic(core.Errorf("die: %T is not a die", d))
 	}
-	v, err := r.Value()
-	if err != nil {
-		return nil, err
-	}
-	return v.Interface(), nil
+	return core.Must(r.Value()).Interface()
 }

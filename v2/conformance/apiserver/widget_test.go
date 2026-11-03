@@ -26,7 +26,7 @@ import (
 
 	diemetav1 "reconciler.io/dies/v2/apis/meta/v1"
 	"reconciler.io/dies/v2/die"
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 	dieunstructured "reconciler.io/dies/v2/die/unstructured"
 	widgetv1 "reconciler.io/dies/v2/examples/widget/v1"
 )
@@ -36,8 +36,8 @@ import (
 
 func widget(t testing.TB, ns string) *widgetv1.WidgetDie {
 	return widgetv1.WidgetBlank.DieStamp(func(d *widgetv1.WidgetDieMut) {
-		dietest.NoError(t, d.Metadata().Namespace().Set(ns))
-		dietest.NoError(t, d.Metadata().Name().Set("web"))
+		dietesting.NoError(t, d.Metadata().Namespace().Set(ns))
+		dietesting.NoError(t, d.Metadata().Name().Set("web"))
 	})
 }
 
@@ -64,9 +64,9 @@ func TestWidgetListMapsMergeByKey(t *testing.T) {
 		manager string
 	}{{"http", 80, "web"}, {"metrics", 9090, "monitor"}} {
 		d := widget(t, ns).DieStamp(func(d *widgetv1.WidgetDieMut) {
-			dietest.NoError(t, d.Spec().Ports().At(port.name).Port().Set(port.port))
+			dietesting.NoError(t, d.Spec().Ports().At(port.name).Port().Set(port.port))
 		})
-		body, err := die.ReleaseApplyPatchE(d)
+		body, err := die.ReleaseApplyPatch(d)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -86,17 +86,17 @@ func TestWidgetListMapsMergeByKey(t *testing.T) {
 func TestWidgetStatusConditions(t *testing.T) {
 	ns := namespace(t)
 	d := widget(t, ns)
-	body, _ := die.ReleaseApplyPatchE(d)
+	body, _ := die.ReleaseApplyPatch(d)
 	applyObject(t, d.DieMutable(), body, "web", false)
 
 	for _, c := range []struct{ condition, manager string }{{"Ready", "controller"}, {"Healthy", "prober"}} {
 		status := widget(t, ns).DieStamp(func(d *widgetv1.WidgetDieMut) {
 			d.Status().Conditions().At(c.condition).DieStamp(func(cd *diemetav1.ConditionDieMut) {
-				dietest.NoError(t, cd.Status().Set(diemetav1.ConditionTrue))
-				dietest.NoError(t, cd.Reason().Set("Checked"))
+				dietesting.NoError(t, cd.Status().Set(diemetav1.ConditionTrue))
+				dietesting.NoError(t, cd.Reason().Set("Checked"))
 			})
 		})
-		body, err := die.ReleaseApplyPatchE(status, die.Subresource("status"))
+		body, err := die.ReleaseApplyPatch(status, die.Subresource("status"))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -121,9 +121,9 @@ func TestUnstructuredWidget(t *testing.T) {
 	d := dieunstructured.BlankFor("example.dev/v1", "Widget").DieStamp(func(d *dieunstructured.ObjectMut) {
 		d.SetNamespace(ns)
 		d.SetName("web")
-		dietest.NoError(t, d.Node().Field("spec").Field("ports").Item("name", "http").Field("port").Set(int64(80)))
+		dietesting.NoError(t, d.Node().Field("spec").Field("ports").Item("name", "http").Field("port").Set(int64(80)))
 	})
-	body, err := die.ReleaseApplyPatchE(d)
+	body, err := die.ReleaseApplyPatch(d)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -135,9 +135,9 @@ func TestUnstructuredWidget(t *testing.T) {
 		t.Fatal(err)
 	}
 	more := read.DieImmutable().DieStamp(func(d *dieunstructured.ObjectMut) {
-		dietest.NoError(t, d.Node().Field("spec").Field("ports").Item("name", "metrics").Field("port").Set(int64(9090)))
+		dietesting.NoError(t, d.Node().Field("spec").Field("ports").Item("name", "metrics").Field("port").Set(int64(9090)))
 	})
-	body, err = die.ReleaseApplyPatchE(more)
+	body, err = die.ReleaseApplyPatch(more)
 	if err != nil {
 		t.Fatal(err)
 	}

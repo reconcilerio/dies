@@ -26,7 +26,8 @@ import (
 	"reconciler.io/dies/v2/die/base"
 )
 
-// A fluent read panics with a die's error; its E variant returns it.
+// A die's error is returned by writes and decodes, and a mistake in the code,
+// such as a write the types don't allow, panics with one.
 
 func dieError(t *testing.T, fn func()) *base.Error {
 	t.Helper()
@@ -65,9 +66,8 @@ func TestFluentAndEVariants(t *testing.T) {
 	if !errors.As(err, &typeErr) {
 		t.Errorf("DieFeedJSON returned %v, want it to wrap a *json.UnmarshalTypeError", err)
 	}
-	if _, err := die.ReleaseApplyPatchE(blank.Spec()); err == nil {
-		t.Errorf("DieReleaseApplyPatchE on a child returned no error")
-	}
+	// a patch of a die within another: a mistake in the code
+	_ = dieError(t, func() { _, _ = die.ReleaseApplyPatch(blank.Spec()) })
 }
 
 // DieStampE returns the first error of its functions, such as a write's, with

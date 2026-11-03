@@ -70,10 +70,7 @@ func scoped(d Die, method string, scopes []Scope) (refs.Ref, error) {
 	if err != nil || len(scopes) == 0 {
 		return r, err
 	}
-	h, err := r.Root(method)
-	if err != nil {
-		return refs.Ref{}, err
-	}
+	h := r.Root(method)
 	for _, s := range scopes {
 		if s.keep == nil {
 			continue

@@ -54,27 +54,27 @@ var ImageReviewBlank = diebase.BlankOf[ImageReview, *ImageReviewDie, *ImageRevie
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ImageReviewDie) DieReleaseApplyConfiguration() *ImageReviewApplyConfiguration {
+func (d *ImageReviewDie) DieReleaseApplyConfiguration() (*ImageReviewApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ImageReviewDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ImageReviewDie) DieReleaseApplyConfigurationE() (*ImageReviewApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ImageReviewApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ImageReviewDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ImageReviewDie) DieMustReleaseApplyConfiguration() *ImageReviewApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ImageReviewApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ImageReviewDieMut) DieReleaseApplyConfiguration() *ImageReviewApplyConfiguration {
+func (d *ImageReviewDieMut) DieReleaseApplyConfiguration() (*ImageReviewApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ImageReviewDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ImageReviewDieMut) DieReleaseApplyConfigurationE() (*ImageReviewApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ImageReviewApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ImageReviewDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ImageReviewDieMut) DieMustReleaseApplyConfiguration() *ImageReviewApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ImageReviewApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -200,27 +200,27 @@ var ImageReviewContainerSpecBlank = diebase.Blank[ImageReviewContainerSpec, *Ima
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ImageReviewContainerSpecDie) DieReleaseApplyConfiguration() *ImageReviewContainerSpecApplyConfiguration {
+func (d *ImageReviewContainerSpecDie) DieReleaseApplyConfiguration() (*ImageReviewContainerSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewContainerSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ImageReviewContainerSpecDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ImageReviewContainerSpecDie) DieReleaseApplyConfigurationE() (*ImageReviewContainerSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ImageReviewContainerSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ImageReviewContainerSpecDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ImageReviewContainerSpecDie) DieMustReleaseApplyConfiguration() *ImageReviewContainerSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ImageReviewContainerSpecApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ImageReviewContainerSpecDieMut) DieReleaseApplyConfiguration() *ImageReviewContainerSpecApplyConfiguration {
+func (d *ImageReviewContainerSpecDieMut) DieReleaseApplyConfiguration() (*ImageReviewContainerSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewContainerSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ImageReviewContainerSpecDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ImageReviewContainerSpecDieMut) DieReleaseApplyConfigurationE() (*ImageReviewContainerSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ImageReviewContainerSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ImageReviewContainerSpecDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ImageReviewContainerSpecDieMut) DieMustReleaseApplyConfiguration() *ImageReviewContainerSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ImageReviewContainerSpecApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -282,27 +282,27 @@ var ImageReviewSpecBlank = diebase.Blank[ImageReviewSpec, *ImageReviewSpecDie, *
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ImageReviewSpecDie) DieReleaseApplyConfiguration() *ImageReviewSpecApplyConfiguration {
+func (d *ImageReviewSpecDie) DieReleaseApplyConfiguration() (*ImageReviewSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ImageReviewSpecDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ImageReviewSpecDie) DieReleaseApplyConfigurationE() (*ImageReviewSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ImageReviewSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ImageReviewSpecDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ImageReviewSpecDie) DieMustReleaseApplyConfiguration() *ImageReviewSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ImageReviewSpecApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ImageReviewSpecDieMut) DieReleaseApplyConfiguration() *ImageReviewSpecApplyConfiguration {
+func (d *ImageReviewSpecDieMut) DieReleaseApplyConfiguration() (*ImageReviewSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ImageReviewSpecDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ImageReviewSpecDieMut) DieReleaseApplyConfigurationE() (*ImageReviewSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ImageReviewSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ImageReviewSpecDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ImageReviewSpecDieMut) DieMustReleaseApplyConfiguration() *ImageReviewSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ImageReviewSpecApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -392,27 +392,27 @@ var ImageReviewStatusBlank = diebase.Blank[ImageReviewStatus, *ImageReviewStatus
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ImageReviewStatusDie) DieReleaseApplyConfiguration() *ImageReviewStatusApplyConfiguration {
+func (d *ImageReviewStatusDie) DieReleaseApplyConfiguration() (*ImageReviewStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ImageReviewStatusDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ImageReviewStatusDie) DieReleaseApplyConfigurationE() (*ImageReviewStatusApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ImageReviewStatusApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ImageReviewStatusDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ImageReviewStatusDie) DieMustReleaseApplyConfiguration() *ImageReviewStatusApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ImageReviewStatusApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ImageReviewStatusDieMut) DieReleaseApplyConfiguration() *ImageReviewStatusApplyConfiguration {
+func (d *ImageReviewStatusDieMut) DieReleaseApplyConfiguration() (*ImageReviewStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ImageReviewStatusDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ImageReviewStatusDieMut) DieReleaseApplyConfigurationE() (*ImageReviewStatusApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ImageReviewStatusApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ImageReviewStatusDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ImageReviewStatusDieMut) DieMustReleaseApplyConfiguration() *ImageReviewStatusApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ImageReviewStatusApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply

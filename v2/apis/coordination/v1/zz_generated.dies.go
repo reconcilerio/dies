@@ -55,27 +55,27 @@ var LeaseBlank = diebase.BlankOf[Lease, *LeaseDie, *LeaseDieMut](Lease{TypeMeta:
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *LeaseDie) DieReleaseApplyConfiguration() *LeaseApplyConfiguration {
+func (d *LeaseDie) DieReleaseApplyConfiguration() (*LeaseApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[LeaseApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [LeaseDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *LeaseDie) DieReleaseApplyConfigurationE() (*LeaseApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[LeaseApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [LeaseDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *LeaseDie) DieMustReleaseApplyConfiguration() *LeaseApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[LeaseApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *LeaseDieMut) DieReleaseApplyConfiguration() *LeaseApplyConfiguration {
+func (d *LeaseDieMut) DieReleaseApplyConfiguration() (*LeaseApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[LeaseApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [LeaseDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *LeaseDieMut) DieReleaseApplyConfigurationE() (*LeaseApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[LeaseApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [LeaseDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *LeaseDieMut) DieMustReleaseApplyConfiguration() *LeaseApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[LeaseApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -202,27 +202,27 @@ var LeaseSpecBlank = diebase.Blank[LeaseSpec, *LeaseSpecDie, *LeaseSpecDieMut]()
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *LeaseSpecDie) DieReleaseApplyConfiguration() *LeaseSpecApplyConfiguration {
+func (d *LeaseSpecDie) DieReleaseApplyConfiguration() (*LeaseSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[LeaseSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [LeaseSpecDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *LeaseSpecDie) DieReleaseApplyConfigurationE() (*LeaseSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[LeaseSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [LeaseSpecDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *LeaseSpecDie) DieMustReleaseApplyConfiguration() *LeaseSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[LeaseSpecApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *LeaseSpecDieMut) DieReleaseApplyConfiguration() *LeaseSpecApplyConfiguration {
+func (d *LeaseSpecDieMut) DieReleaseApplyConfiguration() (*LeaseSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[LeaseSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [LeaseSpecDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *LeaseSpecDieMut) DieReleaseApplyConfigurationE() (*LeaseSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[LeaseSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [LeaseSpecDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *LeaseSpecDieMut) DieMustReleaseApplyConfiguration() *LeaseSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[LeaseSpecApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply

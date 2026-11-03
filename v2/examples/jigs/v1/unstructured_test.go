@@ -19,13 +19,14 @@ package v1_test
 import (
 	"encoding/json"
 	"reflect"
+	"strings"
 	"testing"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
 	"reconciler.io/dies/v2/die"
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 	dieunstructured "reconciler.io/dies/v2/die/unstructured"
 	jigsv1 "reconciler.io/dies/v2/examples/jigs/v1"
 )
@@ -61,7 +62,7 @@ func TestStructuredJigOfAnUnstructuredObject(t *testing.T) {
 			}]}}
 		}
 	}`)
-	ps, ok := jigsv1.PodSpecableJig.OfUnstructured(u)
+	ps, ok := jigsv1.PodSpecableJig.MustHoldUnstructured(u)
 	if !ok {
 		t.Fatal("no jig of an unknown kind")
 	}
@@ -72,9 +73,9 @@ func TestStructuredJigOfAnUnstructuredObject(t *testing.T) {
 		t.Errorf("read image %q, name %q", app.Image().Get(), ps.Metadata().Name().Get())
 	}
 	// the port has no protocol; its default still identifies it
-	dietest.NoError(t, app.Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("http"))
+	dietesting.NoError(t, app.Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("http"))
 
-	dietest.NoError(t, injectSidecar(ps))
+	dietesting.NoError(t, injectSidecar(ps))
 
 	assertObject(t, u, `{
 		"apiVersion": "acme.dev/v1", "kind": "Workload",
@@ -99,8 +100,8 @@ func TestStructuredJigOfAnUnstructuredObject(t *testing.T) {
 
 func TestUnstructuredBindingsByKind(t *testing.T) {
 	u := unstructuredFromJSON(t, `{"apiVersion": "batch/v1", "kind": "CronJob", "metadata": {"name": "nightly"}}`)
-	ps, _ := jigsv1.PodSpecableJig.OfUnstructured(u)
-	dietest.NoError(t, injectSidecar(ps))
+	ps, _ := jigsv1.PodSpecableJig.MustHoldUnstructured(u)
+	dietesting.NoError(t, injectSidecar(ps))
 	containers, found, _ := unstructured.NestedSlice(u.Object, "spec", "jobTemplate", "spec", "template", "spec", "containers")
 	if !found || len(containers) != 1 {
 		t.Errorf("containers %v", containers)
@@ -119,14 +120,14 @@ func TestAggregateOfAnUnstructuredObject(t *testing.T) {
 			"initContainers": [{"name": "migrate", "futureField": true}]
 		}}}
 	}`)
-	w, _ := jigsv1.WorkloadJig.OfUnstructured(u)
+	w, _ := jigsv1.WorkloadJig.MustHoldUnstructured(u)
 	if got := w.Containers().Keys(); !reflect.DeepEqual(got, []string{"app", "migrate"}) {
 		t.Errorf("containers %v", got)
 	}
 	for _, name := range w.Containers().Keys() {
-		dietest.NoError(t, w.Containers().At(name).VolumeMounts().At("/bindings/db").Name().Set("db"))
+		dietesting.NoError(t, w.Containers().At(name).VolumeMounts().At("/bindings/db").Name().Set("db"))
 	}
-	dietest.NoError(t, w.Volumes().At("db").Secret().SecretName().Set("db-credentials"))
+	dietesting.NoError(t, w.Volumes().At("db").Secret().SecretName().Set("db-credentials"))
 	assertObject(t, u, `{
 		"apiVersion": "acme.dev/v1", "kind": "Workload",
 		"spec": {"template": {"spec": {
@@ -135,8 +136,9 @@ func TestAggregateOfAnUnstructuredObject(t *testing.T) {
 			"volumes": [{"name": "db", "secret": {"secretName": "db-credentials"}}]
 		}}}
 	}`)
-	assertErrorsWith(t, "ambiguous", func() error {
-		return w.Containers().At("new").Image().Set("x")
+	// adding an element that could go to either list: a fact of the jig
+	assertPanicsWith(t, "ambiguous", func() {
+		_ = w.Containers().At("new").Image().Set("x")
 	})
 }
 
@@ -145,17 +147,18 @@ func TestUnstructuredKeysMustBeUnique(t *testing.T) {
 		"apiVersion": "acme.dev/v1", "kind": "Workload",
 		"spec": {"template": {"spec": {"containers": [{"name": "app"}, {"name": "app"}]}}}
 	}`)
-	ps, _ := jigsv1.PodSpecableJig.OfUnstructured(u)
-	assertErrorsWith(t, "the list has it more than once", func() error {
-		return ps.Template().Spec().Containers().At("app").Image().Set("x")
-	})
+	// refused when the jig is made, so that its reads can't fail
+	_, _, err := jigsv1.PodSpecableJig.HoldUnstructured(u)
+	if err == nil || !strings.Contains(err.Error(), "has more than one element [name=app]") {
+		t.Errorf("error %v", err)
+	}
 }
 
 // A typed jig over an unstructured die records what it writes as intent on
 // the die, so it has exact patches, for a kind with no Go types.
 func TestStructuredJigOfAnUnstructuredDie(t *testing.T) {
 	d := dieunstructured.Blank.DieStamp(func(d *dieunstructured.ObjectMut) {
-		dietest.NoError(t, die.FeedUnstructured(d, unstructuredFromJSON(t, `{
+		dietesting.NoError(t, die.FeedUnstructured(d, unstructuredFromJSON(t, `{
 		"apiVersion": "acme.dev/v1", "kind": "Workload",
 		"metadata": {"name": "web"},
 		"spec": {
@@ -169,17 +172,17 @@ func TestStructuredJigOfAnUnstructuredDie(t *testing.T) {
 	}`)))
 	}).DieMutable()
 
-	ps, ok := jigsv1.PodSpecableJig.OfMut(d)
+	ps, ok := jigsv1.PodSpecableJig.MustHoldMut(d)
 	if !ok {
 		t.Fatal("no jig of an unstructured die")
 	}
 	if got := ps.Template().Spec().Containers().At("app").Image().Get(); got != "app:1" {
 		t.Errorf("image %q", got)
 	}
-	dietest.NoError(t, ps.Template().Spec().Containers().At("app").Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("http"))
-	dietest.NoError(t, injectSidecar(ps))
+	dietesting.NoError(t, ps.Template().Spec().Containers().At("app").Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("http"))
+	dietesting.NoError(t, injectSidecar(ps))
 
-	got, err := die.ReleaseApplyPatchE(d)
+	got, err := die.ReleaseApplyPatch(d)
 	assertJSON(t, got, err, `{
 		"apiVersion": "acme.dev/v1", "kind": "Workload", "metadata": {"name": "web"},
 		"spec": {"template": {
@@ -191,7 +194,7 @@ func TestStructuredJigOfAnUnstructuredDie(t *testing.T) {
 		}}
 	}`)
 	// the whole object keeps what the jig doesn't know
-	u := die.ReleaseUnstructured(d)
+	u := die.MustReleaseUnstructured(d)
 	if future, _, _ := unstructured.NestedMap(u.Object, "spec", "template", "spec"); len(future) == 0 {
 		t.Errorf("spec lost")
 	}
@@ -201,7 +204,7 @@ func TestStructuredJigOfAnUnstructuredDie(t *testing.T) {
 	}
 
 	// and the same jig of an immutable die reads
-	ro, _ := jigsv1.PodSpecableJig.Of(dieunstructured.Blank.DieStamp(func(d *dieunstructured.ObjectMut) { dietest.NoError(t, die.FeedUnstructured(d, u)) }))
+	ro, _ := jigsv1.PodSpecableJig.MustHold(dieunstructured.Blank.DieStamp(func(d *dieunstructured.ObjectMut) { dietesting.NoError(t, die.FeedUnstructured(d, u)) }))
 	if ro.Template().Spec().Containers().Len() != 2 {
 		t.Errorf("containers %d", ro.Template().Spec().Containers().Len())
 	}

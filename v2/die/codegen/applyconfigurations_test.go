@@ -26,7 +26,7 @@ import (
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	"reconciler.io/dies/v2/die"
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 )
 
 func assertSameJSON(t *testing.T, got, want any) {
@@ -53,19 +53,19 @@ func desired() *appsv1ac.DeploymentApplyConfiguration {
 // A die's intent is an apply configuration, and back.
 func TestApplyConfigurations(t *testing.T) {
 	live := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Namespace().Set("default"))
-		dietest.NoError(t, d.Metadata().Name().Set("web"))
-		dietest.NoError(t, d.Spec().Replicas().Set(3))
-		dietest.NoError(t, d.Spec().Template().Spec().ServiceAccountName().Set("sa"))
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
+		dietesting.NoError(t, d.Metadata().Namespace().Set("default"))
+		dietesting.NoError(t, d.Metadata().Name().Set("web"))
+		dietesting.NoError(t, d.Spec().Replicas().Set(3))
+		dietesting.NoError(t, d.Spec().Template().Spec().ServiceAccountName().Set("sa"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
 	}).DieTare()
 
 	// fed over a value, an apply configuration is the intent, exactly, and
 	// the value is the base with it applied
-	d := live.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietest.NoError(t, d.Spec().Paused().Set(true)) }).DieMutable()
-	dietest.NoError(t, d.DieFeedApplyConfiguration(desired()))
-	assertSameJSON(t, d.DieReleaseApplyConfiguration(), desired())
-	got, err := die.ReleaseApplyPatchE(d)
+	d := live.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietesting.NoError(t, d.Spec().Paused().Set(true)) }).DieMutable()
+	dietesting.NoError(t, d.DieFeedApplyConfiguration(desired()))
+	assertSameJSON(t, d.DieMustReleaseApplyConfiguration(), desired())
+	got, err := die.ReleaseApplyPatch(d)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,25 +80,25 @@ func TestApplyConfigurations(t *testing.T) {
 
 	// a die within another releases and feeds its own intent
 	app := d.Spec().Template().Spec().Containers().At("app")
-	assertSameJSON(t, app.DieReleaseApplyConfiguration(), corev1ac.Container().WithName("app").WithImage("app:2"))
+	assertSameJSON(t, app.DieMustReleaseApplyConfiguration(), corev1ac.Container().WithName("app").WithImage("app:2"))
 	d = d.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").DieFeedApplyConfiguration(corev1ac.Container().WithName("app").WithArgs("--verbose")))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").DieFeedApplyConfiguration(corev1ac.Container().WithName("app").WithArgs("--verbose")))
 	})
-	assertSameJSON(t, d.Spec().Template().Spec().DieReleaseApplyConfiguration(), corev1ac.PodSpec().
+	assertSameJSON(t, d.Spec().Template().Spec().DieMustReleaseApplyConfiguration(), corev1ac.PodSpec().
 		WithContainers(corev1ac.Container().WithName("app").WithArgs("--verbose")))
 
 	// a stamp edits the intent as an apply configuration
-	dietest.NoError(t, d.DieStampApplyConfiguration(func(ac *appsv1ac.DeploymentApplyConfiguration) {
+	dietesting.NoError(t, d.DieStampApplyConfiguration(func(ac *appsv1ac.DeploymentApplyConfiguration) {
 		ac.Spec.WithMinReadySeconds(5)
 		ac.WithLabels(map[string]string{"app": "web"})
 	}))
-	if got := d.DieReleaseApplyConfiguration(); *got.Spec.MinReadySeconds != 5 || got.Labels["app"] != "web" || *got.Spec.Replicas != 2 {
+	if got := d.DieMustReleaseApplyConfiguration(); *got.Spec.MinReadySeconds != 5 || got.Labels["app"] != "web" || *got.Spec.Replicas != 2 {
 		t.Errorf("stamped %+v", got)
 	}
 
 	// an element of a list map with no other fields is still there
 	keys := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.DieFeedApplyConfiguration(appsv1ac.Deployment("web", "default").
+		dietesting.NoError(t, d.DieFeedApplyConfiguration(appsv1ac.Deployment("web", "default").
 			WithSpec(appsv1ac.DeploymentSpec().WithTemplate(corev1ac.PodTemplateSpec().
 				WithSpec(corev1ac.PodSpec().WithContainers(corev1ac.Container().WithName("sidecar")))))))
 	})

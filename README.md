@@ -116,18 +116,18 @@ Lists that aren't list maps, such as a container's `args`, are values, which are
 
 Every die type comes in two: an immutable die, such as `DeploymentDie`, and a mutable die, such as `DeploymentDieMut`. An immutable die only reads. It has no methods that write, and nothing writes to it, so a die you hold never changes underneath you. A mutable die also writes, in place.
 
-Blanks are immutable. `DieStamp` passes a mutable copy of a die to each function, and returns an immutable die of the result, leaving the original unchanged. That lets you capture a die partway through and derive variations from it, which is what makes dies useful for test fixtures. In a test, `dietest.NoError` checks the writes:
+Blanks are immutable. `DieStamp` passes a mutable copy of a die to each function, and returns an immutable die of the result, leaving the original unchanged. That lets you capture a die partway through and derive variations from it, which is what makes dies useful for test fixtures. In a test, `dietesting.NoError` checks the writes:
 
 ```go
 base := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-	dietest.NoError(t,
+	dietesting.NoError(t,
 		d.Metadata().Name().Set("web"),
 		d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"),
 	)
 })
 
 scaled := base.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-	dietest.NoError(t, d.Spec().Replicas().Set(3))
+	dietesting.NoError(t, d.Spec().Replicas().Set(3))
 })
 // base is unchanged
 ```
@@ -135,7 +135,7 @@ scaled := base.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
 The children of an immutable die are immutable, and those of a mutable die are mutable. On a mutable die, `DieStamp` passes the die itself, which groups writes to part of it, as the condition in [Server-side apply](#server-side-apply) does. `DieStamp` on a die within an immutable one makes the copy a new root, holding the die's current value.
 
 - `DieMutable()` returns a mutable copy of an immutable die, and `DieImmutable()` an immutable copy of a mutable one. Only an immutable die has `DieMutable`, and only a mutable die `DieImmutable`. Both always copy: an immutable die never sees writes to a mutable die it was copied from, or to one copied from it.
-- `die.ImmutableDie` and `die.MutableDie` are an immutable and a mutable die of any type, for functions that take only one kind, such as a jig's `Of` and `OfMut`. Passing the other kind doesn't compile.
+- `die.ImmutableDie` and `die.MutableDie` are an immutable and a mutable die of any type, for functions that take only one kind, such as a jig's `Hold` and `HoldMut`. Passing the other kind doesn't compile.
 - `DeepCopy` copies a die, as the same kind of die.
 - `die.StampValue(d, func(r *T))` passes a copy of a mutable die's Go value to a function, for code written for the Go type. The die works out what the function changed, and records it as intent.
 
@@ -155,27 +155,29 @@ d, err := dieappsv1.DeploymentBlank.DieStampE(func(d *dieappsv1.DeploymentDieMut
 
 A die's own methods feed and release its Go value, by pointer: `DieFeed(*T)`, where nil feeds the zero value, and `DieRelease() *T`, a copy. The other forms are functions in the `die` package, which take the die. They're functions rather than methods so that their code is compiled once, rather than for each type of die:
 
-| Feed                                                                | Release                                                               |
-| ------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `d.DieFeed(*T)`                                                     | `d.DieRelease() *T`                                                   |
-| `die.FeedJSON(d, []byte)`                                           | `die.ReleaseJSON(d) []byte`                                           |
-| `die.FeedYAML(d, []byte)`                                           | `die.ReleaseYAML(d) []byte`                                           |
-| `die.FeedRawExtension(d, runtime.RawExtension)`                     | `die.ReleaseRawExtension(d) runtime.RawExtension`                     |
-| `die.FeedUnstructured(d, *unstructured.Unstructured)`, objects only | `die.ReleaseUnstructured(d) *unstructured.Unstructured`, objects only |
-| `die.FeedApplyPatch(d, []byte)`, root dies only                     | `die.ReleaseApplyPatch(d) []byte`, root dies only                     |
-| `die.FeedMergePatch(d, []byte)`, root dies only                     | `die.ReleaseMergePatch(d) []byte`, root dies only                     |
+| Feed                                                                | Release                                                                        |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `d.DieFeed(*T)`                                                     | `d.DieRelease() *T`                                                            |
+| `die.FeedJSON(d, []byte)`                                           | `die.ReleaseJSON(d) ([]byte, error)`                                           |
+| `die.FeedYAML(d, []byte)`                                           | `die.ReleaseYAML(d) ([]byte, error)`                                           |
+| `die.FeedRawExtension(d, runtime.RawExtension)`                     | `die.ReleaseRawExtension(d) (runtime.RawExtension, error)`                     |
+| `die.FeedUnstructured(d, *unstructured.Unstructured)`, objects only | `die.ReleaseUnstructured(d) (*unstructured.Unstructured, error)`, objects only |
+| `die.FeedApplyPatch(d, []byte)`, root dies only                     | `die.ReleaseApplyPatch(d) ([]byte, error)`, root dies only                     |
+| `die.FeedMergePatch(d, []byte)`, root dies only                     | `die.ReleaseMergePatch(d) ([]byte, error)`, root dies only                     |
 
-Feeds take a mutable die and return only an error, as writes do. Releases take any die, and have E variants, as reads do, such as `die.ReleaseJSONE(d)`. An unstructured object is an object, so only object dies feed and release one; a raw extension carries any other die's value.
+Feeds take a mutable die and return only an error, as writes do. Releases take any die, and return an error for a value that doesn't encode. Each has a `Must` form that panics instead, such as `die.MustReleaseJSON(d)`. An unstructured object is an object, so only object dies feed and release one; a raw extension carries any other die's value.
 
 When a die decodes JSON or YAML, it records which fields were present and keeps any fields its Go type doesn't have, such as fields added in a newer version of the API. Encoding it again gives back what it read: an update from a die doesn't drop fields it doesn't know about.
 
 Dies are `json.Marshaler`s. Mutable dies are also `json.Unmarshaler`s; an immutable die's `UnmarshalJSON` fails with `die.ErrImmutable`. Dies for objects also implement `runtime.Object` and `metav1.Object`, so Kubernetes libraries and clients take them directly.
 
-For tests, `dietest.FeedYAMLFile(DeploymentBlank, "testdata/deployment.yaml")` returns an immutable die of a file.
+For test fixtures, `die.FeedYAMLFile(DeploymentBlank, "testdata/deployment.yaml")` returns an immutable die of a file, and `die.MustFeedYAMLFile` panics rather than returning an error, for fixtures in package variables.
 
 ### Errors
 
-Writes return only an error: `Set`, `Clear`, `Empty` and `Remove`, `DieFeed` and the `die.Feed…` functions, `die.StampValue`, `DieClear`, and a mutable die's `DieTare`, which folds its intent in place. Check it, as linters such as errcheck require. `DieStampE` takes functions that return errors, such as a client operation or a block of writes, and returns the first one, along with the die as the functions left it. `errors.Join` checks a block of writes at once:
+A die's reads can't fail. Content is checked where it enters a die: a feed, decode or write that would give a list map two elements with the same key is refused, as is a jig of a source it can't hold. So `Get`, `Has`, `DieRelease` and the other reads always have an answer, and return no error.
+
+Writes return only an error: `Set`, `Clear`, `Empty` and `Remove`, `DieFeed` and the `die.Feed…` functions, `die.StampValue` and `DieClear`. A write fails for content the die can't hold: JSON or YAML that doesn't decode as the die's type, a duplicate list-map key, a value an unstructured die can't convert, or a change a jig's transform can't represent in its source. Check the error, as linters such as errcheck require. `DieStampE` takes functions that return errors, such as a client operation or a block of writes, and returns the first one, along with the die as the functions left it. `errors.Join` checks a block of writes at once:
 
 ```go
 updated, err := current.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
@@ -186,30 +188,21 @@ updated, err := current.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
 })
 ```
 
-In a test, `dietest.NoError(t, errs...)` fails the test with the first error, so fixtures check their writes inline: `dietest.NoError(t, d.Spec().Replicas().Set(3))`.
+In a test, `dietesting.NoError(t, errs...)` fails the test with the first error, so fixtures check their writes inline: `dietesting.NoError(t, d.Spec().Replicas().Set(3))`.
 
-Reads that can fail come in two forms:
-- **E variant,** such as `GetE`, which returns the error. Use it in a controller, for content you don't control.
-- **Fluent,** such as `Get`, which calls the E variant and panics with its error. Use it when you know the content you're working on, as in tests and fixtures, where reading well matters most.
+Functions that can fail for other reasons return an error too: the release functions, such as `die.ReleaseJSON`, for a value JSON can't encode, and functions that take an expression or content from elsewhere, such as `jsonpath.Find`, `dieunstructured.GetAs`, molds' `Blank` and `Cast`, and a jig's `Clamp`, `Hold`, `HoldMut` and `HoldUnstructured`. Each has a `Must` form that panics with the error instead, for content you know, as Go's `regexp.MustCompile` does: `die.MustReleaseJSON`, `jsonpath.MustFind`, `jig.MustHold`. A die's method is `DieMust…`, such as `DieMustReleaseApplyConfiguration`. Defining a jig, usually in a package variable, uses `MustClamp`, as a mistake in a definition is a mistake in the code.
 
-```go
-// E variant: returns the error
-replicas, err := d.Spec().Replicas().GetE()
-if err != nil {
-	return err
-}
+Mistakes in the code panic, as Go's own APIs do. They don't depend on the data, so a test catches them the first time it runs:
+- **A root's operation on a die within another, or on a jig,** such as releasing or feeding a patch.
+- **A scope's location within a die of another type.**
+- **A jig location the jig doesn't bind for its source, written,** or an aggregate list written whole, or an element added where it could go to more than one list. `jigs.IsBound` says whether a jig binds a location; a location it doesn't bind reads as absent.
+- **An unstructured write that steps into a value of another kind,** such as a field of a string, or past the end of a list, as reflect's methods panic. A read of such a place reads as absent, and `Type`, `Has` and `Len` say what a node holds, so careful code never panics. A key that isn't unique in an unstructured list, which has no schema to refuse it with when fed, panics where `Item` uses it; `Find` with a filter finds every element with a key.
+- **Interface implementations,** such as `metav1.Object`'s setters, can't return an error. They panic on an immutable die. Write through a mutable die's own accessors instead.
+- **A broken die definition,** whether generated or hand-written, such as an unknown die tag, or a field table that doesn't match its type. Generated dies' tests catch them.
 
-// fluent: panics if the get can't be made
-replicas := d.Spec().Replicas().Get()
-```
-
-Nothing recovers a panic: the E variant does the work and returns its error, and the fluent form only adds the panic.
+A jig checks its source once, when it's made. A change made to the source directly, not through the jig, that leaves the jig unable to hold it, such as the same container name in two lists an aggregate binds, makes the jig's reads panic: take care when changing the same content through two dies.
 
 Use `errors.As` with `*die.Error` to tell a die's error from another, and `errors.Is` with `die.ErrImmutable` for a write to an immutable die, such as through `metav1.Object`'s setters. A cause, such as a JSON syntax error, is wrapped.
-
-Two kinds of failure panic rather than return an error:
-- **Interface implementations,** such as `metav1.Object`'s setters, can't return an error. They panic on an immutable die. Write through a mutable die's own accessors, which return errors, instead.
-- **A broken die definition panics,** whether generated or hand-written. Examples are an unknown die tag, or a field table that doesn't match its type. These are bugs in the die code, not in the data it's given, and generated dies' tests catch them.
 
 ## Patch with intent
 
@@ -245,7 +238,7 @@ status, err := dieappsv1.DeploymentBlank.DieStampE(func(d *dieappsv1.DeploymentD
 })
 // ...
 
-body, err := die.ReleaseApplyPatchE(status, die.Subresource("status"))
+body, err := die.ReleaseApplyPatch(status, die.Subresource("status"))
 // ...
 // the object as the server has it after the apply, such as its new resource
 // version: tared first, so the server's response isn't overlaid with the
@@ -282,7 +275,7 @@ update, err := current.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
 // ...
 
 // the patch, from the update's intent against the current state
-body, err := die.ReleaseMergePatchE(update)
+body, err := die.ReleaseMergePatch(update)
 // ...
 
 // the patched state, as the server has it after the patch
@@ -303,11 +296,11 @@ A patch is released from all of a die's intent, or from the part that scopes kee
 
 ```go
 status := die.Subresource("status")
-body, err := die.ReleaseApplyPatchE(d, status)
-ac := die.ApplyConfigurationOf(d, status)
+body, err := die.ReleaseApplyPatch(d, status)
+ac, err := die.ReleaseApplyConfiguration(d, status)
 ```
 
-`die.ReleaseApplyPatch`, `die.ReleaseMergePatch` and `die.ApplyConfigurationOf` take scopes, and a scope can be kept in a variable for each of them. Scopes passed together each narrow what the one before kept. Intent a scope leaves out is folded into the value the patch is made against, identity included, so only the kept intent is sent.
+`die.ReleaseApplyPatch`, `die.ReleaseMergePatch` and `die.ReleaseApplyConfiguration` take scopes, and a scope can be kept in a variable for each of them. Scopes passed together each narrow what the one before kept. Intent a scope leaves out is folded into the value the patch is made against, identity included, so only the kept intent is sent.
 
 Two methods of the die help too:
 
@@ -341,17 +334,18 @@ A client strips the type metadata of a typed object as it decodes it. Dies don't
 
 Dies for types that client-go has apply configurations for have methods to convert between the two:
 
-- `DieReleaseApplyConfiguration()` returns the intent as client-go's apply configuration, for clients and tools that take one.
+- `DieReleaseApplyConfiguration()` returns the intent as client-go's apply configuration, for clients and tools that take one, and `DieMustReleaseApplyConfiguration()` panics rather than returning an error.
 - `DieFeedApplyConfiguration(ac)` feeds one in as intent, such as what client-go's `Extract` functions find a manager owns.
 - `DieStampApplyConfiguration(fn)` changes the intent through one.
 
-Each die package aliases its apply configuration types and `Extract` functions, too. For any root die, with or without an apply configuration type of its own, `die.ApplyConfigurationOf(d, scopes...)` adapts its intent for controller-runtime's `client.Apply`, and `Result()` has what the server returned.
+Each die package aliases its apply configuration types and `Extract` functions, too. For any root die, with or without an apply configuration type of its own, `die.ReleaseApplyConfiguration(d, scopes...)` adapts its intent for controller-runtime's `client.Apply`, and `Result()` has what the server returned.
 
 As with other client operations, the client decodes the server's response into the apply configuration you pass, so keep a reference to it:
 
 ```go
-ac := die.ApplyConfigurationOf(deployment)
-err := c.Apply(ctx, ac, client.FieldOwner("my-controller"))
+ac, err := die.ReleaseApplyConfiguration(deployment)
+// ...
+err = c.Apply(ctx, ac, client.FieldOwner("my-controller"))
 // ...
 // the object as the server has it after the apply
 actual, err := dieappsv1.DeploymentBlank.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
@@ -403,7 +397,7 @@ dc, err := discovery.NewDiscoveryClientForConfig(restConfig)
 // ...
 molds := dieunstructured.NewMolds(dc.OpenAPIV3())
 
-blank, err := molds.BlankE(schema.GroupVersionKind{Group: "example.dev", Version: "v1", Kind: "Widget"})
+blank, err := molds.Blank(schema.GroupVersionKind{Group: "example.dev", Version: "v1", Kind: "Widget"})
 // ...
 widget, err := blank.DieStampE(func(d *dieunstructured.ObjectMut) error {
 	d.SetNamespace("default")
@@ -412,7 +406,7 @@ widget, err := blank.DieStampE(func(d *dieunstructured.ObjectMut) error {
 })
 ```
 
-Dies make no requests of their own: `Molds` reads the schemas through the OpenAPI client you give it, such as a discovery client's `OpenAPIV3()`, or client-go's cached client in front of it. It reads each group version's schema once, when it first makes a blank of one of its kinds, and keeps it until the server changes it. `molds.For(d)` returns an immutable unstructured die in its kind's mold, and `molds.ForMut(d)` gives a mutable one its mold in place, such as an item of a list a client listed into. `dieunstructured.BlankFor(apiVersion, kind)` makes a blank without a mold.
+Dies make no requests of their own: `Molds` reads the schemas through the OpenAPI client you give it, such as a discovery client's `OpenAPIV3()`, or client-go's cached client in front of it. It reads each group version's schema once, when it first makes a blank of one of its kinds, and keeps it until the server changes it. `molds.Cast(d)` returns an immutable unstructured die in its kind's mold, and `molds.CastMut(d)` gives a mutable one its mold in place, such as an item of a list a client listed into. `dieunstructured.BlankFor(apiVersion, kind)` makes a blank without a mold.
 
 Caveats:
 
@@ -430,41 +424,43 @@ A jig holds material in place so that a tool can work on it. A jig here holds di
 
 ```go
 var PodSpecableJig = jigs.NewJig[PodSpecable, *PodSpecableDie, *PodSpecableDieMut]().
-	For(dieappsv1.DeploymentBlank,
+	MustClamp(dieappsv1.DeploymentBlank,
 		jigs.Bind(PodSpecableBlank.Metadata(), dieappsv1.DeploymentBlank.Metadata()),
 		jigs.Bind(PodSpecableBlank.Template(), dieappsv1.DeploymentBlank.Spec().Template()),
 	).
-	ForUnknownKinds(
+	MustClampUnknownKinds(
 		jigs.BindPath(PodSpecableBlank.Metadata(), ".metadata"),
 		jigs.BindPath(PodSpecableBlank.Template(), ".spec.template"),
 	)
 
-if ps, ok := PodSpecableJig.OfMut(workload); ok {
+ps, ok, err := PodSpecableJig.HoldMut(workload)
+// ...
+if ok {
 	if err := ps.Template().Spec().Containers().At("app").Image().Set("app:2"); err != nil {
 		return err
 	}
 }
 ```
 
-A jig holds nothing of its own. Its writes go to the source, and the source's patches carry them. `Of` takes a `die.ImmutableDie` and returns an immutable die of the jig's type, which reads; `OfMut` takes a `die.MutableDie` and returns a mutable one, which also writes. A read-only jig of a mutable die would see its writes, so `Of` doesn't take one. Either takes unstructured dies too, and `OfUnstructured` takes an `*unstructured.Unstructured`, which the jig changes in place. `jigs.BindVia` converts between shapes that differ. See [`v2/examples/jigs/v1`](v2/examples/jigs/v1) for a complete example.
+A jig holds nothing of its own. Its writes go to the source, and the source's patches carry them. `Hold` takes a `die.ImmutableDie` and returns an immutable die of the jig's type, which reads; `HoldMut` takes a `die.MutableDie` and returns a mutable one, which also writes. A read-only jig of a mutable die would see its writes, so `Hold` doesn't take one. Either takes unstructured dies too, and `HoldUnstructured` takes an `*unstructured.Unstructured`, which the jig changes in place. `jigs.BindVia` converts between shapes that differ. See [`v2/examples/jigs/v1`](v2/examples/jigs/v1) for a complete example.
 
 ## JSONPath
 
 `reconciler.io/dies/v2/die/jsonpath` finds locations within a die with kubectl's JSONPath expressions. A match is a live location within the die, not a copy, so writes through a match are recorded as intent. `$` is the root die, and `.` is the die you query, so a function written for a `PodSpecDie` can also reach the object the pod spec is part of:
 
 ```go
-images, err := jsonpath.ValuesE[string](podSpec, ".containers[*].image")
-namespace, err := jsonpath.ValuesE[string](podSpec, "$.metadata.namespace")
-containers, err := jsonpath.DiesE[*diecorev1.ContainerDie](podSpec, ".containers[?(@.name=='app')]")
+images, err := jsonpath.FindValues[string](podSpec, ".containers[*].image")
+namespace, err := jsonpath.FindValues[string](podSpec, "$.metadata.namespace")
+containers, err := jsonpath.FindDies[*diecorev1.ContainerDie](podSpec, ".containers[?(@.name=='app')]")
 ```
 
-`Values` returns handles that read, and `Dies` immutable dies of an immutable die. For a mutable die, `ValuesMut` returns handles that also write, and `DiesMut` mutable dies, such as `*diecorev1.ContainerDieMut`.
+`FindValues` returns handles that read, and `FindDies` immutable dies of an immutable die. For a mutable die, `FindValuesMut` returns handles that also write, and `FindDiesMut` mutable dies, such as `*diecorev1.ContainerDieMut`.
 
 A list-map element is found by its keys, however the expression found it, so a write through it merges by key. A path with no wildcards or filters resolves even when its value isn't set, so a write through it creates it. A field the type doesn't have is an error, not a silent miss.
 
 ## Die methods
 
-Every die has these methods, but those that write, which only mutable dies have. `die.Die` is any die, immutable or mutable, whatever its type, for functions that take one, and `die.ImmutableDie` and `die.MutableDie` one of either kind; `die.DieTyped` is any die with type metadata, which is also a `runtime.Object`; `die.DieObject` is any object die, which is also a `metav1.Object`; and `die.DieList` is any list die. Generic code constrains them by `die.DieOf[T, D, M]` and `die.DieMutOf[T, D, M]`, `die.DieTypedOf[T, D, M]` and `die.DieTypedMutOf[T, D, M]` (with the `APIVersion()` and `Kind()` accessors), `die.DieObjectOf[T, D, M]` and `die.DieObjectMutOf[T, D, M]` (with `Metadata()`), and `die.DieListOf[D]` (with `Metadata()`, the list's own `*metav1.ListMeta`, and `DieItems()`), which carry their types: `T` the value's, `D` the immutable die's and `M` the mutable die's. An unstructured die is a `die.DieObject`, but has no typed accessors. Fields' accessors use the field names, so die methods start with `Die`, apart from `DeepCopy`, `Equal` and the methods of the Kubernetes interfaces that object dies implement. Writes return only an error, and each read that can fail also has an E variant that returns its error; see [Errors](#errors).
+Every die has these methods, but those that write, which only mutable dies have. `die.Die` is any die, immutable or mutable, whatever its type, for functions that take one, and `die.ImmutableDie` and `die.MutableDie` one of either kind; `die.DieTyped` is any die with type metadata, which is also a `runtime.Object`; `die.DieObject` is any object die, which is also a `metav1.Object`; and `die.DieList` is any list die. Generic code constrains them by `die.DieOf[T, D, M]` and `die.DieMutOf[T, D, M]`, `die.DieTypedOf[T, D, M]` and `die.DieTypedMutOf[T, D, M]` (with the `APIVersion()` and `Kind()` accessors), `die.DieObjectOf[T, D, M]` and `die.DieObjectMutOf[T, D, M]` (with `Metadata()`), and `die.DieListOf[D]` (with `Metadata()`, the list's own `*metav1.ListMeta`, and `DieItems()`), which carry their types: `T` the value's, `D` the immutable die's and `M` the mutable die's. An unstructured die is a `die.DieObject`, but has no typed accessors. Fields' accessors use the field names, so die methods start with `Die`, apart from `DeepCopy`, `Equal` and the methods of the Kubernetes interfaces that object dies implement. Writes return only an error, and reads can't fail; see [Errors](#errors).
 
 | Method                                                          | Does                                                                                                                                 |
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |

@@ -260,7 +260,7 @@ func (v *Viewing) readAggregate(b Binding, rest Path) (reflect.Value, error) {
 		return list, nil
 	}
 	if rest[0].kind != stepKey {
-		return reflect.Value{}, Errorf("die: an aggregate list is addressed by key, not %s", rest[0])
+		panic(Errorf("die: an aggregate list is addressed by key, not %s", rest[0]))
 	}
 	found, err := v.find(b, rest[0])
 	if err != nil {
@@ -303,10 +303,10 @@ func (v *Viewing) hasAggregate(b Binding, rest Path) (bool, error) {
 
 func (v *Viewing) writeAggregate(b Binding, rest Path, o Op, val reflect.Value) error {
 	if len(rest) == 0 {
-		return Errorf("die: %s is an aggregate of %s; write its elements, not the whole list", b.view, describeMembers(v.lists(b, true)))
+		panic(Errorf("die: %s is an aggregate of %s; write its elements, not the whole list", b.view, describeMembers(v.lists(b, true))))
 	}
 	if rest[0].kind != stepKey {
-		return Errorf("die: an aggregate list is addressed by key, not %s", rest[0])
+		panic(Errorf("die: an aggregate list is addressed by key, not %s", rest[0]))
 	}
 	found, err := v.find(b, rest[0])
 	if err != nil {
@@ -348,11 +348,11 @@ func (v *Viewing) create(b Binding, rest Path, o Op, val reflect.Value) error {
 	}
 	candidates := v.lists(b, true)
 	if len(candidates) != 1 {
-		return Errorf("die: adding %s%s is ambiguous: it could go to %s", b.view, rest[0], describeMembers(candidates))
+		panic(Errorf("die: adding %s%s is ambiguous: it could go to %s", b.view, rest[0], describeMembers(candidates)))
 	}
 	m := candidates[0]
 	if m.View != nil {
-		return Errorf("die: adding %s%s would go to %s, whose elements are presented by a jig, which can't create them", b.view, rest[0], m.Src)
+		panic(Errorf("die: adding %s%s would go to %s, whose elements are presented by a jig, which can't create them", b.view, rest[0], m.Src))
 	}
 	at := v.At.join(m.Src)
 	if len(v.Src.listKeys(at, v.keys(b))) > 0 {

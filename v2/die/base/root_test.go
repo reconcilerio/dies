@@ -23,7 +23,7 @@ import (
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 	dieunstructured "reconciler.io/dies/v2/die/unstructured"
 	jigsv1 "reconciler.io/dies/v2/examples/jigs/v1"
 )
@@ -31,8 +31,8 @@ import (
 // A die within another returns its root die, sharing its state.
 func TestDieRoot(t *testing.T) {
 	d := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Namespace().Set("default"))
-		dietest.NoError(t, d.Metadata().Name().Set("web"))
+		dietesting.NoError(t, d.Metadata().Namespace().Set("default"))
+		dietesting.NoError(t, d.Metadata().Name().Set("web"))
 	}).DieMutable()
 	spec := d.Spec().Template().Spec()
 
@@ -41,7 +41,7 @@ func TestDieRoot(t *testing.T) {
 		t.Fatalf("root %T", spec.DieRoot())
 	}
 	// it shares the tree's state
-	dietest.NoError(t, root.Spec().Replicas().Set(3))
+	dietesting.NoError(t, root.Spec().Replicas().Set(3))
 	if d.Spec().Replicas().Get() != 3 {
 		t.Errorf("a write through the root didn't reach the die")
 	}
@@ -75,7 +75,7 @@ func TestDieRootOfNodesAndJigs(t *testing.T) {
 	}
 
 	d := dieappsv1.DeploymentBlank.DieMutable()
-	ps, ok := jigsv1.PodSpecableJig.OfMut(d)
+	ps, ok := jigsv1.PodSpecableJig.MustHoldMut(d)
 	if !ok {
 		t.Fatal("no jig")
 	}

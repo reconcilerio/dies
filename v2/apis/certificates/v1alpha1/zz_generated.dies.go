@@ -69,27 +69,27 @@ var ClusterTrustBundleBlank = diebase.BlankOf[ClusterTrustBundle, *ClusterTrustB
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ClusterTrustBundleDie) DieReleaseApplyConfiguration() *ClusterTrustBundleApplyConfiguration {
+func (d *ClusterTrustBundleDie) DieReleaseApplyConfiguration() (*ClusterTrustBundleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ClusterTrustBundleDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ClusterTrustBundleDie) DieReleaseApplyConfigurationE() (*ClusterTrustBundleApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ClusterTrustBundleDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ClusterTrustBundleDie) DieMustReleaseApplyConfiguration() *ClusterTrustBundleApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ClusterTrustBundleApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ClusterTrustBundleDieMut) DieReleaseApplyConfiguration() *ClusterTrustBundleApplyConfiguration {
+func (d *ClusterTrustBundleDieMut) DieReleaseApplyConfiguration() (*ClusterTrustBundleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ClusterTrustBundleDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ClusterTrustBundleDieMut) DieReleaseApplyConfigurationE() (*ClusterTrustBundleApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ClusterTrustBundleDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ClusterTrustBundleDieMut) DieMustReleaseApplyConfiguration() *ClusterTrustBundleApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ClusterTrustBundleApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -218,27 +218,27 @@ var ClusterTrustBundleSpecBlank = diebase.Blank[ClusterTrustBundleSpec, *Cluster
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ClusterTrustBundleSpecDie) DieReleaseApplyConfiguration() *ClusterTrustBundleSpecApplyConfiguration {
+func (d *ClusterTrustBundleSpecDie) DieReleaseApplyConfiguration() (*ClusterTrustBundleSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ClusterTrustBundleSpecDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ClusterTrustBundleSpecDie) DieReleaseApplyConfigurationE() (*ClusterTrustBundleSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ClusterTrustBundleSpecDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ClusterTrustBundleSpecDie) DieMustReleaseApplyConfiguration() *ClusterTrustBundleSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ClusterTrustBundleSpecApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ClusterTrustBundleSpecDieMut) DieReleaseApplyConfiguration() *ClusterTrustBundleSpecApplyConfiguration {
+func (d *ClusterTrustBundleSpecDieMut) DieReleaseApplyConfiguration() (*ClusterTrustBundleSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ClusterTrustBundleSpecDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ClusterTrustBundleSpecDieMut) DieReleaseApplyConfigurationE() (*ClusterTrustBundleSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ClusterTrustBundleSpecDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ClusterTrustBundleSpecDieMut) DieMustReleaseApplyConfiguration() *ClusterTrustBundleSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ClusterTrustBundleSpecApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply

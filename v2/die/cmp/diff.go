@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package dietest
+package cmp
 
 import (
 	"github.com/google/go-cmp/cmp"
@@ -43,7 +43,7 @@ import (
 //     [cmp.FilterPath] narrows an option to some paths.
 //
 // To use options for the Go types instead, use [TransformRelease].
-var Transform = cmp.Transformer("die.Content", base.ContentOf)
+var Transform = cmp.Transformer("die.Content", base.MustExtractContentOf)
 
 // TransformRelease is a go-cmp option that compares dies by their current
 // values as their Go types have them, as DieRelease returns them, so that
@@ -65,4 +65,16 @@ func Diff(x, y any, opts ...cmp.Option) string {
 // [TransformRelease], so that opts for those types apply.
 func DiffRelease(x, y any, opts ...cmp.Option) string {
 	return cmp.Diff(x, y, append([]cmp.Option{TransformRelease}, opts...)...)
+}
+
+// Equal returns true when [Diff] would be empty for two values, as
+// [cmp.Equal] does with [Transform] and opts.
+func Equal(x, y any, opts ...cmp.Option) bool {
+	return cmp.Equal(x, y, append([]cmp.Option{Transform}, opts...)...)
+}
+
+// EqualRelease returns true when [DiffRelease] would be empty for two values,
+// as [cmp.Equal] does with [TransformRelease] and opts.
+func EqualRelease(x, y any, opts ...cmp.Option) bool {
+	return cmp.Equal(x, y, append([]cmp.Option{TransformRelease}, opts...)...)
 }

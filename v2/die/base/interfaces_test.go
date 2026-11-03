@@ -28,8 +28,8 @@ import (
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
 	"reconciler.io/dies/v2/die"
 	"reconciler.io/dies/v2/die/base"
-	"reconciler.io/dies/v2/die/dietest"
 	"reconciler.io/dies/v2/die/lists"
+	dietesting "reconciler.io/dies/v2/die/testing"
 	dieunstructured "reconciler.io/dies/v2/die/unstructured"
 )
 
@@ -61,8 +61,8 @@ var (
 // through its mutable die.
 func stampName[T any, D die.DieObjectOf[T, D, M], M die.DieObjectMutOf[T, D, M]](t testing.TB, d D, name string) D {
 	return d.DieStamp(func(m M) {
-		dietest.NoError(t, m.Metadata().Name().Set(name))
-		dietest.NoError(t, m.APIVersion().Set("apps/v1"))
+		dietesting.NoError(t, m.Metadata().Name().Set(name))
+		dietesting.NoError(t, m.APIVersion().Set("apps/v1"))
 	})
 }
 

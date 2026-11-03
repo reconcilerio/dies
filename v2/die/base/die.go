@@ -51,7 +51,6 @@ type dieOf[T any] interface {
 	LocatedAs[T]
 
 	DieRelease() *T
-	DieReleaseE() (*T, error)
 }
 
 // DieOf carries an immutable die's types for generic code: T is the die's
@@ -68,13 +67,9 @@ type DieOf[T any, D DieOf[T, D, M], M DieMutOf[T, D, M]] interface {
 	DieStamp(fns ...func(m M)) D
 	DieStampE(fns ...func(m M) error) (D, error)
 	DieMutable() M
-	DieMutableE() (M, error)
 	DeepCopy() D
-	DeepCopyE() (D, error)
 	DieTare() D
-	DieTareE() (D, error)
 	Equal(o D) bool
-	EqualE(o D) (bool, error)
 }
 
 // DieMutOf carries a mutable die's types for generic code, as [DieOf] does an
@@ -91,12 +86,9 @@ type DieMutOf[T any, D DieOf[T, D, M], M DieMutOf[T, D, M]] interface {
 	DieStamp(fns ...func(m M)) M
 	DieStampE(fns ...func(m M) error) (M, error)
 	DieImmutable() D
-	DieImmutableE() (D, error)
 	DeepCopy() M
-	DeepCopyE() (M, error)
-	DieTare() error
+	DieTare()
 	Equal(o M) bool
-	EqualE(o M) (bool, error)
 }
 
 // Die is a die of any type, immutable or mutable: the methods every die has
@@ -113,7 +105,6 @@ type Die interface {
 	DieIntent() string
 	DieFields() []FieldInfo
 	DieHas() bool
-	DieHasE() (bool, error)
 }
 
 // ImmutableDie is an immutable die of any type, for functions that take only
@@ -125,7 +116,7 @@ type ImmutableDie interface {
 }
 
 // MutableDie is a mutable die of any type, for functions that take only
-// mutable dies, such as jigs.Jig.OfMut. Only the dies of [DieMutBase], and the
+// mutable dies, such as jigs.Jig.HoldMut. Only the dies of [DieMutBase], and the
 // typed and object bases that embed it, are MutableDies.
 type MutableDie interface {
 	Die
@@ -284,21 +275,11 @@ func (b *state[T]) DieRootType() reflect.Type { return b.hold().Base.Type() }
 // DieHas reports whether the value is present. A root is always present.
 func (b *state[T]) DieHas() bool { return core.Must(b.ref().Has()) }
 
-// DieHasE is [DieBase.DieHas], returning an error rather than panicking.
-func (b *state[T]) DieHasE() (bool, error) { return b.ref().Has() }
-
 // DieRelease returns a pointer to a copy of the current value.
-func (b *state[T]) DieRelease() *T { return core.Must(b.DieReleaseE()) }
-
-// DieReleaseE is [DieBase.DieRelease], returning an error rather than
-// panicking.
-func (b *state[T]) DieReleaseE() (*T, error) {
-	v, err := b.ref().Value()
-	if err != nil {
-		return nil, err
-	}
+func (b *state[T]) DieRelease() *T {
+	v := core.Must(b.ref().Value())
 	r := v.Interface().(T)
-	return &r, nil
+	return &r
 }
 
 // DieStamp passes a mutable copy of the die to each fn, and returns an
@@ -360,45 +341,24 @@ func held(d any, was *core.Holder) *core.Holder {
 // intent; of a die within another, or presented by a jig, a new root holding
 // its current value, as [DieBase.DeepCopy] makes it. Writes to the copy never
 // reach the die.
-func (b *DieBase[T, D, M]) DieMutable() M { return core.Must(b.DieMutableE()) }
-
-// DieMutableE is [DieBase.DieMutable], returning an error rather than
-// panicking.
-func (b *DieBase[T, D, M]) DieMutableE() (M, error) {
-	h, err := b.ref().CopyOf(true)
-	return wrapped(h, err, wrapMut[T, D, M])
+func (b *DieBase[T, D, M]) DieMutable() M {
+	return wrapMut[T, D, M](core.Must(b.ref().CopyOf(true)), nil)
 }
 
 // DeepCopy returns an independent copy. The base and overlay are shared, as
 // neither is ever mutated, so this is cheap. A child die, or a die presented
 // by another, such as a jig or a list item, is copied as a new root holding
 // its current value, without intent: the copy is unlinked from its source.
-func (b *DieBase[T, D, M]) DeepCopy() D { return core.Must(b.DeepCopyE()) }
-
-// DeepCopyE is [DieBase.DeepCopy], returning an error rather than panicking.
-func (b *DieBase[T, D, M]) DeepCopyE() (D, error) {
-	h, err := b.ref().CopyOf(false)
-	return wrapped(h, err, wrap[T, D, M])
+func (b *DieBase[T, D, M]) DeepCopy() D {
+	return wrap[T, D, M](core.Must(b.ref().CopyOf(false)), nil)
 }
 
 // DieTare returns the die with its intent folded into its base: its current
 // value becomes the value later writes are measured from, as taring a scale
 // makes what is on it the new zero. Tare after a successful write, or before
 // changes that should be intent of their own.
-func (b *DieBase[T, D, M]) DieTare() D { return core.Must(b.DieTareE()) }
-
-// DieTareE is [DieBase.DieTare], returning an error rather than panicking.
-func (b *DieBase[T, D, M]) DieTareE() (D, error) {
-	h, err := b.ref().Tare()
-	return wrapped(h, err, wrap[T, D, M])
-}
-
-func wrapped[X any](h *core.Holder, err error, wrap func(*core.Holder, Path) X) (X, error) {
-	if err != nil {
-		var zero X
-		return zero, err
-	}
-	return wrap(h, nil), nil
+func (b *DieBase[T, D, M]) DieTare() D {
+	return wrap[T, D, M](core.Must(b.ref().Tare()), nil)
 }
 
 // DieIntent describes the recorded intent, one operation per line. A jig
@@ -435,9 +395,6 @@ func describeIntent(n *core.Onode, p Path, lines *[]string) {
 // intent. Values that encode alike, such as times that differ only within a
 // second, are equal.
 func (b *DieBase[T, D, M]) Equal(o D) bool { return core.Must(equal(b.ref(), o)) }
-
-// EqualE is [DieBase.Equal], returning an error rather than panicking.
-func (b *DieBase[T, D, M]) EqualE(o D) (bool, error) { return equal(b.ref(), o) }
 
 // MarshalJSON encodes the current value as its presence says: values that
 // were decoded as they were on the wire, fields its type doesn't have
@@ -493,48 +450,39 @@ func (b *DieMutBase[T, D, M]) DieStampE(fns ...func(m M) error) (M, error) {
 // intent; of a die within another, or presented by a jig, a new root holding
 // its current value, as [DieMutBase.DeepCopy] makes it. Later writes to the
 // die never reach the copy.
-func (b *DieMutBase[T, D, M]) DieImmutable() D { return core.Must(b.DieImmutableE()) }
-
-// DieImmutableE is [DieMutBase.DieImmutable], returning an error rather than
-// panicking.
-func (b *DieMutBase[T, D, M]) DieImmutableE() (D, error) {
-	h, err := b.ref().CopyOf(false)
-	return wrapped(h, err, wrap[T, D, M])
+func (b *DieMutBase[T, D, M]) DieImmutable() D {
+	return wrap[T, D, M](core.Must(b.ref().CopyOf(false)), nil)
 }
 
 // DeepCopy returns an independent, mutable copy: see [DieBase.DeepCopy].
-func (b *DieMutBase[T, D, M]) DeepCopy() M { return core.Must(b.DeepCopyE()) }
-
-// DeepCopyE is [DieMutBase.DeepCopy], returning an error rather than
-// panicking.
-func (b *DieMutBase[T, D, M]) DeepCopyE() (M, error) {
-	h, err := b.ref().CopyOf(true)
-	return wrapped(h, err, wrapMut[T, D, M])
+func (b *DieMutBase[T, D, M]) DeepCopy() M {
+	return wrapMut[T, D, M](core.Must(b.ref().CopyOf(true)), nil)
 }
 
 // DieTare folds the intent into the base, in place: see [DieBase.DieTare].
-func (b *DieMutBase[T, D, M]) DieTare() error {
+func (b *DieMutBase[T, D, M]) DieTare() {
 	r := b.ref()
-	return r.Replace(r.Tare())
+	core.Check(r.Replace(r.Tare()))
 }
 
 // Equal reports whether two dies have the same [Content], as
 // [DieBase.Equal] does.
 func (b *DieMutBase[T, D, M]) Equal(o M) bool { return core.Must(equal(b.ref(), o)) }
 
-// EqualE is [DieMutBase.Equal], returning an error rather than panicking.
-func (b *DieMutBase[T, D, M]) EqualE(o M) (bool, error) { return equal(b.ref(), o) }
-
 // UnmarshalJSON replaces the base and keeps the intent, so the intent is
 // reapplied on top of the decoded value.
 func (b *DieMutBase[T, D, M]) UnmarshalJSON(data []byte) error { return b.ref().Unmarshal(data) }
 
-// Error is a die's error. Writes return one, and so do the E variants of
-// reads that can fail, whose fluent forms panic with it: the fluent method for
-// content that is known, as in tests and fixtures, and the E variant
-// otherwise. Use [errors.As] to tell a die's error from another, and
-// [errors.Is] with [ErrImmutable], [ErrImmutableChild] or [ErrReadOnlyJig]
-// for those.
+// Error is a die's error. Writes return one, for content a die can't hold,
+// such as a list map with two elements of the same key, as do functions that
+// encode, or take an expression or content from elsewhere, whose Must forms
+// panic with it instead.
+// A die's reads can't fail: content is checked where it enters. A mistake in
+// the code, which doesn't depend on the data, panics with one: a root's
+// operation on a die within another, a scope's location within another type,
+// a write a jig doesn't bind, or a write the types don't allow. Use
+// [errors.As] to tell a die's error from another, and [errors.Is] with
+// [ErrImmutable], [ErrImmutableChild] or [ErrReadOnlyJig] for those.
 //
 // Methods that implement Kubernetes' and Go's interfaces, such as
 // metav1.Object's setters, can't return an error: they panic with one, such

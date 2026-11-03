@@ -23,7 +23,7 @@ import (
 
 	"reconciler.io/dies/v2/die"
 	"reconciler.io/dies/v2/die/base"
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 	gadgetv1 "reconciler.io/dies/v2/examples/gadget/v1"
 	widgetv1 "reconciler.io/dies/v2/examples/widget/v1"
 )
@@ -47,16 +47,16 @@ func assertJSON(t *testing.T, got []byte, err error, want string) {
 
 func TestLocalTypeDies(t *testing.T) {
 	w := widgetv1.WidgetBlank.DieStamp(func(d *widgetv1.WidgetDieMut) {
-		dietest.NoError(t, d.Metadata().Name().Set("my-widget"))
+		dietesting.NoError(t, d.Metadata().Name().Set("my-widget"))
 		// a list map from the local type's own markers
-		dietest.NoError(t, d.Spec().Ports().At("http").Port().Set(8080))
+		dietesting.NoError(t, d.Spec().Ports().At("http").Port().Set(8080))
 		// an upstream type, through the core/v1 dies
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("busybox"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("busybox"))
 		// upstream metav1.Condition, through the meta/v1 dies
-		dietest.NoError(t, d.Status().Conditions().At("Ready").Status().Set("True"))
+		dietesting.NoError(t, d.Status().Conditions().At("Ready").Status().Set("True"))
 	})
 
-	got, err := die.ReleaseApplyPatchE(w, die.MainResource())
+	got, err := die.ReleaseApplyPatch(w, die.MainResource())
 	assertJSON(t, got, err, `{
 		"apiVersion": "example.dev/v1",
 		"kind": "Widget",
@@ -68,7 +68,7 @@ func TestLocalTypeDies(t *testing.T) {
 	}`)
 
 	// +kubebuilder:subresource:status splits off the status
-	got, err = die.ReleaseApplyPatchE(w, die.Subresource("status"))
+	got, err = die.ReleaseApplyPatch(w, die.Subresource("status"))
 	assertJSON(t, got, err, `{
 		"apiVersion": "example.dev/v1",
 		"kind": "Widget",
@@ -84,8 +84,8 @@ func TestLocalTypeDies(t *testing.T) {
 
 func TestHandWrittenMethod(t *testing.T) {
 	w := widgetv1.WidgetBlank.DieMutable()
-	dietest.NoError(t, w.Ready("Available"))
-	got, err := die.ReleaseApplyPatchE(w, die.Subresource("status"))
+	dietesting.NoError(t, w.Ready("Available"))
+	got, err := die.ReleaseApplyPatch(w, die.Subresource("status"))
 	assertJSON(t, got, err, `{
 		"apiVersion": "example.dev/v1",
 		"kind": "Widget",
@@ -97,15 +97,15 @@ func TestHandWrittenMethod(t *testing.T) {
 // to atomic. The widget's dies and the runtime both follow that override.
 func TestEmbeddedTypeFromAnotherDiePackage(t *testing.T) {
 	w := widgetv1.WidgetBlank.DieStamp(func(d *widgetv1.WidgetDieMut) {
-		dietest.NoError(t, d.Spec().Gadget().Label().Set("knob"))
-		dietest.NoError(t, d.Spec().Gadget().Parts().Set([]gadgetv1.GadgetPart{{Name: "a"}, {Name: "b"}}))
+		dietesting.NoError(t, d.Spec().Gadget().Label().Set("knob"))
+		dietesting.NoError(t, d.Spec().Gadget().Parts().Set([]gadgetv1.GadgetPart{{Name: "a"}, {Name: "b"}}))
 	})
 	for _, f := range base.ManagedFields[widgetv1.WidgetGadget]() {
 		if f.Wire == "parts" && f.Kind != base.FieldValue {
 			t.Errorf("parts is %s, want a whole value", f.Kind)
 		}
 	}
-	got, err := die.ReleaseApplyPatchE(w)
+	got, err := die.ReleaseApplyPatch(w)
 	assertJSON(t, got, err, `{
 		"apiVersion": "example.dev/v1",
 		"kind": "Widget",
@@ -115,7 +115,7 @@ func TestEmbeddedTypeFromAnotherDiePackage(t *testing.T) {
 
 func TestRenamedAccessor(t *testing.T) {
 	w := widgetv1.WidgetBlank.DieStamp(func(d *widgetv1.WidgetDieMut) {
-		dietest.NoError(t, d.Spec().Match().Exact().Set(true))
+		dietesting.NoError(t, d.Spec().Match().Exact().Set(true))
 	})
 	if !w.Spec().Match().Exact().Get() || !w.DieRelease().Spec.Match.Equal {
 		t.Errorf("exact match not set")
@@ -124,7 +124,7 @@ func TestRenamedAccessor(t *testing.T) {
 	if !w.Spec().Match().Equal(w.Spec().Match()) {
 		t.Errorf("a die should equal itself")
 	}
-	got, err := die.ReleaseApplyPatchE(w)
+	got, err := die.ReleaseApplyPatch(w)
 	assertJSON(t, got, err, `{
 		"apiVersion": "example.dev/v1",
 		"kind": "Widget",

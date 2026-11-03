@@ -247,27 +247,27 @@ var CrossVersionObjectReferenceBlank = diebase.Blank[CrossVersionObjectReference
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *CrossVersionObjectReferenceDie) DieReleaseApplyConfiguration() *CrossVersionObjectReferenceApplyConfiguration {
+func (d *CrossVersionObjectReferenceDie) DieReleaseApplyConfiguration() (*CrossVersionObjectReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[CrossVersionObjectReferenceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [CrossVersionObjectReferenceDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *CrossVersionObjectReferenceDie) DieReleaseApplyConfigurationE() (*CrossVersionObjectReferenceApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[CrossVersionObjectReferenceApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [CrossVersionObjectReferenceDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *CrossVersionObjectReferenceDie) DieMustReleaseApplyConfiguration() *CrossVersionObjectReferenceApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[CrossVersionObjectReferenceApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *CrossVersionObjectReferenceDieMut) DieReleaseApplyConfiguration() *CrossVersionObjectReferenceApplyConfiguration {
+func (d *CrossVersionObjectReferenceDieMut) DieReleaseApplyConfiguration() (*CrossVersionObjectReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[CrossVersionObjectReferenceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [CrossVersionObjectReferenceDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *CrossVersionObjectReferenceDieMut) DieReleaseApplyConfigurationE() (*CrossVersionObjectReferenceApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[CrossVersionObjectReferenceApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [CrossVersionObjectReferenceDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *CrossVersionObjectReferenceDieMut) DieMustReleaseApplyConfiguration() *CrossVersionObjectReferenceApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[CrossVersionObjectReferenceApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -524,27 +524,27 @@ var HorizontalPodAutoscalerBlank = diebase.BlankOf[HorizontalPodAutoscaler, *Hor
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *HorizontalPodAutoscalerDie) DieReleaseApplyConfiguration() *HorizontalPodAutoscalerApplyConfiguration {
+func (d *HorizontalPodAutoscalerDie) DieReleaseApplyConfiguration() (*HorizontalPodAutoscalerApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [HorizontalPodAutoscalerDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HorizontalPodAutoscalerDie) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [HorizontalPodAutoscalerDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *HorizontalPodAutoscalerDie) DieMustReleaseApplyConfiguration() *HorizontalPodAutoscalerApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[HorizontalPodAutoscalerApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *HorizontalPodAutoscalerDieMut) DieReleaseApplyConfiguration() *HorizontalPodAutoscalerApplyConfiguration {
+func (d *HorizontalPodAutoscalerDieMut) DieReleaseApplyConfiguration() (*HorizontalPodAutoscalerApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [HorizontalPodAutoscalerDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HorizontalPodAutoscalerDieMut) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [HorizontalPodAutoscalerDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *HorizontalPodAutoscalerDieMut) DieMustReleaseApplyConfiguration() *HorizontalPodAutoscalerApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[HorizontalPodAutoscalerApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -797,27 +797,27 @@ var HorizontalPodAutoscalerSpecBlank = diebase.Blank[HorizontalPodAutoscalerSpec
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *HorizontalPodAutoscalerSpecDie) DieReleaseApplyConfiguration() *HorizontalPodAutoscalerSpecApplyConfiguration {
+func (d *HorizontalPodAutoscalerSpecDie) DieReleaseApplyConfiguration() (*HorizontalPodAutoscalerSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [HorizontalPodAutoscalerSpecDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HorizontalPodAutoscalerSpecDie) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [HorizontalPodAutoscalerSpecDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *HorizontalPodAutoscalerSpecDie) DieMustReleaseApplyConfiguration() *HorizontalPodAutoscalerSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[HorizontalPodAutoscalerSpecApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *HorizontalPodAutoscalerSpecDieMut) DieReleaseApplyConfiguration() *HorizontalPodAutoscalerSpecApplyConfiguration {
+func (d *HorizontalPodAutoscalerSpecDieMut) DieReleaseApplyConfiguration() (*HorizontalPodAutoscalerSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [HorizontalPodAutoscalerSpecDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HorizontalPodAutoscalerSpecDieMut) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [HorizontalPodAutoscalerSpecDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *HorizontalPodAutoscalerSpecDieMut) DieMustReleaseApplyConfiguration() *HorizontalPodAutoscalerSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[HorizontalPodAutoscalerSpecApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -927,27 +927,27 @@ var HorizontalPodAutoscalerStatusBlank = diebase.Blank[HorizontalPodAutoscalerSt
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *HorizontalPodAutoscalerStatusDie) DieReleaseApplyConfiguration() *HorizontalPodAutoscalerStatusApplyConfiguration {
+func (d *HorizontalPodAutoscalerStatusDie) DieReleaseApplyConfiguration() (*HorizontalPodAutoscalerStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [HorizontalPodAutoscalerStatusDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HorizontalPodAutoscalerStatusDie) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerStatusApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerStatusApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [HorizontalPodAutoscalerStatusDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *HorizontalPodAutoscalerStatusDie) DieMustReleaseApplyConfiguration() *HorizontalPodAutoscalerStatusApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[HorizontalPodAutoscalerStatusApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *HorizontalPodAutoscalerStatusDieMut) DieReleaseApplyConfiguration() *HorizontalPodAutoscalerStatusApplyConfiguration {
+func (d *HorizontalPodAutoscalerStatusDieMut) DieReleaseApplyConfiguration() (*HorizontalPodAutoscalerStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [HorizontalPodAutoscalerStatusDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *HorizontalPodAutoscalerStatusDieMut) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerStatusApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerStatusApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [HorizontalPodAutoscalerStatusDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *HorizontalPodAutoscalerStatusDieMut) DieMustReleaseApplyConfiguration() *HorizontalPodAutoscalerStatusApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[HorizontalPodAutoscalerStatusApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -1844,27 +1844,27 @@ var ScaleBlank = diebase.BlankOf[Scale, *ScaleDie, *ScaleDieMut](Scale{TypeMeta:
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ScaleDie) DieReleaseApplyConfiguration() *ScaleApplyConfiguration {
+func (d *ScaleDie) DieReleaseApplyConfiguration() (*ScaleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ScaleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ScaleDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ScaleDie) DieReleaseApplyConfigurationE() (*ScaleApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ScaleApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ScaleDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ScaleDie) DieMustReleaseApplyConfiguration() *ScaleApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ScaleApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ScaleDieMut) DieReleaseApplyConfiguration() *ScaleApplyConfiguration {
+func (d *ScaleDieMut) DieReleaseApplyConfiguration() (*ScaleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ScaleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ScaleDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ScaleDieMut) DieReleaseApplyConfigurationE() (*ScaleApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ScaleApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ScaleDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ScaleDieMut) DieMustReleaseApplyConfiguration() *ScaleApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ScaleApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -1982,27 +1982,27 @@ var ScaleSpecBlank = diebase.Blank[ScaleSpec, *ScaleSpecDie, *ScaleSpecDieMut]()
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ScaleSpecDie) DieReleaseApplyConfiguration() *ScaleSpecApplyConfiguration {
+func (d *ScaleSpecDie) DieReleaseApplyConfiguration() (*ScaleSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ScaleSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ScaleSpecDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ScaleSpecDie) DieReleaseApplyConfigurationE() (*ScaleSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ScaleSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ScaleSpecDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ScaleSpecDie) DieMustReleaseApplyConfiguration() *ScaleSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ScaleSpecApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ScaleSpecDieMut) DieReleaseApplyConfiguration() *ScaleSpecApplyConfiguration {
+func (d *ScaleSpecDieMut) DieReleaseApplyConfiguration() (*ScaleSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ScaleSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ScaleSpecDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ScaleSpecDieMut) DieReleaseApplyConfigurationE() (*ScaleSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ScaleSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ScaleSpecDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ScaleSpecDieMut) DieMustReleaseApplyConfiguration() *ScaleSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ScaleSpecApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -2064,27 +2064,27 @@ var ScaleStatusBlank = diebase.Blank[ScaleStatus, *ScaleStatusDie, *ScaleStatusD
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ScaleStatusDie) DieReleaseApplyConfiguration() *ScaleStatusApplyConfiguration {
+func (d *ScaleStatusDie) DieReleaseApplyConfiguration() (*ScaleStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ScaleStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ScaleStatusDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ScaleStatusDie) DieReleaseApplyConfigurationE() (*ScaleStatusApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ScaleStatusApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ScaleStatusDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ScaleStatusDie) DieMustReleaseApplyConfiguration() *ScaleStatusApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ScaleStatusApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ScaleStatusDieMut) DieReleaseApplyConfiguration() *ScaleStatusApplyConfiguration {
+func (d *ScaleStatusDieMut) DieReleaseApplyConfiguration() (*ScaleStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ScaleStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ScaleStatusDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ScaleStatusDieMut) DieReleaseApplyConfigurationE() (*ScaleStatusApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ScaleStatusApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ScaleStatusDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ScaleStatusDieMut) DieMustReleaseApplyConfiguration() *ScaleStatusApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ScaleStatusApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply

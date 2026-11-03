@@ -25,7 +25,7 @@ import (
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
 	"reconciler.io/dies/v2/die"
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 )
 
 // Patches fed as intent are released again as the same patch.
@@ -45,30 +45,30 @@ func sameJSON(t *testing.T, got, want []byte) {
 // an apply with each kind of intent
 func applied(t testing.TB) *dieappsv1.DeploymentDie {
 	return dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Namespace().Set("default"))
-		dietest.NoError(t, d.Metadata().Name().Set("web"))
-		dietest.NoError(t, d.Metadata().Labels().Set("tier", "web"))
-		dietest.NoError(t, d.Spec().Replicas().Set(0))
-		dietest.NoError(t, d.Spec().Paused().Set(false))
-		dietest.NoError(t, d.Spec().MinReadySeconds().Clear())
-		dietest.NoError(t, d.Spec().Selector().MatchLabels().Set("app", "web"))
-		dietest.NoError(t, d.Spec().Template().Spec().Tolerations().Empty())
+		dietesting.NoError(t, d.Metadata().Namespace().Set("default"))
+		dietesting.NoError(t, d.Metadata().Name().Set("web"))
+		dietesting.NoError(t, d.Metadata().Labels().Set("tier", "web"))
+		dietesting.NoError(t, d.Spec().Replicas().Set(0))
+		dietesting.NoError(t, d.Spec().Paused().Set(false))
+		dietesting.NoError(t, d.Spec().MinReadySeconds().Clear())
+		dietesting.NoError(t, d.Spec().Selector().MatchLabels().Set("app", "web"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Tolerations().Empty())
 		d.Spec().Template().Spec().Containers().At("app").DieStamp(func(c *diecorev1.ContainerDieMut) {
-			dietest.NoError(t, c.Image().Set("app:1"))
-			dietest.NoError(t, c.Args().Set([]string{"--verbose"}))
-			dietest.NoError(t, c.Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("http"))
-			dietest.NoError(t, c.Env().At("COLOR").ValueFrom().ConfigMapKeyRef().Key().Set("color"))
+			dietesting.NoError(t, c.Image().Set("app:1"))
+			dietesting.NoError(t, c.Args().Set([]string{"--verbose"}))
+			dietesting.NoError(t, c.Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("http"))
+			dietesting.NoError(t, c.Env().At("COLOR").ValueFrom().ConfigMapKeyRef().Key().Set("color"))
 		})
 	})
 }
 
 func TestDieFeedApplyPatchRoundTrips(t *testing.T) {
-	want, err := die.ReleaseApplyPatchE(applied(t))
+	want, err := die.ReleaseApplyPatch(applied(t))
 	if err != nil {
 		t.Fatal(err)
 	}
-	fed := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietest.NoError(t, die.FeedApplyPatch(d, want)) })
-	got, err := die.ReleaseApplyPatchE(fed)
+	fed := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietesting.NoError(t, die.FeedApplyPatch(d, want)) })
+	got, err := die.ReleaseApplyPatch(fed)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -82,12 +82,12 @@ func TestDieFeedApplyPatchRoundTrips(t *testing.T) {
 // die's intent.
 func TestDieFeedApplyPatchOverAValue(t *testing.T) {
 	server := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, die.FeedUnstructured(d, unstructuredDeployment()))
+		dietesting.NoError(t, die.FeedUnstructured(d, unstructuredDeployment()))
 	}).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Paused().Set(true))
+		dietesting.NoError(t, d.Spec().Paused().Set(true))
 	})
 	fed := server.DieMutable()
-	dietest.NoError(t, die.FeedApplyPatch(fed, []byte(`{
+	dietesting.NoError(t, die.FeedApplyPatch(fed, []byte(`{
 		"apiVersion": "apps/v1", "kind": "Deployment",
 		"metadata": {"name": "web", "namespace": "default"},
 		"spec": {"replicas": 5, "minReadySeconds": null, "futureField": "ignored"}
@@ -109,26 +109,26 @@ func TestDieFeedApplyPatchOverAValue(t *testing.T) {
 // and releases as the same patch.
 func TestDieFeedMergePatchRoundTrips(t *testing.T) {
 	current := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, die.FeedUnstructured(d, unstructuredDeployment()))
+		dietesting.NoError(t, die.FeedUnstructured(d, unstructuredDeployment()))
 	}).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Labels().Set("canary", "true"))
-		dietest.NoError(t, d.Spec().MinReadySeconds().Set(5))
+		dietesting.NoError(t, d.Metadata().Labels().Set("canary", "true"))
+		dietesting.NoError(t, d.Spec().MinReadySeconds().Set(5))
 	}).DieTare()
 	update := current.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Replicas().Set(0))
-		dietest.NoError(t, d.Spec().MinReadySeconds().Clear())
-		dietest.NoError(t, d.Metadata().Labels().Remove("canary"))
-		dietest.NoError(t, d.Metadata().Labels().Set("tier", "web"))
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:2"))
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("sidecar").Image().Set("sidecar:1"))
+		dietesting.NoError(t, d.Spec().Replicas().Set(0))
+		dietesting.NoError(t, d.Spec().MinReadySeconds().Clear())
+		dietesting.NoError(t, d.Metadata().Labels().Remove("canary"))
+		dietesting.NoError(t, d.Metadata().Labels().Set("tier", "web"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:2"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("sidecar").Image().Set("sidecar:1"))
 	})
-	want, err := die.ReleaseMergePatchE(update)
+	want, err := die.ReleaseMergePatch(update)
 	if err != nil {
 		t.Fatal(err)
 	}
 	fed := current.DieMutable()
-	dietest.NoError(t, die.FeedMergePatch(fed, want))
-	got, err := die.ReleaseMergePatchE(fed)
+	dietesting.NoError(t, die.FeedMergePatch(fed, want))
+	got, err := die.ReleaseMergePatch(fed)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -138,8 +138,13 @@ func TestDieFeedMergePatchRoundTrips(t *testing.T) {
 	}
 }
 
-func TestDieFeedPatchOnAChildFails(t *testing.T) {
-	if err := die.FeedMergePatch(dieappsv1.DeploymentBlank.DieMutable().Spec(), []byte(`{}`)); err == nil || !strings.Contains(err.Error(), "only supported on a root die") {
-		t.Errorf("error %v", err)
-	}
+// A patch is of a root die: feeding one to a die within another is a mistake
+// in the code, which panics.
+func TestDieFeedPatchOnAChildPanics(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil || !strings.Contains(r.(error).Error(), "only supported on a root die") {
+			t.Errorf("recovered %v", r)
+		}
+	}()
+	_ = die.FeedMergePatch(dieappsv1.DeploymentBlank.DieMutable().Spec(), []byte(`{}`))
 }

@@ -33,7 +33,7 @@ import (
 
 	"reconciler.io/dies/v2/apis"
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 	dieunstructured "reconciler.io/dies/v2/die/unstructured"
 	widgetv1 "reconciler.io/dies/v2/examples/widget/v1"
 )
@@ -77,8 +77,8 @@ func Namespace(t testing.TB, c client.Client) string {
 	}
 	name = strings.TrimRight(name, "-") + suffix
 	ns := diecorev1.NamespaceBlank.DieStamp(func(d *diecorev1.NamespaceDieMut) {
-		dietest.NoError(t, d.Metadata().Name().Set(name))
-		dietest.NoError(t, d.Metadata().Labels().Set(Label, "true"))
+		dietesting.NoError(t, d.Metadata().Name().Set(name))
+		dietesting.NoError(t, d.Metadata().Labels().Set(Label, "true"))
 	}).DieMutable()
 	ctx := context.Background()
 	if err := c.Create(ctx, ns); err != nil {
@@ -104,7 +104,7 @@ func MoldedBlank(t testing.TB, molds *dieunstructured.Molds, gvk schema.GroupVer
 	t.Helper()
 	deadline := time.Now().Add(30 * time.Second)
 	for {
-		d, err := molds.BlankE(gvk)
+		d, err := molds.Blank(gvk)
 		if err == nil {
 			return d
 		}

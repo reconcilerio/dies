@@ -26,19 +26,19 @@ import (
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
 	"reconciler.io/dies/v2/die"
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 )
 
 // A value set whole has the presence a Go value can have: nil and omitempty
 // zero fields are absent, never null.
 func TestCodecSetWhole(t *testing.T) {
 	d := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Name().Set("web"))
-		dietest.NoError(t, d.Spec().Template().DieFeed(&upstreamcorev1.PodTemplateSpec{
+		dietesting.NoError(t, d.Metadata().Name().Set("web"))
+		dietesting.NoError(t, d.Spec().Template().DieFeed(&upstreamcorev1.PodTemplateSpec{
 			Spec: upstreamcorev1.PodSpec{ServiceAccountName: "sa"},
 		}))
 	})
-	got, err := die.ReleaseApplyPatchE(d)
+	got, err := die.ReleaseApplyPatch(d)
 	assertJSON(t, got, err, `{
 		"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "web"},
 		"spec": {"template": {"spec": {"serviceAccountName": "sa"}}}
@@ -68,7 +68,7 @@ func TestCodecUnknownFields(t *testing.T) {
 	}`), d); err != nil {
 		t.Fatal(err)
 	}
-	dietest.NoError(t, d.Spec().Replicas().Set(2))
+	dietesting.NoError(t, d.Spec().Replicas().Set(2))
 	// only what was on the wire or written since, unknown fields included, and
 	// none of the nulls and empty objects the Go types would add
 	got, err := json.Marshal(d)
@@ -91,15 +91,15 @@ func decoded(t *testing.T, data string) *dieappsv1.DeploymentDieMut {
 // Presence follows writes and survives a tare.
 func TestCodecPresenceThroughWrites(t *testing.T) {
 	d := decoded(t, `{"spec": {"paused": false, "minReadySeconds": 0}}`)
-	dietest.NoError(t, d.Spec().Paused().Clear())
-	dietest.NoError(t, d.Spec().RevisionHistoryLimit().Set(0))
+	dietesting.NoError(t, d.Spec().Paused().Clear())
+	dietesting.NoError(t, d.Spec().RevisionHistoryLimit().Set(0))
 	if d.Spec().Paused().Has() || !d.Spec().RevisionHistoryLimit().Has() {
 		t.Errorf("paused %v, revisionHistoryLimit %v", d.Spec().Paused().Has(), d.Spec().RevisionHistoryLimit().Has())
 	}
-	got, err := die.ReleaseMergePatchE(d)
+	got, err := die.ReleaseMergePatch(d)
 	assertJSON(t, got, err, `{"spec": {"paused": null, "revisionHistoryLimit": 0}}`)
 
-	dietest.NoError(t, d.DieTare())
+	d.DieTare()
 	if d.Spec().Paused().Has() || !d.Spec().MinReadySeconds().Has() || !d.Spec().RevisionHistoryLimit().Has() {
 		t.Errorf("after tare: paused %v, minReadySeconds %v, revisionHistoryLimit %v", d.Spec().Paused().Has(), d.Spec().MinReadySeconds().Has(), d.Spec().RevisionHistoryLimit().Has())
 	}
@@ -107,7 +107,7 @@ func TestCodecPresenceThroughWrites(t *testing.T) {
 	assertJSON(t, got, err, `{"spec": {"minReadySeconds": 0, "revisionHistoryLimit": 0}}`)
 
 	// a value fed from Go has the presence the Go rule gives it
-	fed := dieappsv1.DeploymentBlank.DieStamp(func(f *dieappsv1.DeploymentDieMut) { dietest.NoError(t, f.DieFeed(d.DieRelease())) })
+	fed := dieappsv1.DeploymentBlank.DieStamp(func(f *dieappsv1.DeploymentDieMut) { dietesting.NoError(t, f.DieFeed(d.DieRelease())) })
 	if fed.Spec().MinReadySeconds().Has() || !fed.Spec().RevisionHistoryLimit().Has() {
 		t.Errorf("fed: minReadySeconds %v, revisionHistoryLimit %v", fed.Spec().MinReadySeconds().Has(), fed.Spec().RevisionHistoryLimit().Has())
 	}
@@ -120,7 +120,7 @@ func TestCodecUnknownFieldsInLists(t *testing.T) {
 		"containers": [{"name": "app", "ports": [{"containerPort": 80, "futurePort": 1}]}],
 		"tolerations": [{"key": "a", "futureToleration": 2}]
 	}}}}`)
-	dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Ports().At(diecorev1.ContainerPortKey{ContainerPort: 80}).Name().Set("http"))
+	dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Ports().At(diecorev1.ContainerPortKey{ContainerPort: 80}).Name().Set("http"))
 	got, err := json.Marshal(d)
 	assertJSON(t, got, err, `{"spec": {"template": {"spec": {
 		"containers": [{"name": "app", "ports": [{"containerPort": 80, "name": "http", "futurePort": 1}]}],
@@ -131,7 +131,7 @@ func TestCodecUnknownFieldsInLists(t *testing.T) {
 // Replacing a value from Go replaces its unknown fields too.
 func TestCodecReplacingDropsUnknownFields(t *testing.T) {
 	d := decoded(t, `{"spec": {"strategy": {"type": "Recreate", "futureStrategy": true}}}`)
-	dietest.NoError(t, d.Spec().Strategy().DieFeed(&upstreamappsv1.DeploymentStrategy{Type: upstreamappsv1.RollingUpdateDeploymentStrategyType}))
-	got, err := die.ReleaseMergePatchE(d)
+	dietesting.NoError(t, d.Spec().Strategy().DieFeed(&upstreamappsv1.DeploymentStrategy{Type: upstreamappsv1.RollingUpdateDeploymentStrategyType}))
+	got, err := die.ReleaseMergePatch(d)
 	assertJSON(t, got, err, `{"spec": {"strategy": {"type": "RollingUpdate", "futureStrategy": null}}}`)
 }

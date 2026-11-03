@@ -27,7 +27,7 @@ import (
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	"reconciler.io/dies/v2/die"
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 )
 
 func unstructuredDeployment() *unstructured.Unstructured {
@@ -49,14 +49,14 @@ func unstructuredDeployment() *unstructured.Unstructured {
 // isn't intent: patches don't carry it, and the type metadata is gone.
 func TestSetGroupVersionKindIsNotIntent(t *testing.T) {
 	d := dieappsv1.DeploymentBlank.DieMutable()
-	dietest.NoError(t, die.FeedUnstructured(d, unstructuredDeployment()))
-	dietest.NoError(t, d.Spec().Replicas().Set(4))
+	dietesting.NoError(t, die.FeedUnstructured(d, unstructuredDeployment()))
+	dietesting.NoError(t, d.Spec().Replicas().Set(4))
 	d.GetObjectKind().SetGroupVersionKind(schema.GroupVersionKind{})
 
 	if gvk := d.GetObjectKind().GroupVersionKind(); !gvk.Empty() {
 		t.Errorf("gvk %v", gvk)
 	}
-	if got, err := die.ReleaseMergePatchE(d); err != nil || string(got) != `{"spec":{"replicas":4}}` {
+	if got, err := die.ReleaseMergePatch(d); err != nil || string(got) != `{"spec":{"replicas":4}}` {
 		t.Errorf("merge patch %s, %v", got, err)
 	}
 	data, err := d.MarshalJSON()
@@ -64,7 +64,7 @@ func TestSetGroupVersionKindIsNotIntent(t *testing.T) {
 		t.Errorf("encoded %s, %v", data, err)
 	}
 	// an apply always identifies its object
-	if got, err := die.ReleaseApplyPatchE(d); err != nil || !strings.Contains(string(got), `"apiVersion":"apps/v1","kind":"Deployment"`) {
+	if got, err := die.ReleaseApplyPatch(d); err != nil || !strings.Contains(string(got), `"apiVersion":"apps/v1","kind":"Deployment"`) {
 		t.Errorf("apply patch %s, %v", got, err)
 	}
 }
@@ -73,7 +73,7 @@ func TestSetGroupVersionKindIsNotIntent(t *testing.T) {
 // presence and fields its type doesn't have survive both ways.
 func TestDieFeedUnstructured(t *testing.T) {
 	d := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, die.FeedUnstructured(d, unstructuredDeployment()))
+		dietesting.NoError(t, die.FeedUnstructured(d, unstructuredDeployment()))
 	})
 	if d.GetName() != "web" || d.Spec().Replicas().Get() != 3 || d.Spec().Template().Spec().Containers().At("app").Image().Get() != "app:1" {
 		t.Errorf("fed %+v", *d.DieRelease())
@@ -82,8 +82,8 @@ func TestDieFeedUnstructured(t *testing.T) {
 		t.Errorf("paused %v, minReadySeconds %v", d.Spec().Paused().Has(), d.Spec().MinReadySeconds().Has())
 	}
 
-	d = d.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietest.NoError(t, d.Spec().Replicas().Set(4)) })
-	u := die.ReleaseUnstructured(d)
+	d = d.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietesting.NoError(t, d.Spec().Replicas().Set(4)) })
+	u := die.MustReleaseUnstructured(d)
 	if got, _, _ := unstructured.NestedInt64(u.Object, "spec", "replicas"); got != 4 {
 		t.Errorf("replicas %v", u.Object["spec"])
 	}
@@ -99,9 +99,9 @@ func TestDieFeedUnstructured(t *testing.T) {
 
 	// as with DieFeed, a mutable root discards its intent
 	m := dieappsv1.DeploymentBlank.DieMutable()
-	dietest.NoError(t, m.Spec().Replicas().Set(9))
-	dietest.NoError(t, die.FeedUnstructured(m, unstructuredDeployment()))
-	if got, err := die.ReleaseMergePatchE(m); err != nil || string(got) != "{}" {
+	dietesting.NoError(t, m.Spec().Replicas().Set(9))
+	dietesting.NoError(t, die.FeedUnstructured(m, unstructuredDeployment()))
+	if got, err := die.ReleaseMergePatch(m); err != nil || string(got) != "{}" {
 		t.Errorf("patch %s, %v", got, err)
 	}
 
@@ -118,7 +118,7 @@ func TestDieFeedUnstructured(t *testing.T) {
 func TestDieStampE(t *testing.T) {
 	blank := dieappsv1.DeploymentBlank
 	got, err := blank.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
-		dietest.NoError(t, die.FeedUnstructured(d, unstructuredDeployment()))
+		dietesting.NoError(t, die.FeedUnstructured(d, unstructuredDeployment()))
 		return nil
 	})
 	if err != nil || got.GetName() != "web" {
@@ -130,7 +130,7 @@ func TestDieStampE(t *testing.T) {
 
 	failed := errors.New("failed")
 	got, err = blank.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
-		dietest.NoError(t, d.Spec().Replicas().Set(2))
+		dietesting.NoError(t, d.Spec().Replicas().Set(2))
 		return failed
 	})
 	if err != failed || got.Spec().Replicas().Get() != 2 {

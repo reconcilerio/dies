@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"testing"
 
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 	"reconciler.io/dies/v2/spike/corev1"
 )
 
@@ -43,10 +43,10 @@ func largeDeployment(n int) Deployment {
 func BenchmarkImmutableSet(b *testing.B) {
 	for _, n := range []int{1, 10, 50} {
 		d := DeploymentBlank.DieMutable()
-		dietest.NoError(b, d.DieFeed(new(largeDeployment(n))))
+		dietesting.NoError(b, d.DieFeed(new(largeDeployment(n))))
 		b.Run(fmt.Sprintf("size=%d", n), func(b *testing.B) {
 			for b.Loop() {
-				dietest.NoError(b, d.Kind().Set("Deployment"))
+				dietesting.NoError(b, d.Kind().Set("Deployment"))
 			}
 		})
 	}
@@ -58,7 +58,7 @@ func BenchmarkDeepCopyBaseline(b *testing.B) {
 		d := largeDeployment(n)
 		b.Run(fmt.Sprintf("size=%d", n), func(b *testing.B) {
 			for b.Loop() {
-				dietest.NoError(b, DeploymentBlank.DieMutable().DieFeed(&d))
+				dietesting.NoError(b, DeploymentBlank.DieMutable().DieFeed(&d))
 			}
 		})
 	}
@@ -67,8 +67,8 @@ func BenchmarkDeepCopyBaseline(b *testing.B) {
 // A read of a scalar walks the path; it does not materialize the object.
 func BenchmarkReadLeaf(b *testing.B) {
 	for _, n := range []int{1, 10, 50} {
-		d := DeploymentBlank.DieStamp(func(d *DeploymentDieMut) { dietest.NoError(b, d.DieFeed(new(largeDeployment(n)))) }).DieStamp(func(d *DeploymentDieMut) {
-			dietest.NoError(b, d.Spec().Template().Spec().Containers().At("c0").Image().Set("busybox:2"))
+		d := DeploymentBlank.DieStamp(func(d *DeploymentDieMut) { dietesting.NoError(b, d.DieFeed(new(largeDeployment(n)))) }).DieStamp(func(d *DeploymentDieMut) {
+			dietesting.NoError(b, d.Spec().Template().Spec().Containers().At("c0").Image().Set("busybox:2"))
 		})
 		b.Run(fmt.Sprintf("size=%d", n), func(b *testing.B) {
 			for b.Loop() {

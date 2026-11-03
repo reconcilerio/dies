@@ -72,6 +72,6 @@ var DeploymentConditions = jigs.Transform[[]appsv1.DeploymentCondition, []metav1
 
 // ConditionedJig presents a status's conditions in their harmonized form.
 var ConditionedJig = jigs.NewJig[Conditioned, *ConditionedDie]().
-	For(dieappsv1.DeploymentStatusBlank,
+	MustClamp(dieappsv1.DeploymentStatusBlank,
 		jigs.BindVia(ConditionedBlank.Conditions(), dieappsv1.DeploymentStatusBlank.Conditions(), DeploymentConditions),
 	)

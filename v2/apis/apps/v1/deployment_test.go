@@ -37,7 +37,7 @@ import (
 	"reconciler.io/dies/v2/die"
 	"reconciler.io/dies/v2/die/base"
 	"reconciler.io/dies/v2/die/codegen"
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 )
 
 // upstreamDeployment exercises much of the shape of a deployment, built with
@@ -143,7 +143,7 @@ func assertJSON(t *testing.T, got []byte, err error, want string) {
 // libraries without conversion, and the aliases make one import enough.
 func TestUpstreamTypesInAndOut(t *testing.T) {
 	var in *upstreamappsv1.Deployment = upstreamDeployment() //nolint:staticcheck // the types are the point
-	d := appsv1.DeploymentBlank.DieStamp(func(d *appsv1.DeploymentDieMut) { dietest.NoError(t, d.DieFeed(in)) })
+	d := appsv1.DeploymentBlank.DieStamp(func(d *appsv1.DeploymentDieMut) { dietesting.NoError(t, d.DieFeed(in)) })
 
 	var out upstreamappsv1.Deployment = *d.DieRelease() //nolint:staticcheck // the types are the point
 	if !reflect.DeepEqual(*in, out) {
@@ -209,15 +209,15 @@ func TestReadsThroughGeneratedAccessors(t *testing.T) {
 func TestApplyFromServerState(t *testing.T) {
 	d := fedDie(t).DieStamp(func(d *appsv1.DeploymentDieMut) {
 		c := d.Spec().Template().Spec().Containers().At("app")
-		dietest.NoError(t, c.Image().Set("busybox:2"))
-		dietest.NoError(t, c.Env().At("B").Value().Set("2"))
+		dietesting.NoError(t, c.Image().Set("busybox:2"))
+		dietesting.NoError(t, c.Env().At("B").Value().Set("2"))
 		// the existing port has no protocol; its default identifies it
-		dietest.NoError(t, c.Ports().At(corev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("web"))
-		dietest.NoError(t, c.Resources().Limits().Set(corev1.ResourceMemory, resource.MustParse("64Mi")))
-		dietest.NoError(t, d.Metadata().Labels().Set("tier", "web"))
+		dietesting.NoError(t, c.Ports().At(corev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("web"))
+		dietesting.NoError(t, c.Resources().Limits().Set(corev1.ResourceMemory, resource.MustParse("64Mi")))
+		dietesting.NoError(t, d.Metadata().Labels().Set("tier", "web"))
 	})
 
-	got, err := die.ReleaseApplyPatchE(d, die.MainResource())
+	got, err := die.ReleaseApplyPatch(d, die.MainResource())
 	assertJSON(t, got, err, `{
 		"apiVersion": "apps/v1",
 		"kind": "Deployment",
@@ -237,10 +237,10 @@ func TestApplyFromServerState(t *testing.T) {
 
 func TestStatusSubresourceFromMarkers(t *testing.T) {
 	d := fedDie(t).DieStamp(func(d *appsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Replicas().Set(5))
-		dietest.NoError(t, d.Status().ObservedGeneration().Set(3))
+		dietesting.NoError(t, d.Spec().Replicas().Set(5))
+		dietesting.NoError(t, d.Status().ObservedGeneration().Set(3))
 	})
-	got, err := die.ReleaseApplyPatchE(d, die.Subresource("status"))
+	got, err := die.ReleaseApplyPatch(d, die.Subresource("status"))
 	assertJSON(t, got, err, `{
 		"apiVersion": "apps/v1",
 		"kind": "Deployment",
@@ -282,9 +282,9 @@ func TestDieEnumeratesItsFields(t *testing.T) {
 
 	// fields are locations, so they can select intent
 	d = d.DieStamp(func(d *appsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Replicas().Set(5))
-		dietest.NoError(t, d.Spec().Paused().Set(true))
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("busybox:2"))
+		dietesting.NoError(t, d.Spec().Replicas().Set(5))
+		dietesting.NoError(t, d.Spec().Paused().Set(true))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("busybox:2"))
 	})
 	var values []die.Located
 	for _, f := range d.Spec().DieFields() {
@@ -292,7 +292,7 @@ func TestDieEnumeratesItsFields(t *testing.T) {
 			values = append(values, f)
 		}
 	}
-	got, err := die.ReleaseApplyPatchE(d, die.Only(values...))
+	got, err := die.ReleaseApplyPatch(d, die.Only(values...))
 	assertJSON(t, got, err, `{
 		"apiVersion": "apps/v1",
 		"kind": "Deployment",
@@ -323,7 +323,7 @@ func TestObjectInterfaces(t *testing.T) {
 	if d.Metadata().Labels().At("tier") != "web" || d.GetResourceVersion() != "42" {
 		t.Errorf("labels %v, resource version %q", d.GetLabels(), d.GetResourceVersion())
 	}
-	got, err := die.ReleaseMergePatchE(d)
+	got, err := die.ReleaseMergePatch(d)
 	assertJSON(t, got, err, `{"metadata": {"labels": {"app": null, "tier": "web"}, "resourceVersion": "42"}}`)
 
 	// a copy is a die, independent of the original
@@ -357,7 +357,7 @@ func TestObjectInterfaces(t *testing.T) {
 	if err != nil || len(objs) != 1 || objs[0] != runtime.Object(list.Items[0]) {
 		t.Fatalf("extracted %v, %v", objs, err)
 	}
-	other := appsv1.DeploymentBlank.DieStamp(func(d *appsv1.DeploymentDieMut) { dietest.NoError(t, d.Metadata().Name().Set("other")) }).DieMutable()
+	other := appsv1.DeploymentBlank.DieStamp(func(d *appsv1.DeploymentDieMut) { dietesting.NoError(t, d.Metadata().Name().Set("other")) }).DieMutable()
 	if err := meta.SetList(list, append(objs, other)); err != nil {
 		t.Fatal(err)
 	}

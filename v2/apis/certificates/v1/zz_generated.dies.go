@@ -66,27 +66,27 @@ var CertificateSigningRequestBlank = diebase.BlankOf[CertificateSigningRequest, 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *CertificateSigningRequestDie) DieReleaseApplyConfiguration() *CertificateSigningRequestApplyConfiguration {
+func (d *CertificateSigningRequestDie) DieReleaseApplyConfiguration() (*CertificateSigningRequestApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [CertificateSigningRequestDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *CertificateSigningRequestDie) DieReleaseApplyConfigurationE() (*CertificateSigningRequestApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [CertificateSigningRequestDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *CertificateSigningRequestDie) DieMustReleaseApplyConfiguration() *CertificateSigningRequestApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[CertificateSigningRequestApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *CertificateSigningRequestDieMut) DieReleaseApplyConfiguration() *CertificateSigningRequestApplyConfiguration {
+func (d *CertificateSigningRequestDieMut) DieReleaseApplyConfiguration() (*CertificateSigningRequestApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [CertificateSigningRequestDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *CertificateSigningRequestDieMut) DieReleaseApplyConfigurationE() (*CertificateSigningRequestApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [CertificateSigningRequestDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *CertificateSigningRequestDieMut) DieMustReleaseApplyConfiguration() *CertificateSigningRequestApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[CertificateSigningRequestApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -214,27 +214,27 @@ var CertificateSigningRequestConditionBlank = diebase.Blank[CertificateSigningRe
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *CertificateSigningRequestConditionDie) DieReleaseApplyConfiguration() *CertificateSigningRequestConditionApplyConfiguration {
+func (d *CertificateSigningRequestConditionDie) DieReleaseApplyConfiguration() (*CertificateSigningRequestConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestConditionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [CertificateSigningRequestConditionDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *CertificateSigningRequestConditionDie) DieReleaseApplyConfigurationE() (*CertificateSigningRequestConditionApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestConditionApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [CertificateSigningRequestConditionDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *CertificateSigningRequestConditionDie) DieMustReleaseApplyConfiguration() *CertificateSigningRequestConditionApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[CertificateSigningRequestConditionApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *CertificateSigningRequestConditionDieMut) DieReleaseApplyConfiguration() *CertificateSigningRequestConditionApplyConfiguration {
+func (d *CertificateSigningRequestConditionDieMut) DieReleaseApplyConfiguration() (*CertificateSigningRequestConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestConditionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [CertificateSigningRequestConditionDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *CertificateSigningRequestConditionDieMut) DieReleaseApplyConfigurationE() (*CertificateSigningRequestConditionApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestConditionApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [CertificateSigningRequestConditionDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *CertificateSigningRequestConditionDieMut) DieMustReleaseApplyConfiguration() *CertificateSigningRequestConditionApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[CertificateSigningRequestConditionApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -407,27 +407,27 @@ var CertificateSigningRequestSpecBlank = diebase.Blank[CertificateSigningRequest
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *CertificateSigningRequestSpecDie) DieReleaseApplyConfiguration() *CertificateSigningRequestSpecApplyConfiguration {
+func (d *CertificateSigningRequestSpecDie) DieReleaseApplyConfiguration() (*CertificateSigningRequestSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [CertificateSigningRequestSpecDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *CertificateSigningRequestSpecDie) DieReleaseApplyConfigurationE() (*CertificateSigningRequestSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [CertificateSigningRequestSpecDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *CertificateSigningRequestSpecDie) DieMustReleaseApplyConfiguration() *CertificateSigningRequestSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[CertificateSigningRequestSpecApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *CertificateSigningRequestSpecDieMut) DieReleaseApplyConfiguration() *CertificateSigningRequestSpecApplyConfiguration {
+func (d *CertificateSigningRequestSpecDieMut) DieReleaseApplyConfiguration() (*CertificateSigningRequestSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [CertificateSigningRequestSpecDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *CertificateSigningRequestSpecDieMut) DieReleaseApplyConfigurationE() (*CertificateSigningRequestSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [CertificateSigningRequestSpecDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *CertificateSigningRequestSpecDieMut) DieMustReleaseApplyConfiguration() *CertificateSigningRequestSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[CertificateSigningRequestSpecApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -686,27 +686,27 @@ var CertificateSigningRequestStatusBlank = diebase.Blank[CertificateSigningReque
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *CertificateSigningRequestStatusDie) DieReleaseApplyConfiguration() *CertificateSigningRequestStatusApplyConfiguration {
+func (d *CertificateSigningRequestStatusDie) DieReleaseApplyConfiguration() (*CertificateSigningRequestStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [CertificateSigningRequestStatusDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *CertificateSigningRequestStatusDie) DieReleaseApplyConfigurationE() (*CertificateSigningRequestStatusApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestStatusApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [CertificateSigningRequestStatusDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *CertificateSigningRequestStatusDie) DieMustReleaseApplyConfiguration() *CertificateSigningRequestStatusApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[CertificateSigningRequestStatusApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *CertificateSigningRequestStatusDieMut) DieReleaseApplyConfiguration() *CertificateSigningRequestStatusApplyConfiguration {
+func (d *CertificateSigningRequestStatusDieMut) DieReleaseApplyConfiguration() (*CertificateSigningRequestStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [CertificateSigningRequestStatusDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *CertificateSigningRequestStatusDieMut) DieReleaseApplyConfigurationE() (*CertificateSigningRequestStatusApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestStatusApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [CertificateSigningRequestStatusDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *CertificateSigningRequestStatusDieMut) DieMustReleaseApplyConfiguration() *CertificateSigningRequestStatusApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[CertificateSigningRequestStatusApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -844,27 +844,27 @@ var ClusterTrustBundleBlank = diebase.BlankOf[ClusterTrustBundle, *ClusterTrustB
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ClusterTrustBundleDie) DieReleaseApplyConfiguration() *ClusterTrustBundleApplyConfiguration {
+func (d *ClusterTrustBundleDie) DieReleaseApplyConfiguration() (*ClusterTrustBundleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ClusterTrustBundleDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ClusterTrustBundleDie) DieReleaseApplyConfigurationE() (*ClusterTrustBundleApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ClusterTrustBundleDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ClusterTrustBundleDie) DieMustReleaseApplyConfiguration() *ClusterTrustBundleApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ClusterTrustBundleApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ClusterTrustBundleDieMut) DieReleaseApplyConfiguration() *ClusterTrustBundleApplyConfiguration {
+func (d *ClusterTrustBundleDieMut) DieReleaseApplyConfiguration() (*ClusterTrustBundleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ClusterTrustBundleDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ClusterTrustBundleDieMut) DieReleaseApplyConfigurationE() (*ClusterTrustBundleApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ClusterTrustBundleDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ClusterTrustBundleDieMut) DieMustReleaseApplyConfiguration() *ClusterTrustBundleApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ClusterTrustBundleApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -993,27 +993,27 @@ var ClusterTrustBundleSpecBlank = diebase.Blank[ClusterTrustBundleSpec, *Cluster
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ClusterTrustBundleSpecDie) DieReleaseApplyConfiguration() *ClusterTrustBundleSpecApplyConfiguration {
+func (d *ClusterTrustBundleSpecDie) DieReleaseApplyConfiguration() (*ClusterTrustBundleSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ClusterTrustBundleSpecDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ClusterTrustBundleSpecDie) DieReleaseApplyConfigurationE() (*ClusterTrustBundleSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ClusterTrustBundleSpecDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ClusterTrustBundleSpecDie) DieMustReleaseApplyConfiguration() *ClusterTrustBundleSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ClusterTrustBundleSpecApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *ClusterTrustBundleSpecDieMut) DieReleaseApplyConfiguration() *ClusterTrustBundleSpecApplyConfiguration {
+func (d *ClusterTrustBundleSpecDieMut) DieReleaseApplyConfiguration() (*ClusterTrustBundleSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [ClusterTrustBundleSpecDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *ClusterTrustBundleSpecDieMut) DieReleaseApplyConfigurationE() (*ClusterTrustBundleSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [ClusterTrustBundleSpecDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *ClusterTrustBundleSpecDieMut) DieMustReleaseApplyConfiguration() *ClusterTrustBundleSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[ClusterTrustBundleSpecApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -1144,27 +1144,27 @@ var PodCertificateRequestBlank = diebase.BlankOf[PodCertificateRequest, *PodCert
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *PodCertificateRequestDie) DieReleaseApplyConfiguration() *PodCertificateRequestApplyConfiguration {
+func (d *PodCertificateRequestDie) DieReleaseApplyConfiguration() (*PodCertificateRequestApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[PodCertificateRequestApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [PodCertificateRequestDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PodCertificateRequestDie) DieReleaseApplyConfigurationE() (*PodCertificateRequestApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[PodCertificateRequestApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [PodCertificateRequestDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *PodCertificateRequestDie) DieMustReleaseApplyConfiguration() *PodCertificateRequestApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[PodCertificateRequestApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *PodCertificateRequestDieMut) DieReleaseApplyConfiguration() *PodCertificateRequestApplyConfiguration {
+func (d *PodCertificateRequestDieMut) DieReleaseApplyConfiguration() (*PodCertificateRequestApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[PodCertificateRequestApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [PodCertificateRequestDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PodCertificateRequestDieMut) DieReleaseApplyConfigurationE() (*PodCertificateRequestApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[PodCertificateRequestApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [PodCertificateRequestDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *PodCertificateRequestDieMut) DieMustReleaseApplyConfiguration() *PodCertificateRequestApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[PodCertificateRequestApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -1306,27 +1306,27 @@ var PodCertificateRequestSpecBlank = diebase.Blank[PodCertificateRequestSpec, *P
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *PodCertificateRequestSpecDie) DieReleaseApplyConfiguration() *PodCertificateRequestSpecApplyConfiguration {
+func (d *PodCertificateRequestSpecDie) DieReleaseApplyConfiguration() (*PodCertificateRequestSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[PodCertificateRequestSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [PodCertificateRequestSpecDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PodCertificateRequestSpecDie) DieReleaseApplyConfigurationE() (*PodCertificateRequestSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[PodCertificateRequestSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [PodCertificateRequestSpecDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *PodCertificateRequestSpecDie) DieMustReleaseApplyConfiguration() *PodCertificateRequestSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[PodCertificateRequestSpecApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *PodCertificateRequestSpecDieMut) DieReleaseApplyConfiguration() *PodCertificateRequestSpecApplyConfiguration {
+func (d *PodCertificateRequestSpecDieMut) DieReleaseApplyConfiguration() (*PodCertificateRequestSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[PodCertificateRequestSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [PodCertificateRequestSpecDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PodCertificateRequestSpecDieMut) DieReleaseApplyConfigurationE() (*PodCertificateRequestSpecApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[PodCertificateRequestSpecApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [PodCertificateRequestSpecDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *PodCertificateRequestSpecDieMut) DieMustReleaseApplyConfiguration() *PodCertificateRequestSpecApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[PodCertificateRequestSpecApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply
@@ -1585,27 +1585,27 @@ var PodCertificateRequestStatusBlank = diebase.Blank[PodCertificateRequestStatus
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *PodCertificateRequestStatusDie) DieReleaseApplyConfiguration() *PodCertificateRequestStatusApplyConfiguration {
+func (d *PodCertificateRequestStatusDie) DieReleaseApplyConfiguration() (*PodCertificateRequestStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[PodCertificateRequestStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [PodCertificateRequestStatusDie.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PodCertificateRequestStatusDie) DieReleaseApplyConfigurationE() (*PodCertificateRequestStatusApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[PodCertificateRequestStatusApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [PodCertificateRequestStatusDie.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *PodCertificateRequestStatusDie) DieMustReleaseApplyConfiguration() *PodCertificateRequestStatusApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[PodCertificateRequestStatusApplyConfiguration](d)
 }
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
 // included; on a die within another, its intent.
-func (d *PodCertificateRequestStatusDieMut) DieReleaseApplyConfiguration() *PodCertificateRequestStatusApplyConfiguration {
+func (d *PodCertificateRequestStatusDieMut) DieReleaseApplyConfiguration() (*PodCertificateRequestStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfiguration[PodCertificateRequestStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is [PodCertificateRequestStatusDieMut.DieReleaseApplyConfiguration],
-// returning an error rather than panicking.
-func (d *PodCertificateRequestStatusDieMut) DieReleaseApplyConfigurationE() (*PodCertificateRequestStatusApplyConfiguration, error) {
-	return diecodegen.ReleaseApplyConfigurationE[PodCertificateRequestStatusApplyConfiguration](d)
+// DieMustReleaseApplyConfiguration is [PodCertificateRequestStatusDieMut.DieReleaseApplyConfiguration],
+// panicking rather than returning an error.
+func (d *PodCertificateRequestStatusDieMut) DieMustReleaseApplyConfiguration() *PodCertificateRequestStatusApplyConfiguration {
+	return diecodegen.MustReleaseApplyConfiguration[PodCertificateRequestStatusApplyConfiguration](d)
 }
 
 // DieFeedApplyConfiguration replaces the die's intent with an apply

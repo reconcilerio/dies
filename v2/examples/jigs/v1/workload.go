@@ -26,7 +26,7 @@ import (
 // Deployment's containers and init containers are one list: changing a
 // container goes back to the list it is in, but adding one is ambiguous.
 var WorkloadJig = jigs.NewJig[Workload, *WorkloadDie]().
-	For(dieappsv1.DeploymentBlank,
+	MustClamp(dieappsv1.DeploymentBlank,
 		jigs.BindAll(WorkloadBlank.Containers(),
 			jigs.Each(dieappsv1.DeploymentBlank.Spec().Template().Spec().Containers()),
 			jigs.Each(dieappsv1.DeploymentBlank.Spec().Template().Spec().InitContainers()),
@@ -34,7 +34,7 @@ var WorkloadJig = jigs.NewJig[Workload, *WorkloadDie]().
 		jigs.Bind(WorkloadBlank.Volumes(), dieappsv1.DeploymentBlank.Spec().Template().Spec().Volumes()),
 	).
 	// any unstructured workload, by the paths ServiceBinding uses by default
-	ForUnknownKinds(
+	MustClampUnknownKinds(
 		jigs.BindAll(WorkloadBlank.Containers(),
 			jigs.EachAt[diecorev1.Container](".spec.template.spec.containers"),
 			jigs.EachAt[diecorev1.Container](".spec.template.spec.initContainers"),
@@ -45,13 +45,13 @@ var WorkloadJig = jigs.NewJig[Workload, *WorkloadDie]().
 	// container is added to them
 	// a batch's containers are an atomic list: its elements are found by
 	// index, and a change is written back as the whole list
-	For(BatchBlank,
+	MustClamp(BatchBlank,
 		jigs.BindAll(WorkloadBlank.Containers(),
 			jigs.Each(BatchBlank.Containers()),
 			jigs.One(BatchBlank.Init()),
 		),
 	).
-	For(PipelineBlank,
+	MustClamp(PipelineBlank,
 		jigs.BindAll(WorkloadBlank.Containers(),
 			jigs.Each(PipelineBlank.Steps()),
 			jigs.One(PipelineBlank.Sidecar()),
@@ -61,7 +61,7 @@ var WorkloadJig = jigs.NewJig[Workload, *WorkloadDie]().
 
 // BuilderContainerJig presents a [Builder] as a Container.
 var BuilderContainerJig = jigs.NewJig[diecorev1.Container, *diecorev1.ContainerDie]().
-	For(BuilderBlank,
+	MustClamp(BuilderBlank,
 		jigs.Bind(diecorev1.ContainerBlank.Name(), BuilderBlank.Name()),
 		jigs.Bind(diecorev1.ContainerBlank.Image(), BuilderBlank.Image()),
 		jigs.Bind(diecorev1.ContainerBlank.Env(), BuilderBlank.Env()),

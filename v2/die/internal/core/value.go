@@ -169,7 +169,8 @@ func (h *Holder) Write(at, rel Path, fn func(*Onode) *Onode, union bool) (*Holde
 		return h, h.View.write(at.join(rel), n.Op, n.Val)
 	}
 	if !h.Mutable && len(at) > 0 {
-		return nil, ErrImmutableChild
+		// the types don't allow it: an immutable die's handles don't write
+		panic(ErrImmutableChild)
 	}
 	full := at.join(rel)
 	if k := full.indexed(); k >= 0 {
@@ -183,6 +184,7 @@ func (h *Holder) Write(at, rel Path, fn func(*Onode) *Onode, union bool) (*Holde
 		}
 	}
 	if TypeAt(h.Base.Type(), full).Kind() == reflect.Interface {
+		h.checkShape(full)
 		// values written into an unstructured value take unstructured form
 		var convErr error
 		ov = with(ov, full, func(n *Onode) *Onode {
@@ -202,7 +204,20 @@ func (h *Holder) Write(at, rel Path, fn func(*Onode) *Onode, union bool) (*Holde
 		}
 		return h.Replace(at, ov)
 	}
-	return h.Replace(at, with(ov, full, fn))
+	// a value written whole, and an element whose key a write changes, must
+	// leave every list map with unique keys
+	if n := fn(&Onode{}); n.Op == OpSet {
+		if err := checkKeysAt(h.Base.Type(), full, n.Val); err != nil {
+			return nil, err
+		}
+	}
+	ov = with(ov, full, fn)
+	if full.keyed() {
+		if err := checkRekeyed(&Holder{Base: h.Base, Ov: ov}, full); err != nil {
+			return nil, err
+		}
+	}
+	return h.Replace(at, ov)
 }
 
 // list returns a private copy of the list at p, or an invalid value when
@@ -248,7 +263,8 @@ func (h *Holder) writeElement(at, full Path, k int, fn func(*Onode) *Onode, unio
 		return nil, err
 	}
 	if !l.IsValid() || i >= l.Len() {
-		return nil, Errorf("die: %s is out of range", full[:k+1])
+		// as reflect's Index does; Len says how long the list is
+		panic(Errorf("die: %s is out of range", full[:k+1]))
 	}
 	if len(rest) == 0 && fn(&Onode{}).removes() {
 		out := reflect.MakeSlice(l.Type(), 0, l.Len()-1)
@@ -281,7 +297,7 @@ func (h *Holder) Replace(at Path, ov *Onode) (*Holder, error) {
 		return h, nil
 	}
 	if len(at) > 0 {
-		return nil, ErrImmutableChild
+		panic(ErrImmutableChild)
 	}
 	return &Holder{Base: h.Base, Ov: ov, Wire: h.Wire, Schema: h.Schema}, nil
 }
@@ -368,6 +384,11 @@ func descend(src reflect.Value, s Step) (reflect.Value, error) {
 	if s.kind == stepField && src.Kind() == reflect.Map {
 		s.kind = stepMapKey
 	}
+	// within an unstructured value, a step into a value of another kind, such
+	// as a field of a string, reads as absent
+	if !src.IsValid() || !stepsInto(src.Kind(), s.kind) {
+		return reflect.Zero(anyType), nil
+	}
 	switch s.kind {
 	case stepKey:
 		i, err := FindElem(src, s)
@@ -387,6 +408,64 @@ func descend(src reflect.Value, s Step) (reflect.Value, error) {
 		return reflect.Zero(src.Type().Elem()), nil
 	}
 	return src.FieldByIndex(Describe(src.Type()).Field(s.name).index), nil
+}
+
+// stepsInto reports whether a step can step into a value of a kind: a field
+// into a struct or an object, a key into a map, and a list element into a
+// list.
+func stepsInto(k reflect.Kind, s stepKind) bool {
+	switch s {
+	case stepField:
+		return k == reflect.Struct || k == reflect.Map
+	case stepMapKey:
+		return k == reflect.Map
+	case stepKey, stepIndex:
+		return k == reflect.Slice
+	}
+	return false
+}
+
+// checkShape panics if a write at a path within an unstructured value would
+// step into a value of another kind, such as a field of a string, which the
+// value can't hold. A caller traversing unstructured content checks its
+// shape first, with Type, as reflect's callers check a Kind.
+func (h *Holder) checkShape(full Path) {
+	src, n := h.Base, h.Ov
+	for i, s := range full {
+		src = readOp(src, n)
+		for src.Kind() == reflect.Pointer || src.Kind() == reflect.Interface {
+			if src.IsNil() {
+				return
+			}
+			src = src.Elem()
+		}
+		if !src.IsValid() {
+			return
+		}
+		if src.Kind() != reflect.Struct && !stepsInto(src.Kind(), s.kind) {
+			panic(Errorf("die: %s is a %s, which %s can't step into", full[:i], unstructuredKind(src), s))
+		}
+		var err error
+		if src, err = descend(src, s); err != nil {
+			panic(err)
+		}
+		n = n.kid(s)
+	}
+}
+
+// unstructuredKind names the kind of an unstructured value.
+func unstructuredKind(v reflect.Value) string {
+	switch v.Kind() {
+	case reflect.Map:
+		return "object"
+	case reflect.Slice:
+		return "list"
+	case reflect.String:
+		return "string"
+	case reflect.Bool:
+		return "boolean"
+	}
+	return "number"
 }
 
 func apply(dst reflect.Value, n *Onode) error {

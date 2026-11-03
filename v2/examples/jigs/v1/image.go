@@ -63,7 +63,7 @@ func (r ImageReference) String() string {
 
 // ContainerImageJig presents a container with its image in parts.
 var ContainerImageJig = jigs.NewJig[ContainerImage, *ContainerImageDie]().
-	For(diecorev1.ContainerBlank,
+	MustClamp(diecorev1.ContainerBlank,
 		jigs.Bind(ContainerImageBlank.Name(), diecorev1.ContainerBlank.Name()),
 		jigs.BindVia(ContainerImageBlank.Image(), diecorev1.ContainerBlank.Image(), ImageReferenceTransform),
 	)

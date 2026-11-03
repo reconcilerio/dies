@@ -24,7 +24,7 @@ import (
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	"reconciler.io/dies/v2/die"
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 )
 
 const webJSON = `{"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "web"},
@@ -34,9 +34,9 @@ const webJSON = `{"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"n
 // doesn't have survive.
 func TestDieFeedAndReleaseEncodings(t *testing.T) {
 	for name, d := range map[string]*dieappsv1.DeploymentDie{
-		"JSON": dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietest.NoError(t, die.FeedJSON(d, []byte(webJSON))) }),
+		"JSON": dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietesting.NoError(t, die.FeedJSON(d, []byte(webJSON))) }),
 		"YAML": dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-			dietest.NoError(t, die.FeedYAML(d, []byte(`
+			dietesting.NoError(t, die.FeedYAML(d, []byte(`
 apiVersion: apps/v1
 kind: Deployment
 metadata: {name: web}
@@ -46,20 +46,20 @@ spec:
 `)))
 		}),
 		"a raw extension's raw JSON": dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-			dietest.NoError(t, die.FeedRawExtension(d, runtime.RawExtension{Raw: []byte(webJSON)}))
+			dietesting.NoError(t, die.FeedRawExtension(d, runtime.RawExtension{Raw: []byte(webJSON)}))
 		}),
 		"a raw extension's object": dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
 			web := dieappsv1.DeploymentBlank.DieMutable()
-			dietest.NoError(t, die.FeedJSON(web, []byte(webJSON)), die.FeedRawExtension(d, runtime.RawExtension{Object: web}))
+			dietesting.NoError(t, die.FeedJSON(web, []byte(webJSON)), die.FeedRawExtension(d, runtime.RawExtension{Object: web}))
 		}),
 	} {
 		t.Run(name, func(t *testing.T) {
 			if d.GetName() != "web" || !d.Spec().Paused().Has() {
-				t.Errorf("fed %s", die.ReleaseJSON(d))
+				t.Errorf("fed %s", die.MustReleaseJSON(d))
 			}
-			assertJSON(t, die.ReleaseJSON(d), nil, webJSON)
-			assertJSON(t, die.ReleaseRawExtension(d).Raw, nil, webJSON)
-			if y := string(die.ReleaseYAML(d)); !strings.Contains(y, "futureField:\n    from: a newer API") || !strings.Contains(y, "paused: false") {
+			assertJSON(t, die.MustReleaseJSON(d), nil, webJSON)
+			assertJSON(t, die.MustReleaseRawExtension(d).Raw, nil, webJSON)
+			if y := string(die.MustReleaseYAML(d)); !strings.Contains(y, "futureField:\n    from: a newer API") || !strings.Contains(y, "paused: false") {
 				t.Errorf("YAML %s", y)
 			}
 		})
@@ -69,16 +69,16 @@ spec:
 func TestDieFeedJSONIsDieFeed(t *testing.T) {
 	// a mutable root discards its intent
 	m := dieappsv1.DeploymentBlank.DieMutable()
-	dietest.NoError(t, m.Spec().Replicas().Set(9))
-	dietest.NoError(t, die.FeedJSON(m, []byte(webJSON)))
-	if got, err := die.ReleaseMergePatchE(m); err != nil || string(got) != "{}" {
+	dietesting.NoError(t, m.Spec().Replicas().Set(9))
+	dietesting.NoError(t, die.FeedJSON(m, []byte(webJSON)))
+	if got, err := die.ReleaseMergePatch(m); err != nil || string(got) != "{}" {
 		t.Errorf("patch %s, %v", got, err)
 	}
 	// a die within another sets the value as intent
 	d := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, die.FeedJSON(d.Spec().Template().Spec(), []byte(`{"serviceAccountName": "sa"}`)))
+		dietesting.NoError(t, die.FeedJSON(d.Spec().Template().Spec(), []byte(`{"serviceAccountName": "sa"}`)))
 	})
-	got, err := die.ReleaseMergePatchE(d)
+	got, err := die.ReleaseMergePatch(d)
 	assertJSON(t, got, err, `{"spec": {"template": {"spec": {"serviceAccountName": "sa"}}}}`)
 
 	if err := die.FeedJSON(dieappsv1.DeploymentBlank.DieMutable(), []byte(`{"spec": "not an object"}`)); err == nil || !strings.Contains(err.Error(), "feeding v1.Deployment from JSON") {

@@ -17,9 +17,12 @@ limitations under the License.
 package die
 
 import (
+	"os"
+
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 
+	"reconciler.io/dies/v2/die/base"
 	"reconciler.io/dies/v2/die/internal/core"
 	"reconciler.io/dies/v2/die/internal/refs"
 )
@@ -61,6 +64,27 @@ func FeedYAML(d MutableDie, data []byte) error {
 		return err
 	}
 	return r.FeedYAML(data)
+}
+
+// FeedYAMLFile returns an immutable die of the YAML, or JSON, in a file, fed
+// to a copy of d as [FeedYAML] feeds it. It returns an error if the file
+// can't be read or doesn't decode. [MustFeedYAMLFile] panics instead, so that
+// fixtures can be package variables:
+//
+//	var web = die.MustFeedYAMLFile(DeploymentBlank, "testdata/web.yaml")
+func FeedYAMLFile[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]](d D, name string) (D, error) {
+	data, err := os.ReadFile(name)
+	if err != nil {
+		var zero D
+		return zero, core.Errorf("die: %w", err)
+	}
+	return d.DieStampE(func(m M) error { return FeedYAML(m, data) })
+}
+
+// MustFeedYAMLFile is [FeedYAMLFile], panicking rather than returning an
+// error.
+func MustFeedYAMLFile[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]](d D, name string) D {
+	return core.Must(FeedYAMLFile(d, name))
 }
 
 // FeedRawExtension feeds a die the value of a raw extension, its object or
@@ -119,11 +143,8 @@ func FeedMergePatch(d MutableDie, patch []byte) error {
 }
 
 // ReleaseJSON returns a die's current value as JSON, as its MarshalJSON
-// encodes it. It panics if the value doesn't encode.
-func ReleaseJSON(d Die) []byte { return core.Must(ReleaseJSONE(d)) }
-
-// ReleaseJSONE is [ReleaseJSON], returning an error rather than panicking.
-func ReleaseJSONE(d Die) ([]byte, error) {
+// encodes it. It returns an error if the value doesn't encode.
+func ReleaseJSON(d Die) ([]byte, error) {
 	r, err := refOf(d)
 	if err != nil {
 		return nil, err
@@ -131,12 +152,12 @@ func ReleaseJSONE(d Die) ([]byte, error) {
 	return r.ReleaseJSON()
 }
 
+// MustReleaseJSON is [ReleaseJSON], panicking rather than returning an error.
+func MustReleaseJSON(d Die) []byte { return core.Must(ReleaseJSON(d)) }
+
 // ReleaseYAML returns a die's current value as YAML, encoded as
 // [ReleaseJSON] encodes it.
-func ReleaseYAML(d Die) []byte { return core.Must(ReleaseYAMLE(d)) }
-
-// ReleaseYAMLE is [ReleaseYAML], returning an error rather than panicking.
-func ReleaseYAMLE(d Die) ([]byte, error) {
+func ReleaseYAML(d Die) ([]byte, error) {
 	r, err := refOf(d)
 	if err != nil {
 		return nil, err
@@ -144,13 +165,12 @@ func ReleaseYAMLE(d Die) ([]byte, error) {
 	return r.ReleaseYAML()
 }
 
-// ReleaseRawExtension returns a die's current value as a raw extension
-// holding its JSON, encoded as [ReleaseJSON] encodes it.
-func ReleaseRawExtension(d Die) runtime.RawExtension { return core.Must(ReleaseRawExtensionE(d)) }
+// MustReleaseYAML is [ReleaseYAML], panicking rather than returning an error.
+func MustReleaseYAML(d Die) []byte { return core.Must(ReleaseYAML(d)) }
 
-// ReleaseRawExtensionE is [ReleaseRawExtension], returning an error rather
-// than panicking.
-func ReleaseRawExtensionE(d Die) (runtime.RawExtension, error) {
+// ReleaseRawExtension returns a die's current value as a raw extension holding
+// its JSON, encoded as [ReleaseJSON] encodes it.
+func ReleaseRawExtension(d Die) (runtime.RawExtension, error) {
 	r, err := refOf(d)
 	if err != nil {
 		return runtime.RawExtension{}, err
@@ -158,18 +178,16 @@ func ReleaseRawExtensionE(d Die) (runtime.RawExtension, error) {
 	return r.ReleaseRawExtension()
 }
 
-// ReleaseUnstructured returns an object die's current value as an
-// unstructured object, encoded as [ReleaseJSON] encodes it: fields the die's
-// type doesn't have that were fed included, and absent values omitted. An
+// MustReleaseRawExtension is [ReleaseRawExtension], panicking rather than returning an
+// error.
+func MustReleaseRawExtension(d Die) runtime.RawExtension { return core.Must(ReleaseRawExtension(d)) }
+
+// ReleaseUnstructured returns an object die's current value as an unstructured
+// object, encoded as [ReleaseJSON] encodes it: fields the die's type
+// doesn't have that were fed included, and absent values omitted. An
 // unstructured die's is a copy of its content. Release a die that isn't an
 // object as a raw extension instead, with [ReleaseRawExtension].
-func ReleaseUnstructured(d DieObject) *unstructured.Unstructured {
-	return core.Must(ReleaseUnstructuredE(d))
-}
-
-// ReleaseUnstructuredE is [ReleaseUnstructured], returning an error rather
-// than panicking.
-func ReleaseUnstructuredE(d DieObject) (*unstructured.Unstructured, error) {
+func ReleaseUnstructured(d DieObject) (*unstructured.Unstructured, error) {
 	r, err := refOf(d)
 	if err != nil {
 		return nil, err
@@ -177,15 +195,15 @@ func ReleaseUnstructuredE(d DieObject) (*unstructured.Unstructured, error) {
 	return r.ReleaseUnstructured()
 }
 
-// ReleaseApplyPatch encodes a root die's intent as a server-side apply
-// request, or the part of it scopes keep, such as [Subresource]("status").
-func ReleaseApplyPatch(d Die, scopes ...Scope) []byte {
-	return core.Must(ReleaseApplyPatchE(d, scopes...))
+// MustReleaseUnstructured is [ReleaseUnstructured], panicking rather than returning an
+// error.
+func MustReleaseUnstructured(d DieObject) *unstructured.Unstructured {
+	return core.Must(ReleaseUnstructured(d))
 }
 
-// ReleaseApplyPatchE is [ReleaseApplyPatch], returning an error rather than
-// panicking.
-func ReleaseApplyPatchE(d Die, scopes ...Scope) ([]byte, error) {
+// ReleaseApplyPatch encodes a root die's intent as a server-side apply
+// request, or the part of it scopes keep, such as [Subresource]("status").
+func ReleaseApplyPatch(d Die, scopes ...Scope) ([]byte, error) {
 	r, err := scoped(d, "ReleaseApplyPatch", scopes)
 	if err != nil {
 		return nil, err
@@ -193,18 +211,24 @@ func ReleaseApplyPatchE(d Die, scopes ...Scope) ([]byte, error) {
 	return r.ReleaseApplyPatch()
 }
 
-// ReleaseMergePatch encodes a root die's intent as a JSON merge patch against
-// its base, or the part of it scopes keep, such as [Only](d.Spec()).
-func ReleaseMergePatch(d Die, scopes ...Scope) []byte {
-	return core.Must(ReleaseMergePatchE(d, scopes...))
+// MustReleaseApplyPatch is [ReleaseApplyPatch], panicking rather than returning an
+// error.
+func MustReleaseApplyPatch(d Die, scopes ...Scope) []byte {
+	return core.Must(ReleaseApplyPatch(d, scopes...))
 }
 
-// ReleaseMergePatchE is [ReleaseMergePatch], returning an error rather than
-// panicking.
-func ReleaseMergePatchE(d Die, scopes ...Scope) ([]byte, error) {
+// ReleaseMergePatch encodes a root die's intent as a JSON merge patch against
+// its base, or the part of it scopes keep, such as [Only](d.Spec()).
+func ReleaseMergePatch(d Die, scopes ...Scope) ([]byte, error) {
 	r, err := scoped(d, "ReleaseMergePatch", scopes)
 	if err != nil {
 		return nil, err
 	}
 	return r.ReleaseMergePatch()
+}
+
+// MustReleaseMergePatch is [ReleaseMergePatch], panicking rather than returning an
+// error.
+func MustReleaseMergePatch(d Die, scopes ...Scope) []byte {
+	return core.Must(ReleaseMergePatch(d, scopes...))
 }

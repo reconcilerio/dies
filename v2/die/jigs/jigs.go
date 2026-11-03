@@ -80,7 +80,7 @@ func bind(jig, source base.Located) Binding {
 }
 
 // BindPath binds a location of a jig to a path in an unstructured object,
-// for [Jig.ForKind] and [Jig.ForUnknownKinds].
+// for [Jig.ClampKind] and [Jig.ClampUnknownKinds].
 func BindPath[X any](jig base.LocatedAs[X], path string) Binding {
 	vroot, err := core.RootOf(jig)
 	return core.WithErr(core.NewBinding(jig.DiePath(), core.ParsePath(path), vroot, nil, nil, nil), err)
@@ -147,14 +147,24 @@ func newTransform[S, V any](t Transform[S, V]) *core.Transform {
 	}
 }
 
-// For binds the jig to a source type, given as its blank. It panics if a
-// binding is from another type, or couldn't be made.
-func (v *Jig[V, VD, VDM]) For(source base.Located, bindings ...Binding) *Jig[V, VD, VDM] {
-	return core.Must(v.ForE(source, bindings...))
+// IsBound reports whether a location within a die, such as a jig's field, is
+// bound by its jig to its source: within a binding, or above some. A jig
+// needn't bind every location of its type for every source, and writing a
+// location it doesn't bind panics, so code that writes through a jig of any
+// source checks first. Reading a location it doesn't bind reads as absent.
+// Every location of a die that isn't a jig is bound.
+func IsBound(l base.Located) bool {
+	r, ok := l.(interface{ DieRoot() base.Die })
+	if !ok {
+		return false
+	}
+	h, _, ok := core.StateOf(r.DieRoot())
+	return ok && h.Bound(l.DiePath())
 }
 
-// ForE is [Jig.For], returning an error rather than panicking.
-func (v *Jig[V, VD, VDM]) ForE(source base.Located, bindings ...Binding) (*Jig[V, VD, VDM], error) {
+// Clamp binds the jig to a source type, given as its blank. It returns an
+// error if a binding is from another type, or couldn't be made.
+func (v *Jig[V, VD, VDM]) Clamp(source base.Located, bindings ...Binding) (*Jig[V, VD, VDM], error) {
 	st, err := core.RootOf(source)
 	if err != nil {
 		return nil, err
@@ -172,13 +182,13 @@ func (v *Jig[V, VD, VDM]) ForE(source base.Located, bindings ...Binding) (*Jig[V
 	return v, nil
 }
 
-// ForKind binds the jig to unstructured objects of a kind, by path.
-func (v *Jig[V, VD, VDM]) ForKind(gvk schema.GroupVersionKind, bindings ...Binding) *Jig[V, VD, VDM] {
-	return core.Must(v.ForKindE(gvk, bindings...))
+// MustClamp is [Jig.Clamp], panicking rather than returning an error.
+func (v *Jig[V, VD, VDM]) MustClamp(source base.Located, bindings ...Binding) *Jig[V, VD, VDM] {
+	return core.Must(v.Clamp(source, bindings...))
 }
 
-// ForKindE is [Jig.ForKind], returning an error rather than panicking.
-func (v *Jig[V, VD, VDM]) ForKindE(gvk schema.GroupVersionKind, bindings ...Binding) (*Jig[V, VD, VDM], error) {
+// ClampKind binds the jig to unstructured objects of a kind, by path.
+func (v *Jig[V, VD, VDM]) ClampKind(gvk schema.GroupVersionKind, bindings ...Binding) (*Jig[V, VD, VDM], error) {
 	if err := v.untyped(gvk.String(), bindings); err != nil {
 		return nil, err
 	}
@@ -186,20 +196,25 @@ func (v *Jig[V, VD, VDM]) ForKindE(gvk schema.GroupVersionKind, bindings ...Bind
 	return v, nil
 }
 
-// ForUnknownKinds binds the jig to unstructured objects of any kind without
-// bindings of its own, by path.
-func (v *Jig[V, VD, VDM]) ForUnknownKinds(bindings ...Binding) *Jig[V, VD, VDM] {
-	return core.Must(v.ForUnknownKindsE(bindings...))
+// MustClampKind is [Jig.ClampKind], panicking rather than returning an error.
+func (v *Jig[V, VD, VDM]) MustClampKind(gvk schema.GroupVersionKind, bindings ...Binding) *Jig[V, VD, VDM] {
+	return core.Must(v.ClampKind(gvk, bindings...))
 }
 
-// ForUnknownKindsE is [Jig.ForUnknownKinds], returning an error rather than
-// panicking.
-func (v *Jig[V, VD, VDM]) ForUnknownKindsE(bindings ...Binding) (*Jig[V, VD, VDM], error) {
+// ClampUnknownKinds binds the jig to unstructured objects of any kind without
+// bindings of its own, by path.
+func (v *Jig[V, VD, VDM]) ClampUnknownKinds(bindings ...Binding) (*Jig[V, VD, VDM], error) {
 	if err := v.untyped("unknown kinds", bindings); err != nil {
 		return nil, err
 	}
 	v.unknown = append(v.unknown, bindings...)
 	return v, nil
+}
+
+// MustClampUnknownKinds is [Jig.ClampUnknownKinds], panicking rather than returning an
+// error.
+func (v *Jig[V, VD, VDM]) MustClampUnknownKinds(bindings ...Binding) *Jig[V, VD, VDM] {
+	return core.Must(v.ClampUnknownKinds(bindings...))
 }
 
 func (v *Jig[V, VD, VDM]) untyped(what string, bindings []Binding) error {
@@ -215,44 +230,58 @@ func (v *Jig[V, VD, VDM]) untyped(what string, bindings []Binding) error {
 	return nil
 }
 
-// Of returns the jig of an immutable die, an immutable die of the jig's
-// type, if the jig has bindings for the source's type, or for an
-// unstructured die, its kind. A mutable die has [Jig.OfMut].
-func (v *Jig[V, VD, VDM]) Of(source base.ImmutableDie) (VD, bool) {
-	d, ok, err := v.OfE(source)
-	core.Check(err)
-	return d, ok
-}
-
-// OfE is [Jig.Of], returning an error rather than panicking, such as when an
-// unstructured die's kind can't be read.
-func (v *Jig[V, VD, VDM]) OfE(source base.ImmutableDie) (VD, bool, error) {
+// Hold returns the jig of an immutable die, an immutable die of the jig's type,
+// if the jig has bindings for the source's type, or for an unstructured die,
+// its kind. A mutable die has [Jig.HoldMut].
+//
+// The source is checked once, here, so that the jig's reads can't fail. It
+// returns an error when an unstructured die's kind can't be read, or the
+// source can't be held as V, such as unstructured content of another shape
+// than V's bindings read, or an element in more than one list an aggregate
+// binds. A change made to the source directly, not through the jig, that
+// leaves it unable to be held so makes the jig's reads panic.
+func (v *Jig[V, VD, VDM]) Hold(source base.ImmutableDie) (VD, bool, error) {
 	var zero VD
 	src, ok, err := v.sourceOf(source)
 	if !ok || err != nil {
 		return zero, ok, err
 	}
-	return dies.WrapDie[V, VD](v.holder(src), nil), true, nil
+	h, err := v.checked(src)
+	if err != nil {
+		return zero, true, err
+	}
+	return dies.WrapDie[V, VD](h, nil), true, nil
 }
 
-// OfMut returns the jig of a mutable die, a mutable die of the jig's type
-// whose writes are writes to the source, if the jig has bindings for the
-// source's type, or for an unstructured die, its kind. An immutable die has
-// [Jig.Of].
-func (v *Jig[V, VD, VDM]) OfMut(source base.MutableDie) (VDM, bool) {
-	d, ok, err := v.OfMutE(source)
+// MustHold is [Jig.Hold], panicking rather than returning an error.
+func (v *Jig[V, VD, VDM]) MustHold(source base.ImmutableDie) (VD, bool) {
+	d, ok, err := v.Hold(source)
 	core.Check(err)
 	return d, ok
 }
 
-// OfMutE is [Jig.OfMut], returning an error rather than panicking.
-func (v *Jig[V, VD, VDM]) OfMutE(source base.MutableDie) (VDM, bool, error) {
+// HoldMut returns the jig of a mutable die, a mutable die of the jig's type
+// whose writes are writes to the source, if the jig has bindings for the
+// source's type, or for an unstructured die, its kind, checking the source as
+// [Jig.Hold] does. An immutable die has [Jig.Hold].
+func (v *Jig[V, VD, VDM]) HoldMut(source base.MutableDie) (VDM, bool, error) {
 	var zero VDM
 	src, ok, err := v.sourceOf(source)
 	if !ok || err != nil {
 		return zero, ok, err
 	}
-	return dies.WrapDieMut[V, VD](v.holder(src), nil), true, nil
+	h, err := v.checked(src)
+	if err != nil {
+		return zero, true, err
+	}
+	return dies.WrapDieMut[V, VD](h, nil), true, nil
+}
+
+// MustHoldMut is [Jig.HoldMut], panicking rather than returning an error.
+func (v *Jig[V, VD, VDM]) MustHoldMut(source base.MutableDie) (VDM, bool) {
+	d, ok, err := v.HoldMut(source)
+	core.Check(err)
+	return d, ok
 }
 
 func (v *Jig[V, VD, VDM]) sourceOf(source base.Die) (core.SourceAt, bool, error) {
@@ -273,16 +302,48 @@ func (v *Jig[V, VD, VDM]) sourceOf(source base.Die) (core.SourceAt, bool, error)
 	return core.SourceAt{Src: core.HolderSource{H: h}, At: at, Binds: binds}, ok, nil
 }
 
-// OfUnstructured returns the jig of an unstructured object, if the jig has
+// HoldUnstructured returns the jig of an unstructured object, if the jig has
 // bindings for its kind: a mutable die, which changes the object in place, as
 // an unstructured object has no intent to record, unlike an unstructured die.
-func (v *Jig[V, VD, VDM]) OfUnstructured(u *unstructured.Unstructured) (VDM, bool) {
+// The object is checked as [Jig.Hold] checks a source.
+func (v *Jig[V, VD, VDM]) HoldUnstructured(u *unstructured.Unstructured) (VDM, bool, error) {
+	var zero VDM
 	binds, ok := v.forKind(u.GroupVersionKind())
 	if !ok {
-		var zero VDM
-		return zero, false
+		return zero, false, nil
 	}
-	return dies.WrapDieMut[V, VD](v.holder(core.SourceAt{Src: core.UnstructuredSource{Obj: u}, Binds: binds}), nil), true
+	h, err := v.checked(core.SourceAt{Src: core.UnstructuredSource{Obj: u}, Binds: binds})
+	if err != nil {
+		return zero, true, err
+	}
+	return dies.WrapDieMut[V, VD](h, nil), true, nil
+}
+
+// MustHoldUnstructured is [Jig.HoldUnstructured], panicking rather than returning an
+// error.
+func (v *Jig[V, VD, VDM]) MustHoldUnstructured(u *unstructured.Unstructured) (VDM, bool) {
+	d, ok, err := v.HoldUnstructured(u)
+	core.Check(err)
+	return d, ok
+}
+
+// checked returns the holder of the jig of a source, once its value is read
+// through every binding.
+func (v *Jig[V, VD, VDM]) checked(src core.SourceAt) (*core.Holder, error) {
+	h := v.holder(src)
+	if err := h.View.CheckShapes(); err != nil {
+		return nil, core.Errorf("die: the source can't be held as a %s: %w", reflect.TypeFor[V](), err)
+	}
+	val, err := h.ValueAt(nil)
+	if err == nil {
+		// unstructured content, read as V, has no schema of its own to
+		// refuse duplicate keys with
+		err = core.CheckKeys(val)
+	}
+	if err != nil {
+		return nil, core.Errorf("die: the source can't be held as a %s: %w", reflect.TypeFor[V](), err)
+	}
+	return h, nil
 }
 
 // holder returns the holder of the jig of a source.

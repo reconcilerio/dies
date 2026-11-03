@@ -31,15 +31,9 @@ import (
 // DieStampApplyConfiguration, which call these.
 
 // ReleaseApplyConfiguration returns a die's intent as an apply configuration
-// of type AC: on a root, what an apply sends, the object's identity
-// included; on a die within another, its intent.
-func ReleaseApplyConfiguration[AC any](d base.Die) *AC {
-	return core.Must(ReleaseApplyConfigurationE[AC](d))
-}
-
-// ReleaseApplyConfigurationE is [ReleaseApplyConfiguration], returning an
-// error rather than panicking.
-func ReleaseApplyConfigurationE[AC any](d base.Die) (*AC, error) {
+// of type AC: on a root, what an apply sends, the object's identity included;
+// on a die within another, its intent.
+func ReleaseApplyConfiguration[AC any](d base.Die) (*AC, error) {
 	h, at := dies.MustStateOf(d)
 	data, err := core.IntentJSON(h, at)
 	if err != nil {
@@ -50,6 +44,12 @@ func ReleaseApplyConfigurationE[AC any](d base.Die) (*AC, error) {
 		return nil, core.Errorf("die: decoding the intent of %T as a %T: %w", d, ac, err)
 	}
 	return ac, nil
+}
+
+// MustReleaseApplyConfiguration is [ReleaseApplyConfiguration], panicking rather than returning an
+// error.
+func MustReleaseApplyConfiguration[AC any](d base.Die) *AC {
+	return core.Must(ReleaseApplyConfiguration[AC](d))
 }
 
 // FeedApplyConfiguration replaces a die's intent with an apply
@@ -74,7 +74,7 @@ func FeedApplyConfiguration(d base.MutableDie, ac any) error {
 // StampApplyConfiguration passes a die's intent, as an apply configuration,
 // to fn, and feeds back what fn makes of it.
 func StampApplyConfiguration[AC any](d base.MutableDie, fn func(ac *AC)) error {
-	ac, err := ReleaseApplyConfigurationE[AC](d)
+	ac, err := ReleaseApplyConfiguration[AC](d)
 	if err != nil {
 		return err
 	}

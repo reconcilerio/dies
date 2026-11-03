@@ -48,7 +48,7 @@ func init() {
 		"fields":  {"DieTypedOf", "DieTypedMutOf", "Field", "NewField", "Struct", "NewStruct", "ListMapField", "NewListMap", "MapField", "NewMap", "Value", "ValueOf", "ValueMut", "ValueMutOf", "Optional", "OptionalOf", "OptionalMut", "OptionalMutOf", "Child", "ChildMut", "ListMap", "ListMapOf", "ListMapMut", "ListMapMutOf", "Map", "MapOf", "MapMut", "MapMutOf", "Table"},
 		"lists":   {"List", "NewList", "DieListOf"},
 		"objects": {"DieObjectOf", "DieObjectMutOf"},
-		"codegen": {"Register", "Package", "Annotate", "Object", "CheckManaged", "CheckList", "CheckRegistered", "TypedBlank", "ReleaseApplyConfiguration", "FeedApplyConfiguration", "StampApplyConfiguration", "ReleaseApplyConfigurationE"},
+		"codegen": {"Register", "Package", "Annotate", "Object", "CheckManaged", "CheckList", "CheckRegistered", "TypedBlank", "ReleaseApplyConfiguration", "MustReleaseApplyConfiguration", "FeedApplyConfiguration", "StampApplyConfiguration"},
 	} {
 		for _, n := range names {
 			diePackages[n] = "reconciler.io/dies/v2/die/" + pkg

@@ -26,7 +26,7 @@ import (
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
 	"reconciler.io/dies/v2/die"
-	"reconciler.io/dies/v2/die/dietest"
+	dietesting "reconciler.io/dies/v2/die/testing"
 )
 
 // Server-side apply: what a die sends is what its manager owns.
@@ -34,19 +34,19 @@ import (
 // deployment is a minimal valid Deployment, with one container, app.
 func deployment(t testing.TB, namespace string) *dieappsv1.DeploymentDie {
 	return dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Namespace().Set(namespace))
-		dietest.NoError(t, d.Metadata().Name().Set("web"))
-		dietest.NoError(t, d.Spec().Selector().MatchLabels().Set("app", "web"))
-		dietest.NoError(t, d.Spec().Template().Metadata().Labels().Set("app", "web"))
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
+		dietesting.NoError(t, d.Metadata().Namespace().Set(namespace))
+		dietesting.NoError(t, d.Metadata().Name().Set("web"))
+		dietesting.NoError(t, d.Spec().Selector().MatchLabels().Set("app", "web"))
+		dietesting.NoError(t, d.Spec().Template().Metadata().Labels().Set("app", "web"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1"))
 	})
 }
 
 // identity is a Deployment with only its identity, to apply nothing else.
 func identity(t testing.TB, namespace string) *dieappsv1.DeploymentDie {
 	return dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Namespace().Set(namespace))
-		dietest.NoError(t, d.Metadata().Name().Set("web"))
+		dietesting.NoError(t, d.Metadata().Namespace().Set(namespace))
+		dietesting.NoError(t, d.Metadata().Name().Set("web"))
 	})
 }
 
@@ -54,7 +54,7 @@ func identity(t testing.TB, namespace string) *dieappsv1.DeploymentDie {
 // server has after.
 func apply(t *testing.T, d *dieappsv1.DeploymentDie, manager string) *dieappsv1.DeploymentDie {
 	t.Helper()
-	body, err := die.ReleaseApplyPatchE(d)
+	body, err := die.ReleaseApplyPatch(d)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -86,8 +86,8 @@ func TestApplyOwnsOnlyWhatWasSet(t *testing.T) {
 func TestApplySendsExplicitZeroValues(t *testing.T) {
 	ns := namespace(t)
 	got := apply(t, deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Replicas().Set(0))
-		dietest.NoError(t, d.Spec().Paused().Set(false))
+		dietesting.NoError(t, d.Spec().Replicas().Set(0))
+		dietesting.NoError(t, d.Spec().Paused().Set(false))
 	}), "conformance")
 
 	if !got.Spec().Replicas().Has() || got.Spec().Replicas().Get() != 0 {
@@ -102,8 +102,8 @@ func TestApplyMergesListMapsByKey(t *testing.T) {
 	ns := namespace(t)
 	apply(t, deployment(t, ns), "app")
 	sidecar := deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().Remove("app"))
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("sidecar").Image().Set("sidecar:1"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().Remove("app"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("sidecar").Image().Set("sidecar:1"))
 	})
 	got := apply(t, sidecar, "sidecar")
 	if keys := got.Spec().Template().Spec().Containers().Keys(); len(keys) != 2 {
@@ -131,7 +131,7 @@ func TestApplyMergesListMapsByKey(t *testing.T) {
 func TestApplyDefaultedListMapKeys(t *testing.T) {
 	ns := namespace(t)
 	withPort := deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("http"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("http"))
 	})
 	first := apply(t, withPort, "app")
 	again := apply(t, withPort, "app")
@@ -140,7 +140,7 @@ func TestApplyDefaultedListMapKeys(t *testing.T) {
 	}
 
 	udp := deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080, Protocol: diecorev1.ProtocolUDP}).Name().Set("dns"))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080, Protocol: diecorev1.ProtocolUDP}).Name().Set("dns"))
 	})
 	got := apply(t, udp, "dns")
 	ports := got.Spec().Template().Spec().Containers().At("app").Ports()
@@ -159,9 +159,9 @@ func TestApplySendsAtomicStructsWhole(t *testing.T) {
 	ns := namespace(t)
 	withEnv := deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
 		ref := d.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef()
-		dietest.NoError(t, ref.Name().Set("settings"))
-		dietest.NoError(t, ref.Key().Set("color"))
-		dietest.NoError(t, ref.Optional().Set(true))
+		dietesting.NoError(t, ref.Name().Set("settings"))
+		dietesting.NoError(t, ref.Key().Set("color"))
+		dietesting.NoError(t, ref.Optional().Set(true))
 	})
 	actual := apply(t, withEnv, "app")
 
@@ -169,8 +169,8 @@ func TestApplySendsAtomicStructsWhole(t *testing.T) {
 	// apply is all of a manager's intent, so app applying only this would
 	// drop the rest of what it owns
 	changed := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.DieFeed(actual.DieRelease()))
-		dietest.NoError(t, d.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef().Key().Set("colour"))
+		dietesting.NoError(t, d.DieFeed(actual.DieRelease()))
+		dietesting.NoError(t, d.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef().Key().Set("colour"))
 	})
 	got := apply(t, changed, "localizer")
 	assertOwns(t, got, "localizer", "", `.spec.template.spec.containers[name="app"].env[name="COLOR"].valueFrom.configMapKeyRef`)
@@ -184,11 +184,11 @@ func TestApplySendsAtomicStructsWhole(t *testing.T) {
 func TestApplyClearRemovesAField(t *testing.T) {
 	ns := namespace(t)
 	apply(t, deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().MinReadySeconds().Set(5))
+		dietesting.NoError(t, d.Spec().MinReadySeconds().Set(5))
 	}), "rollout")
 
 	got := apply(t, identity(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().MinReadySeconds().Clear())
+		dietesting.NoError(t, d.Spec().MinReadySeconds().Clear())
 	}), "app")
 	if got.Spec().MinReadySeconds().Has() {
 		t.Errorf("minReadySeconds %d, want it removed", got.Spec().MinReadySeconds().Get())
@@ -203,11 +203,11 @@ func TestApplyClearRemovesAField(t *testing.T) {
 func TestApplyRemovingAMapEntry(t *testing.T) {
 	ns := namespace(t)
 	apply(t, deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Labels().Set("tier", "web"))
+		dietesting.NoError(t, d.Metadata().Labels().Set("tier", "web"))
 	}), "labeler")
 
 	got := apply(t, identity(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Labels().Remove("tier"))
+		dietesting.NoError(t, d.Metadata().Labels().Remove("tier"))
 	}), "app")
 	if tier := got.GetLabels()["tier"]; tier != "web" {
 		t.Errorf("tier %q, want labeler's label untouched", tier)
@@ -223,7 +223,7 @@ func TestApplyRemovingAMapEntry(t *testing.T) {
 func TestApplyEmptyOwnsAnEmptyList(t *testing.T) {
 	ns := namespace(t)
 	got := apply(t, deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Template().Spec().Tolerations().Empty())
+		dietesting.NoError(t, d.Spec().Template().Spec().Tolerations().Empty())
 	}), "app")
 	assertOwns(t, got, "app", "", ".spec.template.spec.tolerations")
 }
@@ -235,13 +235,13 @@ func TestApplyStatusSubresource(t *testing.T) {
 	apply(t, deployment(t, ns), "app")
 
 	status := identity(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Status().ObservedGeneration().Set(1))
+		dietesting.NoError(t, d.Status().ObservedGeneration().Set(1))
 		d.Status().Conditions().At(dieappsv1.DeploymentAvailable).DieStamp(func(c *dieappsv1.DeploymentConditionDieMut) {
-			dietest.NoError(t, c.Status().Set(diecorev1.ConditionTrue))
-			dietest.NoError(t, c.Reason().Set("Reconciled"))
+			dietesting.NoError(t, c.Status().Set(diecorev1.ConditionTrue))
+			dietesting.NoError(t, c.Reason().Set("Reconciled"))
 		})
 	})
-	body, err := die.ReleaseApplyPatchE(status, die.Subresource("status"))
+	body, err := die.ReleaseApplyPatch(status, die.Subresource("status"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -270,17 +270,17 @@ func TestApplyConfigurations(t *testing.T) {
 	ns := namespace(t)
 	ctx := context.Background()
 
-	if err := dies.Apply(ctx, deployment(t, ns).DieReleaseApplyConfiguration(), client.FieldOwner("typed")); err != nil {
+	if err := dies.Apply(ctx, deployment(t, ns).DieMustReleaseApplyConfiguration(), client.FieldOwner("typed")); err != nil {
 		t.Fatal(err)
 	}
 
-	ac := die.ApplyConfigurationOf(deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Spec().Replicas().Set(3))
+	ac := die.MustReleaseApplyConfiguration(deployment(t, ns).DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietesting.NoError(t, d.Spec().Replicas().Set(3))
 	}))
 	if err := dies.Apply(ctx, ac, client.FieldOwner("adapted"), client.ForceOwnership); err != nil {
 		t.Fatal(err)
 	}
-	got := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietest.NoError(t, die.FeedJSON(d, ac.Result())) })
+	got := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) { dietesting.NoError(t, die.FeedJSON(d, ac.Result())) })
 	if got.Spec().Replicas().Get() != 3 {
 		t.Errorf("replicas %v", got.Spec().Replicas().Ptr())
 	}

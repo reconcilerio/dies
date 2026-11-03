@@ -44,11 +44,11 @@ type Path = base.Path
 type Die = base.Die
 
 // ImmutableDie is an immutable die of any type, for functions that take only
-// immutable dies, such as a jig's Of.
+// immutable dies, such as a jig's Hold.
 type ImmutableDie = base.ImmutableDie
 
 // MutableDie is a mutable die of any type, for functions that take only
-// mutable dies, such as a jig's OfMut.
+// mutable dies, such as a jig's HoldMut.
 type MutableDie = base.MutableDie
 
 // DieTyped is a die of any type with type metadata: a [Die] that is a
@@ -129,8 +129,9 @@ type Map[K ~string, V any] = fields.Map[K, V]
 // MapMut is the collection for a map field of a mutable die.
 type MapMut[K ~string, V any] = fields.MapMut[K, V]
 
-// Error is a die's error. Writes and E variants return one; the fluent forms
-// of reads panic with it, for content that is known.
+// Error is a die's error. Writes return one, for content a die can't hold, as
+// do functions that encode or take content from elsewhere, whose Must forms
+// panic with it instead. A mistake in the code panics with one.
 type Error = base.Error
 
 var (

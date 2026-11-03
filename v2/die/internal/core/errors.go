@@ -21,9 +21,10 @@ import (
 	"fmt"
 )
 
-// Error is a die's error. E variants return one; their fluent forms panic
-// with it, so either can be chosen: the fluent method when the content is
-// known, and the E variant otherwise.
+// Error is a die's error. Writes return one, for content a die can't hold, as
+// do functions that encode, or take an expression or content from elsewhere;
+// their Must forms panic with it. A mistake in the code, such as a write the
+// types don't allow, panics with one.
 type Error struct {
 	err error
 }
@@ -45,8 +46,9 @@ func Wrap(err error) *Error {
 	return &Error{err: err}
 }
 
-// Must returns v, or panics with err: the fluent form of a method whose E
-// variant returns an error.
+// Must returns v, or panics with err: the Must form of a function that
+// returns an error, or a read of a die, which can't fail but for a mistake in
+// the code.
 func Must[T any](v T, err error) T {
 	if err != nil {
 		panic(err)
@@ -54,8 +56,8 @@ func Must[T any](v T, err error) T {
 	return v
 }
 
-// Check panics with err, if it's set: the fluent form of a method whose E
-// variant returns only an error.
+// Check panics with err, if it's set: the Must form of a function that
+// returns only an error.
 func Check(err error) {
 	if err != nil {
 		panic(err)

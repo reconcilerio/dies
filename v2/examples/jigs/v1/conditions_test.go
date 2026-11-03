@@ -25,8 +25,8 @@ import (
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	"reconciler.io/dies/v2/die"
-	"reconciler.io/dies/v2/die/dietest"
 	"reconciler.io/dies/v2/die/jigs"
+	dietesting "reconciler.io/dies/v2/die/testing"
 	jigsv1 "reconciler.io/dies/v2/examples/jigs/v1"
 )
 
@@ -51,13 +51,13 @@ func TestDeploymentConditionsAreLossless(t *testing.T) {
 
 func TestHarmonizedConditionsKeepWhatTheJigDoesNotShow(t *testing.T) {
 	deploy := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
-		dietest.NoError(t, d.Metadata().Name().Set("web"))
-		dietest.NoError(t, die.StampValue(d.Status(), func(r *appsv1.DeploymentStatus) { r.Conditions = legacyConditions() }))
+		dietesting.NoError(t, d.Metadata().Name().Set("web"))
+		dietesting.NoError(t, die.StampValue(d.Status(), func(r *appsv1.DeploymentStatus) { r.Conditions = legacyConditions() }))
 	}).DieTare().DieMutable()
 
-	c, _ := jigsv1.ConditionedJig.OfMut(deploy.Status())
-	dietest.NoError(t, c.Conditions().At("Available").Status().Set(metav1.ConditionTrue))
-	dietest.NoError(t, c.Conditions().At("Available").Reason().Set("MinimumReplicasAvailable"))
+	c, _ := jigsv1.ConditionedJig.MustHoldMut(deploy.Status())
+	dietesting.NoError(t, c.Conditions().At("Available").Status().Set(metav1.ConditionTrue))
+	dietesting.NoError(t, c.Conditions().At("Available").Reason().Set("MinimumReplicasAvailable"))
 
 	got := deploy.Status().Conditions().At(appsv1.DeploymentAvailable)
 	if got.Status().Get() != corev1.ConditionTrue || got.Reason().Get() != "MinimumReplicasAvailable" {
@@ -68,7 +68,7 @@ func TestHarmonizedConditionsKeepWhatTheJigDoesNotShow(t *testing.T) {
 		t.Errorf("lastUpdateTime %v, want it kept", got.LastUpdateTime().Get())
 	}
 	// only the changed fields of the changed condition are intent
-	patch, err := die.ReleaseApplyPatchE(deploy, die.Subresource("status"))
+	patch, err := die.ReleaseApplyPatch(deploy, die.Subresource("status"))
 	assertJSON(t, patch, err, `{
 		"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "web"},
 		"status": {"conditions": [{"type": "Available", "status": "True", "reason": "MinimumReplicasAvailable"}]}

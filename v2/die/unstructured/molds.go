@@ -85,12 +85,9 @@ func NewMolds(client openapi.Client) *Molds {
 	return &Molds{client: client, docs: map[string]map[schema.GroupVersionKind]*core.Schema{}}
 }
 
-// Blank returns an immutable, empty die of a kind, in its mold. It panics if
-// the server has no schema for the kind.
-func (m *Molds) Blank(gvk schema.GroupVersionKind) *Object { return core.Must(m.BlankE(gvk)) }
-
-// BlankE is [Molds.Blank], returning an error rather than panicking.
-func (m *Molds) BlankE(gvk schema.GroupVersionKind) (*Object, error) {
+// Blank returns an immutable, empty die of a kind, in its mold. It returns an
+// error if the server has no schema for the kind.
+func (m *Molds) Blank(gvk schema.GroupVersionKind) (*Object, error) {
 	sc, err := m.schemaOf(gvk)
 	if err != nil {
 		return nil, err
@@ -101,13 +98,13 @@ func (m *Molds) BlankE(gvk schema.GroupVersionKind) (*Object, error) {
 	return d, nil
 }
 
-// For returns an immutable unstructured die in the mold of its kind,
-// keeping its value and intent. It panics if the server has no schema for
-// the die's kind.
-func (m *Molds) For(d *Object) *Object { return core.Must(m.ForE(d)) }
+// MustBlank is [Molds.Blank], panicking rather than returning an error.
+func (m *Molds) MustBlank(gvk schema.GroupVersionKind) *Object { return core.Must(m.Blank(gvk)) }
 
-// ForE is [Molds.For], returning an error rather than panicking.
-func (m *Molds) ForE(d *Object) (*Object, error) {
+// Cast returns an immutable unstructured die in the mold of its kind, keeping
+// its value and intent. It returns an error if the server has no schema for
+// the die's kind.
+func (m *Molds) Cast(d *Object) (*Object, error) {
 	h, sc, err := m.moldOf(d)
 	if err != nil {
 		return nil, err
@@ -117,13 +114,13 @@ func (m *Molds) ForE(d *Object) (*Object, error) {
 	return out, nil
 }
 
-// ForMut gives a mutable unstructured die the mold of its kind, in place,
-// such as an item of a list a client listed into, keeping its value and
-// intent. It panics if the server has no schema for the die's kind.
-func (m *Molds) ForMut(d *ObjectMut) *ObjectMut { return core.Must(m.ForMutE(d)) }
+// MustCast is [Molds.Cast], panicking rather than returning an error.
+func (m *Molds) MustCast(d *Object) *Object { return core.Must(m.Cast(d)) }
 
-// ForMutE is [Molds.ForMut], returning an error rather than panicking.
-func (m *Molds) ForMutE(d *ObjectMut) (*ObjectMut, error) {
+// CastMut gives a mutable unstructured die the mold of its kind, in place,
+// such as an item of a list a client listed into, keeping its value and
+// intent. It returns an error if the server has no schema for the die's kind.
+func (m *Molds) CastMut(d *ObjectMut) (*ObjectMut, error) {
 	h, sc, err := m.moldOf(d)
 	if err != nil {
 		return nil, err
@@ -131,6 +128,9 @@ func (m *Molds) ForMutE(d *ObjectMut) (*ObjectMut, error) {
 	h.Schema = sc
 	return d, nil
 }
+
+// MustCastMut is [Molds.CastMut], panicking rather than returning an error.
+func (m *Molds) MustCastMut(d *ObjectMut) *ObjectMut { return core.Must(m.CastMut(d)) }
 
 func (m *Molds) moldOf(d base.DieObject) (*core.Holder, *core.Schema, error) {
 	h, at := dies.MustStateOf(d)
