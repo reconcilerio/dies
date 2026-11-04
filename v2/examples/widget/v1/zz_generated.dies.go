@@ -30,6 +30,138 @@ import (
 	gadgetv1 "reconciler.io/dies/v2/examples/gadget/v1"
 )
 
+// Templated is a duck type of the resources with a pod template, as a Widget
+// has. It has no kind, so it is not registered: it is a view of other kinds,
+// not a resource of its own.
+//
+// TemplatedDie is immutable: it reads.
+// [TemplatedDieMut], its mutable die, also writes, as DieStamp passes it.
+type TemplatedDie struct {
+	diebase.DieObjectBase[Templated, *TemplatedDie, *TemplatedDieMut]
+}
+
+// TemplatedDieMut is the mutable die of [Templated]: see [TemplatedDie].
+type TemplatedDieMut struct {
+	diebase.DieObjectMutBase[Templated, *TemplatedDie, *TemplatedDieMut]
+}
+
+func (*TemplatedDie) DieFrom(b diebase.DieBase[Templated, *TemplatedDie, *TemplatedDieMut]) *TemplatedDie {
+	return &TemplatedDie{diebase.AsObject(b)}
+}
+
+func (*TemplatedDieMut) DieFrom(b diebase.DieMutBase[Templated, *TemplatedDie, *TemplatedDieMut]) *TemplatedDieMut {
+	return &TemplatedDieMut{diebase.AsObjectMut(b)}
+}
+
+var TemplatedBlank = diebase.BlankOf[Templated, *TemplatedDie, *TemplatedDieMut](Templated{TypeMeta: metav1.TypeMeta{APIVersion: "", Kind: ""}})
+
+type templatedFieldsTable struct {
+	Kind       diefields.Field[Templated, string]
+	APIVersion diefields.Field[Templated, string]
+	Metadata   diefields.Struct[Templated, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[Templated, TemplatedSpec, *TemplatedSpecDie, *TemplatedSpecDieMut]
+}
+
+var templatedFields = &diefields.Table[templatedFieldsTable]{Build: func() (f templatedFieldsTable) {
+	_ = annotated
+	f.Kind = diefields.NewField[Templated, string]("kind")
+	f.APIVersion = diefields.NewField[Templated, string]("apiVersion")
+	f.Metadata = diefields.NewStruct[Templated, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[Templated, TemplatedSpec, *TemplatedSpecDie, *TemplatedSpecDieMut]("spec")
+	return
+}}
+
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *TemplatedDie) Kind() diefields.Value[string] {
+	return diefields.ValueOf(d, templatedFields.Get().Kind)
+}
+
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *TemplatedDie) APIVersion() diefields.Value[string] {
+	return diefields.ValueOf(d, templatedFields.Get().APIVersion)
+}
+
+func (d *TemplatedDie) Metadata() *diemetav1.ObjectMetaDie {
+	return diefields.Child(d, templatedFields.Get().Metadata)
+}
+
+func (d *TemplatedDie) Spec() *TemplatedSpecDie {
+	return diefields.Child(d, templatedFields.Get().Spec)
+}
+
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *TemplatedDieMut) Kind() diefields.ValueMut[string] {
+	return diefields.ValueMutOf(d, templatedFields.Get().Kind)
+}
+
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *TemplatedDieMut) APIVersion() diefields.ValueMut[string] {
+	return diefields.ValueMutOf(d, templatedFields.Get().APIVersion)
+}
+
+func (d *TemplatedDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, templatedFields.Get().Metadata)
+}
+
+func (d *TemplatedDieMut) Spec() *TemplatedSpecDieMut {
+	return diefields.ChildMut(d, templatedFields.Get().Spec)
+}
+
+// TemplatedSpecDie is immutable: it reads.
+// [TemplatedSpecDieMut], its mutable die, also writes, as DieStamp passes it.
+type TemplatedSpecDie struct {
+	diebase.DieBase[TemplatedSpec, *TemplatedSpecDie, *TemplatedSpecDieMut]
+}
+
+// TemplatedSpecDieMut is the mutable die of [TemplatedSpec]: see [TemplatedSpecDie].
+type TemplatedSpecDieMut struct {
+	diebase.DieMutBase[TemplatedSpec, *TemplatedSpecDie, *TemplatedSpecDieMut]
+}
+
+func (*TemplatedSpecDie) DieFrom(b diebase.DieBase[TemplatedSpec, *TemplatedSpecDie, *TemplatedSpecDieMut]) *TemplatedSpecDie {
+	return &TemplatedSpecDie{b}
+}
+
+func (*TemplatedSpecDieMut) DieFrom(b diebase.DieMutBase[TemplatedSpec, *TemplatedSpecDie, *TemplatedSpecDieMut]) *TemplatedSpecDieMut {
+	return &TemplatedSpecDieMut{b}
+}
+
+var TemplatedSpecBlank = diebase.Blank[TemplatedSpec, *TemplatedSpecDie, *TemplatedSpecDieMut]()
+
+type templatedSpecFieldsTable struct {
+	Template diefields.Struct[TemplatedSpec, diecorev1.PodTemplateSpec, *diecorev1.PodTemplateSpecDie, *diecorev1.PodTemplateSpecDieMut]
+}
+
+var templatedSpecFields = &diefields.Table[templatedSpecFieldsTable]{Build: func() (f templatedSpecFieldsTable) {
+	_ = annotated
+	f.Template = diefields.NewStruct[TemplatedSpec, diecorev1.PodTemplateSpec, *diecorev1.PodTemplateSpecDie, *diecorev1.PodTemplateSpecDieMut]("template")
+	return
+}}
+
+// Template for the resource's pods.
+func (d *TemplatedSpecDie) Template() *diecorev1.PodTemplateSpecDie {
+	return diefields.Child(d, templatedSpecFields.Get().Template)
+}
+
+// Template for the resource's pods.
+func (d *TemplatedSpecDieMut) Template() *diecorev1.PodTemplateSpecDieMut {
+	return diefields.ChildMut(d, templatedSpecFields.Get().Template)
+}
+
 // Widget runs a pod template with named ports.
 //
 // WidgetDie is immutable: it reads.
@@ -447,6 +579,8 @@ var _ = diecodegen.Register(diecodegen.Package{
 		"reconciler.io/dies/v2/examples/widget/v1",
 	},
 	Tables: func() {
+		templatedFields.Get()
+		templatedSpecFields.Get()
 		widgetFields.Get()
 		widgetGadgetFields.Get()
 		widgetMatchFields.Get()

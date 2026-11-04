@@ -38,6 +38,24 @@ type Widget struct {
 	Status WidgetStatus `json:"status,omitempty"`
 }
 
+// +die:object
+
+// Templated is a duck type of the resources with a pod template, as a Widget
+// has. It has no kind, so it is not registered: it is a view of other kinds,
+// not a resource of its own.
+type Templated struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	Spec TemplatedSpec `json:"spec,omitempty"`
+}
+
+// +die
+type TemplatedSpec struct {
+	// Template for the resource's pods.
+	Template corev1.PodTemplateSpec `json:"template"`
+}
+
 // +die
 type WidgetSpec struct {
 	// Ports exposed by the widget.

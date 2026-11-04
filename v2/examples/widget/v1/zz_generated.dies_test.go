@@ -27,6 +27,8 @@ import (
 
 func TestDiesMatchTypes(t *testing.T) {
 	for _, check := range []func() error{
+		diecodegen.CheckManaged[widgetv1.Templated],
+		diecodegen.CheckManaged[widgetv1.TemplatedSpec],
 		diecodegen.CheckManaged[widgetv1.Widget],
 		diecodegen.CheckManaged[widgetv1.WidgetGadget],
 		diecodegen.CheckManaged[widgetv1.WidgetMatch],
@@ -42,6 +44,8 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[widgetv1.Widget, *widgetv1.WidgetDie, *widgetv1.WidgetDieMut]    = (*widgetv1.WidgetDie)(nil)
-	_ dieobjects.DieObjectMutOf[widgetv1.Widget, *widgetv1.WidgetDie, *widgetv1.WidgetDieMut] = (*widgetv1.WidgetDieMut)(nil)
+	_ dieobjects.DieObjectOf[widgetv1.Templated, *widgetv1.TemplatedDie, *widgetv1.TemplatedDieMut]    = (*widgetv1.TemplatedDie)(nil)
+	_ dieobjects.DieObjectMutOf[widgetv1.Templated, *widgetv1.TemplatedDie, *widgetv1.TemplatedDieMut] = (*widgetv1.TemplatedDieMut)(nil)
+	_ dieobjects.DieObjectOf[widgetv1.Widget, *widgetv1.WidgetDie, *widgetv1.WidgetDieMut]             = (*widgetv1.WidgetDie)(nil)
+	_ dieobjects.DieObjectMutOf[widgetv1.Widget, *widgetv1.WidgetDie, *widgetv1.WidgetDieMut]          = (*widgetv1.WidgetDieMut)(nil)
 )

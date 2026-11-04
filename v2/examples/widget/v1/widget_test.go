@@ -21,6 +21,8 @@ import (
 	"reflect"
 	"testing"
 
+	"k8s.io/apimachinery/pkg/runtime"
+
 	"reconciler.io/dies/v2/die"
 	"reconciler.io/dies/v2/die/base"
 	dietesting "reconciler.io/dies/v2/die/testing"
@@ -130,4 +132,18 @@ func TestRenamedAccessor(t *testing.T) {
 		"kind": "Widget",
 		"spec": {"match": {"equal": true}}
 	}`)
+}
+
+func TestDuckIsNotRegistered(t *testing.T) {
+	scheme := runtime.NewScheme()
+	if err := widgetv1.AddToScheme(scheme); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := scheme.KnownTypes(widgetv1.SchemeGroupVersion)["Widget"]; !ok {
+		t.Errorf("Widget is not registered")
+	}
+	// a duck type has no kind of its own
+	if gvks, _, err := scheme.ObjectKinds(&widgetv1.TemplatedDieMut{}); err == nil {
+		t.Errorf("Templated is registered as %v", gvks)
+	}
 }

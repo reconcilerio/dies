@@ -571,9 +571,10 @@ func (pg *pkgGen) hasObjects() bool {
 }
 
 // emitRegister emits the package's scheme registration: each object and
-// list die as the Go type of its kind, as an upstream API package registers
-// its types. A package with no object dies has a registration that does
-// nothing, so group packages can register every version alike.
+// list die with a kind as the Go type of its kind, as an upstream API
+// package registers its types. A package with no such dies has a
+// registration that does nothing, so group packages can register every
+// version alike.
 func (pg *pkgGen) emitRegister() error {
 	f := pg.f
 	type known struct{ kind, die string }
@@ -581,7 +582,9 @@ func (pg *pkgGen) emitRegister() error {
 	var kinds []known
 	for _, tg := range pg.targets {
 		m, ok := findDieMarker(tg.doc, "die:object")
-		if !ok {
+		// an object without a kind, such as a duck type, is not a resource
+		// of the API server, so is not registered
+		if !ok || m.arg("kind") == "" {
 			continue
 		}
 		av := m.arg("apiVersion")
@@ -805,7 +808,9 @@ func (pg *pkgGen) annotations() []string {
 				ann = append(ann, fmt.Sprintf("\t\t%q: %q,", wf.v.Name(), d))
 			}
 		}
-		if m, ok := findDieMarker(tg.doc, "die:object"); ok {
+		// nor is the identity of an object without a kind, which is not the
+		// identity of the resources it's applied to
+		if m, ok := findDieMarker(tg.doc, "die:object"); ok && m.arg("kind") != "" {
 			lines = append(lines, fmt.Sprintf("\tdie.Object[%s](%q, %q)", tg.name(), m.arg("apiVersion"), m.arg("kind")))
 		}
 		if len(ann) == 0 {
