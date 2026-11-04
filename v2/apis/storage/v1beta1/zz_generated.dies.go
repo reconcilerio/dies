@@ -3009,6 +3009,9 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"TokenRequests":        "atomic",
 		})
 		diecodegen.Object[CSINode]("storage.k8s.io/v1beta1", "CSINode")
+		diecodegen.Annotate[CSINode](map[string]string{
+			"Status": "subresource=status",
+		})
 		diecodegen.Annotate[CSINodeDriver](map[string]string{
 			"TopologyKeys": "atomic",
 		})
@@ -3034,6 +3037,9 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"HealthConditions": "atomic",
 		})
 		diecodegen.Object[VolumeAttachment]("storage.k8s.io/v1beta1", "VolumeAttachment")
+		diecodegen.Annotate[VolumeAttachment](map[string]string{
+			"Status": "subresource=status",
+		})
 		diecodegen.Object[VolumeAttachmentList]("storage.k8s.io/v1beta1", "VolumeAttachmentList")
 		diecodegen.Object[VolumeAttributesClass]("storage.k8s.io/v1beta1", "VolumeAttributesClass")
 		diecodegen.Object[VolumeAttributesClassList]("storage.k8s.io/v1beta1", "VolumeAttributesClassList")

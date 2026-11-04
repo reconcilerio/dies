@@ -3028,6 +3028,9 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"CompositePodGroupTemplates": "listMap=name",
 		})
 		diecodegen.Object[PodGroup]("scheduling.k8s.io/v1beta1", "PodGroup")
+		diecodegen.Annotate[PodGroup](map[string]string{
+			"Status": "subresource=status",
+		})
 		diecodegen.Object[PodGroupList]("scheduling.k8s.io/v1beta1", "PodGroupList")
 		diecodegen.Annotate[PodGroupSchedulingConstraints](map[string]string{
 			"Topology": "atomic",

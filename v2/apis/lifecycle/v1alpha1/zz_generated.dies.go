@@ -1854,8 +1854,14 @@ var annotated = diecodegen.Register(diecodegen.Package{
 	},
 	Annotate: func() {
 		diecodegen.Object[Eviction]("lifecycle.k8s.io/v1alpha1", "Eviction")
+		diecodegen.Annotate[Eviction](map[string]string{
+			"Status": "subresource=status",
+		})
 		diecodegen.Object[EvictionList]("lifecycle.k8s.io/v1alpha1", "EvictionList")
 		diecodegen.Object[EvictionRequest]("lifecycle.k8s.io/v1alpha1", "EvictionRequest")
+		diecodegen.Annotate[EvictionRequest](map[string]string{
+			"Status": "subresource=status",
+		})
 		diecodegen.Object[EvictionRequestList]("lifecycle.k8s.io/v1alpha1", "EvictionRequestList")
 		diecodegen.Annotate[EvictionRequestStatus](map[string]string{
 			"Conditions": "listMap=type",

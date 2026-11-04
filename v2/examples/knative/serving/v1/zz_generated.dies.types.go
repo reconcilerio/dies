@@ -30,13 +30,14 @@ import (
 
 const AutoscalingQueueMetricsPortName = "http-autometric"
 
+// +genreconciler
+// +die:object:apiVersion=serving.knative.dev/v1,kind=Configuration
+
 // Configuration represents the "floating HEAD" of a linear history of Revisions.
 // Users create new Revisions by updating the Configuration's spec.
 // The "latest created" revision's name is available under status, as is the
 // "latest ready" revision's name.
 // See also: https://github.com/knative/serving/blob/main/docs/spec/overview.md#configuration
-//
-// +die:object:apiVersion=serving.knative.dev/v1,kind=Configuration
 type Configuration struct {
 	metav1.TypeMeta `json:",inline"`
 	// +optional
@@ -49,37 +50,37 @@ type Configuration struct {
 
 const ConfigurationConditionReady apis.ConditionType = "Ready"
 
-// ConfigurationList is a list of Configuration resources
-//
 // +die:object:apiVersion=serving.knative.dev/v1,kind=ConfigurationList
+
+// ConfigurationList is a list of Configuration resources
 type ConfigurationList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
 	Items           []Configuration `json:"items"`
 }
 
-// ConfigurationSpec holds the desired state of the Configuration (from the client).
-//
 // +die
+
+// ConfigurationSpec holds the desired state of the Configuration (from the client).
 type ConfigurationSpec struct {
 	// Template holds the latest specification for the Revision to be stamped out.
 	// +optional
 	Template RevisionTemplateSpec `json:"template"`
 }
 
-// ConfigurationStatus communicates the observed state of the Configuration (from the controller).
-//
 // +die
+
+// ConfigurationStatus communicates the observed state of the Configuration (from the controller).
 type ConfigurationStatus struct {
 	duckv1.Status             `json:",inline"`
 	ConfigurationStatusFields `json:",inline"`
 }
 
+// +die
+
 // ConfigurationStatusFields holds the fields of Configuration's status that
 // are not generally shared.  This is defined separately and inlined so that
 // other types can readily consume these fields via duck typing.
-//
-// +die
 type ConfigurationStatusFields struct {
 	// LatestReadyRevisionName holds the name of the latest Revision stamped out
 	// from this Configuration that has had its "Ready" condition become "True".
@@ -91,9 +92,9 @@ type ConfigurationStatusFields struct {
 	LatestCreatedRevisionName string `json:"latestCreatedRevisionName,omitempty"`
 }
 
-// ContainerStatus holds the information of container name and image digest value
-//
 // +die
+
+// ContainerStatus holds the information of container name and image digest value
 type ContainerStatus struct {
 	Name        string `json:"name,omitempty"`
 	ImageDigest string `json:"imageDigest,omitempty"`
@@ -115,13 +116,14 @@ const ReasonProgressDeadlineExceeded = "ProgressDeadlineExceeded"
 
 const ReasonResolvingDigests = "ResolvingDigests"
 
+// +genreconciler
+// +die:object:apiVersion=serving.knative.dev/v1,kind=Revision
+
 // Revision is an immutable snapshot of code and configuration.  A revision
 // references a container image. Revisions are created by updates to a
 // Configuration.
 //
 // See also: https://github.com/knative/serving/blob/main/docs/spec/overview.md#revision
-//
-// +die:object:apiVersion=serving.knative.dev/v1,kind=Revision
 type Revision struct {
 	metav1.TypeMeta `json:",inline"`
 	// +optional
@@ -140,18 +142,18 @@ const RevisionConditionReady apis.ConditionType = "Ready"
 
 const RevisionConditionResourcesAvailable apis.ConditionType = "ResourcesAvailable"
 
-// RevisionList is a list of Revision resources
-//
 // +die:object:apiVersion=serving.knative.dev/v1,kind=RevisionList
+
+// RevisionList is a list of Revision resources
 type RevisionList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
 	Items           []Revision `json:"items"`
 }
 
-// RevisionSpec holds the desired state of the Revision (from the client).
-//
 // +die
+
+// RevisionSpec holds the desired state of the Revision (from the client).
 type RevisionSpec struct {
 	corev1.PodSpec `json:",inline"`
 	// ContainerConcurrency specifies the maximum allowed in-flight (concurrent)
@@ -177,9 +179,9 @@ type RevisionSpec struct {
 	IdleTimeoutSeconds *int64 `json:"idleTimeoutSeconds,omitempty"`
 }
 
-// RevisionStatus communicates the observed state of the Revision (from the controller).
-//
 // +die
+
+// RevisionStatus communicates the observed state of the Revision (from the controller).
 type RevisionStatus struct {
 	duckv1.Status `json:",inline"`
 	// LogURL specifies the generated logging url for this particular revision
@@ -210,10 +212,10 @@ type RevisionStatus struct {
 	DesiredReplicas *int32 `json:"desiredReplicas,omitempty"`
 }
 
+// +die
+
 // RevisionTemplateSpec describes the data a revision should have when created from a template.
 // Based on: https://github.com/kubernetes/api/blob/e771f807/core/v1/types.go#L3179-L3190
-//
-// +die
 type RevisionTemplateSpec struct {
 	// +kubebuilder:pruning:PreserveUnknownFields
 	// +optional
@@ -222,14 +224,15 @@ type RevisionTemplateSpec struct {
 	Spec RevisionSpec `json:"spec,omitempty"`
 }
 
+// +genreconciler
+// +die:object:apiVersion=serving.knative.dev/v1,kind=Route
+
 // Route is responsible for configuring ingress over a collection of Revisions.
 // Some of the Revisions a Route distributes traffic over may be specified by
 // referencing the Configuration responsible for creating them; in these cases
 // the Route is additionally responsible for monitoring the Configuration for
 // "latest ready revision" changes, and smoothly rolling out latest revisions.
 // See also: https://github.com/knative/serving/blob/main/docs/spec/overview.md#route
-//
-// +die:object:apiVersion=serving.knative.dev/v1,kind=Route
 type Route struct {
 	metav1.TypeMeta `json:",inline"`
 	// +optional
@@ -250,18 +253,18 @@ const RouteConditionIngressReady apis.ConditionType = "IngressReady"
 
 const RouteConditionReady apis.ConditionType = "Ready"
 
-// RouteList is a list of Route resources
-//
 // +die:object:apiVersion=serving.knative.dev/v1,kind=RouteList
+
+// RouteList is a list of Route resources
 type RouteList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
 	Items           []Route `json:"items"`
 }
 
-// RouteSpec holds the desired state of the Route (from the client).
-//
 // +die
+
+// RouteSpec holds the desired state of the Route (from the client).
 type RouteSpec struct {
 	// Traffic specifies how to distribute traffic over a collection of
 	// revisions and configurations.
@@ -269,19 +272,19 @@ type RouteSpec struct {
 	Traffic []TrafficTarget `json:"traffic,omitempty"`
 }
 
-// RouteStatus communicates the observed state of the Route (from the controller).
-//
 // +die
+
+// RouteStatus communicates the observed state of the Route (from the controller).
 type RouteStatus struct {
 	duckv1.Status     `json:",inline"`
 	RouteStatusFields `json:",inline"`
 }
 
+// +die
+
 // RouteStatusFields holds the fields of Route's status that
 // are not generally shared.  This is defined separately and inlined so that
 // other types can readily consume these fields via duck typing.
-//
-// +die
 type RouteStatusFields struct {
 	// URL holds the url that will distribute traffic over the provided traffic targets.
 	// It generally has the form http[s]://{route-name}.{route-namespace}.{cluster-level-suffix}
@@ -308,6 +311,9 @@ const (
 	RoutingStateUnset   RoutingState = ""
 )
 
+// +genreconciler
+// +die:object:apiVersion=serving.knative.dev/v1,kind=Service
+
 // Service acts as a top-level container that manages a Route and Configuration
 // which implement a network service. Service exists to provide a singular
 // abstraction which can be access controlled, reasoned about, and which
@@ -320,8 +326,6 @@ const (
 // and Route, reflecting their statuses and conditions as its own.
 //
 // See also: https://github.com/knative/serving/blob/main/docs/spec/overview.md#service
-//
-// +die:object:apiVersion=serving.knative.dev/v1,kind=Service
 type Service struct {
 	metav1.TypeMeta `json:",inline"`
 	// +optional
@@ -338,14 +342,16 @@ const ServiceConditionReady apis.ConditionType = "Ready"
 
 const ServiceConditionRoutesReady apis.ConditionType = "RoutesReady"
 
-// ServiceList is a list of Service resources
-//
 // +die:object:apiVersion=serving.knative.dev/v1,kind=ServiceList
+
+// ServiceList is a list of Service resources
 type ServiceList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
 	Items           []Service `json:"items"`
 }
+
+// +die
 
 // ServiceSpec represents the configuration for the Service object.
 // A Service's specification is the union of the specifications for a Route
@@ -354,8 +360,6 @@ type ServiceList struct {
 // however, these limitations also enable friendlier defaulting,
 // e.g. Route never needs a Configuration name, and may be defaulted to
 // the appropriate "run latest" spec.
-//
-// +die
 type ServiceSpec struct {
 	// ServiceSpec inlines an unrestricted ConfigurationSpec.
 	ConfigurationSpec `json:",inline"`
@@ -366,9 +370,9 @@ type ServiceSpec struct {
 	RouteSpec `json:",inline"`
 }
 
-// ServiceStatus represents the Status stanza of the Service resource.
-//
 // +die
+
+// ServiceStatus represents the Status stanza of the Service resource.
 type ServiceStatus struct {
 	duckv1.Status `json:",inline"`
 	// In addition to inlining ConfigurationSpec, we also inline the fields
@@ -381,9 +385,9 @@ type ServiceStatus struct {
 
 const TLSNotEnabledForClusterLocalMessage = "TLS is not enabled for cluster-local"
 
-// TrafficTarget holds a single entry of the routing table for a Route.
-//
 // +die
+
+// TrafficTarget holds a single entry of the routing table for a Route.
 type TrafficTarget struct {
 	// Tag is optionally used to expose a dedicated url for referencing
 	// this target exclusively.

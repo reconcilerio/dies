@@ -2031,6 +2031,9 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"PartitionSummary": "atomic",
 		})
 		diecodegen.Object[ResourcePoolStatusRequest]("resource.k8s.io/v1alpha3", "ResourcePoolStatusRequest")
+		diecodegen.Annotate[ResourcePoolStatusRequest](map[string]string{
+			"Status": "subresource=status",
+		})
 		diecodegen.Object[ResourcePoolStatusRequestList]("resource.k8s.io/v1alpha3", "ResourcePoolStatusRequestList")
 		diecodegen.Annotate[ResourcePoolStatusRequestSpec](map[string]string{
 			"Limit": "default=100",

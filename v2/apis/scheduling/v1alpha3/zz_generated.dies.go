@@ -4393,6 +4393,9 @@ var annotated = diecodegen.Register(diecodegen.Package{
 	},
 	Annotate: func() {
 		diecodegen.Object[CompositePodGroup]("scheduling.k8s.io/v1alpha3", "CompositePodGroup")
+		diecodegen.Annotate[CompositePodGroup](map[string]string{
+			"Status": "subresource=status",
+		})
 		diecodegen.Object[CompositePodGroupList]("scheduling.k8s.io/v1alpha3", "CompositePodGroupList")
 		diecodegen.Annotate[CompositePodGroupSchedulingConstraints](map[string]string{
 			"Topology": "atomic",
@@ -4408,6 +4411,9 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"CompositePodGroupTemplates": "listMap=name",
 		})
 		diecodegen.Object[PodGroup]("scheduling.k8s.io/v1alpha3", "PodGroup")
+		diecodegen.Annotate[PodGroup](map[string]string{
+			"Status": "subresource=status",
+		})
 		diecodegen.Object[PodGroupList]("scheduling.k8s.io/v1alpha3", "PodGroupList")
 		diecodegen.Annotate[PodGroupSchedulingConstraints](map[string]string{
 			"Topology": "atomic",

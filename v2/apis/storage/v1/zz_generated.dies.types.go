@@ -39,6 +39,7 @@ type CSIDriverList = storagev1.CSIDriverList
 type CSIDriverSpec = storagev1.CSIDriverSpec
 
 // +die:object:apiVersion=storage.k8s.io/v1,kind=CSINode
+// +die:subresource:name=status
 type CSINode = storagev1.CSINode
 
 // +die
@@ -99,6 +100,7 @@ const (
 type TokenRequest = storagev1.TokenRequest
 
 // +die:object:apiVersion=storage.k8s.io/v1,kind=VolumeAttachment
+// +die:subresource:name=status
 type VolumeAttachment = storagev1.VolumeAttachment
 
 // +die:object:apiVersion=storage.k8s.io/v1,kind=VolumeAttachmentList

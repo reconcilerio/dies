@@ -33,13 +33,13 @@ import (
 // +kubebuilder:printcolumn:name=Since-Deploy,JSONPath=.status.deploy.startedAt,description=Last time app started being deployed. Does not mean anything was changed.,type=date
 // +kubebuilder:printcolumn:name=Age,JSONPath=.metadata.creationTimestamp,description=Time since creation,type=date
 // +kubebuilder:printcolumn:name=Paused,JSONPath=.spec.paused,description=Paused,type=boolean
+// +die:object:apiVersion=kappctrl.k14s.io/v1alpha1,kind=App
+
 // An App is a set of Kubernetes resources. These resources could span any number of namespaces or could be cluster-wide (e.g. CRDs). An App is represented in kapp-controller using a App CR.
 // The App CR comprises of three main sections:
 // spec.fetch – declare source for fetching configuration and OCI images
 // spec.template – declare templating tool and values
 // spec.deploy – declare deployment tool and any deploy specific configuration
-//
-// +die:object:apiVersion=kappctrl.k14s.io/v1alpha1,kind=App
 type App struct {
 	metav1.TypeMeta `json:",inline"`
 	// Standard object metadata; More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata.
@@ -426,9 +426,9 @@ type AppTemplateHelmTemplate struct {
 	KubernetesAPIs *KubernetesAPIs `json:"kubernetesAPIs,omitempty"`
 }
 
-// TODO implement jsonnet
-//
 // +die
+
+// TODO implement jsonnet
 type AppTemplateJsonnet struct {
 }
 
@@ -439,9 +439,9 @@ type AppTemplateKbld struct {
 	Platform string `json:"platform,omitempty"`
 }
 
-// TODO implement kustomize
-//
 // +die
+
+// TODO implement kustomize
 type AppTemplateKustomize struct {
 }
 
@@ -524,9 +524,9 @@ type AppTemplateYtt struct {
 	ValuesFrom []AppTemplateValuesSource `json:"valuesFrom,omitempty"`
 }
 
-// AssociatedResources contains the associated App label, namespaces and GKs
-//
 // +die
+
+// AssociatedResources contains the associated App label, namespaces and GKs
 type AssociatedResources struct {
 	Label      string             `json:"label,omitempty"`
 	Namespaces []string           `json:"namespaces,omitempty"`
@@ -573,9 +573,9 @@ type GenericStatus struct {
 	UsefulErrorMessage string `json:"usefulErrorMessage,omitempty"`
 }
 
-// KappDeployStatus contains the associated AppCR deployed resources
-//
 // +die
+
+// KappDeployStatus contains the associated AppCR deployed resources
 type KappDeployStatus struct {
 	AssociatedResources AssociatedResources `json:"associatedResources,omitempty"`
 }

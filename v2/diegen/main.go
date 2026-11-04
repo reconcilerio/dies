@@ -37,7 +37,17 @@ limitations under the License.
 // types and dies. Cloned, it copies them, so that it doesn't depend on the
 // upstream package at all. Each type
 // that needs a die is marked +die, or +die:object:apiVersion=…,kind=… for a
-// top-level object.
+// top-level object. Like a package's, a type's markers may be in its doc, or
+// in a comment of their own before it, separated by a blank line:
+//
+//	// +kubebuilder:object:root=true
+//	// +die:object:apiVersion=ducks.reconciler.io/v1,kind=Duck
+//
+//	// Duck is the Schema for the ducks API.
+//	type Duck struct {
+//
+// As for controller-gen, no other comment is read. A +die marker in one, such
+// as a second comment of markers above the first, is an error.
 //
 // Dies: every type marked +die in a die package, whether an alias or a type
 // declared locally, gets a die in zz_generated.dies.go. Markers are read from

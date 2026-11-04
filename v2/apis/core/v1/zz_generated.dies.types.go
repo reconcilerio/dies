@@ -1326,6 +1326,8 @@ const (
 )
 
 // +die:object:apiVersion=v1,kind=ReplicationController
+// +die:subresource:name=scale
+// +die:subresource:name=status
 type ReplicationController = corev1.ReplicationController
 
 // +die

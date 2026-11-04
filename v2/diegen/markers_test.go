@@ -102,3 +102,44 @@ func TestPackageDocMarkers(t *testing.T) {
 		}
 	}
 }
+
+func TestTypeDocMarkers(t *testing.T) {
+	tests := []struct {
+		name, src string
+		want      []string
+		unread    int
+	}{
+		{"in the doc", "package v1\n\n// Duck quacks.\n//\n// +die\ntype Duck struct{}\n", []string{"Duck quacks.", "", "+die"}, 0},
+		{"apart from the doc", "package v1\n\n// +kubebuilder:object:root=true\n// +die\n\n// Duck quacks.\ntype Duck struct{}\n", []string{"+kubebuilder:object:root=true", "+die", "Duck quacks."}, 0},
+		{"apart from no doc", "package v1\n\n// +die\n\ntype Duck struct{}\n", []string{"+die"}, 0},
+		{"apart, in parentheses", "package v1\n\ntype (\n\tGoose struct{}\n\n\t// +die\n\n\t// Duck quacks.\n\tDuck struct{}\n)\n", []string{"+die", "Duck quacks."}, 0},
+		{"not only markers", "package v1\n\n// Ducks.\n// +die\n\n// Duck quacks.\ntype Duck struct{}\n", []string{"Duck quacks."}, 1},
+		{"in two comments", "package v1\n\n// +die:object:apiVersion=example.dev/v1,kind=Duck\n\n// +kubebuilder:subresource:status\n\n// Duck quacks.\ntype Duck struct{}\n", []string{"+kubebuilder:subresource:status", "Duck quacks."}, 1},
+		{"other markers in two comments", "package v1\n\n// +genduck\n\n// +die\n\n// Duck quacks.\ntype Duck struct{}\n", []string{"+die", "Duck quacks."}, 0},
+		{"of the previous declaration", "package v1\n\nfunc f() {\n\t// +die\n}\n\ntype Duck struct{}\n", nil, 0},
+		{"of the previous spec", "package v1\n\ntype (\n\t// +die\n\tGoose struct{}\n\n\tDuck struct{}\n)\n", nil, 0},
+	}
+	for _, tt := range tests {
+		f, err := parser.ParseFile(token.NewFileSet(), "types.go", tt.src, parser.ParseComments)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var got []string
+		var unread []*ast.CommentGroup
+		for _, d := range f.Decls {
+			if gd, ok := d.(*ast.GenDecl); ok && gd.Tok == token.TYPE {
+				for _, spec := range gd.Specs {
+					if ts := spec.(*ast.TypeSpec); ts.Name.Name == "Duck" {
+						got, unread = typeDoc(f, gd, ts)
+					}
+				}
+			}
+		}
+		if !reflect.DeepEqual(got, tt.want) {
+			t.Errorf("%s: got %q, want %q", tt.name, got, tt.want)
+		}
+		if n := len(unreadDieMarkers(unread)); n != tt.unread {
+			t.Errorf("%s: got %d unread comments with +die markers, want %d", tt.name, n, tt.unread)
+		}
+	}
+}

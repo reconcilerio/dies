@@ -28,6 +28,7 @@ import (
 // [AddToScheme] registers its dies, not the upstream types.
 
 // +die:object:apiVersion=lifecycle.k8s.io/v1alpha1,kind=Eviction
+// +die:subresource:name=status
 type Eviction = lifecyclev1alpha1.Eviction
 
 type EvictionConditionReason = lifecyclev1alpha1.EvictionConditionReason
@@ -65,6 +66,7 @@ const (
 type EvictionPodReference = lifecyclev1alpha1.EvictionPodReference
 
 // +die:object:apiVersion=lifecycle.k8s.io/v1alpha1,kind=EvictionRequest
+// +die:subresource:name=status
 type EvictionRequest = lifecyclev1alpha1.EvictionRequest
 
 type EvictionRequestIntent = lifecyclev1alpha1.EvictionRequestIntent

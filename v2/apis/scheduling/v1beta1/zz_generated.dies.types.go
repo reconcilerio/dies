@@ -70,6 +70,7 @@ const GroupName = schedulingv1beta1.GroupName
 const MaxPodGroupResourceClaims = schedulingv1beta1.MaxPodGroupResourceClaims
 
 // +die:object:apiVersion=scheduling.k8s.io/v1beta1,kind=PodGroup
+// +die:subresource:name=status
 type PodGroup = schedulingv1beta1.PodGroup
 
 const PodGroupInitiallyScheduled = schedulingv1beta1.PodGroupInitiallyScheduled

@@ -231,7 +231,7 @@ func (g *generator) emitClone(p, up *packages.Package) error {
 				continue
 			}
 			if obj.IsAlias() {
-				f.doc(cloneDoc(g.typeDocs[obj]))
+				f.typeDoc(cloneDoc(g.typeDocs[obj]))
 				f.p("type %s = %s", name, expr(obj.Type()))
 				f.p("")
 				continue
@@ -247,16 +247,13 @@ func (g *generator) emitClone(p, up *packages.Package) error {
 			doc := cloneDoc(g.typeDocs[obj])
 			st, isStruct := n.Underlying().(*types.Struct)
 			if isStruct && !custom && obj.Exported() {
-				if len(doc) > 0 {
-					doc = append(doc, "")
-				}
 				if apiVersion != "" && embedsTypeMeta(st) {
 					doc = append(doc, fmt.Sprintf("+die:object:apiVersion=%s,kind=%s", apiVersion, name))
 				} else {
 					doc = append(doc, "+die")
 				}
 			}
-			f.doc(doc)
+			f.typeDoc(doc)
 			if !isStruct {
 				f.p("type %s %s", name, expr(n.Underlying()))
 			} else {

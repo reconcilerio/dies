@@ -34,11 +34,11 @@ import (
 // +kubebuilder:printcolumn:name=Description,JSONPath=.status.friendlyDescription,description=Friendly description,type=string
 // +kubebuilder:printcolumn:name=Age,JSONPath=.metadata.creationTimestamp,description=Time since creation,type=date
 // +kubebuilder:printcolumn:name=Paused,JSONPath=.spec.paused,description=Paused,type=boolean
+// +die:object:apiVersion=packaging.carvel.dev/v1alpha1,kind=PackageInstall
+
 // A Package Install is an actual installation of a package and its underlying resources on a Kubernetes cluster.
 // It is represented in kapp-controller by a PackageInstall CR.
 // A PackageInstall CR must reference a Package CR.
-//
-// +die:object:apiVersion=packaging.carvel.dev/v1alpha1,kind=PackageInstall
 type PackageInstall struct {
 	metav1.TypeMeta `json:",inline"`
 	// Standard object metadata; More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata.
@@ -138,10 +138,10 @@ type PackageRef struct {
 // +kubebuilder:printcolumn:name=Age,JSONPath=.metadata.creationTimestamp,description=Time since creation,type=date
 // +kubebuilder:printcolumn:name=Description,JSONPath=.status.friendlyDescription,description=Friendly description,type=string
 // +kubebuilder:printcolumn:name=Paused,JSONPath=.spec.paused,description=Paused,type=boolean
+// +die:object:apiVersion=packaging.carvel.dev/v1alpha1,kind=PackageRepository
+
 // A package repository is a collection of packages and their metadata.
 // Similar to a maven repository or a rpm repository, adding a package repository to a cluster gives users of that cluster the ability to install any of the packages from that repository.
-//
-// +die:object:apiVersion=packaging.carvel.dev/v1alpha1,kind=PackageRepository
 type PackageRepository struct {
 	metav1.TypeMeta `json:",inline"`
 	// Standard object metadata; More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata.

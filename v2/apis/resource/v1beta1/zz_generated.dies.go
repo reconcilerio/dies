@@ -6941,6 +6941,9 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"IPs": "atomic",
 		})
 		diecodegen.Object[ResourceClaim]("resource.k8s.io/v1beta1", "ResourceClaim")
+		diecodegen.Annotate[ResourceClaim](map[string]string{
+			"Status": "subresource=status",
+		})
 		diecodegen.Object[ResourceClaimList]("resource.k8s.io/v1beta1", "ResourceClaimList")
 		diecodegen.Annotate[ResourceClaimStatus](map[string]string{
 			"ReservedFor": "listMap=uid",

@@ -25,11 +25,11 @@ import (
 // The types and constants of [knative.dev/pkg/tracker], cloned so that nothing depends on it
 // or its dependencies. Methods, functions and variables are not cloned.
 
+// +die
+
 // Reference is modeled after corev1.ObjectReference, but omits fields
 // unsupported by the tracker, and permits us to extend things in
 // divergent ways.
-//
-// +die
 type Reference struct {
 	// API version of the referent.
 	// +optional

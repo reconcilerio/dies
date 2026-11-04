@@ -79,6 +79,7 @@ type PartitionTypeStatus = resourcev1alpha3.PartitionTypeStatus
 type PoolStatus = resourcev1alpha3.PoolStatus
 
 // +die:object:apiVersion=resource.k8s.io/v1alpha3,kind=ResourcePoolStatusRequest
+// +die:subresource:name=status
 type ResourcePoolStatusRequest = resourcev1alpha3.ResourcePoolStatusRequest
 
 const ResourcePoolStatusRequestConditionComplete = resourcev1alpha3.ResourcePoolStatusRequestConditionComplete

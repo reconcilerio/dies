@@ -26,10 +26,10 @@ import (
 // The types and constants of [knative.dev/pkg/apis], cloned so that nothing depends on it
 // or its dependencies. Methods, functions and variables are not cloned.
 
+// +die
+
 // Condition defines a readiness condition for a Knative resource.
 // See: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#typical-status-properties
-//
-// +die
 type Condition struct {
 	// Type of condition.
 	// +required
@@ -54,12 +54,12 @@ type Condition struct {
 	Message string `json:"message,omitempty"`
 }
 
+// +die
+
 // ConditionSet is an abstract collection of the possible ConditionType values
 // that a particular resource might expose.  It also holds the "happy condition"
 // for that resource, which we define to be one of Ready or Succeeded depending
 // on whether it is a Living or Batch process respectively.
-//
-// +die
 type ConditionSet struct {
 }
 
@@ -96,12 +96,12 @@ const (
 	WarningLevel DiagnosticLevel = 1
 )
 
+// +die
+
 // FieldError is used to propagate the context of errors pertaining to
 // specific fields in a manner suitable for use in a recursive walk, so
 // that errors contain the appropriate field context.
 // FieldError methods are non-mutating.
-//
-// +die
 type FieldError struct {
 	// Message holds the main diagnostic message carried by this FieldError
 	Message string
@@ -115,10 +115,11 @@ type FieldError struct {
 	Details string
 }
 
+// +kubebuilder:validation:Type=string
+
 // URL is an alias of url.URL.
 // It has custom json marshal methods that enable it to be used in K8s CRDs
 // such that the CRD resource will have the URL but operator code can can work with url.URL struct
-// +kubebuilder:validation:Type=string
 type URL struct {
 	Scheme   string
 	Opaque   string

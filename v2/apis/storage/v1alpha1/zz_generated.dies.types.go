@@ -37,6 +37,7 @@ type CSIStorageCapacityList = storagev1alpha1.CSIStorageCapacityList
 const GroupName = storagev1alpha1.GroupName
 
 // +die:object:apiVersion=storage.k8s.io/v1alpha1,kind=VolumeAttachment
+// +die:subresource:name=status
 type VolumeAttachment = storagev1alpha1.VolumeAttachment
 
 // +die:object:apiVersion=storage.k8s.io/v1alpha1,kind=VolumeAttachmentList

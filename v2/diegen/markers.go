@@ -79,11 +79,7 @@ func (g *generator) index(p *packages.Package) {
 				if !ok {
 					continue
 				}
-				doc := ts.Doc
-				if doc == nil && len(gd.Specs) == 1 {
-					doc = gd.Doc
-				}
-				g.typeDocs[obj] = commentLines(doc)
+				g.typeDocs[obj], _ = typeDoc(f, gd, ts)
 				sty, ok := ts.Type.(*ast.StructType)
 				if !ok || ts.Assign.IsValid() {
 					continue
@@ -99,6 +95,52 @@ func (g *generator) index(p *packages.Package) {
 			}
 		}
 	}
+}
+
+// typeDoc returns the doc lines of a type: a comment of markers only that is
+// separated from the type's doc comment, or from the declaration if it has
+// none, by a blank line, followed by the doc comment. Markers there are kept
+// out of the godoc, as they are for a package. As for controller-gen, no
+// other comment is read; those between the type and what precedes it are
+// returned as unread.
+func typeDoc(f *ast.File, gd *ast.GenDecl, ts *ast.TypeSpec) (lines []string, unread []*ast.CommentGroup) {
+	doc := ts.Doc
+	if doc == nil && len(gd.Specs) == 1 {
+		doc = gd.Doc
+	}
+	// the declaration's start, or within parentheses the spec's, and the end
+	// of what precedes it
+	var start, prev token.Pos
+	if gd.Lparen.IsValid() {
+		start, prev = ts.Pos(), gd.Lparen
+		if i := slices.Index(gd.Specs, ast.Spec(ts)); i > 0 {
+			prev = gd.Specs[i-1].End()
+		}
+	} else {
+		start, prev = gd.Pos(), f.Name.End()
+		if i := slices.Index(f.Decls, ast.Decl(gd)); i > 0 {
+			prev = f.Decls[i-1].End()
+		}
+	}
+	if doc != nil && doc.Pos() < start {
+		start = doc.Pos()
+	}
+	for _, cg := range f.Comments {
+		if cg.End() >= start {
+			break
+		}
+		if cg.Pos() > prev && cg != doc {
+			unread = append(unread, cg)
+		}
+	}
+	lines = commentLines(doc)
+	if n := len(unread); n > 0 {
+		if ml := commentLines(unread[n-1]); !slices.ContainsFunc(ml, func(l string) bool { return !strings.HasPrefix(l, "+") }) {
+			lines = append(ml, lines...)
+			unread = unread[:n-1]
+		}
+	}
+	return lines, unread
 }
 
 func commentLines(cg *ast.CommentGroup) []string {

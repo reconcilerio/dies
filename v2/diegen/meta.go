@@ -129,13 +129,25 @@ func isDiePackage(p *packages.Package) bool {
 		return true
 	}
 	found := false
-	eachTypeSpec(p, func(_ *ast.GenDecl, _ *ast.TypeSpec, doc []string) {
-		found = found || len(dieMarkers(doc)) > 0
+	eachTypeSpec(p, func(_ *ast.GenDecl, _ *ast.TypeSpec, doc []string, unread []*ast.CommentGroup) {
+		found = found || len(dieMarkers(doc)) > 0 || len(unreadDieMarkers(unread)) > 0
 	})
 	return found
 }
 
-func eachTypeSpec(p *packages.Package, fn func(gd *ast.GenDecl, ts *ast.TypeSpec, doc []string)) {
+// unreadDieMarkers returns the comments with +die markers among those that
+// are not read as a type's markers.
+func unreadDieMarkers(unread []*ast.CommentGroup) []*ast.CommentGroup {
+	var out []*ast.CommentGroup
+	for _, cg := range unread {
+		if len(dieMarkers(commentLines(cg))) > 0 {
+			out = append(out, cg)
+		}
+	}
+	return out
+}
+
+func eachTypeSpec(p *packages.Package, fn func(gd *ast.GenDecl, ts *ast.TypeSpec, doc []string, unread []*ast.CommentGroup)) {
 	for _, file := range p.Syntax {
 		for _, d := range file.Decls {
 			gd, ok := d.(*ast.GenDecl)
@@ -144,11 +156,8 @@ func eachTypeSpec(p *packages.Package, fn func(gd *ast.GenDecl, ts *ast.TypeSpec
 			}
 			for _, spec := range gd.Specs {
 				ts := spec.(*ast.TypeSpec)
-				doc := ts.Doc
-				if doc == nil && len(gd.Specs) == 1 {
-					doc = gd.Doc
-				}
-				fn(gd, ts, commentLines(doc))
+				doc, unread := typeDoc(file, gd, ts)
+				fn(gd, ts, doc, unread)
 			}
 		}
 	}
@@ -210,7 +219,11 @@ func (g *generator) collect(p *packages.Package) (*pkgMeta, error) {
 	}
 	var decls []decl
 	var errs []error
-	eachTypeSpec(p, func(gd *ast.GenDecl, ts *ast.TypeSpec, doc []string) {
+	eachTypeSpec(p, func(gd *ast.GenDecl, ts *ast.TypeSpec, doc []string, unread []*ast.CommentGroup) {
+		// a +die marker that would be ignored is a mistake, not a choice
+		for _, cg := range unreadDieMarkers(unread) {
+			errs = append(errs, fmt.Errorf("%s: +die markers here are not read for %s: a type's markers go in its doc, or in one comment of markers only, separated from the doc by a blank line", p.Fset.Position(cg.Pos()), ts.Name.Name))
+		}
 		start := ts.Pos()
 		if gd.Doc != nil && len(gd.Specs) == 1 {
 			start = gd.Pos()

@@ -285,6 +285,7 @@ const PoolNameMaxLength = resourcev1.PoolNameMaxLength
 type QualifiedName = resourcev1.QualifiedName
 
 // +die:object:apiVersion=resource.k8s.io/v1,kind=ResourceClaim
+// +die:subresource:name=status
 type ResourceClaim = resourcev1.ResourceClaim
 
 // +die

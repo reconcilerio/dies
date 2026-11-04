@@ -103,6 +103,29 @@ func (f *file) doc(lines []string) {
 	}
 }
 
+// typeDoc writes a type's doc with its markers in a comment of their own,
+// separated from the doc comment by a blank line, so they stay out of the
+// godoc.
+func (f *file) typeDoc(lines []string) {
+	var ms []string
+	for _, l := range lines {
+		if strings.HasPrefix(l, "+") {
+			ms = append(ms, l)
+		}
+	}
+	f.doc(ms)
+	text := docText(lines)
+	for len(text) > 0 && strings.TrimSpace(text[0]) == "" {
+		text = text[1:]
+	}
+	if len(text) > 0 {
+		if len(ms) > 0 {
+			f.p("")
+		}
+		f.doc(text)
+	}
+}
+
 // use imports a package and returns its alias. Die packages are aliased
 // die<group><version>, other packages by their last element.
 func (f *file) use(importPath string) string {

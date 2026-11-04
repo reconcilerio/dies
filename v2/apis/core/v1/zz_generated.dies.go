@@ -35462,6 +35462,9 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Object[RangeAllocation]("v1", "RangeAllocation")
 		diecodegen.Object[ReplicationController]("v1", "ReplicationController")
+		diecodegen.Annotate[ReplicationController](map[string]string{
+			"Status": "subresource=status",
+		})
 		diecodegen.Object[ReplicationControllerList]("v1", "ReplicationControllerList")
 		diecodegen.Annotate[ReplicationControllerSpec](map[string]string{
 			"Replicas":        "default=1",

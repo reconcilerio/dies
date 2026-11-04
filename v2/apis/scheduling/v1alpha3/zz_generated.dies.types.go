@@ -46,6 +46,7 @@ type CompositeDisruptionMode = schedulingv1alpha3.CompositeDisruptionMode
 type CompositeGangSchedulingPolicy = schedulingv1alpha3.CompositeGangSchedulingPolicy
 
 // +die:object:apiVersion=scheduling.k8s.io/v1alpha3,kind=CompositePodGroup
+// +die:subresource:name=status
 type CompositePodGroup = schedulingv1alpha3.CompositePodGroup
 
 // +die:object:apiVersion=scheduling.k8s.io/v1alpha3,kind=CompositePodGroupList
@@ -84,6 +85,7 @@ const GroupName = schedulingv1alpha3.GroupName
 const MaxPodGroupResourceClaims = schedulingv1alpha3.MaxPodGroupResourceClaims
 
 // +die:object:apiVersion=scheduling.k8s.io/v1alpha3,kind=PodGroup
+// +die:subresource:name=status
 type PodGroup = schedulingv1alpha3.PodGroup
 
 const PodGroupInitiallyScheduled = schedulingv1alpha3.PodGroupInitiallyScheduled

@@ -26,10 +26,10 @@ import (
 	gadgetv1 "reconciler.io/dies/v2/examples/gadget/v1"
 )
 
-// Widget runs a pod template with named ports.
-//
 // +die:object:apiVersion=example.dev/v1,kind=Widget
 // +kubebuilder:subresource:status
+
+// Widget runs a pod template with named ports.
 type Widget struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

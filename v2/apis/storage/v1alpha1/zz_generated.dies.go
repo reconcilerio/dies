@@ -1167,6 +1167,9 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Object[CSIStorageCapacityList]("storage.k8s.io/v1alpha1", "CSIStorageCapacityList")
 		diecodegen.Object[VolumeAttachment]("storage.k8s.io/v1alpha1", "VolumeAttachment")
+		diecodegen.Annotate[VolumeAttachment](map[string]string{
+			"Status": "subresource=status",
+		})
 		diecodegen.Object[VolumeAttachmentList]("storage.k8s.io/v1alpha1", "VolumeAttachmentList")
 		diecodegen.Object[VolumeAttributesClass]("storage.k8s.io/v1alpha1", "VolumeAttributesClass")
 		diecodegen.Object[VolumeAttributesClassList]("storage.k8s.io/v1alpha1", "VolumeAttributesClassList")
