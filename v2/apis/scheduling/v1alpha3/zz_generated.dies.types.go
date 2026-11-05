@@ -40,6 +40,7 @@ type BasicSchedulingPolicy = schedulingv1alpha3.BasicSchedulingPolicy
 type CompositeBasicSchedulingPolicy = schedulingv1alpha3.CompositeBasicSchedulingPolicy
 
 // +die
+// +die:union:name=union,members={single,all},oneOf=true
 type CompositeDisruptionMode = schedulingv1alpha3.CompositeDisruptionMode
 
 // +die
@@ -57,6 +58,7 @@ type CompositePodGroupList = schedulingv1alpha3.CompositePodGroupList
 type CompositePodGroupSchedulingConstraints = schedulingv1alpha3.CompositePodGroupSchedulingConstraints
 
 // +die
+// +die:union:name=union,members={basic,gang},oneOf=true
 type CompositePodGroupSchedulingPolicy = schedulingv1alpha3.CompositePodGroupSchedulingPolicy
 
 // +die
@@ -73,6 +75,7 @@ type CompositePodGroupStatus = schedulingv1alpha3.CompositePodGroupStatus
 type CompositePodGroupTemplate = schedulingv1alpha3.CompositePodGroupTemplate
 
 // +die
+// +die:union:name=union,members={single,all},oneOf=true
 type DisruptionMode = schedulingv1alpha3.DisruptionMode
 
 const DisruptionTarget = schedulingv1alpha3.DisruptionTarget
@@ -100,6 +103,7 @@ const PodGroupReasonSchedulerError = schedulingv1alpha3.PodGroupReasonSchedulerE
 const PodGroupReasonUnschedulable = schedulingv1alpha3.PodGroupReasonUnschedulable
 
 // +die
+// +die:union:name=union,members={resourceClaimName,resourceClaimTemplateName},oneOf=true
 type PodGroupResourceClaim = schedulingv1alpha3.PodGroupResourceClaim
 
 // +die
@@ -110,6 +114,7 @@ type PodGroupResourceClaimStatus = schedulingv1alpha3.PodGroupResourceClaimStatu
 type PodGroupSchedulingConstraints = schedulingv1alpha3.PodGroupSchedulingConstraints
 
 // +die
+// +die:union:name=union,members={basic,gang},oneOf=true
 type PodGroupSchedulingPolicy = schedulingv1alpha3.PodGroupSchedulingPolicy
 
 // +die
@@ -155,6 +160,7 @@ type WorkloadCompositePodGroupAllDisruptionMode = schedulingv1alpha3.WorkloadCom
 type WorkloadCompositePodGroupBasicSchedulingPolicy = schedulingv1alpha3.WorkloadCompositePodGroupBasicSchedulingPolicy
 
 // +die
+// +die:union:name=union,members={single,all},oneOf=true
 type WorkloadCompositePodGroupDisruptionMode = schedulingv1alpha3.WorkloadCompositePodGroupDisruptionMode
 
 // +die
@@ -165,6 +171,7 @@ type WorkloadCompositePodGroupGangSchedulingPolicy = schedulingv1alpha3.Workload
 type WorkloadCompositePodGroupSchedulingConstraints = schedulingv1alpha3.WorkloadCompositePodGroupSchedulingConstraints
 
 // +die
+// +die:union:name=union,members={basic,gang},oneOf=true
 type WorkloadCompositePodGroupSchedulingPolicy = schedulingv1alpha3.WorkloadCompositePodGroupSchedulingPolicy
 
 // +die
@@ -184,12 +191,14 @@ type WorkloadPodGroupAllDisruptionMode = schedulingv1alpha3.WorkloadPodGroupAllD
 type WorkloadPodGroupBasicSchedulingPolicy = schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy
 
 // +die
+// +die:union:name=union,members={single,all},oneOf=true
 type WorkloadPodGroupDisruptionMode = schedulingv1alpha3.WorkloadPodGroupDisruptionMode
 
 // +die
 type WorkloadPodGroupGangSchedulingPolicy = schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy
 
 // +die
+// +die:union:name=union,members={resourceClaimName,resourceClaimTemplateName},oneOf=true
 type WorkloadPodGroupResourceClaim = schedulingv1alpha3.WorkloadPodGroupResourceClaim
 
 // +die
@@ -197,6 +206,7 @@ type WorkloadPodGroupResourceClaim = schedulingv1alpha3.WorkloadPodGroupResource
 type WorkloadPodGroupSchedulingConstraints = schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints
 
 // +die
+// +die:union:name=union,members={basic,gang},oneOf=true
 type WorkloadPodGroupSchedulingPolicy = schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy
 
 // +die
@@ -208,4 +218,5 @@ type WorkloadReference = schedulingv1alpha3.WorkloadReference
 // +die
 // +die:field:name=podGroupTemplates,listType=map,listMapKey=name
 // +die:field:name=compositePodGroupTemplates,listType=map,listMapKey=name
+// +die:union:name=union,members={podGroupTemplates,compositePodGroupTemplates},oneOf=true
 type WorkloadSpec = schedulingv1alpha3.WorkloadSpec

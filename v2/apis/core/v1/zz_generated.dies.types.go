@@ -246,6 +246,7 @@ const (
 )
 
 // +die
+// +die:union:name=when,members={exitCodes},oneOf=true
 type ContainerRestartRule = corev1.ContainerRestartRule
 
 type ContainerRestartRuleAction = corev1.ContainerRestartRuleAction
@@ -1179,6 +1180,7 @@ const (
 type PodSchedulingGate = corev1.PodSchedulingGate
 
 // +die
+// +die:union:name=GroupSelection,members={podGroupName},oneOf=true
 type PodSchedulingGroup = corev1.PodSchedulingGroup
 
 // +die

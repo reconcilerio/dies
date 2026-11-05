@@ -905,9 +905,11 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Object[TokenReview]("authentication.k8s.io/v1", "TokenReview")
 		diecodegen.Annotate[TokenReview](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
 		diecodegen.Annotate[TokenReviewSpec](map[string]string{
+			"Token":     "required",
 			"Audiences": "atomic",
 		})
 		diecodegen.Annotate[TokenReviewStatus](map[string]string{

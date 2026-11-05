@@ -416,12 +416,21 @@ func dieTag(owner *target, f wfield) string {
 		if fs.def != "" {
 			opts = append(opts, "default="+fs.def)
 		}
-		if fs.union != "" {
+		if fs.union != "" && fs.oneOf {
+			opts = append(opts, "oneOf="+fs.union)
+		} else if fs.union != "" {
 			opts = append(opts, "union="+fs.union)
 		}
 		if fs.nullable {
 			opts = append(opts, "nullable")
 		}
+		switch fs.required {
+		case "present":
+			opts = append(opts, "required")
+		case "nonzero":
+			opts = append(opts, "required=nonzero")
+		}
+		opts = append(opts, fs.checks...)
 	}
 	if f.wire == "status" && slices.Contains(owner.spec.subresources, "status") {
 		opts = append(opts, "subresource=status")
@@ -886,6 +895,13 @@ func (pg *pkgGen) fieldRef(tg *target, wf wfield) (string, string) {
 			fmt.Sprintf("die.NewMap[%s, %s, %s](%q)", t, k, v, wf.wire)
 	}
 	v := pg.typeExpr(ft)
+	// an atomic list of items with dies records their dies, for code that
+	// walks dies by their fields
+	if sl, ok := ft.Underlying().(*types.Slice); ok && pg.hasDie(sl.Elem()) {
+		c, cd, cdm := pg.typeExpr(sl.Elem()), pg.dieExpr(sl.Elem()), pg.dieMutExpr(sl.Elem())
+		return fmt.Sprintf("die.Field[%s, %s]", t, v),
+			fmt.Sprintf("die.NewItems[%s, %s, %s, %s, %s](%q)", t, v, c, cd, cdm, wf.wire)
+	}
 	return fmt.Sprintf("die.Field[%s, %s]", t, v),
 		fmt.Sprintf("die.NewField[%s, %s](%q)", t, v, wf.wire)
 }

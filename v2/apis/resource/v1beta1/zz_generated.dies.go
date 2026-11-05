@@ -419,11 +419,11 @@ var basicDeviceFields = &diefields.Table[basicDeviceFieldsTable]{Build: func() (
 	_ = annotated
 	f.Attributes = diefields.NewField[BasicDevice, map[QualifiedName]DeviceAttribute]("attributes")
 	f.Capacity = diefields.NewField[BasicDevice, map[QualifiedName]DeviceCapacity]("capacity")
-	f.ConsumesCounters = diefields.NewField[BasicDevice, []DeviceCounterConsumption]("consumesCounters")
+	f.ConsumesCounters = diefields.NewItems[BasicDevice, []DeviceCounterConsumption, DeviceCounterConsumption, *DeviceCounterConsumptionDie, *DeviceCounterConsumptionDieMut]("consumesCounters")
 	f.NodeName = diefields.NewField[BasicDevice, *string]("nodeName")
 	f.NodeSelector = diefields.NewStruct[BasicDevice, diecorev1.NodeSelector, *diecorev1.NodeSelectorDie, *diecorev1.NodeSelectorDieMut]("nodeSelector")
 	f.AllNodes = diefields.NewField[BasicDevice, *bool]("allNodes")
-	f.Taints = diefields.NewField[BasicDevice, []DeviceTaint]("taints")
+	f.Taints = diefields.NewItems[BasicDevice, []DeviceTaint, DeviceTaint, *DeviceTaintDie, *DeviceTaintDieMut]("taints")
 	f.BindsToNode = diefields.NewField[BasicDevice, *bool]("bindsToNode")
 	f.BindingConditions = diefields.NewField[BasicDevice, []string]("bindingConditions")
 	f.BindingFailureConditions = diefields.NewField[BasicDevice, []string]("bindingFailureConditions")
@@ -1799,8 +1799,8 @@ type deviceAllocationResultFieldsTable struct {
 
 var deviceAllocationResultFields = &diefields.Table[deviceAllocationResultFieldsTable]{Build: func() (f deviceAllocationResultFieldsTable) {
 	_ = annotated
-	f.Results = diefields.NewField[DeviceAllocationResult, []DeviceRequestAllocationResult]("results")
-	f.Config = diefields.NewField[DeviceAllocationResult, []DeviceAllocationConfiguration]("config")
+	f.Results = diefields.NewItems[DeviceAllocationResult, []DeviceRequestAllocationResult, DeviceRequestAllocationResult, *DeviceRequestAllocationResultDie, *DeviceRequestAllocationResultDieMut]("results")
+	f.Config = diefields.NewItems[DeviceAllocationResult, []DeviceAllocationConfiguration, DeviceAllocationConfiguration, *DeviceAllocationConfigurationDie, *DeviceAllocationConfigurationDieMut]("config")
 	return
 }}
 
@@ -2208,9 +2208,9 @@ type deviceClaimFieldsTable struct {
 
 var deviceClaimFields = &diefields.Table[deviceClaimFieldsTable]{Build: func() (f deviceClaimFieldsTable) {
 	_ = annotated
-	f.Requests = diefields.NewField[DeviceClaim, []DeviceRequest]("requests")
-	f.Constraints = diefields.NewField[DeviceClaim, []DeviceConstraint]("constraints")
-	f.Config = diefields.NewField[DeviceClaim, []DeviceClaimConfiguration]("config")
+	f.Requests = diefields.NewItems[DeviceClaim, []DeviceRequest, DeviceRequest, *DeviceRequestDie, *DeviceRequestDieMut]("requests")
+	f.Constraints = diefields.NewItems[DeviceClaim, []DeviceConstraint, DeviceConstraint, *DeviceConstraintDie, *DeviceConstraintDieMut]("constraints")
+	f.Config = diefields.NewItems[DeviceClaim, []DeviceClaimConfiguration, DeviceClaimConfiguration, *DeviceClaimConfigurationDie, *DeviceClaimConfigurationDieMut]("config")
 	return
 }}
 
@@ -2676,8 +2676,8 @@ type deviceClassSpecFieldsTable struct {
 
 var deviceClassSpecFields = &diefields.Table[deviceClassSpecFieldsTable]{Build: func() (f deviceClassSpecFieldsTable) {
 	_ = annotated
-	f.Selectors = diefields.NewField[DeviceClassSpec, []DeviceSelector]("selectors")
-	f.Config = diefields.NewField[DeviceClassSpec, []DeviceClassConfiguration]("config")
+	f.Selectors = diefields.NewItems[DeviceClassSpec, []DeviceSelector, DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut]("selectors")
+	f.Config = diefields.NewItems[DeviceClassSpec, []DeviceClassConfiguration, DeviceClassConfiguration, *DeviceClassConfigurationDie, *DeviceClassConfigurationDieMut]("config")
 	f.ExtendedResourceName = diefields.NewField[DeviceClassSpec, *string]("extendedResourceName")
 	return
 }}
@@ -3402,14 +3402,14 @@ var deviceRequestFields = &diefields.Table[deviceRequestFieldsTable]{Build: func
 	_ = annotated
 	f.Name = diefields.NewField[DeviceRequest, string]("name")
 	f.DeviceClassName = diefields.NewField[DeviceRequest, string]("deviceClassName")
-	f.Selectors = diefields.NewField[DeviceRequest, []DeviceSelector]("selectors")
+	f.Selectors = diefields.NewItems[DeviceRequest, []DeviceSelector, DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut]("selectors")
 	f.AllocationMode = diefields.NewField[DeviceRequest, DeviceAllocationMode]("allocationMode")
 	f.Count = diefields.NewField[DeviceRequest, int64]("count")
 	f.AdminAccess = diefields.NewField[DeviceRequest, *bool]("adminAccess")
-	f.FirstAvailable = diefields.NewField[DeviceRequest, []DeviceSubRequest]("firstAvailable")
-	f.Tolerations = diefields.NewField[DeviceRequest, []DeviceToleration]("tolerations")
+	f.FirstAvailable = diefields.NewItems[DeviceRequest, []DeviceSubRequest, DeviceSubRequest, *DeviceSubRequestDie, *DeviceSubRequestDieMut]("firstAvailable")
+	f.Tolerations = diefields.NewItems[DeviceRequest, []DeviceToleration, DeviceToleration, *DeviceTolerationDie, *DeviceTolerationDieMut]("tolerations")
 	f.Capacity = diefields.NewStruct[DeviceRequest, CapacityRequirements, *CapacityRequirementsDie, *CapacityRequirementsDieMut]("capacity")
-	f.DerivedAttributes = diefields.NewField[DeviceRequest, []DeviceDerivedAttribute]("derivedAttributes")
+	f.DerivedAttributes = diefields.NewItems[DeviceRequest, []DeviceDerivedAttribute, DeviceDerivedAttribute, *DeviceDerivedAttributeDie, *DeviceDerivedAttributeDieMut]("derivedAttributes")
 	return
 }}
 
@@ -3838,7 +3838,7 @@ var deviceRequestAllocationResultFields = &diefields.Table[deviceRequestAllocati
 	f.Pool = diefields.NewField[DeviceRequestAllocationResult, string]("pool")
 	f.Device = diefields.NewField[DeviceRequestAllocationResult, string]("device")
 	f.AdminAccess = diefields.NewField[DeviceRequestAllocationResult, *bool]("adminAccess")
-	f.Tolerations = diefields.NewField[DeviceRequestAllocationResult, []DeviceToleration]("tolerations")
+	f.Tolerations = diefields.NewItems[DeviceRequestAllocationResult, []DeviceToleration, DeviceToleration, *DeviceTolerationDie, *DeviceTolerationDieMut]("tolerations")
 	f.BindingConditions = diefields.NewField[DeviceRequestAllocationResult, []string]("bindingConditions")
 	f.BindingFailureConditions = diefields.NewField[DeviceRequestAllocationResult, []string]("bindingFailureConditions")
 	f.ShareID = diefields.NewField[DeviceRequestAllocationResult, *types.UID]("shareID")
@@ -4224,12 +4224,12 @@ var deviceSubRequestFields = &diefields.Table[deviceSubRequestFieldsTable]{Build
 	_ = annotated
 	f.Name = diefields.NewField[DeviceSubRequest, string]("name")
 	f.DeviceClassName = diefields.NewField[DeviceSubRequest, string]("deviceClassName")
-	f.Selectors = diefields.NewField[DeviceSubRequest, []DeviceSelector]("selectors")
+	f.Selectors = diefields.NewItems[DeviceSubRequest, []DeviceSelector, DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut]("selectors")
 	f.AllocationMode = diefields.NewField[DeviceSubRequest, DeviceAllocationMode]("allocationMode")
 	f.Count = diefields.NewField[DeviceSubRequest, int64]("count")
-	f.Tolerations = diefields.NewField[DeviceSubRequest, []DeviceToleration]("tolerations")
+	f.Tolerations = diefields.NewItems[DeviceSubRequest, []DeviceToleration, DeviceToleration, *DeviceTolerationDie, *DeviceTolerationDieMut]("tolerations")
 	f.Capacity = diefields.NewStruct[DeviceSubRequest, CapacityRequirements, *CapacityRequirementsDie, *CapacityRequirementsDieMut]("capacity")
-	f.DerivedAttributes = diefields.NewField[DeviceSubRequest, []DeviceDerivedAttribute]("derivedAttributes")
+	f.DerivedAttributes = diefields.NewItems[DeviceSubRequest, []DeviceDerivedAttribute, DeviceDerivedAttribute, *DeviceDerivedAttributeDie, *DeviceDerivedAttributeDieMut]("derivedAttributes")
 	return
 }}
 
@@ -6610,9 +6610,9 @@ var resourceSliceSpecFields = &diefields.Table[resourceSliceSpecFieldsTable]{Bui
 	f.NodeName = diefields.NewField[ResourceSliceSpec, string]("nodeName")
 	f.NodeSelector = diefields.NewStruct[ResourceSliceSpec, diecorev1.NodeSelector, *diecorev1.NodeSelectorDie, *diecorev1.NodeSelectorDieMut]("nodeSelector")
 	f.AllNodes = diefields.NewField[ResourceSliceSpec, bool]("allNodes")
-	f.Devices = diefields.NewField[ResourceSliceSpec, []Device]("devices")
+	f.Devices = diefields.NewItems[ResourceSliceSpec, []Device, Device, *DeviceDie, *DeviceDieMut]("devices")
 	f.PerDeviceNodeSelection = diefields.NewField[ResourceSliceSpec, *bool]("perDeviceNodeSelection")
-	f.SharedCounters = diefields.NewField[ResourceSliceSpec, []CounterSet]("sharedCounters")
+	f.SharedCounters = diefields.NewItems[ResourceSliceSpec, []CounterSet, CounterSet, *CounterSetDie, *CounterSetDieMut]("sharedCounters")
 	f.PartitionTypeAttribute = diefields.NewField[ResourceSliceSpec, *FullyQualifiedName]("partitionTypeAttribute")
 	f.SkipNodeOperations = diefields.NewField[ResourceSliceSpec, []SkipNodeOperation]("skipNodeOperations")
 	return
@@ -6869,6 +6869,9 @@ var annotated = diecodegen.Register(diecodegen.Package{
 	},
 	Annotate: func() {
 		diecodegen.Annotate[AllocatedDeviceStatus](map[string]string{
+			"Driver":     "required",
+			"Pool":       "required",
+			"Device":     "required",
 			"Conditions": "listMap=type",
 		})
 		diecodegen.Annotate[AllocationResult](map[string]string{
@@ -6876,15 +6879,36 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Annotate[BasicDevice](map[string]string{
 			"ConsumesCounters":         "atomic",
-			"NodeSelector":             "atomic",
+			"NodeName":                 "oneOf=DeviceNodeSelection",
+			"NodeSelector":             "atomic;oneOf=DeviceNodeSelection",
+			"AllNodes":                 "oneOf=DeviceNodeSelection",
 			"Taints":                   "atomic",
 			"BindingConditions":        "atomic",
 			"BindingFailureConditions": "atomic",
 		})
+		diecodegen.Annotate[CELDeviceSelector](map[string]string{
+			"Expression": "required",
+		})
 		diecodegen.Annotate[CapacityRequestPolicy](map[string]string{
-			"ValidValues": "atomic",
+			"ValidValues": "atomic;oneOf=ValidRequestValues",
+			"ValidRange":  "oneOf=ValidRequestValues",
+		})
+		diecodegen.Annotate[CapacityRequestPolicyRange](map[string]string{
+			"Min": "required",
+		})
+		diecodegen.Annotate[Counter](map[string]string{
+			"Value": "required",
+		})
+		diecodegen.Annotate[CounterSet](map[string]string{
+			"Name":     "required",
+			"Counters": "required",
+		})
+		diecodegen.Annotate[Device](map[string]string{
+			"Name":  "required",
+			"Basic": "oneOf=deviceType",
 		})
 		diecodegen.Annotate[DeviceAllocationConfiguration](map[string]string{
+			"Source":   "required;enum=[\"FromClaim\",\"FromClass\"]",
 			"Requests": "atomic",
 		})
 		diecodegen.Annotate[DeviceAllocationResult](map[string]string{
@@ -6896,6 +6920,9 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"BoolValues":    "atomic",
 			"StringValues":  "atomic",
 			"VersionValues": "atomic",
+		})
+		diecodegen.Annotate[DeviceCapacity](map[string]string{
+			"Value": "required",
 		})
 		diecodegen.Annotate[DeviceClaim](map[string]string{
 			"Requests":    "atomic",
@@ -6911,38 +6938,82 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"Selectors": "atomic",
 			"Config":    "atomic",
 		})
+		diecodegen.Annotate[DeviceConfiguration](map[string]string{
+			"Opaque": "oneOf=ConfigurationType",
+		})
 		diecodegen.Annotate[DeviceConstraint](map[string]string{
-			"Requests": "atomic",
+			"Requests":          "atomic",
+			"MatchAttribute":    "oneOf=ConstraintType",
+			"DistinctAttribute": "oneOf=ConstraintType",
 		})
 		diecodegen.Annotate[DeviceCounterConsumption](map[string]string{
-			"CompatibilityGroups": "atomic",
+			"CounterSet":          "required",
+			"Counters":            "required",
+			"CompatibilityGroups": "atomic;maxItems=2;unique;each.format=k8s-short-name",
+		})
+		diecodegen.Annotate[DeviceDerivedAttribute](map[string]string{
+			"Name":       "required=nonzero;format=k8s-resource-fully-qualified-name",
+			"Expression": "required=nonzero",
 		})
 		diecodegen.Annotate[DeviceRequest](map[string]string{
+			"Name":              "required",
+			"DeviceClassName":   "oneOf=deviceRequestType",
 			"Selectors":         "atomic",
-			"FirstAvailable":    "atomic",
+			"AllocationMode":    "enum=[\"All\",\"ExactCount\"]",
+			"Count":             "oneOf=AllocationMode",
+			"FirstAvailable":    "atomic;oneOf=deviceRequestType",
 			"Tolerations":       "atomic",
-			"DerivedAttributes": "atomic",
+			"DerivedAttributes": "atomic;maxItems=32",
 		})
 		diecodegen.Annotate[DeviceRequestAllocationResult](map[string]string{
+			"Request":                  "required",
+			"Driver":                   "required",
+			"Pool":                     "required",
+			"Device":                   "required",
 			"Tolerations":              "atomic",
 			"BindingConditions":        "atomic",
 			"BindingFailureConditions": "atomic",
-			"SkipNodeOperations":       "atomic",
+			"SkipNodeOperations":       "atomic;unique;each.enum=[\"*\",\"NodePrepareResources\",\"NodeUnprepareResources\"]",
+		})
+		diecodegen.Annotate[DeviceSelector](map[string]string{
+			"CEL": "oneOf=SelectorType",
 		})
 		diecodegen.Annotate[DeviceSubRequest](map[string]string{
+			"Name":              "required",
+			"DeviceClassName":   "required",
 			"Selectors":         "atomic",
+			"AllocationMode":    "enum=[\"All\",\"ExactCount\"]",
+			"Count":             "oneOf=AllocationMode",
 			"Tolerations":       "atomic",
-			"DerivedAttributes": "atomic",
+			"DerivedAttributes": "atomic;maxItems=32",
+		})
+		diecodegen.Annotate[DeviceTaint](map[string]string{
+			"Key":    "required",
+			"Effect": "required;enum=[\"NoExecute\",\"NoSchedule\",\"None\"]",
 		})
 		diecodegen.Annotate[DeviceToleration](map[string]string{
-			"Operator": "default=\"Equal\"",
+			"Operator": "default=\"Equal\";enum=[\"Equal\",\"Exists\"]",
+			"Effect":   "enum=[\"NoExecute\",\"NoSchedule\",\"None\"]",
 		})
 		diecodegen.Annotate[NetworkDeviceData](map[string]string{
 			"IPs": "atomic",
 		})
+		diecodegen.Annotate[NodeAllocatableMapping](map[string]string{
+			"CapacityKey":      "oneOf=union",
+			"DeviceMultiplier": "oneOf=union",
+		})
+		diecodegen.Annotate[OpaqueDeviceConfiguration](map[string]string{
+			"Driver":     "required",
+			"Parameters": "required",
+		})
 		diecodegen.Object[ResourceClaim]("resource.k8s.io/v1beta1", "ResourceClaim")
 		diecodegen.Annotate[ResourceClaim](map[string]string{
 			"Status": "subresource=status",
+		})
+		diecodegen.Annotate[ResourceClaimConsumerReference](map[string]string{
+			"Resource": "required",
+			"Name":     "required",
+			"UID":      "required",
 		})
 		diecodegen.Object[ResourceClaimList]("resource.k8s.io/v1beta1", "ResourceClaimList")
 		diecodegen.Annotate[ResourceClaimStatus](map[string]string{
@@ -6951,13 +7022,26 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Object[ResourceClaimTemplate]("resource.k8s.io/v1beta1", "ResourceClaimTemplate")
 		diecodegen.Object[ResourceClaimTemplateList]("resource.k8s.io/v1beta1", "ResourceClaimTemplateList")
+		diecodegen.Annotate[ResourcePool](map[string]string{
+			"Name":               "required",
+			"Generation":         "required",
+			"ResourceSliceCount": "required",
+		})
 		diecodegen.Object[ResourceSlice]("resource.k8s.io/v1beta1", "ResourceSlice")
+		diecodegen.Annotate[ResourceSlice](map[string]string{
+			"Spec": "required",
+		})
 		diecodegen.Object[ResourceSliceList]("resource.k8s.io/v1beta1", "ResourceSliceList")
 		diecodegen.Annotate[ResourceSliceSpec](map[string]string{
-			"NodeSelector":       "atomic",
-			"Devices":            "atomic",
-			"SharedCounters":     "atomic",
-			"SkipNodeOperations": "atomic",
+			"Driver":                 "required",
+			"Pool":                   "required",
+			"NodeName":               "oneOf=NodeSelection",
+			"NodeSelector":           "atomic;oneOf=NodeSelection",
+			"AllNodes":               "oneOf=NodeSelection",
+			"Devices":                "atomic;union=ResourceSliceType",
+			"PerDeviceNodeSelection": "oneOf=NodeSelection",
+			"SharedCounters":         "atomic;union=ResourceSliceType",
+			"SkipNodeOperations":     "atomic;unique;each.enum=[\"*\",\"NodePrepareResources\",\"NodeUnprepareResources\"]",
 		})
 	},
 })

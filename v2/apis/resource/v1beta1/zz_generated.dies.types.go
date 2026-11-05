@@ -54,6 +54,7 @@ const AllocationResultsMaxSize = resourcev1beta1.AllocationResultsMaxSize
 // +die:field:name=taints,listType=atomic
 // +die:field:name=bindingConditions,listType=atomic
 // +die:field:name=bindingFailureConditions,listType=atomic
+// +die:union:name=DeviceNodeSelection,members={nodeName,nodeSelector,allNodes},oneOf=true
 type BasicDevice = resourcev1beta1.BasicDevice
 
 const BindingConditionsMaxSize = resourcev1beta1.BindingConditionsMaxSize
@@ -69,6 +70,7 @@ const CELSelectorExpressionMaxLength = resourcev1beta1.CELSelectorExpressionMaxL
 
 // +die
 // +die:field:name=validValues,listType=atomic
+// +die:union:name=ValidRequestValues,members={validValues,validRange},oneOf=true
 type CapacityRequestPolicy = resourcev1beta1.CapacityRequestPolicy
 
 // +die
@@ -86,6 +88,7 @@ type CounterSet = resourcev1beta1.CounterSet
 const DRAAdminNamespaceLabelKey = resourcev1beta1.DRAAdminNamespaceLabelKey
 
 // +die
+// +die:union:name=deviceType,members={basic},oneOf=true
 type Device = resourcev1beta1.Device
 
 // +die
@@ -147,10 +150,12 @@ const DeviceCompatibilityGroupsMaxSize = resourcev1beta1.DeviceCompatibilityGrou
 const DeviceConfigMaxSize = resourcev1beta1.DeviceConfigMaxSize
 
 // +die
+// +die:union:name=ConfigurationType,members={opaque},oneOf=true
 type DeviceConfiguration = resourcev1beta1.DeviceConfiguration
 
 // +die
 // +die:field:name=requests,listType=atomic
+// +die:union:name=ConstraintType,members={matchAttribute,distinctAttribute},oneOf=true
 type DeviceConstraint = resourcev1beta1.DeviceConstraint
 
 const DeviceConstraintsMaxSize = resourcev1beta1.DeviceConstraintsMaxSize
@@ -173,6 +178,8 @@ const DeviceMaxIDLength = resourcev1beta1.DeviceMaxIDLength
 // +die:field:name=firstAvailable,listType=atomic
 // +die:field:name=tolerations,listType=atomic
 // +die:field:name=derivedAttributes,listType=atomic
+// +die:union:name=deviceRequestType,members={deviceClassName,firstAvailable},oneOf=true
+// +die:union:name=AllocationMode,members={count},oneOf=true
 type DeviceRequest = resourcev1beta1.DeviceRequest
 
 // +die
@@ -185,6 +192,7 @@ type DeviceRequestAllocationResult = resourcev1beta1.DeviceRequestAllocationResu
 const DeviceRequestsMaxSize = resourcev1beta1.DeviceRequestsMaxSize
 
 // +die
+// +die:union:name=SelectorType,members={cel},oneOf=true
 type DeviceSelector = resourcev1beta1.DeviceSelector
 
 const DeviceSelectorsMaxSize = resourcev1beta1.DeviceSelectorsMaxSize
@@ -193,6 +201,7 @@ const DeviceSelectorsMaxSize = resourcev1beta1.DeviceSelectorsMaxSize
 // +die:field:name=selectors,listType=atomic
 // +die:field:name=tolerations,listType=atomic
 // +die:field:name=derivedAttributes,listType=atomic
+// +die:union:name=AllocationMode,members={count},oneOf=true
 type DeviceSubRequest = resourcev1beta1.DeviceSubRequest
 
 // +die
@@ -244,6 +253,7 @@ const NetworkDeviceDataInterfaceNameMaxLength = resourcev1beta1.NetworkDeviceDat
 const NetworkDeviceDataMaxIPs = resourcev1beta1.NetworkDeviceDataMaxIPs
 
 // +die
+// +die:union:name=union,members={capacityKey,deviceMultiplier},oneOf=true
 type NodeAllocatableMapping = resourcev1beta1.NodeAllocatableMapping
 
 // +die
@@ -332,6 +342,8 @@ const ResourceSliceSelectorPoolName = resourcev1beta1.ResourceSliceSelectorPoolN
 // +die:field:name=devices,listType=atomic
 // +die:field:name=sharedCounters,listType=atomic
 // +die:field:name=skipNodeOperations,listType=set
+// +die:union:name=NodeSelection,members={nodeName,nodeSelector,allNodes,perDeviceNodeSelection},oneOf=true
+// +die:union:name=ResourceSliceType,members={devices,sharedCounters}
 type ResourceSliceSpec = resourcev1beta1.ResourceSliceSpec
 
 type SkipNodeOperation = resourcev1beta1.SkipNodeOperation

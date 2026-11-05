@@ -866,8 +866,8 @@ var matchResourcesFields = &diefields.Table[matchResourcesFieldsTable]{Build: fu
 	_ = annotated
 	f.NamespaceSelector = diefields.NewStruct[MatchResources, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("namespaceSelector")
 	f.ObjectSelector = diefields.NewStruct[MatchResources, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("objectSelector")
-	f.ResourceRules = diefields.NewField[MatchResources, []NamedRuleWithOperations]("resourceRules")
-	f.ExcludeResourceRules = diefields.NewField[MatchResources, []NamedRuleWithOperations]("excludeResourceRules")
+	f.ResourceRules = diefields.NewItems[MatchResources, []NamedRuleWithOperations, NamedRuleWithOperations, *NamedRuleWithOperationsDie, *NamedRuleWithOperationsDieMut]("resourceRules")
+	f.ExcludeResourceRules = diefields.NewItems[MatchResources, []NamedRuleWithOperations, NamedRuleWithOperations, *NamedRuleWithOperationsDie, *NamedRuleWithOperationsDieMut]("excludeResourceRules")
 	f.MatchPolicy = diefields.NewField[MatchResources, *MatchPolicyType]("matchPolicy")
 	return
 }}
@@ -1578,8 +1578,8 @@ var mutatingAdmissionPolicySpecFields = &diefields.Table[mutatingAdmissionPolicy
 	_ = annotated
 	f.ParamKind = diefields.NewStruct[MutatingAdmissionPolicySpec, ParamKind, *ParamKindDie, *ParamKindDieMut]("paramKind")
 	f.MatchConstraints = diefields.NewStruct[MutatingAdmissionPolicySpec, MatchResources, *MatchResourcesDie, *MatchResourcesDieMut]("matchConstraints")
-	f.Variables = diefields.NewField[MutatingAdmissionPolicySpec, []Variable]("variables")
-	f.Mutations = diefields.NewField[MutatingAdmissionPolicySpec, []Mutation]("mutations")
+	f.Variables = diefields.NewItems[MutatingAdmissionPolicySpec, []Variable, Variable, *VariableDie, *VariableDieMut]("variables")
+	f.Mutations = diefields.NewItems[MutatingAdmissionPolicySpec, []Mutation, Mutation, *MutationDie, *MutationDieMut]("mutations")
 	f.FailurePolicy = diefields.NewField[MutatingAdmissionPolicySpec, *FailurePolicyType]("failurePolicy")
 	f.MatchConditions = diefields.NewListMap[MutatingAdmissionPolicySpec, MatchCondition, *MatchConditionDie, *MatchConditionDieMut]("matchConditions", func(k string) []any { return []any{k} }, func(e MatchCondition) string { return e.Name })
 	f.ReinvocationPolicy = diefields.NewField[MutatingAdmissionPolicySpec, dieadmissionregistrationv1.ReinvocationPolicyType]("reinvocationPolicy")
@@ -2424,7 +2424,7 @@ type typeCheckingFieldsTable struct {
 
 var typeCheckingFields = &diefields.Table[typeCheckingFieldsTable]{Build: func() (f typeCheckingFieldsTable) {
 	_ = annotated
-	f.ExpressionWarnings = diefields.NewField[TypeChecking, []ExpressionWarning]("expressionWarnings")
+	f.ExpressionWarnings = diefields.NewItems[TypeChecking, []ExpressionWarning, ExpressionWarning, *ExpressionWarningDie, *ExpressionWarningDieMut]("expressionWarnings")
 	return
 }}
 
@@ -3054,9 +3054,9 @@ var validatingAdmissionPolicySpecFields = &diefields.Table[validatingAdmissionPo
 	_ = annotated
 	f.ParamKind = diefields.NewStruct[ValidatingAdmissionPolicySpec, ParamKind, *ParamKindDie, *ParamKindDieMut]("paramKind")
 	f.MatchConstraints = diefields.NewStruct[ValidatingAdmissionPolicySpec, MatchResources, *MatchResourcesDie, *MatchResourcesDieMut]("matchConstraints")
-	f.Validations = diefields.NewField[ValidatingAdmissionPolicySpec, []Validation]("validations")
+	f.Validations = diefields.NewItems[ValidatingAdmissionPolicySpec, []Validation, Validation, *ValidationDie, *ValidationDieMut]("validations")
 	f.FailurePolicy = diefields.NewField[ValidatingAdmissionPolicySpec, *FailurePolicyType]("failurePolicy")
-	f.AuditAnnotations = diefields.NewField[ValidatingAdmissionPolicySpec, []AuditAnnotation]("auditAnnotations")
+	f.AuditAnnotations = diefields.NewItems[ValidatingAdmissionPolicySpec, []AuditAnnotation, AuditAnnotation, *AuditAnnotationDie, *AuditAnnotationDieMut]("auditAnnotations")
 	f.MatchConditions = diefields.NewListMap[ValidatingAdmissionPolicySpec, MatchCondition, *MatchConditionDie, *MatchConditionDieMut]("matchConditions", func(k string) []any { return []any{k} }, func(e MatchCondition) string { return e.Name })
 	f.Variables = diefields.NewListMap[ValidatingAdmissionPolicySpec, Variable, *VariableDie, *VariableDieMut]("variables", func(k string) []any { return []any{k} }, func(e Variable) string { return e.Name })
 	return
@@ -3701,6 +3701,7 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"ObjectSelector":       "atomic",
 			"ResourceRules":        "atomic",
 			"ExcludeResourceRules": "atomic",
+			"MatchPolicy":          "enum=[\"Equivalent\",\"Exact\"]",
 		})
 		diecodegen.Object[MutatingAdmissionPolicy]("admissionregistration.k8s.io/v1alpha1", "MutatingAdmissionPolicy")
 		diecodegen.Object[MutatingAdmissionPolicyBinding]("admissionregistration.k8s.io/v1alpha1", "MutatingAdmissionPolicyBinding")
@@ -3711,17 +3712,23 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Object[MutatingAdmissionPolicyList]("admissionregistration.k8s.io/v1alpha1", "MutatingAdmissionPolicyList")
 		diecodegen.Annotate[MutatingAdmissionPolicySpec](map[string]string{
-			"ParamKind":        "atomic",
-			"MatchConstraints": "atomic",
-			"Variables":        "atomic",
-			"Mutations":        "atomic",
-			"MatchConditions":  "listMap=name",
+			"ParamKind":          "atomic",
+			"MatchConstraints":   "atomic",
+			"Variables":          "atomic",
+			"Mutations":          "atomic",
+			"FailurePolicy":      "enum=[\"Fail\",\"Ignore\"]",
+			"MatchConditions":    "listMap=name",
+			"ReinvocationPolicy": "enum=[\"IfNeeded\",\"Never\"]",
+		})
+		diecodegen.Annotate[Mutation](map[string]string{
+			"PatchType": "enum=[\"ApplyConfiguration\",\"JSONPatch\"]",
 		})
 		diecodegen.Annotate[NamedRuleWithOperations](map[string]string{
 			"ResourceNames": "atomic",
 		})
 		diecodegen.Annotate[ParamRef](map[string]string{
-			"Selector": "atomic",
+			"Selector":                "atomic",
+			"ParameterNotFoundAction": "enum=[\"Allow\",\"Deny\"]",
 		})
 		diecodegen.Annotate[TypeChecking](map[string]string{
 			"ExpressionWarnings": "atomic",
@@ -3731,17 +3738,22 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"Status": "subresource=status",
 		})
 		diecodegen.Object[ValidatingAdmissionPolicyBinding]("admissionregistration.k8s.io/v1alpha1", "ValidatingAdmissionPolicyBinding")
+		diecodegen.Annotate[ValidatingAdmissionPolicyBinding](map[string]string{
+			"Spec": "required",
+		})
 		diecodegen.Object[ValidatingAdmissionPolicyBindingList]("admissionregistration.k8s.io/v1alpha1", "ValidatingAdmissionPolicyBindingList")
 		diecodegen.Annotate[ValidatingAdmissionPolicyBindingSpec](map[string]string{
+			"PolicyName":        "required",
 			"ParamRef":          "atomic",
 			"MatchResources":    "atomic",
-			"ValidationActions": "atomic",
+			"ValidationActions": "atomic;required;unique;each.enum=[\"Audit\",\"Deny\",\"Warn\"]",
 		})
 		diecodegen.Object[ValidatingAdmissionPolicyList]("admissionregistration.k8s.io/v1alpha1", "ValidatingAdmissionPolicyList")
 		diecodegen.Annotate[ValidatingAdmissionPolicySpec](map[string]string{
 			"ParamKind":        "atomic",
 			"MatchConstraints": "atomic",
 			"Validations":      "atomic",
+			"FailurePolicy":    "enum=[\"Fail\",\"Ignore\"]",
 			"AuditAnnotations": "atomic",
 			"MatchConditions":  "listMap=name",
 			"Variables":        "listMap=name",

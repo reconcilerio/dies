@@ -1121,7 +1121,7 @@ var poolStatusFields = &diefields.Table[poolStatusFieldsTable]{Build: func() (f 
 	f.UnavailableDevices = diefields.NewField[PoolStatus, *int32]("unavailableDevices")
 	f.NodeName = diefields.NewField[PoolStatus, *string]("nodeName")
 	f.ValidationError = diefields.NewField[PoolStatus, *string]("validationError")
-	f.PartitionSummary = diefields.NewField[PoolStatus, []PartitionTypeStatus]("partitionSummary")
+	f.PartitionSummary = diefields.NewItems[PoolStatus, []PartitionTypeStatus, PartitionTypeStatus, *PartitionTypeStatusDie, *PartitionTypeStatusDieMut]("partitionSummary")
 	f.ShareableSummary = diefields.NewStruct[PoolStatus, ShareableSummaryStatus, *ShareableSummaryStatusDie, *ShareableSummaryStatusDieMut]("shareableSummary")
 	return
 }}
@@ -1706,7 +1706,7 @@ type resourcePoolStatusRequestStatusFieldsTable struct {
 var resourcePoolStatusRequestStatusFields = &diefields.Table[resourcePoolStatusRequestStatusFieldsTable]{Build: func() (f resourcePoolStatusRequestStatusFieldsTable) {
 	_ = annotated
 	f.PoolCount = diefields.NewField[ResourcePoolStatusRequestStatus, *int32]("poolCount")
-	f.Pools = diefields.NewField[ResourcePoolStatusRequestStatus, []PoolStatus]("pools")
+	f.Pools = diefields.NewItems[ResourcePoolStatusRequestStatus, []PoolStatus, PoolStatus, *PoolStatusDie, *PoolStatusDieMut]("pools")
 	f.Conditions = diefields.NewListMap[ResourcePoolStatusRequestStatus, diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut]("conditions", func(k string) []any { return []any{k} }, func(e diemetav1.Condition) string { return e.Type })
 	return
 }}
@@ -1955,7 +1955,7 @@ var shareableSummaryStatusFields = &diefields.Table[shareableSummaryStatusFields
 	_ = annotated
 	f.FullyAvailableDevices = diefields.NewField[ShareableSummaryStatus, *int32]("fullyAvailableDevices")
 	f.PartiallyAvailableDevices = diefields.NewField[ShareableSummaryStatus, *int32]("partiallyAvailableDevices")
-	f.Capacity = diefields.NewField[ShareableSummaryStatus, []ShareableCapacityStatus]("capacity")
+	f.Capacity = diefields.NewItems[ShareableSummaryStatus, []ShareableCapacityStatus, ShareableCapacityStatus, *ShareableCapacityStatusDie, *ShareableCapacityStatusDieMut]("capacity")
 	return
 }}
 
@@ -2019,31 +2019,74 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		"k8s.io/api/resource/v1alpha3",
 	},
 	Annotate: func() {
+		diecodegen.Annotate[CELDeviceSelector](map[string]string{
+			"Expression": "required",
+		})
+		diecodegen.Annotate[DeviceSelector](map[string]string{
+			"CEL": "oneOf=SelectorType",
+		})
+		diecodegen.Annotate[DeviceTaint](map[string]string{
+			"Key":    "required",
+			"Effect": "required;enum=[\"NoExecute\",\"NoSchedule\",\"None\"]",
+		})
 		diecodegen.Object[DeviceTaintRule]("resource.k8s.io/v1alpha3", "DeviceTaintRule")
 		diecodegen.Annotate[DeviceTaintRule](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
 		diecodegen.Object[DeviceTaintRuleList]("resource.k8s.io/v1alpha3", "DeviceTaintRuleList")
+		diecodegen.Annotate[DeviceTaintRuleSpec](map[string]string{
+			"Taint": "required",
+		})
 		diecodegen.Annotate[DeviceTaintRuleStatus](map[string]string{
 			"Conditions": "listMap=type",
 		})
+		diecodegen.Annotate[PartitionTypeStatus](map[string]string{
+			"Attribute":   "required=nonzero",
+			"Type":        "required=nonzero",
+			"Total":       "required=nonzero;minimum=0",
+			"Allocatable": "required=nonzero;minimum=0",
+		})
 		diecodegen.Annotate[PoolStatus](map[string]string{
-			"PartitionSummary": "atomic",
+			"Driver":             "required=nonzero;format=k8s-long-name-caseless",
+			"PoolName":           "required=nonzero;format=k8s-resource-pool-name",
+			"Generation":         "required=nonzero;minimum=0",
+			"ResourceSliceCount": "minimum=1",
+			"TotalDevices":       "minimum=0",
+			"AllocatedDevices":   "minimum=0",
+			"AvailableDevices":   "minimum=0",
+			"UnavailableDevices": "minimum=0",
+			"NodeName":           "format=k8s-long-name",
+			"ValidationError":    "maxBytes=256",
+			"PartitionSummary":   "atomic;maxItems=32",
 		})
 		diecodegen.Object[ResourcePoolStatusRequest]("resource.k8s.io/v1alpha3", "ResourcePoolStatusRequest")
 		diecodegen.Annotate[ResourcePoolStatusRequest](map[string]string{
-			"Status": "subresource=status",
+			"ObjectMeta": "required",
+			"Spec":       "required;immutable",
+			"Status":     "subresource=status",
 		})
 		diecodegen.Object[ResourcePoolStatusRequestList]("resource.k8s.io/v1alpha3", "ResourcePoolStatusRequestList")
 		diecodegen.Annotate[ResourcePoolStatusRequestSpec](map[string]string{
-			"Limit": "default=100",
+			"Driver":   "required=nonzero;format=k8s-long-name-caseless",
+			"PoolName": "format=k8s-resource-pool-name",
+			"Limit":    "default=100;minimum=1;maximum=1000",
 		})
 		diecodegen.Annotate[ResourcePoolStatusRequestStatus](map[string]string{
-			"Pools":      "atomic",
-			"Conditions": "listMap=type",
+			"PoolCount":  "required=nonzero;minimum=0",
+			"Pools":      "atomic;maxItems=1000",
+			"Conditions": "listMap=type;maxItems=10",
+		})
+		diecodegen.Annotate[ShareableCapacityStatus](map[string]string{
+			"Name":      "required=nonzero",
+			"Total":     "required=nonzero",
+			"Consumed":  "required=nonzero",
+			"Available": "required=nonzero",
 		})
 		diecodegen.Annotate[ShareableSummaryStatus](map[string]string{
-			"Capacity": "atomic",
+			"FullyAvailableDevices":     "required=nonzero;minimum=0",
+			"PartiallyAvailableDevices": "required=nonzero;minimum=0",
+			"Capacity":                  "atomic;maxItems=32",
 		})
 	},
 })

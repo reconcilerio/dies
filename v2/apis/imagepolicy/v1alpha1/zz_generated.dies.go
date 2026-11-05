@@ -326,7 +326,7 @@ type imageReviewSpecFieldsTable struct {
 
 var imageReviewSpecFields = &diefields.Table[imageReviewSpecFieldsTable]{Build: func() (f imageReviewSpecFieldsTable) {
 	_ = annotated
-	f.Containers = diefields.NewField[ImageReviewSpec, []ImageReviewContainerSpec]("containers")
+	f.Containers = diefields.NewItems[ImageReviewSpec, []ImageReviewContainerSpec, ImageReviewContainerSpec, *ImageReviewContainerSpecDie, *ImageReviewContainerSpecDieMut]("containers")
 	f.Annotations = diefields.NewMap[ImageReviewSpec, string, string]("annotations")
 	f.Namespace = diefields.NewField[ImageReviewSpec, string]("namespace")
 	return

@@ -65,7 +65,7 @@ type addressStatusFieldsTable struct {
 var addressStatusFields = &diefields.Table[addressStatusFieldsTable]{Build: func() (f addressStatusFieldsTable) {
 	_ = annotated
 	f.Address = diefields.NewStruct[AddressStatus, Addressable, *AddressableDie, *AddressableDieMut]("address")
-	f.Addresses = diefields.NewField[AddressStatus, []Addressable]("addresses")
+	f.Addresses = diefields.NewItems[AddressStatus, []Addressable, Addressable, *AddressableDie, *AddressableDieMut]("addresses")
 	return
 }}
 
@@ -1534,10 +1534,10 @@ type sourceStatusFieldsTable struct {
 var sourceStatusFields = &diefields.Table[sourceStatusFieldsTable]{Build: func() (f sourceStatusFieldsTable) {
 	_ = annotated
 	f.ObservedGeneration = diefields.NewField[SourceStatus, int64]("observedGeneration")
-	f.Conditions = diefields.NewField[SourceStatus, Conditions]("conditions")
+	f.Conditions = diefields.NewItems[SourceStatus, Conditions, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]("conditions")
 	f.Annotations = diefields.NewMap[SourceStatus, string, string]("annotations")
 	f.SinkURI = diefields.NewField[SourceStatus, *apis.URL]("sinkUri")
-	f.CloudEventAttributes = diefields.NewField[SourceStatus, []CloudEventAttributes]("ceAttributes")
+	f.CloudEventAttributes = diefields.NewItems[SourceStatus, []CloudEventAttributes, CloudEventAttributes, *CloudEventAttributesDie, *CloudEventAttributesDieMut]("ceAttributes")
 	f.SinkCACerts = diefields.NewField[SourceStatus, *string]("sinkCACerts")
 	f.SinkAudience = diefields.NewField[SourceStatus, *string]("sinkAudience")
 	f.Auth = diefields.NewStruct[SourceStatus, AuthStatus, *AuthStatusDie, *AuthStatusDieMut]("auth")
@@ -1674,7 +1674,7 @@ type statusFieldsTable struct {
 var statusFields = &diefields.Table[statusFieldsTable]{Build: func() (f statusFieldsTable) {
 	_ = annotated
 	f.ObservedGeneration = diefields.NewField[Status, int64]("observedGeneration")
-	f.Conditions = diefields.NewField[Status, Conditions]("conditions")
+	f.Conditions = diefields.NewItems[Status, Conditions, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]("conditions")
 	f.Annotations = diefields.NewMap[Status, string, string]("annotations")
 	return
 }}

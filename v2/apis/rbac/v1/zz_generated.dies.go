@@ -97,7 +97,7 @@ type aggregationRuleFieldsTable struct {
 
 var aggregationRuleFields = &diefields.Table[aggregationRuleFieldsTable]{Build: func() (f aggregationRuleFieldsTable) {
 	_ = annotated
-	f.ClusterRoleSelectors = diefields.NewField[AggregationRule, []diemetav1.LabelSelector]("clusterRoleSelectors")
+	f.ClusterRoleSelectors = diefields.NewItems[AggregationRule, []diemetav1.LabelSelector, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("clusterRoleSelectors")
 	return
 }}
 
@@ -188,7 +188,7 @@ var clusterRoleFields = &diefields.Table[clusterRoleFieldsTable]{Build: func() (
 	f.Kind = diefields.NewField[ClusterRole, string]("kind")
 	f.APIVersion = diefields.NewField[ClusterRole, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[ClusterRole, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
-	f.Rules = diefields.NewField[ClusterRole, []PolicyRule]("rules")
+	f.Rules = diefields.NewItems[ClusterRole, []PolicyRule, PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut]("rules")
 	f.AggregationRule = diefields.NewStruct[ClusterRole, AggregationRule, *AggregationRuleDie, *AggregationRuleDieMut]("aggregationRule")
 	return
 }}
@@ -337,7 +337,7 @@ var clusterRoleBindingFields = &diefields.Table[clusterRoleBindingFieldsTable]{B
 	f.Kind = diefields.NewField[ClusterRoleBinding, string]("kind")
 	f.APIVersion = diefields.NewField[ClusterRoleBinding, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[ClusterRoleBinding, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
-	f.Subjects = diefields.NewField[ClusterRoleBinding, []Subject]("subjects")
+	f.Subjects = diefields.NewItems[ClusterRoleBinding, []Subject, Subject, *SubjectDie, *SubjectDieMut]("subjects")
 	f.RoleRef = diefields.NewStruct[ClusterRoleBinding, RoleRef, *RoleRefDie, *RoleRefDieMut]("roleRef")
 	return
 }}
@@ -653,7 +653,7 @@ var roleFields = &diefields.Table[roleFieldsTable]{Build: func() (f roleFieldsTa
 	f.Kind = diefields.NewField[Role, string]("kind")
 	f.APIVersion = diefields.NewField[Role, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[Role, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
-	f.Rules = diefields.NewField[Role, []PolicyRule]("rules")
+	f.Rules = diefields.NewItems[Role, []PolicyRule, PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut]("rules")
 	return
 }}
 
@@ -786,7 +786,7 @@ var roleBindingFields = &diefields.Table[roleBindingFieldsTable]{Build: func() (
 	f.Kind = diefields.NewField[RoleBinding, string]("kind")
 	f.APIVersion = diefields.NewField[RoleBinding, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[RoleBinding, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
-	f.Subjects = diefields.NewField[RoleBinding, []Subject]("subjects")
+	f.Subjects = diefields.NewItems[RoleBinding, []Subject, Subject, *SubjectDie, *SubjectDieMut]("subjects")
 	f.RoleRef = diefields.NewStruct[RoleBinding, RoleRef, *RoleRefDie, *RoleRefDieMut]("roleRef")
 	return
 }}
@@ -1160,12 +1160,12 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		diecodegen.Object[ClusterRoleBinding]("rbac.authorization.k8s.io/v1", "ClusterRoleBinding")
 		diecodegen.Annotate[ClusterRoleBinding](map[string]string{
 			"Subjects": "atomic",
-			"RoleRef":  "atomic",
+			"RoleRef":  "atomic;required",
 		})
 		diecodegen.Object[ClusterRoleBindingList]("rbac.authorization.k8s.io/v1", "ClusterRoleBindingList")
 		diecodegen.Object[ClusterRoleList]("rbac.authorization.k8s.io/v1", "ClusterRoleList")
 		diecodegen.Annotate[PolicyRule](map[string]string{
-			"Verbs":           "atomic",
+			"Verbs":           "atomic;required",
 			"APIGroups":       "atomic",
 			"Resources":       "atomic",
 			"ResourceNames":   "atomic",
@@ -1178,10 +1178,18 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		diecodegen.Object[RoleBinding]("rbac.authorization.k8s.io/v1", "RoleBinding")
 		diecodegen.Annotate[RoleBinding](map[string]string{
 			"Subjects": "atomic",
-			"RoleRef":  "atomic",
+			"RoleRef":  "atomic;required",
 		})
 		diecodegen.Object[RoleBindingList]("rbac.authorization.k8s.io/v1", "RoleBindingList")
 		diecodegen.Object[RoleList]("rbac.authorization.k8s.io/v1", "RoleList")
+		diecodegen.Annotate[RoleRef](map[string]string{
+			"Kind": "required",
+			"Name": "required",
+		})
+		diecodegen.Annotate[Subject](map[string]string{
+			"Kind": "required",
+			"Name": "required",
+		})
 	},
 })
 

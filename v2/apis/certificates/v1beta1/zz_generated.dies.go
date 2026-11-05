@@ -1830,10 +1830,18 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		diecodegen.Object[ClusterTrustBundleList]("certificates.k8s.io/v1beta1", "ClusterTrustBundleList")
 		diecodegen.Object[PodCertificateRequest]("certificates.k8s.io/v1beta1", "PodCertificateRequest")
 		diecodegen.Annotate[PodCertificateRequest](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
 		diecodegen.Object[PodCertificateRequestList]("certificates.k8s.io/v1beta1", "PodCertificateRequestList")
 		diecodegen.Annotate[PodCertificateRequestSpec](map[string]string{
+			"SignerName":           "required",
+			"PodName":              "required",
+			"PodUID":               "required",
+			"ServiceAccountName":   "required",
+			"ServiceAccountUID":    "required",
+			"NodeName":             "required",
+			"NodeUID":              "required",
 			"MaxExpirationSeconds": "default=86400",
 		})
 		diecodegen.Annotate[PodCertificateRequestStatus](map[string]string{

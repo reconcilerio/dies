@@ -632,12 +632,21 @@ var annotated = diecodegen.Register(diecodegen.Package{
 	},
 	Annotate: func() {
 		diecodegen.Annotate[ServerStorageVersion](map[string]string{
-			"DecodableVersions": "atomic",
-			"ServedVersions":    "atomic",
+			"APIServerID":       "required",
+			"EncodingVersion":   "required",
+			"DecodableVersions": "atomic;required;unique",
+			"ServedVersions":    "atomic;unique",
 		})
 		diecodegen.Object[StorageVersion]("internal.apiserver.k8s.io/v1alpha1", "StorageVersion")
 		diecodegen.Annotate[StorageVersion](map[string]string{
-			"Status": "subresource=status",
+			"ObjectMeta": "required",
+			"Status":     "subresource=status",
+		})
+		diecodegen.Annotate[StorageVersionCondition](map[string]string{
+			"Type":    "required",
+			"Status":  "required",
+			"Reason":  "required",
+			"Message": "required",
 		})
 		diecodegen.Object[StorageVersionList]("internal.apiserver.k8s.io/v1alpha1", "StorageVersionList")
 		diecodegen.Annotate[StorageVersionStatus](map[string]string{

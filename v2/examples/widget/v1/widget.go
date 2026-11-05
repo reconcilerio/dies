@@ -17,7 +17,13 @@ limitations under the License.
 package v1
 
 import (
+	"context"
+
+	"k8s.io/apimachinery/pkg/util/validation/field"
+
 	metav1 "reconciler.io/dies/v2/apis/meta/v1"
+	"reconciler.io/dies/v2/die"
+	"reconciler.io/dies/v2/die/validation"
 )
 
 // Ready marks the widget's Ready condition true. It is a hand-written method
@@ -30,4 +36,30 @@ func (d *WidgetDieMut) Ready(reason string) error {
 		return err
 	}
 	return ready.Reason().Set(reason)
+}
+
+// DieDefault defaults a port's number to 80. A widget's ports are defaulted by
+// die.Default wherever they are, so neither WidgetDieMut nor WidgetSpecDieMut
+// need a method to reach them.
+func (d *WidgetPortDieMut) DieDefault(context.Context) error {
+	if d.Port().Get() == 0 {
+		return d.Port().Set(80)
+	}
+	return nil
+}
+
+// DieValidate validates a port beyond what its markers do, as die.ValidateCreate
+// and die.ValidateUpdate call it for each port, which knows where it is: an error at its Port
+// field is at spec.ports[i].port. Its markers' checks, of its name's format
+// and its number's range, are made without it. In an update, the operation
+// has the port's old value, of the port with the same name.
+func (d *WidgetPortDie) DieValidate(_ context.Context, op die.Operation) (field.ErrorList, error) {
+	var errs field.ErrorList
+	if op.Type != die.Delete && d.Port().Get() == 22 {
+		errs = append(errs, validation.Invalid(d.Port(), "is reserved for ssh"))
+	}
+	if old, ok := die.OldOf(d, op); ok && old.Port().Get() != d.Port().Get() {
+		errs = append(errs, validation.Forbidden(d.Port(), "a named port's number may not change"))
+	}
+	return errs, nil
 }

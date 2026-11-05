@@ -40,6 +40,7 @@ type BasicSchedulingPolicy = schedulingv1beta1.BasicSchedulingPolicy
 type CompositeBasicSchedulingPolicy = schedulingv1beta1.CompositeBasicSchedulingPolicy
 
 // +die
+// +die:union:name=union,members={single,all},oneOf=true
 type CompositeDisruptionMode = schedulingv1beta1.CompositeDisruptionMode
 
 // +die
@@ -50,6 +51,7 @@ type CompositeGangSchedulingPolicy = schedulingv1beta1.CompositeGangSchedulingPo
 type CompositePodGroupSchedulingConstraints = schedulingv1beta1.CompositePodGroupSchedulingConstraints
 
 // +die
+// +die:union:name=union,members={basic,gang},oneOf=true
 type CompositePodGroupSchedulingPolicy = schedulingv1beta1.CompositePodGroupSchedulingPolicy
 
 // +die
@@ -58,6 +60,7 @@ type CompositePodGroupSchedulingPolicy = schedulingv1beta1.CompositePodGroupSche
 type CompositePodGroupTemplate = schedulingv1beta1.CompositePodGroupTemplate
 
 // +die
+// +die:union:name=union,members={single,all},oneOf=true
 type DisruptionMode = schedulingv1beta1.DisruptionMode
 
 const DisruptionTarget = schedulingv1beta1.DisruptionTarget
@@ -85,6 +88,7 @@ const PodGroupReasonSchedulerError = schedulingv1beta1.PodGroupReasonSchedulerEr
 const PodGroupReasonUnschedulable = schedulingv1beta1.PodGroupReasonUnschedulable
 
 // +die
+// +die:union:name=union,members={resourceClaimName,resourceClaimTemplateName},oneOf=true
 type PodGroupResourceClaim = schedulingv1beta1.PodGroupResourceClaim
 
 // +die
@@ -95,6 +99,7 @@ type PodGroupResourceClaimStatus = schedulingv1beta1.PodGroupResourceClaimStatus
 type PodGroupSchedulingConstraints = schedulingv1beta1.PodGroupSchedulingConstraints
 
 // +die
+// +die:union:name=union,members={basic,gang},oneOf=true
 type PodGroupSchedulingPolicy = schedulingv1beta1.PodGroupSchedulingPolicy
 
 // +die
@@ -152,4 +157,5 @@ type WorkloadReference = schedulingv1beta1.WorkloadReference
 // +die
 // +die:field:name=podGroupTemplates,listType=map,listMapKey=name
 // +die:field:name=compositePodGroupTemplates,listType=map,listMapKey=name
+// +die:union:name=union,members={podGroupTemplates,compositePodGroupTemplates},oneOf=true
 type WorkloadSpec = schedulingv1beta1.WorkloadSpec

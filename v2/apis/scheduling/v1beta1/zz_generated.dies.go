@@ -407,7 +407,7 @@ type compositePodGroupSchedulingConstraintsFieldsTable struct {
 
 var compositePodGroupSchedulingConstraintsFields = &diefields.Table[compositePodGroupSchedulingConstraintsFieldsTable]{Build: func() (f compositePodGroupSchedulingConstraintsFieldsTable) {
 	_ = annotated
-	f.Topology = diefields.NewField[CompositePodGroupSchedulingConstraints, []TopologyConstraint]("topology")
+	f.Topology = diefields.NewItems[CompositePodGroupSchedulingConstraints, []TopologyConstraint, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]("topology")
 	return
 }}
 
@@ -1428,7 +1428,7 @@ type podGroupSchedulingConstraintsFieldsTable struct {
 
 var podGroupSchedulingConstraintsFields = &diefields.Table[podGroupSchedulingConstraintsFieldsTable]{Build: func() (f podGroupSchedulingConstraintsFieldsTable) {
 	_ = annotated
-	f.Topology = diefields.NewField[PodGroupSchedulingConstraints, []TopologyConstraint]("topology")
+	f.Topology = diefields.NewItems[PodGroupSchedulingConstraints, []TopologyConstraint, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]("topology")
 	return
 }}
 
@@ -3020,39 +3020,110 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		"k8s.io/api/scheduling/v1beta1",
 	},
 	Annotate: func() {
+		diecodegen.Annotate[CompositeDisruptionMode](map[string]string{
+			"Single": "oneOf=union",
+			"All":    "oneOf=union",
+		})
+		diecodegen.Annotate[CompositeGangSchedulingPolicy](map[string]string{
+			"MinGroupCount": "required=nonzero;minimum=1",
+		})
 		diecodegen.Annotate[CompositePodGroupSchedulingConstraints](map[string]string{
-			"Topology": "atomic",
+			"Topology": "atomic;maxItems=1",
+		})
+		diecodegen.Annotate[CompositePodGroupSchedulingPolicy](map[string]string{
+			"Basic": "oneOf=union;immutable",
+			"Gang":  "oneOf=union;update=NoSet,NoUnset",
 		})
 		diecodegen.Annotate[CompositePodGroupTemplate](map[string]string{
-			"PodGroupTemplates":          "listMap=name",
-			"CompositePodGroupTemplates": "listMap=name",
+			"Name":                       "required=nonzero;format=k8s-short-name",
+			"SchedulingPolicy":           "required",
+			"SchedulingConstraints":      "immutable",
+			"DisruptionMode":             "immutable",
+			"PriorityClassName":          "format=k8s-long-name;immutable",
+			"Priority":                   "maximum=1e+09;immutable",
+			"PreemptionPolicy":           "enum=[\"Never\",\"PreemptLowerPriority\"];immutable",
+			"PodGroupTemplates":          "listMap=name;maxItems=8;update=NoAddItem,NoRemoveItem",
+			"CompositePodGroupTemplates": "listMap=name;maxItems=8;update=NoAddItem,NoRemoveItem",
+		})
+		diecodegen.Annotate[DisruptionMode](map[string]string{
+			"Single": "oneOf=union",
+			"All":    "oneOf=union",
+		})
+		diecodegen.Annotate[GangSchedulingPolicy](map[string]string{
+			"MinCount": "required=nonzero;minimum=1",
 		})
 		diecodegen.Object[PodGroup]("scheduling.k8s.io/v1beta1", "PodGroup")
 		diecodegen.Annotate[PodGroup](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
 		diecodegen.Object[PodGroupList]("scheduling.k8s.io/v1beta1", "PodGroupList")
+		diecodegen.Annotate[PodGroupResourceClaim](map[string]string{
+			"Name":                      "required=nonzero;format=k8s-short-name",
+			"ResourceClaimName":         "oneOf=union;format=k8s-long-name",
+			"ResourceClaimTemplateName": "oneOf=union;format=k8s-long-name",
+		})
+		diecodegen.Annotate[PodGroupResourceClaimStatus](map[string]string{
+			"Name":              "required",
+			"ResourceClaimName": "format=k8s-long-name",
+		})
 		diecodegen.Annotate[PodGroupSchedulingConstraints](map[string]string{
-			"Topology": "atomic",
+			"Topology": "atomic;maxItems=1",
+		})
+		diecodegen.Annotate[PodGroupSchedulingPolicy](map[string]string{
+			"Basic": "oneOf=union;immutable",
+			"Gang":  "oneOf=union;update=NoSet,NoUnset",
 		})
 		diecodegen.Annotate[PodGroupSpec](map[string]string{
-			"ResourceClaims": "listMap=name",
-			"DisruptionMode": "default={\"single\": {}}",
+			"ParentCompositePodGroupName": "format=k8s-long-name;immutable",
+			"WorkloadRef":                 "immutable",
+			"SchedulingPolicy":            "required",
+			"ResourceClaims":              "listMap=name;maxItems=4;immutable",
+			"DisruptionMode":              "default={\"single\": {}};immutable",
+			"PriorityClassName":           "format=k8s-long-name;immutable",
+			"Priority":                    "maximum=1e+09;immutable",
+			"PreemptionPolicy":            "enum=[\"Never\",\"PreemptLowerPriority\"];immutable",
 		})
 		diecodegen.Annotate[PodGroupStatus](map[string]string{
 			"Conditions":            "listMap=type",
-			"ResourceClaimStatuses": "listMap=name",
+			"ResourceClaimStatuses": "listMap=name;maxItems=4",
 		})
 		diecodegen.Annotate[PodGroupTemplate](map[string]string{
-			"ResourceClaims": "listMap=name",
+			"Name":                  "required=nonzero;format=k8s-short-name",
+			"SchedulingPolicy":      "required",
+			"SchedulingConstraints": "immutable",
+			"ResourceClaims":        "listMap=name;maxItems=4;immutable",
+			"DisruptionMode":        "immutable",
+			"PriorityClassName":     "format=k8s-long-name;immutable",
+			"Priority":              "maximum=1e+09;immutable",
+			"PreemptionPolicy":      "enum=[\"Never\",\"PreemptLowerPriority\"];immutable",
 		})
 		diecodegen.Object[PriorityClass]("scheduling.k8s.io/v1beta1", "PriorityClass")
+		diecodegen.Annotate[PriorityClass](map[string]string{
+			"PreemptionPolicy": "enum=[\"Never\",\"PreemptLowerPriority\"]",
+		})
 		diecodegen.Object[PriorityClassList]("scheduling.k8s.io/v1beta1", "PriorityClassList")
+		diecodegen.Annotate[TopologyConstraint](map[string]string{
+			"Key": "required=nonzero;format=k8s-label-key",
+		})
+		diecodegen.Annotate[TypedLocalObjectReference](map[string]string{
+			"APIGroup": "format=k8s-long-name",
+			"Kind":     "required=nonzero;format=k8s-path-segment-name",
+			"Name":     "required=nonzero;format=k8s-path-segment-name",
+		})
 		diecodegen.Object[Workload]("scheduling.k8s.io/v1beta1", "Workload")
+		diecodegen.Annotate[Workload](map[string]string{
+			"Spec": "required",
+		})
 		diecodegen.Object[WorkloadList]("scheduling.k8s.io/v1beta1", "WorkloadList")
+		diecodegen.Annotate[WorkloadReference](map[string]string{
+			"WorkloadName": "required=nonzero;format=k8s-long-name",
+			"TemplateName": "required=nonzero;format=k8s-short-name",
+		})
 		diecodegen.Annotate[WorkloadSpec](map[string]string{
-			"PodGroupTemplates":          "listMap=name",
-			"CompositePodGroupTemplates": "listMap=name",
+			"ControllerRef":              "immutable",
+			"PodGroupTemplates":          "listMap=name;oneOf=union;maxItems=8;update=NoAddItem,NoRemoveItem",
+			"CompositePodGroupTemplates": "listMap=name;oneOf=union;maxItems=8;update=NoAddItem,NoRemoveItem",
 		})
 	},
 })

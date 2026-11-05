@@ -94,7 +94,7 @@ type gadgetSpecFieldsTable struct {
 
 var gadgetSpecFields = &diefields.Table[gadgetSpecFieldsTable]{Build: func() (f gadgetSpecFieldsTable) {
 	_ = annotated
-	f.Parts = diefields.NewField[GadgetSpec, []GadgetPart]("parts")
+	f.Parts = diefields.NewItems[GadgetSpec, []GadgetPart, GadgetPart, *GadgetPartDie, *GadgetPartDieMut]("parts")
 	return
 }}
 

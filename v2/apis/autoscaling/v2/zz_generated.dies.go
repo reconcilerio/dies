@@ -743,7 +743,7 @@ var hPAScalingRulesFields = &diefields.Table[hPAScalingRulesFieldsTable]{Build: 
 	_ = annotated
 	f.StabilizationWindowSeconds = diefields.NewField[HPAScalingRules, *int32]("stabilizationWindowSeconds")
 	f.SelectPolicy = diefields.NewField[HPAScalingRules, *ScalingPolicySelect]("selectPolicy")
-	f.Policies = diefields.NewField[HPAScalingRules, []HPAScalingPolicy]("policies")
+	f.Policies = diefields.NewItems[HPAScalingRules, []HPAScalingPolicy, HPAScalingPolicy, *HPAScalingPolicyDie, *HPAScalingPolicyDieMut]("policies")
 	f.Tolerance = diefields.NewField[HPAScalingRules, *resource.Quantity]("tolerance")
 	return
 }}
@@ -1324,7 +1324,7 @@ var horizontalPodAutoscalerSpecFields = &diefields.Table[horizontalPodAutoscaler
 	f.ScaleTargetRef = diefields.NewStruct[HorizontalPodAutoscalerSpec, CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]("scaleTargetRef")
 	f.MinReplicas = diefields.NewField[HorizontalPodAutoscalerSpec, *int32]("minReplicas")
 	f.MaxReplicas = diefields.NewField[HorizontalPodAutoscalerSpec, int32]("maxReplicas")
-	f.Metrics = diefields.NewField[HorizontalPodAutoscalerSpec, []MetricSpec]("metrics")
+	f.Metrics = diefields.NewItems[HorizontalPodAutoscalerSpec, []MetricSpec, MetricSpec, *MetricSpecDie, *MetricSpecDieMut]("metrics")
 	f.Behavior = diefields.NewStruct[HorizontalPodAutoscalerSpec, HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie, *HorizontalPodAutoscalerBehaviorDieMut]("behavior")
 	return
 }}
@@ -1486,7 +1486,7 @@ var horizontalPodAutoscalerStatusFields = &diefields.Table[horizontalPodAutoscal
 	f.LastScaleTime = diefields.NewField[HorizontalPodAutoscalerStatus, *diemetav1.Time]("lastScaleTime")
 	f.CurrentReplicas = diefields.NewField[HorizontalPodAutoscalerStatus, int32]("currentReplicas")
 	f.DesiredReplicas = diefields.NewField[HorizontalPodAutoscalerStatus, int32]("desiredReplicas")
-	f.CurrentMetrics = diefields.NewField[HorizontalPodAutoscalerStatus, []MetricStatus]("currentMetrics")
+	f.CurrentMetrics = diefields.NewItems[HorizontalPodAutoscalerStatus, []MetricStatus, MetricStatus, *MetricStatusDie, *MetricStatusDieMut]("currentMetrics")
 	f.Conditions = diefields.NewListMap[HorizontalPodAutoscalerStatus, HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]("conditions", func(k HorizontalPodAutoscalerConditionType) []any { return []any{k} }, func(e HorizontalPodAutoscalerCondition) HorizontalPodAutoscalerConditionType { return e.Type })
 	return
 }}
@@ -2875,11 +2875,13 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Object[HorizontalPodAutoscaler]("autoscaling/v2", "HorizontalPodAutoscaler")
 		diecodegen.Annotate[HorizontalPodAutoscaler](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
 		diecodegen.Object[HorizontalPodAutoscalerList]("autoscaling/v2", "HorizontalPodAutoscalerList")
 		diecodegen.Annotate[HorizontalPodAutoscalerSpec](map[string]string{
-			"Metrics": "atomic",
+			"MaxReplicas": "required",
+			"Metrics":     "atomic",
 		})
 		diecodegen.Annotate[HorizontalPodAutoscalerStatus](map[string]string{
 			"CurrentMetrics": "atomic",

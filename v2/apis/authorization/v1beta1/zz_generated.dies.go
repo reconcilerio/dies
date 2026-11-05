@@ -1142,8 +1142,8 @@ type subjectRulesReviewStatusFieldsTable struct {
 
 var subjectRulesReviewStatusFields = &diefields.Table[subjectRulesReviewStatusFieldsTable]{Build: func() (f subjectRulesReviewStatusFieldsTable) {
 	_ = annotated
-	f.ResourceRules = diefields.NewField[SubjectRulesReviewStatus, []ResourceRule]("resourceRules")
-	f.NonResourceRules = diefields.NewField[SubjectRulesReviewStatus, []NonResourceRule]("nonResourceRules")
+	f.ResourceRules = diefields.NewItems[SubjectRulesReviewStatus, []ResourceRule, ResourceRule, *ResourceRuleDie, *ResourceRuleDieMut]("resourceRules")
+	f.NonResourceRules = diefields.NewItems[SubjectRulesReviewStatus, []NonResourceRule, NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut]("nonResourceRules")
 	f.Incomplete = diefields.NewField[SubjectRulesReviewStatus, bool]("incomplete")
 	f.EvaluationError = diefields.NewField[SubjectRulesReviewStatus, string]("evaluationError")
 	return

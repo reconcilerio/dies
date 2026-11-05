@@ -1855,22 +1855,63 @@ var annotated = diecodegen.Register(diecodegen.Package{
 	Annotate: func() {
 		diecodegen.Object[Eviction]("lifecycle.k8s.io/v1alpha1", "Eviction")
 		diecodegen.Annotate[Eviction](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
 		diecodegen.Object[EvictionList]("lifecycle.k8s.io/v1alpha1", "EvictionList")
+		diecodegen.Annotate[EvictionPodReference](map[string]string{
+			"Name": "required=nonzero;format=k8s-long-name",
+			"UID":  "required=nonzero;format=k8s-uuid",
+		})
 		diecodegen.Object[EvictionRequest]("lifecycle.k8s.io/v1alpha1", "EvictionRequest")
 		diecodegen.Annotate[EvictionRequest](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
 		diecodegen.Object[EvictionRequestList]("lifecycle.k8s.io/v1alpha1", "EvictionRequestList")
+		diecodegen.Annotate[EvictionRequestPodReference](map[string]string{
+			"Name": "required=nonzero;format=k8s-long-name",
+			"UID":  "required=nonzero;format=k8s-uuid",
+		})
+		diecodegen.Annotate[EvictionRequestSpec](map[string]string{
+			"Target":    "required;immutable",
+			"Requester": "required=nonzero;format=k8s-prefixed-label-key;immutable",
+			"Intent":    "required=nonzero;enum=[\"Eviction\",\"Withdrawn\"]",
+		})
 		diecodegen.Annotate[EvictionRequestStatus](map[string]string{
-			"Conditions": "listMap=type",
+			"Conditions":         "listMap=type;maxItems=100",
+			"ObservedGeneration": "minimum=1;update=NoUnset",
+		})
+		diecodegen.Annotate[EvictionRequestTarget](map[string]string{
+			"Pod": "oneOf=union",
+		})
+		diecodegen.Annotate[EvictionSpec](map[string]string{
+			"Target": "required;immutable",
 		})
 		diecodegen.Annotate[EvictionStatus](map[string]string{
-			"Conditions":       "listMap=type",
-			"Requesters":       "listMap=name",
-			"TargetResponders": "listMap=name",
-			"Responders":       "listMap=name",
+			"Conditions":         "listMap=type;maxItems=100",
+			"ObservedGeneration": "minimum=1;update=NoUnset",
+			"Requesters":         "listMap=name;maxItems=100",
+			"TargetResponders":   "listMap=name;maxItems=11",
+			"Responders":         "listMap=name;maxItems=11",
+		})
+		diecodegen.Annotate[EvictionTarget](map[string]string{
+			"Pod": "oneOf=union",
+		})
+		diecodegen.Annotate[Requester](map[string]string{
+			"Name":   "required=nonzero;format=k8s-prefixed-label-key",
+			"Intent": "required=nonzero;enum=[\"Eviction\",\"Withdrawn\"]",
+		})
+		diecodegen.Annotate[ResponderStatus](map[string]string{
+			"Name":           "required=nonzero;format=k8s-prefixed-label-key",
+			"StartTime":      "update=NoModify,NoUnset",
+			"CompletionTime": "update=NoModify,NoUnset",
+			"Message":        "maxLength=4000",
+		})
+		diecodegen.Annotate[TargetResponder](map[string]string{
+			"Name":     "required=nonzero;format=k8s-prefixed-label-key",
+			"Priority": "required=nonzero;minimum=0;maximum=100000;update=NoModify,NoUnset",
+			"State":    "required=nonzero;enum=[\"Active\",\"Canceled\",\"Completed\",\"Inactive\",\"Interrupted\"]",
 		})
 	},
 })

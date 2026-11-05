@@ -58,7 +58,7 @@ type batchFieldsTable struct {
 
 var batchFields = &diefields.Table[batchFieldsTable]{Build: func() (f batchFieldsTable) {
 	_ = annotated
-	f.Containers = diefields.NewField[Batch, []diecorev1.Container]("containers")
+	f.Containers = diefields.NewItems[Batch, []diecorev1.Container, diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut]("containers")
 	f.Init = diefields.NewStruct[Batch, diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut]("init")
 	return
 }}

@@ -188,7 +188,7 @@ var packageInstallSpecFields = &diefields.Table[packageInstallSpecFieldsTable]{B
 	f.ServiceAccountName = diefields.NewField[PackageInstallSpec, string]("serviceAccountName")
 	f.Cluster = diefields.NewStruct[PackageInstallSpec, kappctrlv1alpha1.AppCluster, *kappctrlv1alpha1.AppClusterDie, *kappctrlv1alpha1.AppClusterDieMut]("cluster")
 	f.PackageRef = diefields.NewStruct[PackageInstallSpec, PackageRef, *PackageRefDie, *PackageRefDieMut]("packageRef")
-	f.Values = diefields.NewField[PackageInstallSpec, []PackageInstallValues]("values")
+	f.Values = diefields.NewItems[PackageInstallSpec, []PackageInstallValues, PackageInstallValues, *PackageInstallValuesDie, *PackageInstallValuesDieMut]("values")
 	f.Paused = diefields.NewField[PackageInstallSpec, bool]("paused")
 	f.Canceled = diefields.NewField[PackageInstallSpec, bool]("canceled")
 	f.SyncPeriod = diefields.NewField[PackageInstallSpec, *diemetav1.Duration]("syncPeriod")
@@ -336,7 +336,7 @@ type packageInstallStatusFieldsTable struct {
 var packageInstallStatusFields = &diefields.Table[packageInstallStatusFieldsTable]{Build: func() (f packageInstallStatusFieldsTable) {
 	_ = annotated
 	f.ObservedGeneration = diefields.NewField[PackageInstallStatus, int64]("observedGeneration")
-	f.Conditions = diefields.NewField[PackageInstallStatus, []kappctrlv1alpha1.Condition]("conditions")
+	f.Conditions = diefields.NewItems[PackageInstallStatus, []kappctrlv1alpha1.Condition, kappctrlv1alpha1.Condition, *kappctrlv1alpha1.ConditionDie, *kappctrlv1alpha1.ConditionDieMut]("conditions")
 	f.FriendlyDescription = diefields.NewField[PackageInstallStatus, string]("friendlyDescription")
 	f.UsefulErrorMessage = diefields.NewField[PackageInstallStatus, string]("usefulErrorMessage")
 	f.Version = diefields.NewField[PackageInstallStatus, string]("version")
@@ -856,7 +856,7 @@ var packageRepositoryStatusFields = &diefields.Table[packageRepositoryStatusFiel
 	f.ConsecutiveReconcileSuccesses = diefields.NewField[PackageRepositoryStatus, int]("consecutiveReconcileSuccesses")
 	f.ConsecutiveReconcileFailures = diefields.NewField[PackageRepositoryStatus, int]("consecutiveReconcileFailures")
 	f.ObservedGeneration = diefields.NewField[PackageRepositoryStatus, int64]("observedGeneration")
-	f.Conditions = diefields.NewField[PackageRepositoryStatus, []kappctrlv1alpha1.Condition]("conditions")
+	f.Conditions = diefields.NewItems[PackageRepositoryStatus, []kappctrlv1alpha1.Condition, kappctrlv1alpha1.Condition, *kappctrlv1alpha1.ConditionDie, *kappctrlv1alpha1.ConditionDieMut]("conditions")
 	f.FriendlyDescription = diefields.NewField[PackageRepositoryStatus, string]("friendlyDescription")
 	f.UsefulErrorMessage = diefields.NewField[PackageRepositoryStatus, string]("usefulErrorMessage")
 	return
@@ -966,14 +966,25 @@ var annotated = diecodegen.Register(diecodegen.Package{
 	Annotate: func() {
 		diecodegen.Object[PackageInstall]("packaging.carvel.dev/v1alpha1", "PackageInstall")
 		diecodegen.Annotate[PackageInstall](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
 		diecodegen.Object[PackageInstallList]("packaging.carvel.dev/v1alpha1", "PackageInstallList")
+		diecodegen.Annotate[PackageInstallList](map[string]string{
+			"Items": "required",
+		})
 		diecodegen.Object[PackageRepository]("packaging.carvel.dev/v1alpha1", "PackageRepository")
 		diecodegen.Annotate[PackageRepository](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
 		diecodegen.Object[PackageRepositoryList]("packaging.carvel.dev/v1alpha1", "PackageRepositoryList")
+		diecodegen.Annotate[PackageRepositoryList](map[string]string{
+			"Items": "required",
+		})
+		diecodegen.Annotate[PackageRepositorySpec](map[string]string{
+			"Fetch": "required",
+		})
 	},
 })
 

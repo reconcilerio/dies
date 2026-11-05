@@ -230,7 +230,7 @@ type configurationStatusFieldsTable struct {
 var configurationStatusFields = &diefields.Table[configurationStatusFieldsTable]{Build: func() (f configurationStatusFieldsTable) {
 	_ = annotated
 	f.ObservedGeneration = diefields.NewField[ConfigurationStatus, int64]("observedGeneration")
-	f.Conditions = diefields.NewField[ConfigurationStatus, duckv1.Conditions]("conditions")
+	f.Conditions = diefields.NewItems[ConfigurationStatus, duckv1.Conditions, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]("conditions")
 	f.Annotations = diefields.NewMap[ConfigurationStatus, string, string]("annotations")
 	f.LatestReadyRevisionName = diefields.NewField[ConfigurationStatus, string]("latestReadyRevisionName")
 	f.LatestCreatedRevisionName = diefields.NewField[ConfigurationStatus, string]("latestCreatedRevisionName")
@@ -625,12 +625,12 @@ var revisionSpecFields = &diefields.Table[revisionSpecFieldsTable]{Build: func()
 	f.Subdomain = diefields.NewField[RevisionSpec, string]("subdomain")
 	f.Affinity = diefields.NewStruct[RevisionSpec, diecorev1.Affinity, *diecorev1.AffinityDie, *diecorev1.AffinityDieMut]("affinity")
 	f.SchedulerName = diefields.NewField[RevisionSpec, string]("schedulerName")
-	f.Tolerations = diefields.NewField[RevisionSpec, []diecorev1.Toleration]("tolerations")
+	f.Tolerations = diefields.NewItems[RevisionSpec, []diecorev1.Toleration, diecorev1.Toleration, *diecorev1.TolerationDie, *diecorev1.TolerationDieMut]("tolerations")
 	f.HostAliases = diefields.NewListMap[RevisionSpec, diecorev1.HostAlias, *diecorev1.HostAliasDie, *diecorev1.HostAliasDieMut]("hostAliases", func(k string) []any { return []any{k} }, func(e diecorev1.HostAlias) string { return e.IP })
 	f.PriorityClassName = diefields.NewField[RevisionSpec, string]("priorityClassName")
 	f.Priority = diefields.NewField[RevisionSpec, *int32]("priority")
 	f.DNSConfig = diefields.NewStruct[RevisionSpec, diecorev1.PodDNSConfig, *diecorev1.PodDNSConfigDie, *diecorev1.PodDNSConfigDieMut]("dnsConfig")
-	f.ReadinessGates = diefields.NewField[RevisionSpec, []diecorev1.PodReadinessGate]("readinessGates")
+	f.ReadinessGates = diefields.NewItems[RevisionSpec, []diecorev1.PodReadinessGate, diecorev1.PodReadinessGate, *diecorev1.PodReadinessGateDie, *diecorev1.PodReadinessGateDieMut]("readinessGates")
 	f.RuntimeClassName = diefields.NewField[RevisionSpec, *string]("runtimeClassName")
 	f.EnableServiceLinks = diefields.NewField[RevisionSpec, *bool]("enableServiceLinks")
 	f.PreemptionPolicy = diefields.NewField[RevisionSpec, *diecorev1.PreemptionPolicy]("preemptionPolicy")
@@ -1557,11 +1557,11 @@ type revisionStatusFieldsTable struct {
 var revisionStatusFields = &diefields.Table[revisionStatusFieldsTable]{Build: func() (f revisionStatusFieldsTable) {
 	_ = annotated
 	f.ObservedGeneration = diefields.NewField[RevisionStatus, int64]("observedGeneration")
-	f.Conditions = diefields.NewField[RevisionStatus, duckv1.Conditions]("conditions")
+	f.Conditions = diefields.NewItems[RevisionStatus, duckv1.Conditions, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]("conditions")
 	f.Annotations = diefields.NewMap[RevisionStatus, string, string]("annotations")
 	f.LogURL = diefields.NewField[RevisionStatus, string]("logUrl")
-	f.ContainerStatuses = diefields.NewField[RevisionStatus, []ContainerStatus]("containerStatuses")
-	f.InitContainerStatuses = diefields.NewField[RevisionStatus, []ContainerStatus]("initContainerStatuses")
+	f.ContainerStatuses = diefields.NewItems[RevisionStatus, []ContainerStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]("containerStatuses")
+	f.InitContainerStatuses = diefields.NewItems[RevisionStatus, []ContainerStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]("initContainerStatuses")
 	f.ActualReplicas = diefields.NewField[RevisionStatus, *int32]("actualReplicas")
 	f.DesiredReplicas = diefields.NewField[RevisionStatus, *int32]("desiredReplicas")
 	return
@@ -1875,7 +1875,7 @@ type routeSpecFieldsTable struct {
 
 var routeSpecFields = &diefields.Table[routeSpecFieldsTable]{Build: func() (f routeSpecFieldsTable) {
 	_ = annotated
-	f.Traffic = diefields.NewField[RouteSpec, []TrafficTarget]("traffic")
+	f.Traffic = diefields.NewItems[RouteSpec, []TrafficTarget, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]("traffic")
 	return
 }}
 
@@ -1926,11 +1926,11 @@ type routeStatusFieldsTable struct {
 var routeStatusFields = &diefields.Table[routeStatusFieldsTable]{Build: func() (f routeStatusFieldsTable) {
 	_ = annotated
 	f.ObservedGeneration = diefields.NewField[RouteStatus, int64]("observedGeneration")
-	f.Conditions = diefields.NewField[RouteStatus, duckv1.Conditions]("conditions")
+	f.Conditions = diefields.NewItems[RouteStatus, duckv1.Conditions, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]("conditions")
 	f.Annotations = diefields.NewMap[RouteStatus, string, string]("annotations")
 	f.URL = diefields.NewField[RouteStatus, *apis.URL]("url")
 	f.Address = diefields.NewStruct[RouteStatus, duckv1.Addressable, *duckv1.AddressableDie, *duckv1.AddressableDieMut]("address")
-	f.Traffic = diefields.NewField[RouteStatus, []TrafficTarget]("traffic")
+	f.Traffic = diefields.NewItems[RouteStatus, []TrafficTarget, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]("traffic")
 	return
 }}
 
@@ -2045,7 +2045,7 @@ var routeStatusFieldsFields = &diefields.Table[routeStatusFieldsFieldsTable]{Bui
 	_ = annotated
 	f.URL = diefields.NewField[RouteStatusFields, *apis.URL]("url")
 	f.Address = diefields.NewStruct[RouteStatusFields, duckv1.Addressable, *duckv1.AddressableDie, *duckv1.AddressableDieMut]("address")
-	f.Traffic = diefields.NewField[RouteStatusFields, []TrafficTarget]("traffic")
+	f.Traffic = diefields.NewItems[RouteStatusFields, []TrafficTarget, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]("traffic")
 	return
 }}
 
@@ -2247,7 +2247,7 @@ type serviceSpecFieldsTable struct {
 var serviceSpecFields = &diefields.Table[serviceSpecFieldsTable]{Build: func() (f serviceSpecFieldsTable) {
 	_ = annotated
 	f.Template = diefields.NewStruct[ServiceSpec, RevisionTemplateSpec, *RevisionTemplateSpecDie, *RevisionTemplateSpecDieMut]("template")
-	f.Traffic = diefields.NewField[ServiceSpec, []TrafficTarget]("traffic")
+	f.Traffic = diefields.NewItems[ServiceSpec, []TrafficTarget, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]("traffic")
 	return
 }}
 
@@ -2310,13 +2310,13 @@ type serviceStatusFieldsTable struct {
 var serviceStatusFields = &diefields.Table[serviceStatusFieldsTable]{Build: func() (f serviceStatusFieldsTable) {
 	_ = annotated
 	f.ObservedGeneration = diefields.NewField[ServiceStatus, int64]("observedGeneration")
-	f.Conditions = diefields.NewField[ServiceStatus, duckv1.Conditions]("conditions")
+	f.Conditions = diefields.NewItems[ServiceStatus, duckv1.Conditions, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]("conditions")
 	f.Annotations = diefields.NewMap[ServiceStatus, string, string]("annotations")
 	f.LatestReadyRevisionName = diefields.NewField[ServiceStatus, string]("latestReadyRevisionName")
 	f.LatestCreatedRevisionName = diefields.NewField[ServiceStatus, string]("latestCreatedRevisionName")
 	f.URL = diefields.NewField[ServiceStatus, *apis.URL]("url")
 	f.Address = diefields.NewStruct[ServiceStatus, duckv1.Addressable, *duckv1.AddressableDie, *duckv1.AddressableDieMut]("address")
-	f.Traffic = diefields.NewField[ServiceStatus, []TrafficTarget]("traffic")
+	f.Traffic = diefields.NewItems[ServiceStatus, []TrafficTarget, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]("traffic")
 	return
 }}
 

@@ -25,6 +25,7 @@ limitations under the License.
 //   - jigs: dies and unstructured objects held in the shape of other types
 //   - unstructured: dies for objects with no Go type
 //   - jsonpath: locations within dies found by JSONPath expressions
+//   - validation: field errors at locations within dies, for [Validator]s
 //   - codegen: what generated dies register, and the checks their tests run
 //   - dietest: helpers for tests and fixtures
 package die

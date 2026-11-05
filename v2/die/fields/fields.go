@@ -37,6 +37,19 @@ func NewField[T, V any](wire string) Field[T, V] {
 	return Field[T, V]{fd: lookup[T](wire, reflect.TypeFor[V]())}
 }
 
+// NewItems declares a leaf field of T with value type V that is an atomic
+// list of C items with dies of their own, CD and CDM. It is read and written
+// whole, as a leaf is; its items' dies are for code that walks dies by
+// their fields, such as validation.
+func NewItems[T, V, C any, CD base.DieOf[C, CD, CDM], CDM base.DieMutOf[C, CD, CDM]](wire string) Field[T, V] {
+	f := NewField[T, V](wire)
+	if f.fd.Typ.Kind() != reflect.Slice || f.fd.Typ.Elem() != reflect.TypeFor[C]() {
+		panic(core.Errorf("die: field %q of %s is %s, not a list of %s", wire, reflect.TypeFor[T](), f.fd.Typ, reflect.TypeFor[C]()))
+	}
+	f.fd.Dies = childDies[C, CD, CDM]
+	return f
+}
+
 // Struct is a struct field of T, held by value or pointer, whose dies are CD
 // and CDM.
 type Struct[T, C any, CD base.DieOf[C, CD, CDM], CDM base.DieMutOf[C, CD, CDM]] struct{ fd *core.FieldDesc }
@@ -46,6 +59,7 @@ func NewStruct[T, C any, CD base.DieOf[C, CD, CDM], CDM base.DieMutOf[C, CD, CDM
 	if core.Deref(fd.Typ) != reflect.TypeFor[C]() {
 		panic(core.Errorf("die: field %q of %s is %s, not %s", wire, reflect.TypeFor[T](), fd.Typ, reflect.TypeFor[C]()))
 	}
+	fd.Dies = childDies[C, CD, CDM]
 	return Struct[T, C, CD, CDM]{fd: fd}
 }
 
@@ -67,6 +81,7 @@ func NewListMap[T, C any, CD base.DieOf[C, CD, CDM], CDM base.DieMutOf[C, CD, CD
 	if fd.Kind != core.KindListMap {
 		panic(core.Errorf("die: field %q of %s is not a list map", wire, reflect.TypeFor[T]()))
 	}
+	fd.Dies = childDies[C, CD, CDM]
 	return ListMapField[T, C, CD, CDM, K]{fd: fd, key: key, keyOf: keyOf}
 }
 
@@ -79,6 +94,16 @@ func NewMap[T any, K ~string, V any](wire string) MapField[T, K, V] {
 		panic(core.Errorf("die: field %q of %s is %s, not a map of %s", wire, reflect.TypeFor[T](), fd.Typ, reflect.TypeFor[V]()))
 	}
 	return MapField[T, K, V]{fd: fd}
+}
+
+// childDies makes the die of a field's struct, or of its list's element, as
+// its accessor would, for code that walks dies by their fields, such as
+// validation.
+func childDies[C any, CD base.DieOf[C, CD, CDM], CDM base.DieMutOf[C, CD, CDM]](h *core.Holder, at core.Path, mutable bool) any {
+	if mutable {
+		return dies.WrapDieMut[C, CD](h, at)
+	}
+	return dies.WrapDie[C, CD](h, at)
 }
 
 // lookup finds a field for a field table, recording that T's die manages it.

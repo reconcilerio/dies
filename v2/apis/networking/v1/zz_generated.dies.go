@@ -246,7 +246,7 @@ type hTTPIngressRuleValueFieldsTable struct {
 
 var hTTPIngressRuleValueFields = &diefields.Table[hTTPIngressRuleValueFieldsTable]{Build: func() (f hTTPIngressRuleValueFieldsTable) {
 	_ = annotated
-	f.Paths = diefields.NewField[HTTPIngressRuleValue, []HTTPIngressPath]("paths")
+	f.Paths = diefields.NewItems[HTTPIngressRuleValue, []HTTPIngressPath, HTTPIngressPath, *HTTPIngressPathDie, *HTTPIngressPathDieMut]("paths")
 	return
 }}
 
@@ -1349,7 +1349,7 @@ var ingressLoadBalancerIngressFields = &diefields.Table[ingressLoadBalancerIngre
 	_ = annotated
 	f.IP = diefields.NewField[IngressLoadBalancerIngress, string]("ip")
 	f.Hostname = diefields.NewField[IngressLoadBalancerIngress, string]("hostname")
-	f.Ports = diefields.NewField[IngressLoadBalancerIngress, []IngressPortStatus]("ports")
+	f.Ports = diefields.NewItems[IngressLoadBalancerIngress, []IngressPortStatus, IngressPortStatus, *IngressPortStatusDie, *IngressPortStatusDieMut]("ports")
 	return
 }}
 
@@ -1451,7 +1451,7 @@ type ingressLoadBalancerStatusFieldsTable struct {
 
 var ingressLoadBalancerStatusFields = &diefields.Table[ingressLoadBalancerStatusFieldsTable]{Build: func() (f ingressLoadBalancerStatusFieldsTable) {
 	_ = annotated
-	f.Ingress = diefields.NewField[IngressLoadBalancerStatus, []IngressLoadBalancerIngress]("ingress")
+	f.Ingress = diefields.NewItems[IngressLoadBalancerStatus, []IngressLoadBalancerIngress, IngressLoadBalancerIngress, *IngressLoadBalancerIngressDie, *IngressLoadBalancerIngressDieMut]("ingress")
 	return
 }}
 
@@ -1985,8 +1985,8 @@ var ingressSpecFields = &diefields.Table[ingressSpecFieldsTable]{Build: func() (
 	_ = annotated
 	f.IngressClassName = diefields.NewField[IngressSpec, *string]("ingressClassName")
 	f.DefaultBackend = diefields.NewStruct[IngressSpec, IngressBackend, *IngressBackendDie, *IngressBackendDieMut]("defaultBackend")
-	f.TLS = diefields.NewField[IngressSpec, []IngressTLS]("tls")
-	f.Rules = diefields.NewField[IngressSpec, []IngressRule]("rules")
+	f.TLS = diefields.NewItems[IngressSpec, []IngressTLS, IngressTLS, *IngressTLSDie, *IngressTLSDieMut]("tls")
+	f.Rules = diefields.NewItems[IngressSpec, []IngressRule, IngressRule, *IngressRuleDie, *IngressRuleDieMut]("rules")
 	return
 }}
 
@@ -2459,8 +2459,8 @@ type networkPolicyEgressRuleFieldsTable struct {
 
 var networkPolicyEgressRuleFields = &diefields.Table[networkPolicyEgressRuleFieldsTable]{Build: func() (f networkPolicyEgressRuleFieldsTable) {
 	_ = annotated
-	f.Ports = diefields.NewField[NetworkPolicyEgressRule, []NetworkPolicyPort]("ports")
-	f.To = diefields.NewField[NetworkPolicyEgressRule, []NetworkPolicyPeer]("to")
+	f.Ports = diefields.NewItems[NetworkPolicyEgressRule, []NetworkPolicyPort, NetworkPolicyPort, *NetworkPolicyPortDie, *NetworkPolicyPortDieMut]("ports")
+	f.To = diefields.NewItems[NetworkPolicyEgressRule, []NetworkPolicyPeer, NetworkPolicyPeer, *NetworkPolicyPeerDie, *NetworkPolicyPeerDieMut]("to")
 	return
 }}
 
@@ -2570,8 +2570,8 @@ type networkPolicyIngressRuleFieldsTable struct {
 
 var networkPolicyIngressRuleFields = &diefields.Table[networkPolicyIngressRuleFieldsTable]{Build: func() (f networkPolicyIngressRuleFieldsTable) {
 	_ = annotated
-	f.Ports = diefields.NewField[NetworkPolicyIngressRule, []NetworkPolicyPort]("ports")
-	f.From = diefields.NewField[NetworkPolicyIngressRule, []NetworkPolicyPeer]("from")
+	f.Ports = diefields.NewItems[NetworkPolicyIngressRule, []NetworkPolicyPort, NetworkPolicyPort, *NetworkPolicyPortDie, *NetworkPolicyPortDieMut]("ports")
+	f.From = diefields.NewItems[NetworkPolicyIngressRule, []NetworkPolicyPeer, NetworkPolicyPeer, *NetworkPolicyPeerDie, *NetworkPolicyPeerDieMut]("from")
 	return
 }}
 
@@ -2949,8 +2949,8 @@ type networkPolicySpecFieldsTable struct {
 var networkPolicySpecFields = &diefields.Table[networkPolicySpecFieldsTable]{Build: func() (f networkPolicySpecFieldsTable) {
 	_ = annotated
 	f.PodSelector = diefields.NewStruct[NetworkPolicySpec, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("podSelector")
-	f.Ingress = diefields.NewField[NetworkPolicySpec, []NetworkPolicyIngressRule]("ingress")
-	f.Egress = diefields.NewField[NetworkPolicySpec, []NetworkPolicyEgressRule]("egress")
+	f.Ingress = diefields.NewItems[NetworkPolicySpec, []NetworkPolicyIngressRule, NetworkPolicyIngressRule, *NetworkPolicyIngressRuleDie, *NetworkPolicyIngressRuleDieMut]("ingress")
+	f.Egress = diefields.NewItems[NetworkPolicySpec, []NetworkPolicyEgressRule, NetworkPolicyEgressRule, *NetworkPolicyEgressRuleDie, *NetworkPolicyEgressRuleDieMut]("egress")
 	f.PolicyTypes = diefields.NewField[NetworkPolicySpec, []PolicyType]("policyTypes")
 	return
 }}
@@ -3629,12 +3629,22 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		"k8s.io/api/networking/v1",
 	},
 	Annotate: func() {
+		diecodegen.Annotate[HTTPIngressPath](map[string]string{
+			"PathType": "enum=[\"Exact\",\"ImplementationSpecific\",\"Prefix\"]",
+		})
 		diecodegen.Annotate[HTTPIngressRuleValue](map[string]string{
 			"Paths": "atomic",
 		})
 		diecodegen.Object[IPAddress]("networking.k8s.io/v1", "IPAddress")
+		diecodegen.Annotate[IPAddress](map[string]string{
+			"Spec": "required",
+		})
 		diecodegen.Object[IPAddressList]("networking.k8s.io/v1", "IPAddressList")
+		diecodegen.Annotate[IPAddressSpec](map[string]string{
+			"ParentRef": "required",
+		})
 		diecodegen.Annotate[IPBlock](map[string]string{
+			"CIDR":   "required",
 			"Except": "atomic",
 		})
 		diecodegen.Object[Ingress]("networking.k8s.io/v1", "Ingress")
@@ -3646,12 +3656,20 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Object[IngressClass]("networking.k8s.io/v1", "IngressClass")
 		diecodegen.Object[IngressClassList]("networking.k8s.io/v1", "IngressClassList")
+		diecodegen.Annotate[IngressClassParametersReference](map[string]string{
+			"Kind": "required",
+			"Name": "required",
+		})
 		diecodegen.Object[IngressList]("networking.k8s.io/v1", "IngressList")
 		diecodegen.Annotate[IngressLoadBalancerIngress](map[string]string{
 			"Ports": "atomic",
 		})
 		diecodegen.Annotate[IngressLoadBalancerStatus](map[string]string{
 			"Ingress": "atomic",
+		})
+		diecodegen.Annotate[IngressPortStatus](map[string]string{
+			"Protocol": "enum=[\"SCTP\",\"TCP\",\"UDP\"]",
+			"Error":    "pattern=\"^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$\";maxLength=316",
 		})
 		diecodegen.Annotate[IngressServiceBackend](map[string]string{
 			"Port": "atomic",
@@ -3677,11 +3695,18 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"PodSelector":       "atomic",
 			"NamespaceSelector": "atomic",
 		})
+		diecodegen.Annotate[NetworkPolicyPort](map[string]string{
+			"Protocol": "enum=[\"SCTP\",\"TCP\",\"UDP\"]",
+		})
 		diecodegen.Annotate[NetworkPolicySpec](map[string]string{
 			"PodSelector": "atomic",
 			"Ingress":     "atomic",
 			"Egress":      "atomic",
-			"PolicyTypes": "atomic",
+			"PolicyTypes": "atomic;each.enum=[\"Egress\",\"Ingress\"]",
+		})
+		diecodegen.Annotate[ParentReference](map[string]string{
+			"Resource": "required",
+			"Name":     "required",
 		})
 		diecodegen.Object[ServiceCIDR]("networking.k8s.io/v1", "ServiceCIDR")
 		diecodegen.Annotate[ServiceCIDR](map[string]string{

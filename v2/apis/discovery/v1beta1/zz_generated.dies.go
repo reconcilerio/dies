@@ -427,8 +427,8 @@ type endpointHintsFieldsTable struct {
 
 var endpointHintsFields = &diefields.Table[endpointHintsFieldsTable]{Build: func() (f endpointHintsFieldsTable) {
 	_ = annotated
-	f.ForZones = diefields.NewField[EndpointHints, []ForZone]("forZones")
-	f.ForNodes = diefields.NewField[EndpointHints, []ForNode]("forNodes")
+	f.ForZones = diefields.NewItems[EndpointHints, []ForZone, ForZone, *ForZoneDie, *ForZoneDieMut]("forZones")
+	f.ForNodes = diefields.NewItems[EndpointHints, []ForNode, ForNode, *ForNodeDie, *ForNodeDieMut]("forNodes")
 	return
 }}
 
@@ -683,8 +683,8 @@ var endpointSliceFields = &diefields.Table[endpointSliceFieldsTable]{Build: func
 	f.APIVersion = diefields.NewField[EndpointSlice, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[EndpointSlice, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
 	f.AddressType = diefields.NewField[EndpointSlice, AddressType]("addressType")
-	f.Endpoints = diefields.NewField[EndpointSlice, []Endpoint]("endpoints")
-	f.Ports = diefields.NewField[EndpointSlice, []EndpointPort]("ports")
+	f.Endpoints = diefields.NewItems[EndpointSlice, []Endpoint, Endpoint, *EndpointDie, *EndpointDieMut]("endpoints")
+	f.Ports = diefields.NewItems[EndpointSlice, []EndpointPort, EndpointPort, *EndpointPortDie, *EndpointPortDieMut]("ports")
 	return
 }}
 
@@ -988,17 +988,21 @@ var annotated = diecodegen.Register(diecodegen.Package{
 	},
 	Annotate: func() {
 		diecodegen.Annotate[Endpoint](map[string]string{
-			"Addresses": "atomic",
+			"Addresses": "atomic;required;unique",
 			"TargetRef": "atomic",
 		})
 		diecodegen.Annotate[EndpointHints](map[string]string{
 			"ForZones": "atomic",
 			"ForNodes": "atomic",
 		})
+		diecodegen.Annotate[EndpointPort](map[string]string{
+			"Protocol": "enum=[\"SCTP\",\"TCP\",\"UDP\"]",
+		})
 		diecodegen.Object[EndpointSlice]("discovery.k8s.io/v1beta1", "EndpointSlice")
 		diecodegen.Annotate[EndpointSlice](map[string]string{
-			"Endpoints": "atomic",
-			"Ports":     "atomic",
+			"AddressType": "required;enum=[\"FQDN\",\"IPv4\",\"IPv6\"]",
+			"Endpoints":   "atomic",
+			"Ports":       "atomic",
 		})
 		diecodegen.Object[EndpointSliceList]("discovery.k8s.io/v1beta1", "EndpointSliceList")
 	},

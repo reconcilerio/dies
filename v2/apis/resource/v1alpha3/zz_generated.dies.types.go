@@ -35,6 +35,7 @@ const CELSelectorExpressionMaxCost = resourcev1alpha3.CELSelectorExpressionMaxCo
 const CELSelectorExpressionMaxLength = resourcev1alpha3.CELSelectorExpressionMaxLength
 
 // +die
+// +die:union:name=SelectorType,members={cel},oneOf=true
 type DeviceSelector = resourcev1alpha3.DeviceSelector
 
 // +die

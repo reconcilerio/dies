@@ -143,3 +143,48 @@ func TestTypeDocMarkers(t *testing.T) {
 		}
 	}
 }
+
+func TestValueChecks(t *testing.T) {
+	tests := []struct {
+		name  string
+		lines []string
+		want  []string
+	}{
+		{"declarative", []string{"+k8s:format=k8s-short-name", "+k8s:maxLength=63", "+k8s:maximum=1000 # Highest"}, []string{"format=k8s-short-name", "maximum=1000", "maxLength=63"}},
+		{"kubebuilder", []string{"+kubebuilder:validation:Minimum=0.5", "+kubebuilder:validation:ExclusiveMinimum=true", "+kubebuilder:validation:UniqueItems=true"}, []string{"minimum=0.5", "exclusiveMinimum", "unique"}},
+		{"kubebuilder enum and pattern", []string{`+kubebuilder:validation:Enum=a;"b c"`, "+kubebuilder:validation:Pattern=`^a;b$`"}, []string{`enum=["a","b c"]`, `pattern="^a;b$"`}},
+		{"items", []string{"+k8s:eachVal=+k8s:format=k8s-label-key", "+kubebuilder:validation:items:MaxLength=63", "+k8s:maxItems=4"}, []string{"maxItems=4", "each.format=k8s-label-key", "each.maxLength=63"}},
+		{"sets", []string{"+k8s:unique=set"}, []string{"unique"}},
+		{"not a number", []string{"+k8s:minimum=ref(Min)"}, nil},
+	}
+	g := newGenerator()
+	for _, tt := range tests {
+		got := g.valueChecks(markers(tt.lines), nil)
+		if !reflect.DeepEqual(got, tt.want) {
+			t.Errorf("%s: got %q, want %q", tt.name, got, tt.want)
+		}
+	}
+}
+
+func TestKubebuilderPackage(t *testing.T) {
+	tests := []struct {
+		name, src string
+		want      *kubebuilderPackage
+	}{
+		{"custom resources", "package v1\n\n// +kubebuilder:object:root=true\ntype Duck struct{}\n", &kubebuilderPackage{required: true}},
+		{"optional by default", "// +kubebuilder:validation:Optional\n\n// Package v1 has ducks.\npackage v1\n\n// +kubebuilder:subresource:status\ntype Duck struct{}\n", &kubebuilderPackage{required: false}},
+		// markers that only validate, as metav1.Condition's do
+		{"validation only", "package v1\n\ntype Condition struct {\n\t// +kubebuilder:validation:Required\n\tType string `json:\"type\"`\n}\n", nil},
+	}
+	for _, tt := range tests {
+		f, err := parser.ParseFile(token.NewFileSet(), "types.go", tt.src, parser.ParseComments)
+		if err != nil {
+			t.Fatal(err)
+		}
+		g := newGenerator()
+		g.indexKubebuilder(&packages.Package{PkgPath: "example.dev/v1", Syntax: []*ast.File{f}})
+		if got := g.kubebuilder["example.dev/v1"]; !reflect.DeepEqual(got, tt.want) {
+			t.Errorf("%s: got %+v, want %+v", tt.name, got, tt.want)
+		}
+	}
+}

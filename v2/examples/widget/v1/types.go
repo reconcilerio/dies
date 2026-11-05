@@ -58,9 +58,10 @@ type TemplatedSpec struct {
 
 // +die
 type WidgetSpec struct {
-	// Ports exposed by the widget.
+	// Ports exposed by the widget, which may be added but not removed.
 	// +listType=map
 	// +listMapKey=name
+	// +k8s:update=NoRemoveItem
 	Ports []WidgetPort `json:"ports,omitempty"`
 	// Template for the widget's pods.
 	Template corev1.PodTemplateSpec `json:"template"`
@@ -76,6 +77,7 @@ type WidgetSpec struct {
 // +die
 // +die:field:name=equal,accessor=Exact
 type WidgetMatch struct {
+	// +k8s:immutable
 	Equal bool `json:"equal,omitempty"`
 	// Note accepts null, so an apply clears it with null, as a custom
 	// resource's validation rejects null for fields that don't.
@@ -91,8 +93,12 @@ type WidgetGadget struct {
 
 // +die
 type WidgetPort struct {
+	// +k8s:format=k8s-short-name
 	Name string `json:"name"`
-	Port int32  `json:"port"`
+	// Port defaults to 80.
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=65535
+	Port int32 `json:"port,omitempty"`
 }
 
 // +die

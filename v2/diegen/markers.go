@@ -17,7 +17,6 @@ limitations under the License.
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"go/ast"
 	"go/token"
@@ -41,6 +40,8 @@ type generator struct {
 	exists map[string]bool
 	// acs has the apply configurations of each die package
 	acs map[string]*acSet
+	// kubebuilder has the packages of custom resources, by import path
+	kubebuilder map[string]*kubebuilderPackage
 }
 
 func newGenerator() *generator {
@@ -51,6 +52,8 @@ func newGenerator() *generator {
 		meta:      map[string]*pkgMeta{},
 		exists:    map[string]bool{},
 		acs:       map[string]*acSet{},
+
+		kubebuilder: map[string]*kubebuilderPackage{},
 	}
 }
 
@@ -67,6 +70,7 @@ func (g *generator) index(p *packages.Package) {
 	if p.TypesInfo == nil {
 		return
 	}
+	g.indexKubebuilder(p)
 	for _, f := range p.Syntax {
 		for _, decl := range f.Decls {
 			gd, ok := decl.(*ast.GenDecl)
@@ -257,6 +261,13 @@ type fieldSpec struct {
 	nullable bool
 	// accessor renames the field's die method, such as to avoid a collision
 	accessor string
+	// required is how validation requires the field: "present", as an
+	// OpenAPI schema does, "nonzero", as +k8s:required does, or not at all
+	required string
+	// oneOf is set for a member of a union of which exactly one must be set
+	oneOf bool
+	// checks are the die tag options of the checks of the field's value
+	checks []string
 }
 
 func (f *fieldSpec) atomic() bool {
@@ -312,11 +323,15 @@ func (g *generator) upstreamSpec(n *types.Named, st *types.Struct) *typeSpec {
 				fs.structType = first(tm["structType"])
 			}
 		}
-		if d := first(m["default"]); json.Valid([]byte(d)) {
-			fs.def = d
-		}
+		fs.def = defaultOf(m, wf.v.Type())
 		if _, ok := m["nullable"]; ok {
 			fs.nullable = true
+		}
+		fs.required = g.required(n, wf, m)
+		fs.union, fs.oneOf = unionOf(m)
+		fs.checks = g.valueChecks(m, wf.v.Type())
+		if fs.listType == "set" {
+			fs.checks = setCheck(fs.checks, "unique", "unique")
 		}
 		if !reflect.ValueOf(fs).IsZero() {
 			*s.field(wf.wire) = fs
@@ -380,11 +395,31 @@ func dieSpec(base *typeSpec, doc []string) *typeSpec {
 					fs.accessor = v[0]
 				case "nullable":
 					fs.nullable = v[0] != "false"
+				case "required":
+					switch v[0] {
+					case "true", "present":
+						fs.required = "present"
+					case "nonzero":
+						fs.required = "nonzero"
+					default:
+						fs.required = ""
+					}
+				default:
+					if checkKey(k) {
+						opt := k
+						if v[0] != "true" {
+							// a list, such as update={NoSet,NoUnset}, is
+							// written as one
+							opt += "=" + strings.Join(v, ",")
+						}
+						fs.checks = setCheck(fs.checks, k, opt)
+					}
 				}
 			}
 		case "die:union":
 			for _, member := range m.args["members"] {
 				s.field(member).union = m.arg("name")
+				s.field(member).oneOf = m.arg("oneOf") == "true"
 			}
 		case "die:subresource":
 			s.subresource(m.arg("name"))
@@ -394,7 +429,7 @@ func dieSpec(base *typeSpec, doc []string) *typeSpec {
 }
 
 // render writes a spec as canonical +die markers, with fields in declaration
-// order.
+// order: the markers that shape a die, not those that only validate it.
 func (s *typeSpec) render(order []string) []string {
 	var lines []string
 	unions := map[string][]string{}
@@ -439,7 +474,11 @@ func (s *typeSpec) render(order []string) []string {
 		}
 	}
 	for _, u := range unionNames {
-		lines = append(lines, "+die:union:name="+u+",members={"+strings.Join(unions[u], ",")+"}")
+		l := "+die:union:name=" + u + ",members={" + strings.Join(unions[u], ",") + "}"
+		if s.fields[unions[u][0]].oneOf {
+			l += ",oneOf=true"
+		}
+		lines = append(lines, l)
 	}
 	for _, sub := range s.subresources {
 		lines = append(lines, "+die:subresource:name="+sub)

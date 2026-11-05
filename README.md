@@ -37,6 +37,10 @@ v2 is a rewrite, and its API is not compatible with v0. The v0 API is documented
 	- [Molds: unstructured dies with the server's schema](#molds-unstructured-dies-with-the-servers-schema)
 - [Jigs](#jigs)
 - [JSONPath](#jsonpath)
+- [Validation and defaulting](#validation-and-defaulting)
+	- [Checks from markers](#checks-from-markers)
+	- [Updates](#updates)
+	- [Field errors](#field-errors)
 - [Die methods](#die-methods)
 - [Creating dies](#creating-dies)
 	- [diegen](#diegen)
@@ -458,6 +462,83 @@ containers, err := jsonpath.FindDies[*diecorev1.ContainerDie](podSpec, ".contain
 
 A list-map element is found by its keys, however the expression found it, so a write through it merges by key. A path with no wildcards or filters resolves even when its value isn't set, so a write through it creates it. A field the type doesn't have is an error, not a silent miss.
 
+## Validation and defaulting
+
+A die validates or defaults only its own fields. Implement `DieValidate` on the immutable dies, or `DieDefault` on the mutable dies, of the types that need logic of their own, and `die.ValidateCreate` or `die.Default` walks every die within the one you pass it, calling each die that has one. The dies in between need nothing, so a nested type's rules apply wherever it's used, without plumbing them through each type above it:
+
+```go
+// in the die package, beside the generated dies
+func (d *WidgetPortDie) DieValidate(ctx context.Context, op die.Operation) (validation.ErrorList, error) {
+	if d.Port().Get() == 22 {
+		return validation.ErrorList{validation.Invalid(d.Port(), "is reserved for ssh")}, nil
+	}
+	return nil, nil
+}
+
+func (d *WidgetPortDieMut) DieDefault(ctx context.Context) error {
+	if d.Port().Get() == 0 {
+		return d.Port().Set(80)
+	}
+	return nil
+}
+```
+
+```go
+errs, err := die.ValidateCreate(ctx, widget) // a field.ErrorList
+// spec.ports[1].port: Invalid value: 22: is reserved for ssh
+
+err := die.Default(ctx, mutableWidget)
+```
+
+The walk reaches each struct field held by value, or by pointer when it's present, each element of a list map, and each item of an atomic list whose type has a die. Errors are located from the root, as the die knows where it is: a list-map element is at its index, as the API server reports it. A die within another reports the paths its root has, so validating a pod spec within a deployment reports `spec.template.spec.…`.
+
+`die.ValidateCreate`, `die.ValidateUpdate` and `die.ValidateDelete` each pass a `die.Operation` saying what's being validated, as an admission request does. Validation returns apimachinery's `field.ErrorList`, which a webhook or the API server reports as it is.
+
+`DieValidate` returns the errors of the value, and an error of its own when it can't validate the value at all, such as when a lookup it needs fails. That error stops validation: the `die.Validate…` functions return it, with the location of the die that returned it, along with the value's errors found until then.
+
+Defaulting is top down: each die is defaulted before the dies within it are walked, so what a die's defaults create is defaulted too. It stops at the first error, with the location of the die that returned it.
+
+### Checks from markers
+
+The markers diegen reads are checked without any code: those of Kubernetes' declarative validation, of kubebuilder, and of the OpenAPI schema. The checks are apimachinery's declarative validation, so their errors are the API server's:
+
+- **Required fields:** `+required` and `+kubebuilder:validation:Required` need the field present; `+k8s:required` also needs it not empty, unless it's held by pointer. A list-map element's key without a default can't be empty.
+- **Values:** `+k8s:format` (`k8s-short-name`, `k8s-long-name`, `k8s-label-key` and the rest), `+k8s:minimum` and `+k8s:maximum`, `+k8s:maxLength`, `+k8s:maxBytes`, `+k8s:maxItems`, and `+k8s:eachVal` for a list's items or a map's values; kubebuilder's `Minimum`, `Maximum`, `ExclusiveMinimum`, `ExclusiveMaximum`, `MultipleOf`, `MinLength`, `MaxLength`, `Pattern`, `Enum`, `Format` (OpenAPI's formats, such as `date-time`), `MinItems`, `MaxItems`, `UniqueItems`, `MinProperties`, `MaxProperties` and `items:…`.
+- **Enums:** a field whose type is marked `+enum` or `+k8s:enum` may only be one of its type's constants, such as a container port's protocol.
+- **Sets:** a `+listType=set` or `+k8s:unique=set` list may not have an item twice.
+- **Unions:** exactly one member of a `+oneOf` or `+k8s:unionMember` union must be set, and at most one of a `+zeroOrOneOf` union, or a `+die:union` unless it's `oneOf=true`.
+
+A marker on a type holds for every field of that type, or of a list of it.
+
+`die.Default` sets each absent field that has a `+default` or `+kubebuilder:default` to it, as the API server does for a custom resource, before calling the die's `DieDefault`.
+
+A package of custom resources has kubebuilder's convention: a field without `omitempty` or `omitzero` is required, unless it's `+optional`, or the package is `+kubebuilder:validation:Optional`. diegen recognizes such a package by the markers controller-gen generates CRDs from, such as `+kubebuilder:object:root` and `+kubebuilder:subresource`. Markers that only validate don't count, so the few in `k8s.io/api` and apimachinery's `meta/v1`, for the custom resources that use their types, don't make those packages custom resources.
+
+Not checked: CEL rules (`+kubebuilder:validation:XValidation`), feature-gated markers (`+k8s:alpha`, `+k8s:ifEnabled`), and unions with a discriminator (`+union` and `+unionDiscriminator`).
+
+### Updates
+
+`die.ValidateUpdate(ctx, d, old)` validates a die that replaces an old one of the same type, such as in an admission webhook of the update, or before sending one. Each die it walks to is paired with the old die at the same location: a field by its name, a list-map element by its key, and an atomic list's item by its index. `die.OldOf(d, op)` returns it as the die's own type:
+
+```go
+func (d *WidgetPortDie) DieValidate(ctx context.Context, op die.Operation) (validation.ErrorList, error) {
+	if old, ok := die.OldOf(d, op); ok && old.Port().Get() != d.Port().Get() {
+		return validation.ErrorList{validation.Forbidden(d.Port(), "a named port's number may not change")}, nil
+	}
+	return nil, nil
+}
+```
+
+The markers' checks ratchet, as the API server's do: a field unchanged from the old value isn't checked again, so values that were valid when they were written don't block an unrelated change. The markers of an update are checked too: `+k8s:immutable`, and `+k8s:update`'s `NoSet`, `NoUnset`, `NoModify`, `NoAddItem` and `NoRemoveItem`.
+
+`die.ValidateDelete` calls only the dies' `DieValidate`, with `op.Type` set to `die.Delete`: a value being deleted has no schema to meet.
+
+### Field errors
+
+`reconciler.io/dies/v2/die/validation` makes apimachinery's field errors at a location, a die or a handle, rather than at a path you spell out: `Required`, `Forbidden`, `Invalid`, `NotSupported`, `Duplicate`, `NotFound`, `TooLong`, `TooMany`, `TooFew` and `InternalError`. Those that report a value read it at the location, so `validation.Invalid(d.Port(), "…")` reports the port's number.
+
+For apimachinery's other validation helpers, `validation.Path(location)` converts a location to a `*field.Path`. A list-map element is its index in the list; one the list doesn't have, or one of a bare `die.Path`, is its keys, such as `containers[name=app]`.
+
 ## Die methods
 
 Every die has these methods, but those that write, which only mutable dies have. `die.Die` is any die, immutable or mutable, whatever its type, for functions that take one, and `die.ImmutableDie` and `die.MutableDie` one of either kind; `die.DieTyped` is any die with type metadata, which is also a `runtime.Object`; `die.DieObject` is any object die, which is also a `metav1.Object`; and `die.DieList` is any list die. Generic code constrains them by `die.DieOf[T, D, M]` and `die.DieMutOf[T, D, M]`, `die.DieTypedOf[T, D, M]` and `die.DieTypedMutOf[T, D, M]` (with the `APIVersion()` and `Kind()` accessors), `die.DieObjectOf[T, D, M]` and `die.DieObjectMutOf[T, D, M]` (with `Metadata()`), and `die.DieListOf[D]` (with `Metadata()`, the list's own `*metav1.ListMeta`, and `DieItems()`), which carry their types: `T` the value's, `D` the immutable die's and `M` the mutable die's. An unstructured die is a `die.DieObject`, but has no typed accessors. Fields' accessors use the field names, so die methods start with `Die`, apart from `DeepCopy`, `Equal` and the methods of the Kubernetes interfaces that object dies implement. Writes return only an error, and reads can't fail; see [Errors](#errors).
@@ -519,7 +600,7 @@ package v1
 - **Aliased** (`mode=alias`, the default): the die package aliases the upstream package's types and constants, so one import gives you both.
 - **Cloned** (`mode=clone`): the die package copies the types, with their docs, markers and constants, so it doesn't depend on the upstream package or its dependencies. The package is resolved at a version given with it, `package=…@v1.2.3`, or in the module a `from=` path names.
 
-Each type that needs a die is marked as the upstream package marks it. The markers that change a die's API or its patches, such as `+listType`, `+listMapKey`, `+mapType`, `+structType`, `+default`, `+nullable` and kubebuilder's `+kubebuilder:subresource:status`, are read from the upstream source, in their plain, `k8s:` and `kubebuilder:` forms. What upstream doesn't say is added with metadata declared on the blank identifier, which adds markers to a type without declaring anything:
+Each type that needs a die is marked as the upstream package marks it. The markers that change a die's API or its patches, such as `+listType`, `+listMapKey`, `+mapType`, `+structType`, `+default`, `+nullable` and kubebuilder's `+kubebuilder:subresource:status`, are read from the upstream source, in their plain, `k8s:` and `kubebuilder:` forms, as are the markers that validate and default it (see [Checks from markers](#checks-from-markers)). What upstream doesn't say is added with metadata declared on the blank identifier, which adds markers to a type without declaring anything:
 
 ```go
 // +die:field:name=selector,structType=atomic
@@ -530,13 +611,13 @@ If the upstream package provides apply configurations, such as from applyconfigu
 
 ### Dies for your own types
 
-Mark your own types directly:
+Mark your own types directly. A type's markers can be in its doc comment, or, to keep them out of its godoc, in a comment of their own just above it, separated from the doc comment by a blank line:
 
 ```go
-// Widget runs a pod template with named ports.
-//
 // +die:object:apiVersion=example.dev/v1,kind=Widget
 // +kubebuilder:subresource:status
+
+// Widget runs a pod template with named ports.
 type Widget struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -554,20 +635,24 @@ type WidgetSpec struct {
 }
 ```
 
+Only the comment just above the doc comment is read, as controller-gen reads it, so diegen stops with an error if a `+die` marker is in any other comment above a type.
+
+An object without a `kind`, `+die:object` alone or with only an `apiVersion`, such as a duck type, has an object die, but isn't registered in a scheme: it's a view of other kinds, not a resource of its own.
+
 A field whose type is from another package uses that type's die: from the built-in dies, from a die package an import marker names, or from a type marked `+die` in the field type's own package. A field whose type has no die is a value.
 
 ### Markers
 
-| Marker                                              | On      | Does                                                                                                                                |
-| --------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `+die`                                              | type    | Generates a die for the type                                                                                                        |
-| `+die:object:apiVersion=…,kind=…`                   | type    | Generates a die for a top-level object, with its blank's type metadata, scheme registration and a list die                          |
-| `+die:types:package=…[,mode=alias\|clone][,from=…]` | package | Brings in another package's types, aliased or cloned                                                                                |
-| `+die:applyconfigurations:package=…`                | package | Aliases a package's apply configurations, for the dies' apply configuration methods                                                 |
-| `+die:import:package=…,as=…`                        | package | Says where the dies for another package's types are                                                                                 |
-| `+die:field:name=…,…`                               | type    | Sets a field's `listType`, `listMapKey`, `mapType`, `structType`, `default` or `nullable`, or renames its accessor with `accessor=` |
-| `+die:union:name=…,members={…}`                     | type    | Declares a union, whose members clear the others when set                                                                           |
-| `+die:subresource:name=…`                           | type    | Declares a subresource, for `die.Subresource` and `die.MainResource`                                                                |
+| Marker                                              | On      | Does                                                                                                                                                                                                                                                                                         |
+| --------------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `+die`                                              | type    | Generates a die for the type                                                                                                                                                                                                                                                                 |
+| `+die:object:apiVersion=…,kind=…`                   | type    | Generates a die for a top-level object, with its blank's type metadata, scheme registration and a list die; without a `kind`, it isn't registered                                                                                                                                            |
+| `+die:types:package=…[,mode=alias\|clone][,from=…]` | package | Brings in another package's types, aliased or cloned                                                                                                                                                                                                                                         |
+| `+die:applyconfigurations:package=…`                | package | Aliases a package's apply configurations, for the dies' apply configuration methods                                                                                                                                                                                                          |
+| `+die:import:package=…,as=…`                        | package | Says where the dies for another package's types are                                                                                                                                                                                                                                          |
+| `+die:field:name=…,…`                               | type    | Sets a field's `listType`, `listMapKey`, `mapType`, `structType`, `default` or `nullable`, renames its accessor with `accessor=`, or sets how it's validated: `required=true` or `nonzero`, or a check such as `minimum=0`, `format=k8s-short-name`, `immutable=true` or `each.maxLength=63` |
+| `+die:union:name=…,members={…}[,oneOf=true]`        | type    | Declares a union, whose members clear the others when set; at most one may be set, or with `oneOf=true` exactly one                                                                                                                                                                          |
+| `+die:subresource:name=…`                           | type    | Declares a subresource, for `die.Subresource` and `die.MainResource`                                                                                                                                                                                                                         |
 
 Fields in `+die:field` and `+die:union` are named by their wire names. A type's `+structType=atomic` applies to every field of that type, unless the field says `+structType=granular`.
 

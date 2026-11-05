@@ -3359,7 +3359,7 @@ var statefulSetSpecFields = &diefields.Table[statefulSetSpecFieldsTable]{Build: 
 	f.Replicas = diefields.NewField[StatefulSetSpec, *int32]("replicas")
 	f.Selector = diefields.NewStruct[StatefulSetSpec, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("selector")
 	f.Template = diefields.NewStruct[StatefulSetSpec, diecorev1.PodTemplateSpec, *diecorev1.PodTemplateSpecDie, *diecorev1.PodTemplateSpecDieMut]("template")
-	f.VolumeClaimTemplates = diefields.NewField[StatefulSetSpec, []diecorev1.PersistentVolumeClaim]("volumeClaimTemplates")
+	f.VolumeClaimTemplates = diefields.NewItems[StatefulSetSpec, []diecorev1.PersistentVolumeClaim, diecorev1.PersistentVolumeClaim, *diecorev1.PersistentVolumeClaimDie, *diecorev1.PersistentVolumeClaimDieMut]("volumeClaimTemplates")
 	f.ServiceName = diefields.NewField[StatefulSetSpec, string]("serviceName")
 	f.PodManagementPolicy = diefields.NewField[StatefulSetSpec, PodManagementPolicyType]("podManagementPolicy")
 	f.UpdateStrategy = diefields.NewStruct[StatefulSetSpec, StatefulSetUpdateStrategy, *StatefulSetUpdateStrategyDie, *StatefulSetUpdateStrategyDieMut]("updateStrategy")
@@ -3899,51 +3899,71 @@ var annotated = diecodegen.Register(diecodegen.Package{
 	},
 	Annotate: func() {
 		diecodegen.Object[ControllerRevision]("apps/v1", "ControllerRevision")
+		diecodegen.Annotate[ControllerRevision](map[string]string{
+			"Data": "required",
+		})
 		diecodegen.Object[ControllerRevisionList]("apps/v1", "ControllerRevisionList")
 		diecodegen.Object[DaemonSet]("apps/v1", "DaemonSet")
 		diecodegen.Annotate[DaemonSet](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
 		diecodegen.Object[DaemonSetList]("apps/v1", "DaemonSetList")
 		diecodegen.Annotate[DaemonSetSpec](map[string]string{
-			"Selector": "atomic",
+			"Selector": "atomic;required",
+			"Template": "required",
 		})
 		diecodegen.Annotate[DaemonSetStatus](map[string]string{
 			"Conditions": "listMap=type",
 		})
+		diecodegen.Annotate[DaemonSetUpdateStrategy](map[string]string{
+			"Type": "enum=[\"OnDelete\",\"RollingUpdate\"]",
+		})
 		diecodegen.Object[Deployment]("apps/v1", "Deployment")
 		diecodegen.Annotate[Deployment](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
 		diecodegen.Object[DeploymentList]("apps/v1", "DeploymentList")
 		diecodegen.Annotate[DeploymentSpec](map[string]string{
-			"Selector": "atomic",
+			"Selector": "atomic;required",
+			"Template": "required",
 		})
 		diecodegen.Annotate[DeploymentStatus](map[string]string{
 			"Conditions": "listMap=type",
 		})
+		diecodegen.Annotate[DeploymentStrategy](map[string]string{
+			"Type": "enum=[\"Recreate\",\"RollingUpdate\"]",
+		})
 		diecodegen.Object[ReplicaSet]("apps/v1", "ReplicaSet")
 		diecodegen.Annotate[ReplicaSet](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
 		diecodegen.Object[ReplicaSetList]("apps/v1", "ReplicaSetList")
 		diecodegen.Annotate[ReplicaSetSpec](map[string]string{
-			"Selector": "atomic",
+			"Selector": "atomic;required",
 		})
 		diecodegen.Annotate[ReplicaSetStatus](map[string]string{
 			"Conditions": "listMap=type",
 		})
 		diecodegen.Object[StatefulSet]("apps/v1", "StatefulSet")
 		diecodegen.Annotate[StatefulSet](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
 		diecodegen.Object[StatefulSetList]("apps/v1", "StatefulSetList")
 		diecodegen.Annotate[StatefulSetSpec](map[string]string{
-			"Selector":             "atomic",
+			"Selector":             "atomic;required",
+			"Template":             "required",
 			"VolumeClaimTemplates": "atomic",
+			"PodManagementPolicy":  "enum=[\"OrderedReady\",\"Parallel\"]",
 		})
 		diecodegen.Annotate[StatefulSetStatus](map[string]string{
 			"Conditions": "listMap=type",
+		})
+		diecodegen.Annotate[StatefulSetUpdateStrategy](map[string]string{
+			"Type": "enum=[\"OnDelete\",\"Recreate\",\"RollingUpdate\"]",
 		})
 	},
 })

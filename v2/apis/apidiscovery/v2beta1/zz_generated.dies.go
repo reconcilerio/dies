@@ -518,14 +518,14 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Object[APIGroupDiscoveryList]("apidiscovery.k8s.io/v2beta1", "APIGroupDiscoveryList")
 		diecodegen.Annotate[APIResourceDiscovery](map[string]string{
-			"Verbs":        "atomic",
-			"ShortNames":   "atomic",
-			"Categories":   "atomic",
+			"Verbs":        "atomic;unique",
+			"ShortNames":   "atomic;unique",
+			"Categories":   "atomic;unique",
 			"Subresources": "listMap=subresource",
 		})
 		diecodegen.Annotate[APISubresourceDiscovery](map[string]string{
 			"AcceptedTypes": "listMap=group,version,kind",
-			"Verbs":         "atomic",
+			"Verbs":         "atomic;unique",
 		})
 		diecodegen.Annotate[APIVersionDiscovery](map[string]string{
 			"Resources": "listMap=resource",

@@ -514,7 +514,7 @@ type avoidPodsFieldsTable struct {
 
 var avoidPodsFields = &diefields.Table[avoidPodsFieldsTable]{Build: func() (f avoidPodsFieldsTable) {
 	_ = annotated
-	f.PreferAvoidPods = diefields.NewField[AvoidPods, []PreferAvoidPodsEntry]("preferAvoidPods")
+	f.PreferAvoidPods = diefields.NewItems[AvoidPods, []PreferAvoidPodsEntry, PreferAvoidPodsEntry, *PreferAvoidPodsEntryDie, *PreferAvoidPodsEntryDieMut]("preferAvoidPods")
 	return
 }}
 
@@ -3246,7 +3246,7 @@ type configMapProjectionFieldsTable struct {
 var configMapProjectionFields = &diefields.Table[configMapProjectionFieldsTable]{Build: func() (f configMapProjectionFieldsTable) {
 	_ = annotated
 	f.Name = diefields.NewField[ConfigMapProjection, string]("name")
-	f.Items = diefields.NewField[ConfigMapProjection, []KeyToPath]("items")
+	f.Items = diefields.NewItems[ConfigMapProjection, []KeyToPath, KeyToPath, *KeyToPathDie, *KeyToPathDieMut]("items")
 	f.Optional = diefields.NewField[ConfigMapProjection, *bool]("optional")
 	return
 }}
@@ -3381,7 +3381,7 @@ type configMapVolumeSourceFieldsTable struct {
 var configMapVolumeSourceFields = &diefields.Table[configMapVolumeSourceFieldsTable]{Build: func() (f configMapVolumeSourceFieldsTable) {
 	_ = annotated
 	f.Name = diefields.NewField[ConfigMapVolumeSource, string]("name")
-	f.Items = diefields.NewField[ConfigMapVolumeSource, []KeyToPath]("items")
+	f.Items = diefields.NewItems[ConfigMapVolumeSource, []KeyToPath, KeyToPath, *KeyToPathDie, *KeyToPathDieMut]("items")
 	f.DefaultMode = diefields.NewField[ConfigMapVolumeSource, *int32]("defaultMode")
 	f.Optional = diefields.NewField[ConfigMapVolumeSource, *bool]("optional")
 	f.DefaultUser = diefields.NewField[ConfigMapVolumeSource, *int64]("defaultUser")
@@ -3576,12 +3576,12 @@ var containerFields = &diefields.Table[containerFieldsTable]{Build: func() (f co
 	f.Ports = diefields.NewListMap[Container, ContainerPort, *ContainerPortDie, *ContainerPortDieMut]("ports", func(k ContainerPortKey) []any { return []any{k.ContainerPort, k.Protocol} }, func(e ContainerPort) ContainerPortKey {
 		return ContainerPortKey{ContainerPort: e.ContainerPort, Protocol: e.Protocol}
 	})
-	f.EnvFrom = diefields.NewField[Container, []EnvFromSource]("envFrom")
+	f.EnvFrom = diefields.NewItems[Container, []EnvFromSource, EnvFromSource, *EnvFromSourceDie, *EnvFromSourceDieMut]("envFrom")
 	f.Env = diefields.NewListMap[Container, EnvVar, *EnvVarDie, *EnvVarDieMut]("env", func(k string) []any { return []any{k} }, func(e EnvVar) string { return e.Name })
 	f.Resources = diefields.NewStruct[Container, ResourceRequirements, *ResourceRequirementsDie, *ResourceRequirementsDieMut]("resources")
-	f.ResizePolicy = diefields.NewField[Container, []ContainerResizePolicy]("resizePolicy")
+	f.ResizePolicy = diefields.NewItems[Container, []ContainerResizePolicy, ContainerResizePolicy, *ContainerResizePolicyDie, *ContainerResizePolicyDieMut]("resizePolicy")
 	f.RestartPolicy = diefields.NewField[Container, *ContainerRestartPolicy]("restartPolicy")
-	f.RestartPolicyRules = diefields.NewField[Container, []ContainerRestartRule]("restartPolicyRules")
+	f.RestartPolicyRules = diefields.NewItems[Container, []ContainerRestartRule, ContainerRestartRule, *ContainerRestartRuleDie, *ContainerRestartRuleDieMut]("restartPolicyRules")
 	f.VolumeMounts = diefields.NewListMap[Container, VolumeMount, *VolumeMountDie, *VolumeMountDieMut]("volumeMounts", func(k string) []any { return []any{k} }, func(e VolumeMount) string { return e.MountPath })
 	f.VolumeDevices = diefields.NewListMap[Container, VolumeDevice, *VolumeDeviceDie, *VolumeDeviceDieMut]("volumeDevices", func(k string) []any { return []any{k} }, func(e VolumeDevice) string { return e.DevicePath })
 	f.LivenessProbe = diefields.NewStruct[Container, Probe, *ProbeDie, *ProbeDieMut]("livenessProbe")
@@ -5688,7 +5688,7 @@ type downwardAPIProjectionFieldsTable struct {
 
 var downwardAPIProjectionFields = &diefields.Table[downwardAPIProjectionFieldsTable]{Build: func() (f downwardAPIProjectionFieldsTable) {
 	_ = annotated
-	f.Items = diefields.NewField[DownwardAPIProjection, []DownwardAPIVolumeFile]("items")
+	f.Items = diefields.NewItems[DownwardAPIProjection, []DownwardAPIVolumeFile, DownwardAPIVolumeFile, *DownwardAPIVolumeFileDie, *DownwardAPIVolumeFileDieMut]("items")
 	return
 }}
 
@@ -5919,7 +5919,7 @@ type downwardAPIVolumeSourceFieldsTable struct {
 
 var downwardAPIVolumeSourceFields = &diefields.Table[downwardAPIVolumeSourceFieldsTable]{Build: func() (f downwardAPIVolumeSourceFieldsTable) {
 	_ = annotated
-	f.Items = diefields.NewField[DownwardAPIVolumeSource, []DownwardAPIVolumeFile]("items")
+	f.Items = diefields.NewItems[DownwardAPIVolumeSource, []DownwardAPIVolumeFile, DownwardAPIVolumeFile, *DownwardAPIVolumeFileDie, *DownwardAPIVolumeFileDieMut]("items")
 	f.DefaultMode = diefields.NewField[DownwardAPIVolumeSource, *int32]("defaultMode")
 	f.DefaultUser = diefields.NewField[DownwardAPIVolumeSource, *int64]("defaultUser")
 	return
@@ -6477,9 +6477,9 @@ type endpointSubsetFieldsTable struct {
 
 var endpointSubsetFields = &diefields.Table[endpointSubsetFieldsTable]{Build: func() (f endpointSubsetFieldsTable) {
 	_ = annotated
-	f.Addresses = diefields.NewField[EndpointSubset, []EndpointAddress]("addresses")
-	f.NotReadyAddresses = diefields.NewField[EndpointSubset, []EndpointAddress]("notReadyAddresses")
-	f.Ports = diefields.NewField[EndpointSubset, []EndpointPort]("ports")
+	f.Addresses = diefields.NewItems[EndpointSubset, []EndpointAddress, EndpointAddress, *EndpointAddressDie, *EndpointAddressDieMut]("addresses")
+	f.NotReadyAddresses = diefields.NewItems[EndpointSubset, []EndpointAddress, EndpointAddress, *EndpointAddressDie, *EndpointAddressDieMut]("notReadyAddresses")
+	f.Ports = diefields.NewItems[EndpointSubset, []EndpointPort, EndpointPort, *EndpointPortDie, *EndpointPortDieMut]("ports")
 	return
 }}
 
@@ -6613,7 +6613,7 @@ var endpointsFields = &diefields.Table[endpointsFieldsTable]{Build: func() (f en
 	f.Kind = diefields.NewField[Endpoints, string]("kind")
 	f.APIVersion = diefields.NewField[Endpoints, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[Endpoints, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
-	f.Subsets = diefields.NewField[Endpoints, []EndpointSubset]("subsets")
+	f.Subsets = diefields.NewItems[Endpoints, []EndpointSubset, EndpointSubset, *EndpointSubsetDie, *EndpointSubsetDieMut]("subsets")
 	return
 }}
 
@@ -7177,12 +7177,12 @@ var ephemeralContainerFields = &diefields.Table[ephemeralContainerFieldsTable]{B
 	f.Ports = diefields.NewListMap[EphemeralContainer, ContainerPort, *ContainerPortDie, *ContainerPortDieMut]("ports", func(k ContainerPortKey) []any { return []any{k.ContainerPort, k.Protocol} }, func(e ContainerPort) ContainerPortKey {
 		return ContainerPortKey{ContainerPort: e.ContainerPort, Protocol: e.Protocol}
 	})
-	f.EnvFrom = diefields.NewField[EphemeralContainer, []EnvFromSource]("envFrom")
+	f.EnvFrom = diefields.NewItems[EphemeralContainer, []EnvFromSource, EnvFromSource, *EnvFromSourceDie, *EnvFromSourceDieMut]("envFrom")
 	f.Env = diefields.NewListMap[EphemeralContainer, EnvVar, *EnvVarDie, *EnvVarDieMut]("env", func(k string) []any { return []any{k} }, func(e EnvVar) string { return e.Name })
 	f.Resources = diefields.NewStruct[EphemeralContainer, ResourceRequirements, *ResourceRequirementsDie, *ResourceRequirementsDieMut]("resources")
-	f.ResizePolicy = diefields.NewField[EphemeralContainer, []ContainerResizePolicy]("resizePolicy")
+	f.ResizePolicy = diefields.NewItems[EphemeralContainer, []ContainerResizePolicy, ContainerResizePolicy, *ContainerResizePolicyDie, *ContainerResizePolicyDieMut]("resizePolicy")
 	f.RestartPolicy = diefields.NewField[EphemeralContainer, *ContainerRestartPolicy]("restartPolicy")
-	f.RestartPolicyRules = diefields.NewField[EphemeralContainer, []ContainerRestartRule]("restartPolicyRules")
+	f.RestartPolicyRules = diefields.NewItems[EphemeralContainer, []ContainerRestartRule, ContainerRestartRule, *ContainerRestartRuleDie, *ContainerRestartRuleDieMut]("restartPolicyRules")
 	f.VolumeMounts = diefields.NewListMap[EphemeralContainer, VolumeMount, *VolumeMountDie, *VolumeMountDieMut]("volumeMounts", func(k string) []any { return []any{k} }, func(e VolumeMount) string { return e.MountPath })
 	f.VolumeDevices = diefields.NewListMap[EphemeralContainer, VolumeDevice, *VolumeDeviceDie, *VolumeDeviceDieMut]("volumeDevices", func(k string) []any { return []any{k} }, func(e VolumeDevice) string { return e.DevicePath })
 	f.LivenessProbe = diefields.NewStruct[EphemeralContainer, Probe, *ProbeDie, *ProbeDieMut]("livenessProbe")
@@ -7687,12 +7687,12 @@ var ephemeralContainerCommonFields = &diefields.Table[ephemeralContainerCommonFi
 	f.Ports = diefields.NewListMap[EphemeralContainerCommon, ContainerPort, *ContainerPortDie, *ContainerPortDieMut]("ports", func(k ContainerPortKey) []any { return []any{k.ContainerPort, k.Protocol} }, func(e ContainerPort) ContainerPortKey {
 		return ContainerPortKey{ContainerPort: e.ContainerPort, Protocol: e.Protocol}
 	})
-	f.EnvFrom = diefields.NewField[EphemeralContainerCommon, []EnvFromSource]("envFrom")
+	f.EnvFrom = diefields.NewItems[EphemeralContainerCommon, []EnvFromSource, EnvFromSource, *EnvFromSourceDie, *EnvFromSourceDieMut]("envFrom")
 	f.Env = diefields.NewListMap[EphemeralContainerCommon, EnvVar, *EnvVarDie, *EnvVarDieMut]("env", func(k string) []any { return []any{k} }, func(e EnvVar) string { return e.Name })
 	f.Resources = diefields.NewStruct[EphemeralContainerCommon, ResourceRequirements, *ResourceRequirementsDie, *ResourceRequirementsDieMut]("resources")
-	f.ResizePolicy = diefields.NewField[EphemeralContainerCommon, []ContainerResizePolicy]("resizePolicy")
+	f.ResizePolicy = diefields.NewItems[EphemeralContainerCommon, []ContainerResizePolicy, ContainerResizePolicy, *ContainerResizePolicyDie, *ContainerResizePolicyDieMut]("resizePolicy")
 	f.RestartPolicy = diefields.NewField[EphemeralContainerCommon, *ContainerRestartPolicy]("restartPolicy")
-	f.RestartPolicyRules = diefields.NewField[EphemeralContainerCommon, []ContainerRestartRule]("restartPolicyRules")
+	f.RestartPolicyRules = diefields.NewItems[EphemeralContainerCommon, []ContainerRestartRule, ContainerRestartRule, *ContainerRestartRuleDie, *ContainerRestartRuleDieMut]("restartPolicyRules")
 	f.VolumeMounts = diefields.NewListMap[EphemeralContainerCommon, VolumeMount, *VolumeMountDie, *VolumeMountDieMut]("volumeMounts", func(k string) []any { return []any{k} }, func(e VolumeMount) string { return e.MountPath })
 	f.VolumeDevices = diefields.NewListMap[EphemeralContainerCommon, VolumeDevice, *VolumeDeviceDie, *VolumeDeviceDieMut]("volumeDevices", func(k string) []any { return []any{k} }, func(e VolumeDevice) string { return e.DevicePath })
 	f.LivenessProbe = diefields.NewStruct[EphemeralContainerCommon, Probe, *ProbeDie, *ProbeDieMut]("livenessProbe")
@@ -10282,7 +10282,7 @@ var hTTPGetActionFields = &diefields.Table[hTTPGetActionFieldsTable]{Build: func
 	f.Port = diefields.NewField[HTTPGetAction, intstr.IntOrString]("port")
 	f.Host = diefields.NewField[HTTPGetAction, string]("host")
 	f.Scheme = diefields.NewField[HTTPGetAction, URIScheme]("scheme")
-	f.HTTPHeaders = diefields.NewField[HTTPGetAction, []HTTPHeader]("httpHeaders")
+	f.HTTPHeaders = diefields.NewItems[HTTPGetAction, []HTTPHeader, HTTPHeader, *HTTPHeaderDie, *HTTPHeaderDieMut]("httpHeaders")
 	f.Protocol = diefields.NewField[HTTPGetAction, *HTTPProtocol]("protocol")
 	return
 }}
@@ -12133,7 +12133,7 @@ type limitRangeSpecFieldsTable struct {
 
 var limitRangeSpecFields = &diefields.Table[limitRangeSpecFieldsTable]{Build: func() (f limitRangeSpecFieldsTable) {
 	_ = annotated
-	f.Limits = diefields.NewField[LimitRangeSpec, []LimitRangeItem]("limits")
+	f.Limits = diefields.NewItems[LimitRangeSpec, []LimitRangeItem, LimitRangeItem, *LimitRangeItemDie, *LimitRangeItemDieMut]("limits")
 	return
 }}
 
@@ -12421,7 +12421,7 @@ var loadBalancerIngressFields = &diefields.Table[loadBalancerIngressFieldsTable]
 	f.IP = diefields.NewField[LoadBalancerIngress, string]("ip")
 	f.Hostname = diefields.NewField[LoadBalancerIngress, string]("hostname")
 	f.IPMode = diefields.NewField[LoadBalancerIngress, *LoadBalancerIPMode]("ipMode")
-	f.Ports = diefields.NewField[LoadBalancerIngress, []PortStatus]("ports")
+	f.Ports = diefields.NewItems[LoadBalancerIngress, []PortStatus, PortStatus, *PortStatusDie, *PortStatusDieMut]("ports")
 	return
 }}
 
@@ -12549,7 +12549,7 @@ type loadBalancerStatusFieldsTable struct {
 
 var loadBalancerStatusFields = &diefields.Table[loadBalancerStatusFieldsTable]{Build: func() (f loadBalancerStatusFieldsTable) {
 	_ = annotated
-	f.Ingress = diefields.NewField[LoadBalancerStatus, []LoadBalancerIngress]("ingress")
+	f.Ingress = diefields.NewItems[LoadBalancerStatus, []LoadBalancerIngress, LoadBalancerIngress, *LoadBalancerIngressDie, *LoadBalancerIngressDieMut]("ingress")
 	return
 }}
 
@@ -13787,7 +13787,7 @@ type nodeAffinityFieldsTable struct {
 var nodeAffinityFields = &diefields.Table[nodeAffinityFieldsTable]{Build: func() (f nodeAffinityFieldsTable) {
 	_ = annotated
 	f.RequiredDuringSchedulingIgnoredDuringExecution = diefields.NewStruct[NodeAffinity, NodeSelector, *NodeSelectorDie, *NodeSelectorDieMut]("requiredDuringSchedulingIgnoredDuringExecution")
-	f.PreferredDuringSchedulingIgnoredDuringExecution = diefields.NewField[NodeAffinity, []PreferredSchedulingTerm]("preferredDuringSchedulingIgnoredDuringExecution")
+	f.PreferredDuringSchedulingIgnoredDuringExecution = diefields.NewItems[NodeAffinity, []PreferredSchedulingTerm, PreferredSchedulingTerm, *PreferredSchedulingTermDie, *PreferredSchedulingTermDieMut]("preferredDuringSchedulingIgnoredDuringExecution")
 	return
 }}
 
@@ -15196,7 +15196,7 @@ type nodeSelectorFieldsTable struct {
 
 var nodeSelectorFields = &diefields.Table[nodeSelectorFieldsTable]{Build: func() (f nodeSelectorFieldsTable) {
 	_ = annotated
-	f.NodeSelectorTerms = diefields.NewField[NodeSelector, []NodeSelectorTerm]("nodeSelectorTerms")
+	f.NodeSelectorTerms = diefields.NewItems[NodeSelector, []NodeSelectorTerm, NodeSelectorTerm, *NodeSelectorTermDie, *NodeSelectorTermDieMut]("nodeSelectorTerms")
 	return
 }}
 
@@ -15398,8 +15398,8 @@ type nodeSelectorTermFieldsTable struct {
 
 var nodeSelectorTermFields = &diefields.Table[nodeSelectorTermFieldsTable]{Build: func() (f nodeSelectorTermFieldsTable) {
 	_ = annotated
-	f.MatchExpressions = diefields.NewField[NodeSelectorTerm, []NodeSelectorRequirement]("matchExpressions")
-	f.MatchFields = diefields.NewField[NodeSelectorTerm, []NodeSelectorRequirement]("matchFields")
+	f.MatchExpressions = diefields.NewItems[NodeSelectorTerm, []NodeSelectorRequirement, NodeSelectorRequirement, *NodeSelectorRequirementDie, *NodeSelectorRequirementDieMut]("matchExpressions")
+	f.MatchFields = diefields.NewItems[NodeSelectorTerm, []NodeSelectorRequirement, NodeSelectorRequirement, *NodeSelectorRequirementDie, *NodeSelectorRequirementDieMut]("matchFields")
 	return
 }}
 
@@ -15502,7 +15502,7 @@ var nodeSpecFields = &diefields.Table[nodeSpecFieldsTable]{Build: func() (f node
 	f.PodCIDRs = diefields.NewField[NodeSpec, []string]("podCIDRs")
 	f.ProviderID = diefields.NewField[NodeSpec, string]("providerID")
 	f.Unschedulable = diefields.NewField[NodeSpec, bool]("unschedulable")
-	f.Taints = diefields.NewField[NodeSpec, []Taint]("taints")
+	f.Taints = diefields.NewItems[NodeSpec, []Taint, Taint, *TaintDie, *TaintDieMut]("taints")
 	f.ConfigSource = diefields.NewStruct[NodeSpec, NodeConfigSource, *NodeConfigSourceDie, *NodeConfigSourceDieMut]("configSource")
 	f.DoNotUseExternalID = diefields.NewField[NodeSpec, string]("externalID")
 	f.PodPreemptionPolicy = diefields.NewStruct[NodeSpec, NodePodPreemptionPolicy, *NodePodPreemptionPolicyDie, *NodePodPreemptionPolicyDieMut]("podPreemptionPolicy")
@@ -15687,11 +15687,11 @@ var nodeStatusFields = &diefields.Table[nodeStatusFieldsTable]{Build: func() (f 
 	f.Addresses = diefields.NewListMap[NodeStatus, NodeAddress, *NodeAddressDie, *NodeAddressDieMut]("addresses", func(k NodeAddressType) []any { return []any{k} }, func(e NodeAddress) NodeAddressType { return e.Type })
 	f.DaemonEndpoints = diefields.NewStruct[NodeStatus, NodeDaemonEndpoints, *NodeDaemonEndpointsDie, *NodeDaemonEndpointsDieMut]("daemonEndpoints")
 	f.NodeInfo = diefields.NewStruct[NodeStatus, NodeSystemInfo, *NodeSystemInfoDie, *NodeSystemInfoDieMut]("nodeInfo")
-	f.Images = diefields.NewField[NodeStatus, []ContainerImage]("images")
+	f.Images = diefields.NewItems[NodeStatus, []ContainerImage, ContainerImage, *ContainerImageDie, *ContainerImageDieMut]("images")
 	f.VolumesInUse = diefields.NewField[NodeStatus, []UniqueVolumeName]("volumesInUse")
-	f.VolumesAttached = diefields.NewField[NodeStatus, []AttachedVolume]("volumesAttached")
+	f.VolumesAttached = diefields.NewItems[NodeStatus, []AttachedVolume, AttachedVolume, *AttachedVolumeDie, *AttachedVolumeDieMut]("volumesAttached")
 	f.Config = diefields.NewStruct[NodeStatus, NodeConfigStatus, *NodeConfigStatusDie, *NodeConfigStatusDieMut]("config")
-	f.RuntimeHandlers = diefields.NewField[NodeStatus, []NodeRuntimeHandler]("runtimeHandlers")
+	f.RuntimeHandlers = diefields.NewItems[NodeStatus, []NodeRuntimeHandler, NodeRuntimeHandler, *NodeRuntimeHandlerDie, *NodeRuntimeHandlerDieMut]("runtimeHandlers")
 	f.Features = diefields.NewStruct[NodeStatus, NodeFeatures, *NodeFeaturesDie, *NodeFeaturesDieMut]("features")
 	f.DeclaredFeatures = diefields.NewField[NodeStatus, []string]("declaredFeatures")
 	return
@@ -19138,8 +19138,8 @@ type podAffinityFieldsTable struct {
 
 var podAffinityFields = &diefields.Table[podAffinityFieldsTable]{Build: func() (f podAffinityFieldsTable) {
 	_ = annotated
-	f.RequiredDuringSchedulingIgnoredDuringExecution = diefields.NewField[PodAffinity, []PodAffinityTerm]("requiredDuringSchedulingIgnoredDuringExecution")
-	f.PreferredDuringSchedulingIgnoredDuringExecution = diefields.NewField[PodAffinity, []WeightedPodAffinityTerm]("preferredDuringSchedulingIgnoredDuringExecution")
+	f.RequiredDuringSchedulingIgnoredDuringExecution = diefields.NewItems[PodAffinity, []PodAffinityTerm, PodAffinityTerm, *PodAffinityTermDie, *PodAffinityTermDieMut]("requiredDuringSchedulingIgnoredDuringExecution")
+	f.PreferredDuringSchedulingIgnoredDuringExecution = diefields.NewItems[PodAffinity, []WeightedPodAffinityTerm, WeightedPodAffinityTerm, *WeightedPodAffinityTermDie, *WeightedPodAffinityTermDieMut]("preferredDuringSchedulingIgnoredDuringExecution")
 	return
 }}
 
@@ -19459,8 +19459,8 @@ type podAntiAffinityFieldsTable struct {
 
 var podAntiAffinityFields = &diefields.Table[podAntiAffinityFieldsTable]{Build: func() (f podAntiAffinityFieldsTable) {
 	_ = annotated
-	f.RequiredDuringSchedulingIgnoredDuringExecution = diefields.NewField[PodAntiAffinity, []PodAffinityTerm]("requiredDuringSchedulingIgnoredDuringExecution")
-	f.PreferredDuringSchedulingIgnoredDuringExecution = diefields.NewField[PodAntiAffinity, []WeightedPodAffinityTerm]("preferredDuringSchedulingIgnoredDuringExecution")
+	f.RequiredDuringSchedulingIgnoredDuringExecution = diefields.NewItems[PodAntiAffinity, []PodAffinityTerm, PodAffinityTerm, *PodAffinityTermDie, *PodAffinityTermDieMut]("requiredDuringSchedulingIgnoredDuringExecution")
+	f.PreferredDuringSchedulingIgnoredDuringExecution = diefields.NewItems[PodAntiAffinity, []WeightedPodAffinityTerm, WeightedPodAffinityTerm, *WeightedPodAffinityTermDie, *WeightedPodAffinityTermDieMut]("preferredDuringSchedulingIgnoredDuringExecution")
 	return
 }}
 
@@ -20164,7 +20164,7 @@ var podDNSConfigFields = &diefields.Table[podDNSConfigFieldsTable]{Build: func()
 	_ = annotated
 	f.Nameservers = diefields.NewField[PodDNSConfig, []string]("nameservers")
 	f.Searches = diefields.NewField[PodDNSConfig, []string]("searches")
-	f.Options = diefields.NewField[PodDNSConfig, []PodDNSConfigOption]("options")
+	f.Options = diefields.NewItems[PodDNSConfig, []PodDNSConfigOption, PodDNSConfigOption, *PodDNSConfigOptionDie, *PodDNSConfigOptionDieMut]("options")
 	return
 }}
 
@@ -20529,7 +20529,7 @@ type podExtendedResourceClaimStatusFieldsTable struct {
 
 var podExtendedResourceClaimStatusFields = &diefields.Table[podExtendedResourceClaimStatusFieldsTable]{Build: func() (f podExtendedResourceClaimStatusFieldsTable) {
 	_ = annotated
-	f.RequestMappings = diefields.NewField[PodExtendedResourceClaimStatus, []ContainerExtendedResourceRequest]("requestMappings")
+	f.RequestMappings = diefields.NewItems[PodExtendedResourceClaimStatus, []ContainerExtendedResourceRequest, ContainerExtendedResourceRequest, *ContainerExtendedResourceRequestDie, *ContainerExtendedResourceRequestDieMut]("requestMappings")
 	f.ResourceClaimName = diefields.NewField[PodExtendedResourceClaimStatus, string]("resourceClaimName")
 	return
 }}
@@ -21778,7 +21778,7 @@ var podSecurityContextFields = &diefields.Table[podSecurityContextFieldsTable]{B
 	f.SupplementalGroups = diefields.NewField[PodSecurityContext, []int64]("supplementalGroups")
 	f.SupplementalGroupsPolicy = diefields.NewField[PodSecurityContext, *SupplementalGroupsPolicy]("supplementalGroupsPolicy")
 	f.FSGroup = diefields.NewField[PodSecurityContext, *int64]("fsGroup")
-	f.Sysctls = diefields.NewField[PodSecurityContext, []Sysctl]("sysctls")
+	f.Sysctls = diefields.NewItems[PodSecurityContext, []Sysctl, Sysctl, *SysctlDie, *SysctlDieMut]("sysctls")
 	f.FSGroupChangePolicy = diefields.NewField[PodSecurityContext, *PodFSGroupChangePolicy]("fsGroupChangePolicy")
 	f.SeccompProfile = diefields.NewStruct[PodSecurityContext, SeccompProfile, *SeccompProfileDie, *SeccompProfileDieMut]("seccompProfile")
 	f.AppArmorProfile = diefields.NewStruct[PodSecurityContext, AppArmorProfile, *AppArmorProfileDie, *AppArmorProfileDieMut]("appArmorProfile")
@@ -22241,12 +22241,12 @@ var podSpecFields = &diefields.Table[podSpecFieldsTable]{Build: func() (f podSpe
 	f.Subdomain = diefields.NewField[PodSpec, string]("subdomain")
 	f.Affinity = diefields.NewStruct[PodSpec, Affinity, *AffinityDie, *AffinityDieMut]("affinity")
 	f.SchedulerName = diefields.NewField[PodSpec, string]("schedulerName")
-	f.Tolerations = diefields.NewField[PodSpec, []Toleration]("tolerations")
+	f.Tolerations = diefields.NewItems[PodSpec, []Toleration, Toleration, *TolerationDie, *TolerationDieMut]("tolerations")
 	f.HostAliases = diefields.NewListMap[PodSpec, HostAlias, *HostAliasDie, *HostAliasDieMut]("hostAliases", func(k string) []any { return []any{k} }, func(e HostAlias) string { return e.IP })
 	f.PriorityClassName = diefields.NewField[PodSpec, string]("priorityClassName")
 	f.Priority = diefields.NewField[PodSpec, *int32]("priority")
 	f.DNSConfig = diefields.NewStruct[PodSpec, PodDNSConfig, *PodDNSConfigDie, *PodDNSConfigDieMut]("dnsConfig")
-	f.ReadinessGates = diefields.NewField[PodSpec, []PodReadinessGate]("readinessGates")
+	f.ReadinessGates = diefields.NewItems[PodSpec, []PodReadinessGate, PodReadinessGate, *PodReadinessGateDie, *PodReadinessGateDieMut]("readinessGates")
 	f.RuntimeClassName = diefields.NewField[PodSpec, *string]("runtimeClassName")
 	f.EnableServiceLinks = diefields.NewField[PodSpec, *bool]("enableServiceLinks")
 	f.PreemptionPolicy = diefields.NewField[PodSpec, *PreemptionPolicy]("preemptionPolicy")
@@ -23166,14 +23166,14 @@ var podStatusFields = &diefields.Table[podStatusFieldsTable]{Build: func() (f po
 	f.Reason = diefields.NewField[PodStatus, string]("reason")
 	f.NominatedNodeName = diefields.NewField[PodStatus, string]("nominatedNodeName")
 	f.HostIP = diefields.NewField[PodStatus, string]("hostIP")
-	f.HostIPs = diefields.NewField[PodStatus, []HostIP]("hostIPs")
+	f.HostIPs = diefields.NewItems[PodStatus, []HostIP, HostIP, *HostIPDie, *HostIPDieMut]("hostIPs")
 	f.PodIP = diefields.NewField[PodStatus, string]("podIP")
 	f.PodIPs = diefields.NewListMap[PodStatus, PodIP, *PodIPDie, *PodIPDieMut]("podIPs", func(k string) []any { return []any{k} }, func(e PodIP) string { return e.IP })
 	f.StartTime = diefields.NewField[PodStatus, *diemetav1.Time]("startTime")
-	f.InitContainerStatuses = diefields.NewField[PodStatus, []ContainerStatus]("initContainerStatuses")
-	f.ContainerStatuses = diefields.NewField[PodStatus, []ContainerStatus]("containerStatuses")
+	f.InitContainerStatuses = diefields.NewItems[PodStatus, []ContainerStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]("initContainerStatuses")
+	f.ContainerStatuses = diefields.NewItems[PodStatus, []ContainerStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]("containerStatuses")
 	f.QOSClass = diefields.NewField[PodStatus, PodQOSClass]("qosClass")
-	f.EphemeralContainerStatuses = diefields.NewField[PodStatus, []ContainerStatus]("ephemeralContainerStatuses")
+	f.EphemeralContainerStatuses = diefields.NewItems[PodStatus, []ContainerStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]("ephemeralContainerStatuses")
 	f.Resize = diefields.NewField[PodStatus, PodResizeStatus]("resize")
 	f.ResourceClaimStatuses = diefields.NewListMap[PodStatus, PodResourceClaimStatus, *PodResourceClaimStatusDie, *PodResourceClaimStatusDieMut]("resourceClaimStatuses", func(k string) []any { return []any{k} }, func(e PodResourceClaimStatus) string { return e.Name })
 	f.ExtendedResourceClaimStatus = diefields.NewStruct[PodStatus, PodExtendedResourceClaimStatus, *PodExtendedResourceClaimStatusDie, *PodExtendedResourceClaimStatusDieMut]("extendedResourceClaimStatus")
@@ -24767,7 +24767,7 @@ type projectedVolumeSourceFieldsTable struct {
 
 var projectedVolumeSourceFields = &diefields.Table[projectedVolumeSourceFieldsTable]{Build: func() (f projectedVolumeSourceFieldsTable) {
 	_ = annotated
-	f.Sources = diefields.NewField[ProjectedVolumeSource, []VolumeProjection]("sources")
+	f.Sources = diefields.NewItems[ProjectedVolumeSource, []VolumeProjection, VolumeProjection, *VolumeProjectionDie, *VolumeProjectionDieMut]("sources")
 	f.DefaultMode = diefields.NewField[ProjectedVolumeSource, *int32]("defaultMode")
 	f.DefaultUser = diefields.NewField[ProjectedVolumeSource, *int64]("defaultUser")
 	return
@@ -27622,7 +27622,7 @@ type scopeSelectorFieldsTable struct {
 
 var scopeSelectorFields = &diefields.Table[scopeSelectorFieldsTable]{Build: func() (f scopeSelectorFieldsTable) {
 	_ = annotated
-	f.MatchExpressions = diefields.NewField[ScopeSelector, []ScopedResourceSelectorRequirement]("matchExpressions")
+	f.MatchExpressions = diefields.NewItems[ScopeSelector, []ScopedResourceSelectorRequirement, ScopedResourceSelectorRequirement, *ScopedResourceSelectorRequirementDie, *ScopedResourceSelectorRequirementDieMut]("matchExpressions")
 	return
 }}
 
@@ -28368,7 +28368,7 @@ type secretProjectionFieldsTable struct {
 var secretProjectionFields = &diefields.Table[secretProjectionFieldsTable]{Build: func() (f secretProjectionFieldsTable) {
 	_ = annotated
 	f.Name = diefields.NewField[SecretProjection, string]("name")
-	f.Items = diefields.NewField[SecretProjection, []KeyToPath]("items")
+	f.Items = diefields.NewItems[SecretProjection, []KeyToPath, KeyToPath, *KeyToPathDie, *KeyToPathDieMut]("items")
 	f.Optional = diefields.NewField[SecretProjection, *bool]("optional")
 	return
 }}
@@ -28597,7 +28597,7 @@ type secretVolumeSourceFieldsTable struct {
 var secretVolumeSourceFields = &diefields.Table[secretVolumeSourceFieldsTable]{Build: func() (f secretVolumeSourceFieldsTable) {
 	_ = annotated
 	f.SecretName = diefields.NewField[SecretVolumeSource, string]("secretName")
-	f.Items = diefields.NewField[SecretVolumeSource, []KeyToPath]("items")
+	f.Items = diefields.NewItems[SecretVolumeSource, []KeyToPath, KeyToPath, *KeyToPathDie, *KeyToPathDieMut]("items")
 	f.DefaultMode = diefields.NewField[SecretVolumeSource, *int32]("defaultMode")
 	f.Optional = diefields.NewField[SecretVolumeSource, *bool]("optional")
 	f.DefaultUser = diefields.NewField[SecretVolumeSource, *int64]("defaultUser")
@@ -29297,7 +29297,7 @@ var serviceAccountFields = &diefields.Table[serviceAccountFieldsTable]{Build: fu
 	f.APIVersion = diefields.NewField[ServiceAccount, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[ServiceAccount, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
 	f.Secrets = diefields.NewListMap[ServiceAccount, ObjectReference, *ObjectReferenceDie, *ObjectReferenceDieMut]("secrets", func(k string) []any { return []any{k} }, func(e ObjectReference) string { return e.Name })
-	f.ImagePullSecrets = diefields.NewField[ServiceAccount, []LocalObjectReference]("imagePullSecrets")
+	f.ImagePullSecrets = diefields.NewItems[ServiceAccount, []LocalObjectReference, LocalObjectReference, *LocalObjectReferenceDie, *LocalObjectReferenceDieMut]("imagePullSecrets")
 	f.AutomountServiceAccountToken = diefields.NewField[ServiceAccount, *bool]("automountServiceAccountToken")
 	return
 }}
@@ -31679,7 +31679,7 @@ type topologySelectorTermFieldsTable struct {
 
 var topologySelectorTermFields = &diefields.Table[topologySelectorTermFieldsTable]{Build: func() (f topologySelectorTermFieldsTable) {
 	_ = annotated
-	f.MatchLabelExpressions = diefields.NewField[TopologySelectorTerm, []TopologySelectorLabelRequirement]("matchLabelExpressions")
+	f.MatchLabelExpressions = diefields.NewItems[TopologySelectorTerm, []TopologySelectorLabelRequirement, TopologySelectorLabelRequirement, *TopologySelectorLabelRequirementDie, *TopologySelectorLabelRequirementDieMut]("matchLabelExpressions")
 	return
 }}
 
@@ -35101,12 +35101,17 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		"k8s.io/api/core/v1",
 	},
 	Annotate: func() {
+		diecodegen.Annotate[AppArmorProfile](map[string]string{
+			"Type": "enum=[\"Localhost\",\"RuntimeDefault\",\"Unconfined\"]",
+		})
 		diecodegen.Annotate[AvoidPods](map[string]string{
 			"PreferAvoidPods": "atomic",
 		})
 		diecodegen.Annotate[AzureDiskVolumeSource](map[string]string{
-			"FSType":   "default=\"ext4\"",
-			"ReadOnly": "default=false",
+			"CachingMode": "enum=[\"None\",\"ReadOnly\",\"ReadWrite\"]",
+			"FSType":      "default=\"ext4\"",
+			"ReadOnly":    "default=false",
+			"Kind":        "enum=[\"Dedicated\",\"Managed\",\"Shared\"]",
 		})
 		diecodegen.Object[Binding]("v1", "Binding")
 		diecodegen.Annotate[Binding](map[string]string{
@@ -35165,28 +35170,36 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"Items":                "atomic",
 		})
 		diecodegen.Annotate[Container](map[string]string{
-			"Command":            "atomic",
-			"Args":               "atomic",
-			"Ports":              "listMap=containerPort,protocol",
-			"EnvFrom":            "atomic",
-			"Env":                "listMap=name",
-			"ResizePolicy":       "atomic",
-			"RestartPolicyRules": "atomic",
-			"VolumeMounts":       "listMap=mountPath",
-			"VolumeDevices":      "listMap=devicePath",
+			"Command":                  "atomic",
+			"Args":                     "atomic",
+			"Ports":                    "listMap=containerPort,protocol",
+			"EnvFrom":                  "atomic",
+			"Env":                      "listMap=name",
+			"ResizePolicy":             "atomic",
+			"RestartPolicyRules":       "atomic",
+			"VolumeMounts":             "listMap=mountPath",
+			"VolumeDevices":            "listMap=devicePath",
+			"TerminationMessagePolicy": "enum=[\"FallbackToLogsOnError\",\"File\"]",
+			"ImagePullPolicy":          "enum=[\"Always\",\"IfNotPresent\",\"Never\"]",
 		})
 		diecodegen.Annotate[ContainerImage](map[string]string{
 			"Names": "atomic",
 		})
 		diecodegen.Annotate[ContainerPort](map[string]string{
-			"Protocol": "default=\"TCP\"",
+			"Protocol": "default=\"TCP\";enum=[\"SCTP\",\"TCP\",\"UDP\"]",
+		})
+		diecodegen.Annotate[ContainerRestartRule](map[string]string{
+			"Action":    "required",
+			"ExitCodes": "oneOf=when",
 		})
 		diecodegen.Annotate[ContainerRestartRuleOnExitCodes](map[string]string{
-			"Values": "atomic",
+			"Operator": "required",
+			"Values":   "atomic;unique",
 		})
 		diecodegen.Annotate[ContainerStatus](map[string]string{
 			"VolumeMounts":             "listMap=mountPath",
 			"AllocatedResourcesStatus": "listMap=name",
+			"StopSignal":               "enum=[\"SIGABRT\",\"SIGALRM\",\"SIGBUS\",\"SIGCHLD\",\"SIGCLD\",\"SIGCONT\",\"SIGFPE\",\"SIGHUP\",\"SIGILL\",\"SIGINT\",\"SIGIO\",\"SIGIOT\",\"SIGKILL\",\"SIGPIPE\",\"SIGPOLL\",\"SIGPROF\",\"SIGPWR\",\"SIGQUIT\",\"SIGRTMAX\",\"SIGRTMAX-1\",\"SIGRTMAX-10\",\"SIGRTMAX-11\",\"SIGRTMAX-12\",\"SIGRTMAX-13\",\"SIGRTMAX-14\",\"SIGRTMAX-2\",\"SIGRTMAX-3\",\"SIGRTMAX-4\",\"SIGRTMAX-5\",\"SIGRTMAX-6\",\"SIGRTMAX-7\",\"SIGRTMAX-8\",\"SIGRTMAX-9\",\"SIGRTMIN\",\"SIGRTMIN+1\",\"SIGRTMIN+10\",\"SIGRTMIN+11\",\"SIGRTMIN+12\",\"SIGRTMIN+13\",\"SIGRTMIN+14\",\"SIGRTMIN+15\",\"SIGRTMIN+2\",\"SIGRTMIN+3\",\"SIGRTMIN+4\",\"SIGRTMIN+5\",\"SIGRTMIN+6\",\"SIGRTMIN+7\",\"SIGRTMIN+8\",\"SIGRTMIN+9\",\"SIGSEGV\",\"SIGSTKFLT\",\"SIGSTOP\",\"SIGSYS\",\"SIGTERM\",\"SIGTRAP\",\"SIGTSTP\",\"SIGTTIN\",\"SIGTTOU\",\"SIGURG\",\"SIGUSR1\",\"SIGUSR2\",\"SIGVTALRM\",\"SIGWINCH\",\"SIGXCPU\",\"SIGXFSZ\"]",
 		})
 		diecodegen.Annotate[DownwardAPIProjection](map[string]string{
 			"Items": "atomic",
@@ -35200,6 +35213,9 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Annotate[EndpointAddress](map[string]string{
 			"TargetRef": "atomic",
+		})
+		diecodegen.Annotate[EndpointPort](map[string]string{
+			"Protocol": "enum=[\"SCTP\",\"TCP\",\"UDP\"]",
 		})
 		diecodegen.Annotate[EndpointSubset](map[string]string{
 			"Addresses":         "atomic",
@@ -35219,15 +35235,17 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"FileKeyRef":       "atomic",
 		})
 		diecodegen.Annotate[EphemeralContainerCommon](map[string]string{
-			"Command":            "atomic",
-			"Args":               "atomic",
-			"Ports":              "listMap=containerPort,protocol",
-			"EnvFrom":            "atomic",
-			"Env":                "listMap=name",
-			"ResizePolicy":       "atomic",
-			"RestartPolicyRules": "atomic",
-			"VolumeMounts":       "listMap=mountPath",
-			"VolumeDevices":      "listMap=devicePath",
+			"Command":                  "atomic",
+			"Args":                     "atomic",
+			"Ports":                    "listMap=containerPort,protocol",
+			"EnvFrom":                  "atomic",
+			"Env":                      "listMap=name",
+			"ResizePolicy":             "atomic",
+			"RestartPolicyRules":       "atomic",
+			"VolumeMounts":             "listMap=mountPath",
+			"VolumeDevices":            "listMap=devicePath",
+			"TerminationMessagePolicy": "enum=[\"FallbackToLogsOnError\",\"File\"]",
+			"ImagePullPolicy":          "enum=[\"Always\",\"IfNotPresent\",\"Never\"]",
 		})
 		diecodegen.Object[Event]("v1", "Event")
 		diecodegen.Annotate[Event](map[string]string{
@@ -35235,6 +35253,10 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"Related":        "atomic",
 		})
 		diecodegen.Object[EventList]("v1", "EventList")
+		diecodegen.Annotate[EvictionResponder](map[string]string{
+			"Name":     "required=nonzero;format=k8s-prefixed-label-key",
+			"Priority": "required=nonzero;minimum=0;maximum=100000",
+		})
 		diecodegen.Annotate[ExecAction](map[string]string{
 			"Command": "atomic",
 		})
@@ -35243,7 +35265,10 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"WWIDs":      "atomic",
 		})
 		diecodegen.Annotate[FileKeySelector](map[string]string{
-			"Optional": "default=false",
+			"VolumeName": "required",
+			"Path":       "required",
+			"Key":        "required",
+			"Optional":   "default=false",
 		})
 		diecodegen.Annotate[FlexPersistentVolumeSource](map[string]string{
 			"SecretRef": "atomic",
@@ -35253,12 +35278,22 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Annotate[GRPCAction](map[string]string{
 			"Service": "default=\"\"",
+			"Mode":    "enum=[\"Plaintext\",\"TLS\"]",
 		})
 		diecodegen.Annotate[HTTPGetAction](map[string]string{
+			"Scheme":      "enum=[\"HTTP\",\"HTTPS\"]",
 			"HTTPHeaders": "atomic",
+			"Protocol":    "enum=[\"HTTP1\",\"HTTP2\"]",
 		})
 		diecodegen.Annotate[HostAlias](map[string]string{
+			"IP":        "required",
 			"Hostnames": "atomic",
+		})
+		diecodegen.Annotate[HostIP](map[string]string{
+			"IP": "required",
+		})
+		diecodegen.Annotate[HostPathVolumeSource](map[string]string{
+			"Type": "enum=[\"\",\"BlockDevice\",\"CharDevice\",\"Directory\",\"DirectoryOrCreate\",\"File\",\"FileOrCreate\",\"Socket\"]",
 		})
 		diecodegen.Annotate[ISCSIPersistentVolumeSource](map[string]string{
 			"ISCSIInterface": "default=\"default\"",
@@ -35269,6 +35304,15 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"ISCSIInterface": "default=\"default\"",
 			"Portals":        "atomic",
 			"SecretRef":      "atomic",
+		})
+		diecodegen.Annotate[ImageVolumeSource](map[string]string{
+			"PullPolicy": "enum=[\"Always\",\"IfNotPresent\",\"Never\"]",
+		})
+		diecodegen.Annotate[ImageVolumeStatus](map[string]string{
+			"ImageRef": "required;maxLength=256",
+		})
+		diecodegen.Annotate[Lifecycle](map[string]string{
+			"StopSignal": "enum=[\"SIGABRT\",\"SIGALRM\",\"SIGBUS\",\"SIGCHLD\",\"SIGCLD\",\"SIGCONT\",\"SIGFPE\",\"SIGHUP\",\"SIGILL\",\"SIGINT\",\"SIGIO\",\"SIGIOT\",\"SIGKILL\",\"SIGPIPE\",\"SIGPOLL\",\"SIGPROF\",\"SIGPWR\",\"SIGQUIT\",\"SIGRTMAX\",\"SIGRTMAX-1\",\"SIGRTMAX-10\",\"SIGRTMAX-11\",\"SIGRTMAX-12\",\"SIGRTMAX-13\",\"SIGRTMAX-14\",\"SIGRTMAX-2\",\"SIGRTMAX-3\",\"SIGRTMAX-4\",\"SIGRTMAX-5\",\"SIGRTMAX-6\",\"SIGRTMAX-7\",\"SIGRTMAX-8\",\"SIGRTMAX-9\",\"SIGRTMIN\",\"SIGRTMIN+1\",\"SIGRTMIN+10\",\"SIGRTMIN+11\",\"SIGRTMIN+12\",\"SIGRTMIN+13\",\"SIGRTMIN+14\",\"SIGRTMIN+15\",\"SIGRTMIN+2\",\"SIGRTMIN+3\",\"SIGRTMIN+4\",\"SIGRTMIN+5\",\"SIGRTMIN+6\",\"SIGRTMIN+7\",\"SIGRTMIN+8\",\"SIGRTMIN+9\",\"SIGSEGV\",\"SIGSTKFLT\",\"SIGSTOP\",\"SIGSYS\",\"SIGTERM\",\"SIGTRAP\",\"SIGTSTP\",\"SIGTTIN\",\"SIGTTOU\",\"SIGURG\",\"SIGUSR1\",\"SIGUSR2\",\"SIGVTALRM\",\"SIGWINCH\",\"SIGXCPU\",\"SIGXFSZ\"]",
 		})
 		diecodegen.Object[LimitRange]("v1", "LimitRange")
 		diecodegen.Object[LimitRangeList]("v1", "LimitRangeList")
@@ -35288,6 +35332,9 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		diecodegen.Annotate[LocalObjectReference](map[string]string{
 			"Name": "default=\"\"",
 		})
+		diecodegen.Annotate[ModifyVolumeStatus](map[string]string{
+			"Status": "enum=[\"InProgress\",\"Infeasible\",\"Pending\"]",
+		})
 		diecodegen.Object[Namespace]("v1", "Namespace")
 		diecodegen.Annotate[Namespace](map[string]string{
 			"Status": "subresource=status",
@@ -35297,6 +35344,7 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"Finalizers": "atomic",
 		})
 		diecodegen.Annotate[NamespaceStatus](map[string]string{
+			"Phase":      "enum=[\"Active\",\"Terminating\"]",
 			"Conditions": "listMap=type",
 		})
 		diecodegen.Object[Node]("v1", "Node")
@@ -35307,31 +35355,41 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"RequiredDuringSchedulingIgnoredDuringExecution":  "atomic",
 			"PreferredDuringSchedulingIgnoredDuringExecution": "atomic",
 		})
+		diecodegen.Annotate[NodeAllocatableMappedResources](map[string]string{
+			"Name":     "required=nonzero",
+			"Quantity": "required=nonzero",
+		})
+		diecodegen.Annotate[NodeAllocatableOverheadResources](map[string]string{
+			"Name": "required=nonzero",
+		})
 		diecodegen.Annotate[NodeAllocatableResourceClaimStatus](map[string]string{
-			"Containers": "atomic",
-			"Mapping":    "listMap=name",
-			"Overhead":   "listMap=name",
+			"ResourceClaimName": "required=nonzero",
+			"Containers":        "atomic;unique",
+			"Mapping":           "listMap=name",
+			"Overhead":          "listMap=name",
 		})
 		diecodegen.Object[NodeList]("v1", "NodeList")
 		diecodegen.Annotate[NodePodPreemptionPolicy](map[string]string{
-			"DisableResizePreemption": "atomic",
+			"DisableResizePreemption": "atomic;maxItems=20;unique;each.format=k8s-label-key",
 		})
 		diecodegen.Object[NodeProxyOptions]("v1", "NodeProxyOptions")
 		diecodegen.Annotate[NodeSelector](map[string]string{
 			"NodeSelectorTerms": "atomic",
 		})
 		diecodegen.Annotate[NodeSelectorRequirement](map[string]string{
-			"Values": "atomic",
+			"Operator": "enum=[\"DoesNotExist\",\"Exists\",\"Gt\",\"In\",\"Lt\",\"NotIn\"]",
+			"Values":   "atomic",
 		})
 		diecodegen.Annotate[NodeSelectorTerm](map[string]string{
 			"MatchExpressions": "atomic",
 			"MatchFields":      "atomic",
 		})
 		diecodegen.Annotate[NodeSpec](map[string]string{
-			"PodCIDRs": "atomic",
+			"PodCIDRs": "atomic;unique",
 			"Taints":   "atomic",
 		})
 		diecodegen.Annotate[NodeStatus](map[string]string{
+			"Phase":            "enum=[\"Pending\",\"Running\",\"Terminated\"]",
 			"Conditions":       "listMap=type",
 			"Addresses":        "listMap=type",
 			"Images":           "atomic",
@@ -35350,18 +35408,26 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Object[PersistentVolumeClaimList]("v1", "PersistentVolumeClaimList")
 		diecodegen.Annotate[PersistentVolumeClaimSpec](map[string]string{
-			"AccessModes": "atomic",
+			"AccessModes": "atomic;each.enum=[\"ReadOnlyMany\",\"ReadWriteMany\",\"ReadWriteOnce\",\"ReadWriteOncePod\"]",
 			"Selector":    "atomic",
+			"VolumeMode":  "enum=[\"Block\",\"Filesystem\"]",
 			"DataSource":  "atomic",
 		})
 		diecodegen.Annotate[PersistentVolumeClaimStatus](map[string]string{
-			"AccessModes": "atomic",
-			"Conditions":  "listMap=type",
+			"Phase":                     "enum=[\"Bound\",\"Lost\",\"Pending\"]",
+			"AccessModes":               "atomic;each.enum=[\"ReadOnlyMany\",\"ReadWriteMany\",\"ReadWriteOnce\",\"ReadWriteOncePod\"]",
+			"Conditions":                "listMap=type",
+			"AllocatedResourceStatuses": "each.enum=[\"ControllerResizeInProgress\",\"ControllerResizeInfeasible\",\"NodeResizeInProgress\",\"NodeResizeInfeasible\",\"NodeResizePending\"]",
 		})
 		diecodegen.Object[PersistentVolumeList]("v1", "PersistentVolumeList")
 		diecodegen.Annotate[PersistentVolumeSpec](map[string]string{
-			"AccessModes":  "atomic",
-			"MountOptions": "atomic",
+			"AccessModes":                   "atomic;each.enum=[\"ReadOnlyMany\",\"ReadWriteMany\",\"ReadWriteOnce\",\"ReadWriteOncePod\"]",
+			"PersistentVolumeReclaimPolicy": "enum=[\"Delete\",\"Recycle\",\"Retain\"]",
+			"MountOptions":                  "atomic",
+			"VolumeMode":                    "enum=[\"Block\",\"Filesystem\"]",
+		})
+		diecodegen.Annotate[PersistentVolumeStatus](map[string]string{
+			"Phase": "enum=[\"Available\",\"Bound\",\"Failed\",\"Pending\",\"Released\"]",
 		})
 		diecodegen.Object[Pod]("v1", "Pod")
 		diecodegen.Annotate[Pod](map[string]string{
@@ -35383,6 +35449,10 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"PreferredDuringSchedulingIgnoredDuringExecution": "atomic",
 		})
 		diecodegen.Object[PodAttachOptions]("v1", "PodAttachOptions")
+		diecodegen.Annotate[PodCertificateProjection](map[string]string{
+			"SignerName": "required",
+			"KeyType":    "required",
+		})
 		diecodegen.Annotate[PodDNSConfig](map[string]string{
 			"Nameservers": "atomic",
 			"Searches":    "atomic",
@@ -35395,6 +35465,9 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		diecodegen.Annotate[PodExtendedResourceClaimStatus](map[string]string{
 			"RequestMappings": "atomic",
 		})
+		diecodegen.Annotate[PodIP](map[string]string{
+			"IP": "required",
+		})
 		diecodegen.Object[PodList]("v1", "PodList")
 		diecodegen.Object[PodLogOptions]("v1", "PodLogOptions")
 		diecodegen.Object[PodPortForwardOptions]("v1", "PodPortForwardOptions")
@@ -35402,9 +35475,14 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"Ports": "atomic",
 		})
 		diecodegen.Object[PodProxyOptions]("v1", "PodProxyOptions")
+		diecodegen.Annotate[PodSchedulingGroup](map[string]string{
+			"PodGroupName": "oneOf=GroupSelection",
+		})
 		diecodegen.Annotate[PodSecurityContext](map[string]string{
-			"SupplementalGroups": "atomic",
-			"Sysctls":            "atomic",
+			"SupplementalGroups":       "atomic",
+			"SupplementalGroupsPolicy": "enum=[\"Merge\",\"Strict\"]",
+			"Sysctls":                  "atomic",
+			"FSGroupChangePolicy":      "enum=[\"Always\",\"OnRootMismatch\"]",
 		})
 		diecodegen.Annotate[PodSignature](map[string]string{
 			"PodController": "atomic",
@@ -35414,22 +35492,27 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"InitContainers":            "listMap=name",
 			"Containers":                "listMap=name",
 			"EphemeralContainers":       "listMap=name",
+			"RestartPolicy":             "enum=[\"Always\",\"Never\",\"OnFailure\"]",
+			"DNSPolicy":                 "enum=[\"ClusterFirst\",\"ClusterFirstWithHostNet\",\"Default\",\"None\"]",
 			"NodeSelector":              "atomic",
 			"ImagePullSecrets":          "listMap=name",
 			"Tolerations":               "atomic",
 			"HostAliases":               "listMap=ip",
 			"ReadinessGates":            "atomic",
+			"PreemptionPolicy":          "enum=[\"Never\",\"PreemptLowerPriority\"]",
 			"TopologySpreadConstraints": "listMap=topologyKey,whenUnsatisfiable",
 			"SchedulingGates":           "listMap=name",
 			"ResourceClaims":            "listMap=name",
-			"EvictionResponders":        "listMap=name",
+			"EvictionResponders":        "listMap=name;maxItems=10",
 		})
 		diecodegen.Annotate[PodStatus](map[string]string{
+			"Phase":                                "enum=[\"Failed\",\"Pending\",\"Running\",\"Succeeded\",\"Unknown\"]",
 			"Conditions":                           "listMap=type",
 			"HostIPs":                              "atomic",
 			"PodIPs":                               "listMap=ip",
 			"InitContainerStatuses":                "atomic",
 			"ContainerStatuses":                    "atomic",
+			"QOSClass":                             "enum=[\"BestEffort\",\"Burstable\",\"Guaranteed\"]",
 			"EphemeralContainerStatuses":           "atomic",
 			"ResourceClaimStatuses":                "listMap=name",
 			"NodeAllocatableResourceClaimStatuses": "listMap=resourceClaimName",
@@ -35438,7 +35521,12 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		diecodegen.Object[PodTemplate]("v1", "PodTemplate")
 		diecodegen.Object[PodTemplateList]("v1", "PodTemplateList")
 		diecodegen.Annotate[PodVolumeHealth](map[string]string{
-			"HealthConditions": "listMap=status,reason",
+			"Name":             "required=nonzero",
+			"HealthConditions": "listMap=status,reason;maxItems=16",
+		})
+		diecodegen.Annotate[PortStatus](map[string]string{
+			"Protocol": "enum=[\"SCTP\",\"TCP\",\"UDP\"]",
+			"Error":    "pattern=\"^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$\";maxLength=316",
 		})
 		diecodegen.Annotate[PreferredSchedulingTerm](map[string]string{
 			"Preference": "atomic",
@@ -35480,13 +35568,14 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Object[ResourceQuotaList]("v1", "ResourceQuotaList")
 		diecodegen.Annotate[ResourceQuotaSpec](map[string]string{
-			"Scopes":        "atomic",
+			"Scopes":        "atomic;each.enum=[\"BestEffort\",\"CrossNamespacePodAffinity\",\"NotBestEffort\",\"NotTerminating\",\"PriorityClass\",\"Terminating\",\"VolumeAttributesClass\"]",
 			"ScopeSelector": "atomic",
 		})
 		diecodegen.Annotate[ResourceRequirements](map[string]string{
 			"Claims": "listMap=name",
 		})
 		diecodegen.Annotate[ResourceStatus](map[string]string{
+			"Name":      "required",
 			"Resources": "listMap=resourceID",
 		})
 		diecodegen.Annotate[ScaleIOPersistentVolumeSource](map[string]string{
@@ -35503,7 +35592,12 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"MatchExpressions": "atomic",
 		})
 		diecodegen.Annotate[ScopedResourceSelectorRequirement](map[string]string{
-			"Values": "atomic",
+			"ScopeName": "enum=[\"BestEffort\",\"CrossNamespacePodAffinity\",\"NotBestEffort\",\"NotTerminating\",\"PriorityClass\",\"Terminating\",\"VolumeAttributesClass\"]",
+			"Operator":  "enum=[\"DoesNotExist\",\"Exists\",\"In\",\"NotIn\"]",
+			"Values":    "atomic",
+		})
+		diecodegen.Annotate[SeccompProfile](map[string]string{
+			"Type": "enum=[\"Localhost\",\"RuntimeDefault\",\"Unconfined\"]",
 		})
 		diecodegen.Object[Secret]("v1", "Secret")
 		diecodegen.Annotate[SecretEnvSource](map[string]string{
@@ -35519,6 +35613,9 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Annotate[SecretVolumeSource](map[string]string{
 			"Items": "atomic",
+		})
+		diecodegen.Annotate[SecurityContext](map[string]string{
+			"ProcMount": "enum=[\"Default\",\"Unmasked\"]",
 		})
 		diecodegen.Object[SerializedReference]("v1", "SerializedReference")
 		diecodegen.Annotate[SerializedReference](map[string]string{
@@ -35536,16 +35633,21 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		diecodegen.Object[ServiceAccountList]("v1", "ServiceAccountList")
 		diecodegen.Object[ServiceList]("v1", "ServiceList")
 		diecodegen.Annotate[ServicePort](map[string]string{
-			"Protocol": "default=\"TCP\"",
+			"Protocol": "default=\"TCP\";enum=[\"SCTP\",\"TCP\",\"UDP\"]",
 		})
 		diecodegen.Object[ServiceProxyOptions]("v1", "ServiceProxyOptions")
 		diecodegen.Annotate[ServiceSpec](map[string]string{
 			"Ports":                    "listMap=port,protocol",
 			"Selector":                 "atomic",
 			"ClusterIPs":               "atomic",
+			"Type":                     "enum=[\"ClusterIP\",\"ExternalName\",\"LoadBalancer\",\"NodePort\"]",
 			"ExternalIPs":              "atomic",
+			"SessionAffinity":          "enum=[\"ClientIP\",\"None\"]",
 			"LoadBalancerSourceRanges": "atomic",
-			"IPFamilies":               "atomic",
+			"ExternalTrafficPolicy":    "enum=[\"Cluster\",\"Local\"]",
+			"IPFamilies":               "atomic;each.enum=[\"\",\"IPv4\",\"IPv6\"]",
+			"IPFamilyPolicy":           "enum=[\"PreferDualStack\",\"RequireDualStack\",\"SingleStack\"]",
+			"InternalTrafficPolicy":    "enum=[\"Cluster\",\"Local\"]",
 		})
 		diecodegen.Annotate[ServiceStatus](map[string]string{
 			"Conditions": "listMap=type",
@@ -35556,6 +35658,13 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		diecodegen.Annotate[StorageOSVolumeSource](map[string]string{
 			"SecretRef": "atomic",
 		})
+		diecodegen.Annotate[Taint](map[string]string{
+			"Effect": "enum=[\"NoExecute\",\"NoSchedule\",\"PreferNoSchedule\"]",
+		})
+		diecodegen.Annotate[Toleration](map[string]string{
+			"Operator": "enum=[\"Equal\",\"Exists\",\"Gt\",\"Lt\"]",
+			"Effect":   "enum=[\"NoExecute\",\"NoSchedule\",\"PreferNoSchedule\"]",
+		})
 		diecodegen.Annotate[TopologySelectorLabelRequirement](map[string]string{
 			"Values": "atomic",
 		})
@@ -35563,14 +35672,23 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"MatchLabelExpressions": "atomic",
 		})
 		diecodegen.Annotate[TopologySpreadConstraint](map[string]string{
-			"LabelSelector":  "atomic",
-			"MatchLabelKeys": "atomic",
+			"WhenUnsatisfiable":  "enum=[\"DoNotSchedule\",\"ScheduleAnyway\"]",
+			"LabelSelector":      "atomic",
+			"NodeAffinityPolicy": "enum=[\"Honor\",\"Ignore\"]",
+			"NodeTaintsPolicy":   "enum=[\"Honor\",\"Ignore\"]",
+			"MatchLabelKeys":     "atomic",
+		})
+		diecodegen.Annotate[VolumeHealthCondition](map[string]string{
+			"Status":  "required=nonzero;enum=[\"DataLoss\",\"Degraded\",\"Inaccessible\"]",
+			"Reason":  "required=nonzero;maxBytes=256",
+			"Message": "maxBytes=1024",
 		})
 		diecodegen.Annotate[VolumeHealthStatus](map[string]string{
-			"HealthConditions": "listMap=status,reason",
+			"HealthConditions": "listMap=status,reason;maxItems=16",
 		})
 		diecodegen.Annotate[VolumeMount](map[string]string{
-			"BindMountOptions": "atomic",
+			"MountPropagation": "enum=[\"Bidirectional\",\"HostToContainer\",\"None\"]",
+			"BindMountOptions": "atomic;unique",
 		})
 		diecodegen.Annotate[VolumeNodeAffinity](map[string]string{
 			"Required": "atomic",

@@ -480,7 +480,7 @@ type schedulingFieldsTable struct {
 var schedulingFields = &diefields.Table[schedulingFieldsTable]{Build: func() (f schedulingFieldsTable) {
 	_ = annotated
 	f.NodeSelector = diefields.NewField[Scheduling, map[string]string]("nodeSelector")
-	f.Tolerations = diefields.NewField[Scheduling, []diecorev1.Toleration]("tolerations")
+	f.Tolerations = diefields.NewItems[Scheduling, []diecorev1.Toleration, diecorev1.Toleration, *diecorev1.TolerationDie, *diecorev1.TolerationDieMut]("tolerations")
 	return
 }}
 
@@ -539,7 +539,13 @@ var annotated = diecodegen.Register(diecodegen.Package{
 	},
 	Annotate: func() {
 		diecodegen.Object[RuntimeClass]("node.k8s.io/v1alpha1", "RuntimeClass")
+		diecodegen.Annotate[RuntimeClass](map[string]string{
+			"Spec": "required",
+		})
 		diecodegen.Object[RuntimeClassList]("node.k8s.io/v1alpha1", "RuntimeClassList")
+		diecodegen.Annotate[RuntimeClassSpec](map[string]string{
+			"RuntimeHandler": "required",
+		})
 		diecodegen.Annotate[Scheduling](map[string]string{
 			"NodeSelector": "atomic",
 			"Tolerations":  "atomic",

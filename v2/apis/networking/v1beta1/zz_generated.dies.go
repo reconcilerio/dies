@@ -248,7 +248,7 @@ type hTTPIngressRuleValueFieldsTable struct {
 
 var hTTPIngressRuleValueFields = &diefields.Table[hTTPIngressRuleValueFieldsTable]{Build: func() (f hTTPIngressRuleValueFieldsTable) {
 	_ = annotated
-	f.Paths = diefields.NewField[HTTPIngressRuleValue, []HTTPIngressPath]("paths")
+	f.Paths = diefields.NewItems[HTTPIngressRuleValue, []HTTPIngressPath, HTTPIngressPath, *HTTPIngressPathDie, *HTTPIngressPathDieMut]("paths")
 	return
 }}
 
@@ -1257,7 +1257,7 @@ var ingressLoadBalancerIngressFields = &diefields.Table[ingressLoadBalancerIngre
 	_ = annotated
 	f.IP = diefields.NewField[IngressLoadBalancerIngress, string]("ip")
 	f.Hostname = diefields.NewField[IngressLoadBalancerIngress, string]("hostname")
-	f.Ports = diefields.NewField[IngressLoadBalancerIngress, []IngressPortStatus]("ports")
+	f.Ports = diefields.NewItems[IngressLoadBalancerIngress, []IngressPortStatus, IngressPortStatus, *IngressPortStatusDie, *IngressPortStatusDieMut]("ports")
 	return
 }}
 
@@ -1359,7 +1359,7 @@ type ingressLoadBalancerStatusFieldsTable struct {
 
 var ingressLoadBalancerStatusFields = &diefields.Table[ingressLoadBalancerStatusFieldsTable]{Build: func() (f ingressLoadBalancerStatusFieldsTable) {
 	_ = annotated
-	f.Ingress = diefields.NewField[IngressLoadBalancerStatus, []IngressLoadBalancerIngress]("ingress")
+	f.Ingress = diefields.NewItems[IngressLoadBalancerStatus, []IngressLoadBalancerIngress, IngressLoadBalancerIngress, *IngressLoadBalancerIngressDie, *IngressLoadBalancerIngressDieMut]("ingress")
 	return
 }}
 
@@ -1795,8 +1795,8 @@ var ingressSpecFields = &diefields.Table[ingressSpecFieldsTable]{Build: func() (
 	_ = annotated
 	f.IngressClassName = diefields.NewField[IngressSpec, *string]("ingressClassName")
 	f.Backend = diefields.NewStruct[IngressSpec, IngressBackend, *IngressBackendDie, *IngressBackendDieMut]("backend")
-	f.TLS = diefields.NewField[IngressSpec, []IngressTLS]("tls")
-	f.Rules = diefields.NewField[IngressSpec, []IngressRule]("rules")
+	f.TLS = diefields.NewItems[IngressSpec, []IngressTLS, IngressTLS, *IngressTLSDie, *IngressTLSDieMut]("tls")
+	f.Rules = diefields.NewItems[IngressSpec, []IngressRule, IngressRule, *IngressRuleDie, *IngressRuleDieMut]("rules")
 	return
 }}
 
@@ -2550,7 +2550,13 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"Paths": "atomic",
 		})
 		diecodegen.Object[IPAddress]("networking.k8s.io/v1beta1", "IPAddress")
+		diecodegen.Annotate[IPAddress](map[string]string{
+			"Spec": "required",
+		})
 		diecodegen.Object[IPAddressList]("networking.k8s.io/v1beta1", "IPAddressList")
+		diecodegen.Annotate[IPAddressSpec](map[string]string{
+			"ParentRef": "required",
+		})
 		diecodegen.Object[Ingress]("networking.k8s.io/v1beta1", "Ingress")
 		diecodegen.Annotate[Ingress](map[string]string{
 			"Status": "subresource=status",
@@ -2560,6 +2566,10 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Object[IngressClass]("networking.k8s.io/v1beta1", "IngressClass")
 		diecodegen.Object[IngressClassList]("networking.k8s.io/v1beta1", "IngressClassList")
+		diecodegen.Annotate[IngressClassParametersReference](map[string]string{
+			"Kind": "required",
+			"Name": "required",
+		})
 		diecodegen.Object[IngressList]("networking.k8s.io/v1beta1", "IngressList")
 		diecodegen.Annotate[IngressLoadBalancerIngress](map[string]string{
 			"Ports": "atomic",
@@ -2567,12 +2577,20 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		diecodegen.Annotate[IngressLoadBalancerStatus](map[string]string{
 			"Ingress": "atomic",
 		})
+		diecodegen.Annotate[IngressPortStatus](map[string]string{
+			"Protocol": "enum=[\"SCTP\",\"TCP\",\"UDP\"]",
+			"Error":    "pattern=\"^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$\";maxLength=316",
+		})
 		diecodegen.Annotate[IngressSpec](map[string]string{
 			"TLS":   "atomic",
 			"Rules": "atomic",
 		})
 		diecodegen.Annotate[IngressTLS](map[string]string{
 			"Hosts": "atomic",
+		})
+		diecodegen.Annotate[ParentReference](map[string]string{
+			"Resource": "required",
+			"Name":     "required",
 		})
 		diecodegen.Object[ServiceCIDR]("networking.k8s.io/v1beta1", "ServiceCIDR")
 		diecodegen.Annotate[ServiceCIDR](map[string]string{

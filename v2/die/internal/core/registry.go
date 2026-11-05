@@ -100,3 +100,12 @@ func Manage(t reflect.Type, fd *FieldDesc) {
 		Managed[t] = append(Managed[t], fd)
 	}
 }
+
+// ManagedFields returns the fields the die for t manages, its field tables
+// built.
+func ManagedFields(t reflect.Type) []*FieldDesc {
+	Built(t)
+	ManagedMu.Lock()
+	defer ManagedMu.Unlock()
+	return slices.Clone(Managed[t])
+}

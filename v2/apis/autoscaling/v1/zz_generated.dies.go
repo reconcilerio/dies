@@ -2169,11 +2169,19 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Object[HorizontalPodAutoscaler]("autoscaling/v1", "HorizontalPodAutoscaler")
 		diecodegen.Annotate[HorizontalPodAutoscaler](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
 		diecodegen.Object[HorizontalPodAutoscalerList]("autoscaling/v1", "HorizontalPodAutoscalerList")
 		diecodegen.Annotate[HorizontalPodAutoscalerSpec](map[string]string{
 			"ScaleTargetRef": "atomic",
+			"MaxReplicas":    "required",
+		})
+		diecodegen.Annotate[MetricSpec](map[string]string{
+			"Type": "enum=[\"ContainerResource\",\"External\",\"Object\",\"Pods\",\"Resource\"]",
+		})
+		diecodegen.Annotate[MetricStatus](map[string]string{
+			"Type": "enum=[\"ContainerResource\",\"External\",\"Object\",\"Pods\",\"Resource\"]",
 		})
 		diecodegen.Annotate[ObjectMetricSource](map[string]string{
 			"Target":   "atomic",

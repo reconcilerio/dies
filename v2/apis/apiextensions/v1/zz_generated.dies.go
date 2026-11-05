@@ -1079,7 +1079,7 @@ var customResourceDefinitionSpecFields = &diefields.Table[customResourceDefiniti
 	f.Group = diefields.NewField[CustomResourceDefinitionSpec, string]("group")
 	f.Names = diefields.NewStruct[CustomResourceDefinitionSpec, CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie, *CustomResourceDefinitionNamesDieMut]("names")
 	f.Scope = diefields.NewField[CustomResourceDefinitionSpec, ResourceScope]("scope")
-	f.Versions = diefields.NewField[CustomResourceDefinitionSpec, []CustomResourceDefinitionVersion]("versions")
+	f.Versions = diefields.NewItems[CustomResourceDefinitionSpec, []CustomResourceDefinitionVersion, CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie, *CustomResourceDefinitionVersionDieMut]("versions")
 	f.Conversion = diefields.NewStruct[CustomResourceDefinitionSpec, CustomResourceConversion, *CustomResourceConversionDie, *CustomResourceConversionDieMut]("conversion")
 	f.PreserveUnknownFields = diefields.NewField[CustomResourceDefinitionSpec, bool]("preserveUnknownFields")
 	return
@@ -1386,8 +1386,8 @@ var customResourceDefinitionVersionFields = &diefields.Table[customResourceDefin
 	f.DeprecationWarning = diefields.NewField[CustomResourceDefinitionVersion, *string]("deprecationWarning")
 	f.Schema = diefields.NewStruct[CustomResourceDefinitionVersion, CustomResourceValidation, *CustomResourceValidationDie, *CustomResourceValidationDieMut]("schema")
 	f.Subresources = diefields.NewStruct[CustomResourceDefinitionVersion, CustomResourceSubresources, *CustomResourceSubresourcesDie, *CustomResourceSubresourcesDieMut]("subresources")
-	f.AdditionalPrinterColumns = diefields.NewField[CustomResourceDefinitionVersion, []CustomResourceColumnDefinition]("additionalPrinterColumns")
-	f.SelectableFields = diefields.NewField[CustomResourceDefinitionVersion, []SelectableField]("selectableFields")
+	f.AdditionalPrinterColumns = diefields.NewItems[CustomResourceDefinitionVersion, []CustomResourceColumnDefinition, CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie, *CustomResourceColumnDefinitionDieMut]("additionalPrinterColumns")
+	f.SelectableFields = diefields.NewItems[CustomResourceDefinitionVersion, []SelectableField, SelectableField, *SelectableFieldDie, *SelectableFieldDieMut]("selectableFields")
 	return
 }}
 
@@ -2081,9 +2081,9 @@ var jSONSchemaPropsFields = &diefields.Table[jSONSchemaPropsFieldsTable]{Build: 
 	f.MinProperties = diefields.NewField[JSONSchemaProps, *int64]("minProperties")
 	f.Required = diefields.NewField[JSONSchemaProps, []string]("required")
 	f.Items = diefields.NewField[JSONSchemaProps, *JSONSchemaPropsOrArray]("items")
-	f.AllOf = diefields.NewField[JSONSchemaProps, []JSONSchemaProps]("allOf")
-	f.OneOf = diefields.NewField[JSONSchemaProps, []JSONSchemaProps]("oneOf")
-	f.AnyOf = diefields.NewField[JSONSchemaProps, []JSONSchemaProps]("anyOf")
+	f.AllOf = diefields.NewItems[JSONSchemaProps, []JSONSchemaProps, JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]("allOf")
+	f.OneOf = diefields.NewItems[JSONSchemaProps, []JSONSchemaProps, JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]("oneOf")
+	f.AnyOf = diefields.NewItems[JSONSchemaProps, []JSONSchemaProps, JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]("anyOf")
 	f.Not = diefields.NewStruct[JSONSchemaProps, JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]("not")
 	f.Properties = diefields.NewField[JSONSchemaProps, map[string]JSONSchemaProps]("properties")
 	f.AdditionalProperties = diefields.NewField[JSONSchemaProps, *JSONSchemaPropsOrBool]("additionalProperties")
@@ -3529,6 +3529,9 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"AnyOf":        "atomic",
 			"XListMapKeys": "atomic",
 			"XValidations": "listMap=rule",
+		})
+		diecodegen.Annotate[ValidationRule](map[string]string{
+			"Reason": "enum=[\"FieldValueDuplicate\",\"FieldValueForbidden\",\"FieldValueInvalid\",\"FieldValueRequired\"]",
 		})
 		diecodegen.Annotate[WebhookConversion](map[string]string{
 			"ConversionReviewVersions": "atomic",

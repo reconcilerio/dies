@@ -90,6 +90,7 @@ type EvictionRequestSpec = lifecyclev1alpha1.EvictionRequestSpec
 type EvictionRequestStatus = lifecyclev1alpha1.EvictionRequestStatus
 
 // +die
+// +die:union:name=union,members={pod},oneOf=true
 type EvictionRequestTarget = lifecyclev1alpha1.EvictionRequestTarget
 
 const EvictionResponderImperativeEviction = lifecyclev1alpha1.EvictionResponderImperativeEviction
@@ -105,6 +106,7 @@ type EvictionSpec = lifecyclev1alpha1.EvictionSpec
 type EvictionStatus = lifecyclev1alpha1.EvictionStatus
 
 // +die
+// +die:union:name=union,members={pod},oneOf=true
 type EvictionTarget = lifecyclev1alpha1.EvictionTarget
 
 const GroupName = lifecyclev1alpha1.GroupName

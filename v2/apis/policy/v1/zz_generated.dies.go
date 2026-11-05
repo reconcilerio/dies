@@ -734,7 +734,8 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Object[PodDisruptionBudgetList]("policy/v1", "PodDisruptionBudgetList")
 		diecodegen.Annotate[PodDisruptionBudgetSpec](map[string]string{
-			"Selector": "atomic",
+			"Selector":                   "atomic",
+			"UnhealthyPodEvictionPolicy": "enum=[\"AlwaysAllow\",\"IfHealthyBudget\"]",
 		})
 		diecodegen.Annotate[PodDisruptionBudgetStatus](map[string]string{
 			"Conditions": "listMap=type",

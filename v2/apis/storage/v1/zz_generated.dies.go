@@ -279,7 +279,7 @@ var cSIDriverSpecFields = &diefields.Table[cSIDriverSpecFieldsTable]{Build: func
 	f.VolumeLifecycleModes = diefields.NewField[CSIDriverSpec, []VolumeLifecycleMode]("volumeLifecycleModes")
 	f.StorageCapacity = diefields.NewField[CSIDriverSpec, *bool]("storageCapacity")
 	f.FSGroupPolicy = diefields.NewField[CSIDriverSpec, *FSGroupPolicy]("fsGroupPolicy")
-	f.TokenRequests = diefields.NewField[CSIDriverSpec, []TokenRequest]("tokenRequests")
+	f.TokenRequests = diefields.NewItems[CSIDriverSpec, []TokenRequest, TokenRequest, *TokenRequestDie, *TokenRequestDieMut]("tokenRequests")
 	f.RequiresRepublish = diefields.NewField[CSIDriverSpec, *bool]("requiresRepublish")
 	f.SELinuxMount = diefields.NewField[CSIDriverSpec, *bool]("seLinuxMount")
 	f.NodeAllocatableUpdatePeriodSeconds = diefields.NewField[CSIDriverSpec, *int64]("nodeAllocatableUpdatePeriodSeconds")
@@ -1551,7 +1551,7 @@ var storageClassFields = &diefields.Table[storageClassFieldsTable]{Build: func()
 	f.MountOptions = diefields.NewField[StorageClass, []string]("mountOptions")
 	f.AllowVolumeExpansion = diefields.NewField[StorageClass, *bool]("allowVolumeExpansion")
 	f.VolumeBindingMode = diefields.NewField[StorageClass, *VolumeBindingMode]("volumeBindingMode")
-	f.AllowedTopologies = diefields.NewField[StorageClass, []diecorev1.TopologySelectorTerm]("allowedTopologies")
+	f.AllowedTopologies = diefields.NewItems[StorageClass, []diecorev1.TopologySelectorTerm, diecorev1.TopologySelectorTerm, *diecorev1.TopologySelectorTermDie, *diecorev1.TopologySelectorTermDieMut]("allowedTopologies")
 	return
 }}
 
@@ -1776,7 +1776,7 @@ type storageHealthFieldsTable struct {
 var storageHealthFields = &diefields.Table[storageHealthFieldsTable]{Build: func() (f storageHealthFieldsTable) {
 	_ = annotated
 	f.Name = diefields.NewField[StorageHealth, string]("name")
-	f.HealthConditions = diefields.NewField[StorageHealth, []StorageHealthCondition]("healthConditions")
+	f.HealthConditions = diefields.NewItems[StorageHealth, []StorageHealthCondition, StorageHealthCondition, *StorageHealthConditionDie, *StorageHealthConditionDieMut]("healthConditions")
 	return
 }}
 
@@ -3002,7 +3002,7 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		diecodegen.Object[CSIDriver]("storage.k8s.io/v1", "CSIDriver")
 		diecodegen.Object[CSIDriverList]("storage.k8s.io/v1", "CSIDriverList")
 		diecodegen.Annotate[CSIDriverSpec](map[string]string{
-			"VolumeLifecycleModes": "atomic",
+			"VolumeLifecycleModes": "atomic;unique",
 			"TokenRequests":        "atomic",
 		})
 		diecodegen.Object[CSINode]("storage.k8s.io/v1", "CSINode")
@@ -3026,18 +3026,32 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		diecodegen.Object[CSIStorageCapacityList]("storage.k8s.io/v1", "CSIStorageCapacityList")
 		diecodegen.Object[StorageClass]("storage.k8s.io/v1", "StorageClass")
 		diecodegen.Annotate[StorageClass](map[string]string{
+			"Provisioner":       "required",
+			"ReclaimPolicy":     "enum=[\"Delete\",\"Recycle\",\"Retain\"]",
 			"MountOptions":      "atomic",
+			"VolumeBindingMode": "enum=[\"Immediate\",\"WaitForFirstConsumer\"]",
 			"AllowedTopologies": "atomic",
 		})
 		diecodegen.Object[StorageClassList]("storage.k8s.io/v1", "StorageClassList")
 		diecodegen.Annotate[StorageHealth](map[string]string{
+			"Name":             "required",
 			"HealthConditions": "atomic",
+		})
+		diecodegen.Annotate[StorageHealthCondition](map[string]string{
+			"Status":     "required;enum=[\"StorageDegraded\",\"StorageUnreachable\"]",
+			"Reason":     "required",
+			"AccessMode": "enum=[\"ReadOnlyMany\",\"ReadWriteMany\",\"ReadWriteOnce\",\"ReadWriteOncePod\"]",
+			"VolumeMode": "enum=[\"Block\",\"Filesystem\"]",
 		})
 		diecodegen.Object[VolumeAttachment]("storage.k8s.io/v1", "VolumeAttachment")
 		diecodegen.Annotate[VolumeAttachment](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
 		diecodegen.Object[VolumeAttachmentList]("storage.k8s.io/v1", "VolumeAttachmentList")
+		diecodegen.Annotate[VolumeAttachmentSpec](map[string]string{
+			"Attacher": "required",
+		})
 		diecodegen.Object[VolumeAttributesClass]("storage.k8s.io/v1", "VolumeAttributesClass")
 		diecodegen.Object[VolumeAttributesClassList]("storage.k8s.io/v1", "VolumeAttributesClassList")
 	},

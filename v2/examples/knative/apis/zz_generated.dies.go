@@ -61,6 +61,7 @@ type conditionFieldsTable struct {
 }
 
 var conditionFields = &diefields.Table[conditionFieldsTable]{Build: func() (f conditionFieldsTable) {
+	_ = annotated
 	f.Type = diefields.NewField[Condition, ConditionType]("type")
 	f.Status = diefields.NewField[Condition, diecorev1.ConditionStatus]("status")
 	f.Severity = diefields.NewField[Condition, ConditionSeverity]("severity")
@@ -166,6 +167,7 @@ type conditionSetFieldsTable struct {
 }
 
 var conditionSetFields = &diefields.Table[conditionSetFieldsTable]{Build: func() (f conditionSetFieldsTable) {
+	_ = annotated
 	return
 }}
 
@@ -203,6 +205,7 @@ type fieldErrorFieldsTable struct {
 }
 
 var fieldErrorFields = &diefields.Table[fieldErrorFieldsTable]{Build: func() (f fieldErrorFieldsTable) {
+	_ = annotated
 	f.Message = diefields.NewField[FieldError, string]("Message")
 	f.Paths = diefields.NewField[FieldError, []string]("Paths")
 	f.Level = diefields.NewField[FieldError, DiagnosticLevel]("Level")
@@ -258,6 +261,18 @@ var SchemeBuilder = runtime.NewSchemeBuilder()
 
 // AddToScheme registers this package's dies with a scheme: here, nothing.
 var AddToScheme = SchemeBuilder.AddToScheme
+
+var annotated = diecodegen.Register(diecodegen.Package{
+	Types: []string{
+		"reconciler.io/dies/v2/examples/knative/apis",
+	},
+	Annotate: func() {
+		diecodegen.Annotate[Condition](map[string]string{
+			"Type":   "required",
+			"Status": "required",
+		})
+	},
+})
 
 var _ = diecodegen.Register(diecodegen.Package{
 	Types: []string{

@@ -68,7 +68,7 @@ type fieldSelectorAttributesFieldsTable struct {
 var fieldSelectorAttributesFields = &diefields.Table[fieldSelectorAttributesFieldsTable]{Build: func() (f fieldSelectorAttributesFieldsTable) {
 	_ = annotated
 	f.RawSelector = diefields.NewField[FieldSelectorAttributes, string]("rawSelector")
-	f.Requirements = diefields.NewField[FieldSelectorAttributes, []diemetav1.FieldSelectorRequirement]("requirements")
+	f.Requirements = diefields.NewItems[FieldSelectorAttributes, []diemetav1.FieldSelectorRequirement, diemetav1.FieldSelectorRequirement, *diemetav1.FieldSelectorRequirementDie, *diemetav1.FieldSelectorRequirementDieMut]("requirements")
 	return
 }}
 
@@ -144,7 +144,7 @@ type labelSelectorAttributesFieldsTable struct {
 var labelSelectorAttributesFields = &diefields.Table[labelSelectorAttributesFieldsTable]{Build: func() (f labelSelectorAttributesFieldsTable) {
 	_ = annotated
 	f.RawSelector = diefields.NewField[LabelSelectorAttributes, string]("rawSelector")
-	f.Requirements = diefields.NewField[LabelSelectorAttributes, []diemetav1.LabelSelectorRequirement]("requirements")
+	f.Requirements = diefields.NewItems[LabelSelectorAttributes, []diemetav1.LabelSelectorRequirement, diemetav1.LabelSelectorRequirement, *diemetav1.LabelSelectorRequirementDie, *diemetav1.LabelSelectorRequirementDieMut]("requirements")
 	return
 }}
 
@@ -1293,8 +1293,8 @@ type subjectRulesReviewStatusFieldsTable struct {
 
 var subjectRulesReviewStatusFields = &diefields.Table[subjectRulesReviewStatusFieldsTable]{Build: func() (f subjectRulesReviewStatusFieldsTable) {
 	_ = annotated
-	f.ResourceRules = diefields.NewField[SubjectRulesReviewStatus, []ResourceRule]("resourceRules")
-	f.NonResourceRules = diefields.NewField[SubjectRulesReviewStatus, []NonResourceRule]("nonResourceRules")
+	f.ResourceRules = diefields.NewItems[SubjectRulesReviewStatus, []ResourceRule, ResourceRule, *ResourceRuleDie, *ResourceRuleDieMut]("resourceRules")
+	f.NonResourceRules = diefields.NewItems[SubjectRulesReviewStatus, []NonResourceRule, NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut]("nonResourceRules")
 	f.Incomplete = diefields.NewField[SubjectRulesReviewStatus, bool]("incomplete")
 	f.EvaluationError = diefields.NewField[SubjectRulesReviewStatus, string]("evaluationError")
 	return

@@ -286,7 +286,7 @@ type widgetGadgetFieldsTable struct {
 var widgetGadgetFields = &diefields.Table[widgetGadgetFieldsTable]{Build: func() (f widgetGadgetFieldsTable) {
 	_ = annotated
 	f.Label = diefields.NewField[WidgetGadget, string]("label")
-	f.Parts = diefields.NewField[WidgetGadget, []gadgetv1.GadgetPart]("parts")
+	f.Parts = diefields.NewItems[WidgetGadget, []gadgetv1.GadgetPart, gadgetv1.GadgetPart, *gadgetv1.GadgetPartDie, *gadgetv1.GadgetPartDieMut]("parts")
 	return
 }}
 
@@ -399,6 +399,7 @@ func (d *WidgetPortDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, widgetPortFields.Get().Name)
 }
 
+// Port defaults to 80.
 func (d *WidgetPortDie) Port() diefields.Value[int32] {
 	return diefields.ValueOf(d, widgetPortFields.Get().Port)
 }
@@ -407,6 +408,7 @@ func (d *WidgetPortDieMut) Name() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, widgetPortFields.Get().Name)
 }
 
+// Port defaults to 80.
 func (d *WidgetPortDieMut) Port() diefields.ValueMut[int32] {
 	return diefields.ValueMutOf(d, widgetPortFields.Get().Port)
 }
@@ -448,7 +450,7 @@ var widgetSpecFields = &diefields.Table[widgetSpecFieldsTable]{Build: func() (f 
 	return
 }}
 
-// Ports exposed by the widget.
+// Ports exposed by the widget, which may be added but not removed.
 func (d *WidgetSpecDie) Ports() *diefields.ListMap[WidgetPort, *WidgetPortDie, string] {
 	return diefields.ListMapOf(d, widgetSpecFields.Get().Ports)
 }
@@ -468,7 +470,7 @@ func (d *WidgetSpecDie) Match() *WidgetMatchDie {
 	return diefields.Child(d, widgetSpecFields.Get().Match)
 }
 
-// Ports exposed by the widget.
+// Ports exposed by the widget, which may be added but not removed.
 func (d *WidgetSpecDieMut) Ports() *diefields.ListMapMut[WidgetPort, *WidgetPortDieMut, string] {
 	return diefields.ListMapMutOf(d, widgetSpecFields.Get().Ports)
 }
@@ -558,15 +560,24 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		"reconciler.io/dies/v2/examples/widget/v1",
 	},
 	Annotate: func() {
+		diecodegen.Annotate[TemplatedSpec](map[string]string{
+			"Template": "required",
+		})
 		diecodegen.Object[Widget]("example.dev/v1", "Widget")
 		diecodegen.Annotate[Widget](map[string]string{
 			"Status": "subresource=status",
 		})
 		diecodegen.Annotate[WidgetMatch](map[string]string{
-			"Note": "nullable",
+			"Equal": "immutable",
+			"Note":  "nullable",
+		})
+		diecodegen.Annotate[WidgetPort](map[string]string{
+			"Name": "required;format=k8s-short-name",
+			"Port": "minimum=1;maximum=65535",
 		})
 		diecodegen.Annotate[WidgetSpec](map[string]string{
-			"Ports": "listMap=name",
+			"Ports":    "listMap=name;update=NoRemoveItem",
+			"Template": "required",
 		})
 		diecodegen.Annotate[WidgetStatus](map[string]string{
 			"Conditions": "listMap=type",

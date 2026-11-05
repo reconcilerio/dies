@@ -65,9 +65,9 @@ var aPIGroupFields = &diefields.Table[aPIGroupFieldsTable]{Build: func() (f aPIG
 	f.Kind = diefields.NewField[APIGroup, string]("kind")
 	f.APIVersion = diefields.NewField[APIGroup, string]("apiVersion")
 	f.Name = diefields.NewField[APIGroup, string]("name")
-	f.Versions = diefields.NewField[APIGroup, []GroupVersionForDiscovery]("versions")
+	f.Versions = diefields.NewItems[APIGroup, []GroupVersionForDiscovery, GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut]("versions")
 	f.PreferredVersion = diefields.NewStruct[APIGroup, GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut]("preferredVersion")
-	f.ServerAddressByClientCIDRs = diefields.NewField[APIGroup, []ServerAddressByClientCIDR]("serverAddressByClientCIDRs")
+	f.ServerAddressByClientCIDRs = diefields.NewItems[APIGroup, []ServerAddressByClientCIDR, ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut]("serverAddressByClientCIDRs")
 	return
 }}
 
@@ -193,7 +193,7 @@ var aPIGroupListFields = &diefields.Table[aPIGroupListFieldsTable]{Build: func()
 	_ = annotated
 	f.Kind = diefields.NewField[APIGroupList, string]("kind")
 	f.APIVersion = diefields.NewField[APIGroupList, string]("apiVersion")
-	f.Groups = diefields.NewField[APIGroupList, []APIGroup]("groups")
+	f.Groups = diefields.NewItems[APIGroupList, []APIGroup, APIGroup, *APIGroupDie, *APIGroupDieMut]("groups")
 	return
 }}
 
@@ -451,7 +451,7 @@ var aPIResourceListFields = &diefields.Table[aPIResourceListFieldsTable]{Build: 
 	f.Kind = diefields.NewField[APIResourceList, string]("kind")
 	f.APIVersion = diefields.NewField[APIResourceList, string]("apiVersion")
 	f.GroupVersion = diefields.NewField[APIResourceList, string]("groupVersion")
-	f.APIResources = diefields.NewField[APIResourceList, []APIResource]("resources")
+	f.APIResources = diefields.NewItems[APIResourceList, []APIResource, APIResource, *APIResourceDie, *APIResourceDieMut]("resources")
 	return
 }}
 
@@ -545,7 +545,7 @@ var aPIVersionsFields = &diefields.Table[aPIVersionsFieldsTable]{Build: func() (
 	f.Kind = diefields.NewField[APIVersions, string]("kind")
 	f.APIVersion = diefields.NewField[APIVersions, string]("apiVersion")
 	f.Versions = diefields.NewField[APIVersions, []string]("versions")
-	f.ServerAddressByClientCIDRs = diefields.NewField[APIVersions, []ServerAddressByClientCIDR]("serverAddressByClientCIDRs")
+	f.ServerAddressByClientCIDRs = diefields.NewItems[APIVersions, []ServerAddressByClientCIDR, ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut]("serverAddressByClientCIDRs")
 	return
 }}
 
@@ -1942,7 +1942,7 @@ type labelSelectorFieldsTable struct {
 var labelSelectorFields = &diefields.Table[labelSelectorFieldsTable]{Build: func() (f labelSelectorFieldsTable) {
 	_ = annotated
 	f.MatchLabels = diefields.NewMap[LabelSelector, string, string]("matchLabels")
-	f.MatchExpressions = diefields.NewField[LabelSelector, []LabelSelectorRequirement]("matchExpressions")
+	f.MatchExpressions = diefields.NewItems[LabelSelector, []LabelSelectorRequirement, LabelSelectorRequirement, *LabelSelectorRequirementDie, *LabelSelectorRequirementDieMut]("matchExpressions")
 	return
 }}
 
@@ -2993,7 +2993,7 @@ var objectMetaFields = &diefields.Table[objectMetaFieldsTable]{Build: func() (f 
 	f.Annotations = diefields.NewMap[ObjectMeta, string, string]("annotations")
 	f.OwnerReferences = diefields.NewListMap[ObjectMeta, OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut]("ownerReferences", func(k types.UID) []any { return []any{k} }, func(e OwnerReference) types.UID { return e.UID })
 	f.Finalizers = diefields.NewField[ObjectMeta, []string]("finalizers")
-	f.ManagedFields = diefields.NewField[ObjectMeta, []ManagedFieldsEntry]("managedFields")
+	f.ManagedFields = diefields.NewItems[ObjectMeta, []ManagedFieldsEntry, ManagedFieldsEntry, *ManagedFieldsEntryDie, *ManagedFieldsEntryDieMut]("managedFields")
 	return
 }}
 
@@ -3616,7 +3616,7 @@ var partialObjectMetadataListFields = &diefields.Table[partialObjectMetadataList
 	f.Kind = diefields.NewField[PartialObjectMetadataList, string]("kind")
 	f.APIVersion = diefields.NewField[PartialObjectMetadataList, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[PartialObjectMetadataList, ListMeta, *ListMetaDie, *ListMetaDieMut]("metadata")
-	f.Items = diefields.NewField[PartialObjectMetadataList, []PartialObjectMetadata]("items")
+	f.Items = diefields.NewItems[PartialObjectMetadataList, []PartialObjectMetadata, PartialObjectMetadata, *PartialObjectMetadataDie, *PartialObjectMetadataDieMut]("items")
 	return
 }}
 
@@ -4410,7 +4410,7 @@ var statusDetailsFields = &diefields.Table[statusDetailsFieldsTable]{Build: func
 	f.Group = diefields.NewField[StatusDetails, string]("group")
 	f.Kind = diefields.NewField[StatusDetails, string]("kind")
 	f.UID = diefields.NewField[StatusDetails, types.UID]("uid")
-	f.Causes = diefields.NewField[StatusDetails, []StatusCause]("causes")
+	f.Causes = diefields.NewItems[StatusDetails, []StatusCause, StatusCause, *StatusCauseDie, *StatusCauseDieMut]("causes")
 	f.RetryAfterSeconds = diefields.NewField[StatusDetails, int32]("retryAfterSeconds")
 	return
 }}
@@ -4528,8 +4528,8 @@ var tableFields = &diefields.Table[tableFieldsTable]{Build: func() (f tableField
 	f.Kind = diefields.NewField[Table, string]("kind")
 	f.APIVersion = diefields.NewField[Table, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[Table, ListMeta, *ListMetaDie, *ListMetaDieMut]("metadata")
-	f.ColumnDefinitions = diefields.NewField[Table, []TableColumnDefinition]("columnDefinitions")
-	f.Rows = diefields.NewField[Table, []TableRow]("rows")
+	f.ColumnDefinitions = diefields.NewItems[Table, []TableColumnDefinition, TableColumnDefinition, *TableColumnDefinitionDie, *TableColumnDefinitionDieMut]("columnDefinitions")
+	f.Rows = diefields.NewItems[Table, []TableRow, TableRow, *TableRowDie, *TableRowDieMut]("rows")
 	return
 }}
 
@@ -4825,7 +4825,7 @@ type tableRowFieldsTable struct {
 var tableRowFields = &diefields.Table[tableRowFieldsTable]{Build: func() (f tableRowFieldsTable) {
 	_ = annotated
 	f.Cells = diefields.NewField[TableRow, []any]("cells")
-	f.Conditions = diefields.NewField[TableRow, []TableRowCondition]("conditions")
+	f.Conditions = diefields.NewItems[TableRow, []TableRowCondition, TableRowCondition, *TableRowConditionDie, *TableRowConditionDieMut]("conditions")
 	f.Object = diefields.NewField[TableRow, runtime.RawExtension]("object")
 	return
 }}
@@ -5386,6 +5386,14 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		diecodegen.Annotate[ApplyOptions](map[string]string{
 			"DryRun": "atomic",
 		})
+		diecodegen.Annotate[Condition](map[string]string{
+			"Type":               "required;pattern=\"^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$\";maxLength=316",
+			"Status":             "required;enum=[\"True\",\"False\",\"Unknown\"]",
+			"ObservedGeneration": "minimum=0",
+			"LastTransitionTime": "required;format=date-time",
+			"Reason":             "required;pattern=\"^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$\";minLength=1;maxLength=1024",
+			"Message":            "required;maxLength=32768",
+		})
 		diecodegen.Annotate[CreateOptions](map[string]string{
 			"DryRun": "atomic",
 		})
@@ -5403,7 +5411,7 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Annotate[ObjectMeta](map[string]string{
 			"OwnerReferences": "listMap=uid",
-			"Finalizers":      "atomic",
+			"Finalizers":      "atomic;unique",
 			"ManagedFields":   "atomic",
 		})
 		diecodegen.Annotate[PatchOptions](map[string]string{
@@ -5411,6 +5419,9 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Annotate[RootPaths](map[string]string{
 			"Paths": "atomic",
+		})
+		diecodegen.Annotate[ShardInfo](map[string]string{
+			"Selector": "required",
 		})
 		diecodegen.Annotate[StatusDetails](map[string]string{
 			"Causes": "atomic",

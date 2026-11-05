@@ -705,7 +705,15 @@ var annotated = diecodegen.Register(diecodegen.Package{
 	Annotate: func() {
 		diecodegen.Object[Lease]("coordination.k8s.io/v1beta1", "Lease")
 		diecodegen.Object[LeaseCandidate]("coordination.k8s.io/v1beta1", "LeaseCandidate")
+		diecodegen.Annotate[LeaseCandidate](map[string]string{
+			"Spec": "required",
+		})
 		diecodegen.Object[LeaseCandidateList]("coordination.k8s.io/v1beta1", "LeaseCandidateList")
+		diecodegen.Annotate[LeaseCandidateSpec](map[string]string{
+			"LeaseName":     "required",
+			"BinaryVersion": "required",
+			"Strategy":      "required",
+		})
 		diecodegen.Object[LeaseList]("coordination.k8s.io/v1beta1", "LeaseList")
 	},
 })

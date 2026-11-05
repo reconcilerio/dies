@@ -31,9 +31,9 @@ import (
 type kind uint8
 
 const (
-	// kindLeaf values are replaced as a whole: scalars, atomic lists and
+	// KindLeaf values are replaced as a whole: scalars, atomic lists and
 	// types with custom JSON encoding.
-	kindLeaf kind = iota
+	KindLeaf kind = iota
 	// kindStruct values are granular structs, held by value or by pointer.
 	KindStruct
 	// kindListMap values are lists of structs keyed by one or more fields.
@@ -56,6 +56,21 @@ type FieldDesc struct {
 	// Nullable is set for a field whose schema accepts null, which a custom
 	// resource's validation otherwise rejects in an apply.
 	Nullable bool
+	// Required is set for a field that validation requires to be present,
+	// as an OpenAPI schema's required fields are.
+	Required bool
+	// RequiredNonZero is set for a field that validation requires to be
+	// present and not empty unless held by pointer, as +k8s:required does.
+	RequiredNonZero bool
+	// OneOf is set for a member of a union of which exactly one member must
+	// be set, rather than at most one.
+	OneOf bool
+	// Checks are the checks of the field's value, from its validation
+	// markers, if it has any.
+	Checks *Checks
+	// Dies makes the die of a struct field, or of a list map's element, over
+	// state. The field table of the field's type sets it.
+	Dies func(h *Holder, at Path, mutable bool) any
 	// omit is set for an omitempty or omitzero field
 	omit bool
 	// def is the +default value, used to normalize list-map keys.
@@ -152,7 +167,7 @@ func (sd *structDesc) collect(t reflect.Type, prefix []int) {
 }
 
 func (fd *FieldDesc) parseTag(tag string) (atomic bool) {
-	for opt := range strings.SplitSeq(tag, ";") {
+	for _, opt := range splitTag(tag) {
 		k, v, _ := strings.Cut(strings.TrimSpace(opt), "=")
 		switch k {
 		case "":
@@ -160,10 +175,21 @@ func (fd *FieldDesc) parseTag(tag string) (atomic bool) {
 			atomic = true
 		case "nullable":
 			fd.Nullable = true
+		case "required":
+			switch v {
+			case "":
+				fd.Required = true
+			case "nonzero":
+				fd.RequiredNonZero = true
+			default:
+				panic(Errorf("die: invalid required for %q: %q, want required or required=nonzero", fd.Wire, v))
+			}
 		case "listMap":
 			fd.Keys = strings.Split(v, ",")
 		case "union":
 			fd.Union = v
+		case "oneOf":
+			fd.Union, fd.OneOf = v, true
 		case "subresource":
 			fd.Subresource = v
 		case "default":
@@ -173,10 +199,34 @@ func (fd *FieldDesc) parseTag(tag string) (atomic bool) {
 			}
 			fd.def = def.Elem()
 		default:
-			panic(Errorf("die: unknown die tag option %q", k))
+			if fd.Checks == nil {
+				fd.Checks = &Checks{}
+			}
+			if err := fd.Checks.parse(k, v); err != nil {
+				panic(Errorf("die: invalid die tag option %q of %q: %w", k, fd.Wire, err))
+			}
 		}
 	}
 	return atomic
+}
+
+// splitTag splits a die tag on semicolons outside of JSON strings, so that a
+// default, enum or pattern may have one.
+func splitTag(tag string) []string {
+	var out []string
+	quoted, start := false, 0
+	for i := 0; i < len(tag); i++ {
+		switch c := tag[i]; {
+		case quoted && c == '\\':
+			i++
+		case c == '"':
+			quoted = !quoted
+		case c == ';' && !quoted:
+			out = append(out, tag[start:i])
+			start = i + 1
+		}
+	}
+	return append(out, tag[start:])
 }
 
 var marshalerType = reflect.TypeFor[json.Marshaler]()
@@ -188,14 +238,14 @@ func customJSON(t reflect.Type) bool {
 func classify(fd *FieldDesc, atomic bool) kind {
 	t := fd.Typ
 	if customJSON(t) {
-		return kindLeaf
+		return KindLeaf
 	}
 	if atomic {
 		if s := Deref(t); s.Kind() == reflect.Struct && !customJSON(s) {
 			fd.Atomic = true
 			return KindStruct
 		}
-		return kindLeaf
+		return KindLeaf
 	}
 	switch t.Kind() {
 	case reflect.Struct:
@@ -213,8 +263,17 @@ func classify(fd *FieldDesc, atomic bool) kind {
 			return KindMap
 		}
 	}
-	return kindLeaf
+	return KindLeaf
 }
+
+// HasDefault reports whether the field has a +default value.
+func (fd *FieldDesc) HasDefault() bool { return fd.def.IsValid() }
+
+// Default returns a copy of the field's +default value.
+func (fd *FieldDesc) Default() reflect.Value { return DeepCopy(fd.def) }
+
+// ValueIn returns the field's value in a struct value of its type.
+func (fd *FieldDesc) ValueIn(v reflect.Value) reflect.Value { return v.FieldByIndex(fd.index) }
 
 // keyValue returns the value of a list-map key field, defaulted when unset.
 // An element without a defaulted key and one with the default value set

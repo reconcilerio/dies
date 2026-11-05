@@ -1801,7 +1801,7 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Object[CertificateSigningRequestList]("certificates.k8s.io/v1", "CertificateSigningRequestList")
 		diecodegen.Annotate[CertificateSigningRequestSpec](map[string]string{
-			"Usages": "atomic",
+			"Usages": "atomic;each.enum=[\"any\",\"cert sign\",\"client auth\",\"code signing\",\"content commitment\",\"crl sign\",\"data encipherment\",\"decipher only\",\"digital signature\",\"email protection\",\"encipher only\",\"ipsec end system\",\"ipsec tunnel\",\"ipsec user\",\"key agreement\",\"key encipherment\",\"microsoft sgc\",\"netscape sgc\",\"ocsp signing\",\"s/mime\",\"server auth\",\"signing\",\"timestamping\"]",
 			"Groups": "atomic",
 		})
 		diecodegen.Annotate[CertificateSigningRequestStatus](map[string]string{
@@ -1811,11 +1811,20 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		diecodegen.Object[ClusterTrustBundleList]("certificates.k8s.io/v1", "ClusterTrustBundleList")
 		diecodegen.Object[PodCertificateRequest]("certificates.k8s.io/v1", "PodCertificateRequest")
 		diecodegen.Annotate[PodCertificateRequest](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
 		diecodegen.Object[PodCertificateRequestList]("certificates.k8s.io/v1", "PodCertificateRequestList")
 		diecodegen.Annotate[PodCertificateRequestSpec](map[string]string{
+			"SignerName":           "required",
+			"PodName":              "required",
+			"PodUID":               "required",
+			"ServiceAccountName":   "required",
+			"ServiceAccountUID":    "required",
+			"NodeName":             "required",
+			"NodeUID":              "required",
 			"MaxExpirationSeconds": "default=86400",
+			"StubPKCS10Request":    "required",
 		})
 		diecodegen.Annotate[PodCertificateRequestStatus](map[string]string{
 			"Conditions": "listMap=type",

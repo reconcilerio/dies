@@ -257,6 +257,9 @@ var annotated = diecodegen.Register(diecodegen.Package{
 	},
 	Annotate: func() {
 		diecodegen.Object[PriorityClass]("scheduling.k8s.io/v1", "PriorityClass")
+		diecodegen.Annotate[PriorityClass](map[string]string{
+			"PreemptionPolicy": "enum=[\"Never\",\"PreemptLowerPriority\"]",
+		})
 		diecodegen.Object[PriorityClassList]("scheduling.k8s.io/v1", "PriorityClassList")
 	},
 })

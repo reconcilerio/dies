@@ -468,7 +468,7 @@ type cronJobStatusFieldsTable struct {
 
 var cronJobStatusFields = &diefields.Table[cronJobStatusFieldsTable]{Build: func() (f cronJobStatusFieldsTable) {
 	_ = annotated
-	f.Active = diefields.NewField[CronJobStatus, []diecorev1.ObjectReference]("active")
+	f.Active = diefields.NewItems[CronJobStatus, []diecorev1.ObjectReference, diecorev1.ObjectReference, *diecorev1.ObjectReferenceDie, *diecorev1.ObjectReferenceDieMut]("active")
 	f.LastScheduleTime = diefields.NewField[CronJobStatus, *diemetav1.Time]("lastScheduleTime")
 	f.LastSuccessfulTime = diefields.NewField[CronJobStatus, *diemetav1.Time]("lastSuccessfulTime")
 	return
@@ -626,9 +626,13 @@ var annotated = diecodegen.Register(diecodegen.Package{
 	Annotate: func() {
 		diecodegen.Object[CronJob]("batch/v1beta1", "CronJob")
 		diecodegen.Annotate[CronJob](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
 		diecodegen.Object[CronJobList]("batch/v1beta1", "CronJobList")
+		diecodegen.Annotate[CronJobSpec](map[string]string{
+			"Schedule": "required",
+		})
 		diecodegen.Annotate[CronJobStatus](map[string]string{
 			"Active": "atomic",
 		})

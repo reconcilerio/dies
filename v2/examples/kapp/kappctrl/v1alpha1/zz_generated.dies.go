@@ -1068,7 +1068,7 @@ type appFetchInlineFieldsTable struct {
 var appFetchInlineFields = &diefields.Table[appFetchInlineFieldsTable]{Build: func() (f appFetchInlineFieldsTable) {
 	_ = annotated
 	f.Paths = diefields.NewMap[AppFetchInline, string, string]("paths")
-	f.PathsFrom = diefields.NewField[AppFetchInline, []AppFetchInlineSource]("pathsFrom")
+	f.PathsFrom = diefields.NewItems[AppFetchInline, []AppFetchInlineSource, AppFetchInlineSource, *AppFetchInlineSourceDie, *AppFetchInlineSourceDieMut]("pathsFrom")
 	return
 }}
 
@@ -1289,9 +1289,9 @@ var appSpecFields = &diefields.Table[appSpecFieldsTable]{Build: func() (f appSpe
 	_ = annotated
 	f.ServiceAccountName = diefields.NewField[AppSpec, string]("serviceAccountName")
 	f.Cluster = diefields.NewStruct[AppSpec, AppCluster, *AppClusterDie, *AppClusterDieMut]("cluster")
-	f.Fetch = diefields.NewField[AppSpec, []AppFetch]("fetch")
-	f.Template = diefields.NewField[AppSpec, []AppTemplate]("template")
-	f.Deploy = diefields.NewField[AppSpec, []AppDeploy]("deploy")
+	f.Fetch = diefields.NewItems[AppSpec, []AppFetch, AppFetch, *AppFetchDie, *AppFetchDieMut]("fetch")
+	f.Template = diefields.NewItems[AppSpec, []AppTemplate, AppTemplate, *AppTemplateDie, *AppTemplateDieMut]("template")
+	f.Deploy = diefields.NewItems[AppSpec, []AppDeploy, AppDeploy, *AppDeployDie, *AppDeployDieMut]("deploy")
 	f.Paused = diefields.NewField[AppSpec, bool]("paused")
 	f.Canceled = diefields.NewField[AppSpec, bool]("canceled")
 	f.SyncPeriod = diefields.NewField[AppSpec, *diemetav1.Duration]("syncPeriod")
@@ -1453,7 +1453,7 @@ var appStatusFields = &diefields.Table[appStatusFieldsTable]{Build: func() (f ap
 	f.ConsecutiveReconcileSuccesses = diefields.NewField[AppStatus, int]("consecutiveReconcileSuccesses")
 	f.ConsecutiveReconcileFailures = diefields.NewField[AppStatus, int]("consecutiveReconcileFailures")
 	f.ObservedGeneration = diefields.NewField[AppStatus, int64]("observedGeneration")
-	f.Conditions = diefields.NewField[AppStatus, []Condition]("conditions")
+	f.Conditions = diefields.NewItems[AppStatus, []Condition, Condition, *ConditionDie, *ConditionDieMut]("conditions")
 	f.FriendlyDescription = diefields.NewField[AppStatus, string]("friendlyDescription")
 	f.UsefulErrorMessage = diefields.NewField[AppStatus, string]("usefulErrorMessage")
 	return
@@ -2037,7 +2037,7 @@ type appTemplateCueFieldsTable struct {
 var appTemplateCueFields = &diefields.Table[appTemplateCueFieldsTable]{Build: func() (f appTemplateCueFieldsTable) {
 	_ = annotated
 	f.Paths = diefields.NewField[AppTemplateCue, []string]("paths")
-	f.ValuesFrom = diefields.NewField[AppTemplateCue, []AppTemplateValuesSource]("valuesFrom")
+	f.ValuesFrom = diefields.NewItems[AppTemplateCue, []AppTemplateValuesSource, AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut]("valuesFrom")
 	f.InputExpression = diefields.NewField[AppTemplateCue, string]("inputExpression")
 	f.OutputExpression = diefields.NewField[AppTemplateCue, string]("outputExpression")
 	return
@@ -2118,7 +2118,7 @@ var appTemplateHelmTemplateFields = &diefields.Table[appTemplateHelmTemplateFiel
 	f.Name = diefields.NewField[AppTemplateHelmTemplate, string]("name")
 	f.Namespace = diefields.NewField[AppTemplateHelmTemplate, string]("namespace")
 	f.Path = diefields.NewField[AppTemplateHelmTemplate, string]("path")
-	f.ValuesFrom = diefields.NewField[AppTemplateHelmTemplate, []AppTemplateValuesSource]("valuesFrom")
+	f.ValuesFrom = diefields.NewItems[AppTemplateHelmTemplate, []AppTemplateValuesSource, AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut]("valuesFrom")
 	f.KubernetesVersion = diefields.NewStruct[AppTemplateHelmTemplate, Version, *VersionDie, *VersionDieMut]("kubernetesVersion")
 	f.KubernetesAPIs = diefields.NewStruct[AppTemplateHelmTemplate, KubernetesAPIs, *KubernetesAPIsDie, *KubernetesAPIsDieMut]("kubernetesAPIs")
 	return
@@ -2510,7 +2510,7 @@ type appTemplateValuesDownwardAPIFieldsTable struct {
 
 var appTemplateValuesDownwardAPIFields = &diefields.Table[appTemplateValuesDownwardAPIFieldsTable]{Build: func() (f appTemplateValuesDownwardAPIFieldsTable) {
 	_ = annotated
-	f.Items = diefields.NewField[AppTemplateValuesDownwardAPI, []AppTemplateValuesDownwardAPIItem]("items")
+	f.Items = diefields.NewItems[AppTemplateValuesDownwardAPI, []AppTemplateValuesDownwardAPIItem, AppTemplateValuesDownwardAPIItem, *AppTemplateValuesDownwardAPIItemDie, *AppTemplateValuesDownwardAPIItemDieMut]("items")
 	return
 }}
 
@@ -2760,7 +2760,7 @@ var appTemplateYttFields = &diefields.Table[appTemplateYttFieldsTable]{Build: fu
 	f.Inline = diefields.NewStruct[AppTemplateYtt, AppFetchInline, *AppFetchInlineDie, *AppFetchInlineDieMut]("inline")
 	f.Paths = diefields.NewField[AppTemplateYtt, []string]("paths")
 	f.FileMarks = diefields.NewField[AppTemplateYtt, []string]("fileMarks")
-	f.ValuesFrom = diefields.NewField[AppTemplateYtt, []AppTemplateValuesSource]("valuesFrom")
+	f.ValuesFrom = diefields.NewItems[AppTemplateYtt, []AppTemplateValuesSource, AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut]("valuesFrom")
 	return
 }}
 
@@ -2863,7 +2863,7 @@ var associatedResourcesFields = &diefields.Table[associatedResourcesFieldsTable]
 	_ = annotated
 	f.Label = diefields.NewField[AssociatedResources, string]("label")
 	f.Namespaces = diefields.NewField[AssociatedResources, []string]("namespaces")
-	f.GroupKinds = diefields.NewField[AssociatedResources, []diemetav1.GroupKind]("groupKinds")
+	f.GroupKinds = diefields.NewItems[AssociatedResources, []diemetav1.GroupKind, diemetav1.GroupKind, *diemetav1.GroupKindDie, *diemetav1.GroupKindDieMut]("groupKinds")
 	return
 }}
 
@@ -2999,7 +2999,7 @@ type genericStatusFieldsTable struct {
 var genericStatusFields = &diefields.Table[genericStatusFieldsTable]{Build: func() (f genericStatusFieldsTable) {
 	_ = annotated
 	f.ObservedGeneration = diefields.NewField[GenericStatus, int64]("observedGeneration")
-	f.Conditions = diefields.NewField[GenericStatus, []Condition]("conditions")
+	f.Conditions = diefields.NewItems[GenericStatus, []Condition, Condition, *ConditionDie, *ConditionDieMut]("conditions")
 	f.FriendlyDescription = diefields.NewField[GenericStatus, string]("friendlyDescription")
 	f.UsefulErrorMessage = diefields.NewField[GenericStatus, string]("usefulErrorMessage")
 	return
@@ -3186,9 +3186,17 @@ var annotated = diecodegen.Register(diecodegen.Package{
 	Annotate: func() {
 		diecodegen.Object[App]("kappctrl.k14s.io/v1alpha1", "App")
 		diecodegen.Annotate[App](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
 		diecodegen.Object[AppList]("kappctrl.k14s.io/v1alpha1", "AppList")
+		diecodegen.Annotate[AppList](map[string]string{
+			"Items": "required",
+		})
+		diecodegen.Annotate[Condition](map[string]string{
+			"Type":   "required",
+			"Status": "required",
+		})
 	},
 })
 

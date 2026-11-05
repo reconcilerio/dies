@@ -45,7 +45,7 @@ var diePackages = map[string]string{}
 func init() {
 	for pkg, names := range map[string][]string{
 		"base":    {"DieBase", "DieObjectBase", "DieTypedBase", "AsObject", "AsTyped", "DieMutBase", "DieObjectMutBase", "DieTypedMutBase", "AsObjectMut", "AsTypedMut", "Blank", "BlankOf", "DieOf", "DieMutOf"},
-		"fields":  {"DieTypedOf", "DieTypedMutOf", "Field", "NewField", "Struct", "NewStruct", "ListMapField", "NewListMap", "MapField", "NewMap", "Value", "ValueOf", "ValueMut", "ValueMutOf", "Optional", "OptionalOf", "OptionalMut", "OptionalMutOf", "Child", "ChildMut", "ListMap", "ListMapOf", "ListMapMut", "ListMapMutOf", "Map", "MapOf", "MapMut", "MapMutOf", "Table"},
+		"fields":  {"DieTypedOf", "DieTypedMutOf", "Field", "NewField", "NewItems", "Struct", "NewStruct", "ListMapField", "NewListMap", "MapField", "NewMap", "Value", "ValueOf", "ValueMut", "ValueMutOf", "Optional", "OptionalOf", "OptionalMut", "OptionalMutOf", "Child", "ChildMut", "ListMap", "ListMapOf", "ListMapMut", "ListMapMutOf", "Map", "MapOf", "MapMut", "MapMutOf", "Table"},
 		"lists":   {"List", "NewList", "DieListOf"},
 		"objects": {"DieObjectOf", "DieObjectMutOf"},
 		"codegen": {"Register", "Package", "Annotate", "Object", "CheckManaged", "CheckList", "CheckRegistered", "TypedBlank", "ReleaseApplyConfiguration", "MustReleaseApplyConfiguration", "FeedApplyConfiguration", "StampApplyConfiguration"},

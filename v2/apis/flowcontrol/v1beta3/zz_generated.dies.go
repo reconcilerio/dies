@@ -624,7 +624,7 @@ var flowSchemaSpecFields = &diefields.Table[flowSchemaSpecFieldsTable]{Build: fu
 	f.PriorityLevelConfiguration = diefields.NewStruct[FlowSchemaSpec, PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie, *PriorityLevelConfigurationReferenceDieMut]("priorityLevelConfiguration")
 	f.MatchingPrecedence = diefields.NewField[FlowSchemaSpec, int32]("matchingPrecedence")
 	f.DistinguisherMethod = diefields.NewStruct[FlowSchemaSpec, FlowDistinguisherMethod, *FlowDistinguisherMethodDie, *FlowDistinguisherMethodDieMut]("distinguisherMethod")
-	f.Rules = diefields.NewField[FlowSchemaSpec, []PolicyRulesWithSubjects]("rules")
+	f.Rules = diefields.NewItems[FlowSchemaSpec, []PolicyRulesWithSubjects, PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie, *PolicyRulesWithSubjectsDieMut]("rules")
 	return
 }}
 
@@ -1342,9 +1342,9 @@ type policyRulesWithSubjectsFieldsTable struct {
 
 var policyRulesWithSubjectsFields = &diefields.Table[policyRulesWithSubjectsFieldsTable]{Build: func() (f policyRulesWithSubjectsFieldsTable) {
 	_ = annotated
-	f.Subjects = diefields.NewField[PolicyRulesWithSubjects, []Subject]("subjects")
-	f.ResourceRules = diefields.NewField[PolicyRulesWithSubjects, []ResourcePolicyRule]("resourceRules")
-	f.NonResourceRules = diefields.NewField[PolicyRulesWithSubjects, []NonResourcePolicyRule]("nonResourceRules")
+	f.Subjects = diefields.NewItems[PolicyRulesWithSubjects, []Subject, Subject, *SubjectDie, *SubjectDieMut]("subjects")
+	f.ResourceRules = diefields.NewItems[PolicyRulesWithSubjects, []ResourcePolicyRule, ResourcePolicyRule, *ResourcePolicyRuleDie, *ResourcePolicyRuleDieMut]("resourceRules")
+	f.NonResourceRules = diefields.NewItems[PolicyRulesWithSubjects, []NonResourcePolicyRule, NonResourcePolicyRule, *NonResourcePolicyRuleDie, *NonResourcePolicyRuleDieMut]("nonResourceRules")
 	return
 }}
 
@@ -2630,39 +2630,76 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		"k8s.io/api/flowcontrol/v1beta3",
 	},
 	Annotate: func() {
+		diecodegen.Annotate[FlowDistinguisherMethod](map[string]string{
+			"Type": "required",
+		})
 		diecodegen.Object[FlowSchema]("flowcontrol.apiserver.k8s.io/v1beta3", "FlowSchema")
 		diecodegen.Annotate[FlowSchema](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
+		})
+		diecodegen.Annotate[FlowSchemaCondition](map[string]string{
+			"Type": "required",
 		})
 		diecodegen.Object[FlowSchemaList]("flowcontrol.apiserver.k8s.io/v1beta3", "FlowSchemaList")
 		diecodegen.Annotate[FlowSchemaSpec](map[string]string{
-			"Rules": "atomic",
+			"PriorityLevelConfiguration": "required",
+			"Rules":                      "atomic",
 		})
 		diecodegen.Annotate[FlowSchemaStatus](map[string]string{
 			"Conditions": "listMap=type",
 		})
+		diecodegen.Annotate[GroupSubject](map[string]string{
+			"Name": "required",
+		})
+		diecodegen.Annotate[LimitResponse](map[string]string{
+			"Type": "required",
+		})
+		diecodegen.Annotate[LimitedPriorityLevelConfiguration](map[string]string{
+			"LimitResponse": "required",
+		})
 		diecodegen.Annotate[NonResourcePolicyRule](map[string]string{
-			"Verbs":           "atomic",
-			"NonResourceURLs": "atomic",
+			"Verbs":           "atomic;required;unique",
+			"NonResourceURLs": "atomic;required;unique",
 		})
 		diecodegen.Annotate[PolicyRulesWithSubjects](map[string]string{
-			"Subjects":         "atomic",
+			"Subjects":         "atomic;required",
 			"ResourceRules":    "atomic",
 			"NonResourceRules": "atomic",
 		})
 		diecodegen.Object[PriorityLevelConfiguration]("flowcontrol.apiserver.k8s.io/v1beta3", "PriorityLevelConfiguration")
 		diecodegen.Annotate[PriorityLevelConfiguration](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
+		diecodegen.Annotate[PriorityLevelConfigurationCondition](map[string]string{
+			"Type": "required",
+		})
 		diecodegen.Object[PriorityLevelConfigurationList]("flowcontrol.apiserver.k8s.io/v1beta3", "PriorityLevelConfigurationList")
+		diecodegen.Annotate[PriorityLevelConfigurationReference](map[string]string{
+			"Name": "required",
+		})
+		diecodegen.Annotate[PriorityLevelConfigurationSpec](map[string]string{
+			"Type": "required",
+		})
 		diecodegen.Annotate[PriorityLevelConfigurationStatus](map[string]string{
 			"Conditions": "listMap=type",
 		})
 		diecodegen.Annotate[ResourcePolicyRule](map[string]string{
-			"Verbs":      "atomic",
-			"APIGroups":  "atomic",
-			"Resources":  "atomic",
-			"Namespaces": "atomic",
+			"Verbs":      "atomic;required;unique",
+			"APIGroups":  "atomic;required;unique",
+			"Resources":  "atomic;required;unique",
+			"Namespaces": "atomic;unique",
+		})
+		diecodegen.Annotate[ServiceAccountSubject](map[string]string{
+			"Namespace": "required",
+			"Name":      "required",
+		})
+		diecodegen.Annotate[Subject](map[string]string{
+			"Kind": "required",
+		})
+		diecodegen.Annotate[UserSubject](map[string]string{
+			"Name": "required",
 		})
 	},
 })

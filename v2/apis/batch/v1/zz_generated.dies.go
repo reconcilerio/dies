@@ -465,7 +465,7 @@ type cronJobStatusFieldsTable struct {
 
 var cronJobStatusFields = &diefields.Table[cronJobStatusFieldsTable]{Build: func() (f cronJobStatusFieldsTable) {
 	_ = annotated
-	f.Active = diefields.NewField[CronJobStatus, []diecorev1.ObjectReference]("active")
+	f.Active = diefields.NewItems[CronJobStatus, []diecorev1.ObjectReference, diecorev1.ObjectReference, *diecorev1.ObjectReferenceDie, *diecorev1.ObjectReferenceDieMut]("active")
 	f.LastScheduleTime = diefields.NewField[CronJobStatus, *diemetav1.Time]("lastScheduleTime")
 	f.LastSuccessfulTime = diefields.NewField[CronJobStatus, *diemetav1.Time]("lastSuccessfulTime")
 	return
@@ -1513,7 +1513,7 @@ type jobStatusFieldsTable struct {
 
 var jobStatusFields = &diefields.Table[jobStatusFieldsTable]{Build: func() (f jobStatusFieldsTable) {
 	_ = annotated
-	f.Conditions = diefields.NewField[JobStatus, []JobCondition]("conditions")
+	f.Conditions = diefields.NewItems[JobStatus, []JobCondition, JobCondition, *JobConditionDie, *JobConditionDieMut]("conditions")
 	f.StartTime = diefields.NewField[JobStatus, *diemetav1.Time]("startTime")
 	f.CompletionTime = diefields.NewField[JobStatus, *diemetav1.Time]("completionTime")
 	f.Active = diefields.NewField[JobStatus, int32]("active")
@@ -1919,7 +1919,7 @@ type podFailurePolicyFieldsTable struct {
 
 var podFailurePolicyFields = &diefields.Table[podFailurePolicyFieldsTable]{Build: func() (f podFailurePolicyFieldsTable) {
 	_ = annotated
-	f.Rules = diefields.NewField[PodFailurePolicy, []PodFailurePolicyRule]("rules")
+	f.Rules = diefields.NewItems[PodFailurePolicy, []PodFailurePolicyRule, PodFailurePolicyRule, *PodFailurePolicyRuleDie, *PodFailurePolicyRuleDieMut]("rules")
 	return
 }}
 
@@ -2264,7 +2264,7 @@ var podFailurePolicyRuleFields = &diefields.Table[podFailurePolicyRuleFieldsTabl
 	_ = annotated
 	f.Action = diefields.NewField[PodFailurePolicyRule, PodFailurePolicyAction]("action")
 	f.OnExitCodes = diefields.NewStruct[PodFailurePolicyRule, PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie, *PodFailurePolicyOnExitCodesRequirementDieMut]("onExitCodes")
-	f.OnPodConditions = diefields.NewField[PodFailurePolicyRule, []PodFailurePolicyOnPodConditionsPattern]("onPodConditions")
+	f.OnPodConditions = diefields.NewItems[PodFailurePolicyRule, []PodFailurePolicyOnPodConditionsPattern, PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie, *PodFailurePolicyOnPodConditionsPatternDieMut]("onPodConditions")
 	return
 }}
 
@@ -2396,7 +2396,7 @@ type successPolicyFieldsTable struct {
 
 var successPolicyFields = &diefields.Table[successPolicyFieldsTable]{Build: func() (f successPolicyFieldsTable) {
 	_ = annotated
-	f.Rules = diefields.NewField[SuccessPolicy, []SuccessPolicyRule]("rules")
+	f.Rules = diefields.NewItems[SuccessPolicy, []SuccessPolicyRule, SuccessPolicyRule, *SuccessPolicyRuleDie, *SuccessPolicyRuleDieMut]("rules")
 	return
 }}
 
@@ -2674,9 +2674,14 @@ var annotated = diecodegen.Register(diecodegen.Package{
 	Annotate: func() {
 		diecodegen.Object[CronJob]("batch/v1", "CronJob")
 		diecodegen.Annotate[CronJob](map[string]string{
+			"Spec":   "required",
 			"Status": "subresource=status",
 		})
 		diecodegen.Object[CronJobList]("batch/v1", "CronJobList")
+		diecodegen.Annotate[CronJobSpec](map[string]string{
+			"Schedule":          "required",
+			"ConcurrencyPolicy": "enum=[\"Allow\",\"Forbid\",\"Replace\"]",
+		})
 		diecodegen.Annotate[CronJobStatus](map[string]string{
 			"Active": "atomic",
 		})
@@ -2686,10 +2691,16 @@ var annotated = diecodegen.Register(diecodegen.Package{
 		})
 		diecodegen.Object[JobList]("batch/v1", "JobList")
 		diecodegen.Annotate[JobSchedulingConfiguration](map[string]string{
-			"ResourceClaims": "listMap=name",
+			"SchedulingPolicy":      "update=NoSet,NoUnset",
+			"SchedulingConstraints": "immutable",
+			"DisruptionMode":        "immutable",
+			"ResourceClaims":        "listMap=name;maxItems=4;immutable",
 		})
 		diecodegen.Annotate[JobSpec](map[string]string{
-			"Selector": "atomic",
+			"Selector":             "atomic",
+			"CompletionMode":       "enum=[\"Indexed\",\"NonIndexed\"]",
+			"PodReplacementPolicy": "enum=[\"Failed\",\"TerminatingOrFailed\"]",
+			"Scheduling":           "update=NoSet,NoUnset",
 		})
 		diecodegen.Annotate[JobStatus](map[string]string{
 			"Conditions": "atomic",
@@ -2698,17 +2709,19 @@ var annotated = diecodegen.Register(diecodegen.Package{
 			"Rules": "atomic",
 		})
 		diecodegen.Annotate[PodFailurePolicyOnExitCodesRequirement](map[string]string{
-			"Values": "atomic",
+			"Operator": "enum=[\"In\",\"NotIn\"]",
+			"Values":   "atomic;unique",
 		})
 		diecodegen.Annotate[PodFailurePolicyRule](map[string]string{
+			"Action":          "enum=[\"Count\",\"FailIndex\",\"FailJob\",\"Ignore\"]",
 			"OnPodConditions": "atomic",
 		})
 		diecodegen.Annotate[SuccessPolicy](map[string]string{
 			"Rules": "atomic",
 		})
 		diecodegen.Annotate[UncountedTerminatedPods](map[string]string{
-			"Succeeded": "atomic",
-			"Failed":    "atomic",
+			"Succeeded": "atomic;unique",
+			"Failed":    "atomic;unique",
 		})
 	},
 })
