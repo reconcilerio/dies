@@ -3539,7 +3539,7 @@ func (d *ObjectMetaDieMut) Annotations() *diefields.MapMut[string, string] {
 // been deleted, this object will be garbage collected. If this object is managed by a controller,
 // then an entry in this list will point to this controller, with the controller field set to true.
 // There cannot be more than one managing controller.
-func (d *ObjectMetaDieMut) OwnerReferences() *diefields.ListMapMut[OwnerReference, *OwnerReferenceDieMut, types.UID] {
+func (d *ObjectMetaDieMut) OwnerReferences() *diefields.ListMapMut[OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut, types.UID] {
 	return diefields.ListMapMutOf(d, objectMetaFields.Get().OwnerReferences)
 }
 

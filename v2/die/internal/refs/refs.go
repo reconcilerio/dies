@@ -78,9 +78,13 @@ func (r Ref) CopyOf(mutable bool) (*core.Holder, error) {
 		if err != nil {
 			return nil, err
 		}
-		return &core.Holder{Base: v, Mutable: mutable, Schema: h.Schema.At(r.At)}, nil
+		out := &core.Holder{Base: v, Mutable: mutable, Schema: h.Schema.At(r.At)}
+		out.ObserversOf(h, r.At)
+		return out, nil
 	}
-	return &core.Holder{Base: h.Base, Ov: h.Ov, Wire: h.Wire, Mutable: mutable, Schema: h.Schema}, nil
+	out := &core.Holder{Base: h.Base, Ov: h.Ov, Wire: h.Wire, Mutable: mutable, Schema: h.Schema}
+	out.ObserversOf(h, nil)
+	return out, nil
 }
 
 // Has reports whether the value is present. A root always is.
@@ -194,7 +198,9 @@ func (r Ref) Tare() (*core.Holder, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &core.Holder{Base: v, Wire: core.CommitWire(h.Wire, h.Ov), Mutable: h.Mutable, Schema: h.Schema}, nil
+	out := &core.Holder{Base: v, Wire: core.CommitWire(h.Wire, h.Ov), Mutable: h.Mutable, Schema: h.Schema}
+	out.ObserversOf(h, nil)
+	return out, nil
 }
 
 // Replace replaces the die's state with a holder's, in place.
@@ -202,8 +208,7 @@ func (r Ref) Replace(h *core.Holder, err error) error {
 	if err != nil {
 		return err
 	}
-	r.H.Base, r.H.Ov, r.H.Wire = h.Base, h.Ov, h.Wire
-	return nil
+	return r.H.Commit(h.Base, h.Ov, h.Wire, nil)
 }
 
 // Clear records that the value is absent, or resets a root to the zero value.
@@ -223,8 +228,7 @@ func (r Ref) Feed(v reflect.Value) error {
 		if err := core.CheckKeys(v); err != nil {
 			return err
 		}
-		r.H.Base, r.H.Ov, r.H.Wire = v, nil, nil
-		return nil
+		return r.H.Commit(v, nil, nil, nil)
 	}
 	_, err := r.H.Write(r.At, nil, core.SetOp(core.OpSet, fit(core.TypeAt(r.H.Base.Type(), r.At), v)), true)
 	return err
@@ -267,8 +271,7 @@ func (r Ref) FeedJSON(data []byte) error {
 	if err != nil {
 		return core.Errorf("die: feeding %s from JSON: %w", r.T, err)
 	}
-	r.H.Base, r.H.Ov, r.H.Wire = v, nil, w
-	return nil
+	return r.H.Commit(v, nil, w, nil)
 }
 
 func (r Ref) FeedYAML(data []byte) error {
@@ -365,8 +368,7 @@ func (r Ref) Unmarshal(data []byte) error {
 	if err != nil {
 		return err
 	}
-	r.H.Base, r.H.Wire = v, w
-	return nil
+	return r.H.Commit(v, r.H.Ov, w, nil)
 }
 
 // Keep returns a new holder of a root's value keeping the intent at the
@@ -381,7 +383,9 @@ func Keep(h *core.Holder, at []core.Located, only bool) (*core.Holder, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &core.Holder{Base: base, Ov: kept, Wire: core.CommitWire(h.Wire, fold), Mutable: h.Mutable, Schema: h.Schema}, nil
+	out := &core.Holder{Base: base, Ov: kept, Wire: core.CommitWire(h.Wire, fold), Mutable: h.Mutable, Schema: h.Schema}
+	out.ObserversOf(h, nil)
+	return out, nil
 }
 
 // It panics on a location within a die of another type, a mistake in the

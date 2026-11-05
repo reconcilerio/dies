@@ -536,7 +536,7 @@ func (d *WidgetSpecDie) Match() *WidgetMatchDie {
 }
 
 // Ports exposed by the widget, which may be added but not removed.
-func (d *WidgetSpecDieMut) Ports() *diefields.ListMapMut[WidgetPort, *WidgetPortDieMut, string] {
+func (d *WidgetSpecDieMut) Ports() *diefields.ListMapMut[WidgetPort, *WidgetPortDie, *WidgetPortDieMut, string] {
 	return diefields.ListMapMutOf(d, widgetSpecFields.Get().Ports)
 }
 
@@ -609,7 +609,7 @@ func (d *WidgetStatusDieMut) ObservedGeneration() diefields.ValueMut[int64] {
 	return diefields.ValueMutOf(d, widgetStatusFields.Get().ObservedGeneration)
 }
 
-func (d *WidgetStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+func (d *WidgetStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
 	return diefields.ListMapMutOf(d, widgetStatusFields.Get().Conditions)
 }
 

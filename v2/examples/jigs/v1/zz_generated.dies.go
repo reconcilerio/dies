@@ -152,7 +152,7 @@ func (d *BuilderDieMut) Image() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, builderFields.Get().Image)
 }
 
-func (d *BuilderDieMut) Env() *diefields.ListMapMut[diecorev1.EnvVar, *diecorev1.EnvVarDieMut, string] {
+func (d *BuilderDieMut) Env() *diefields.ListMapMut[diecorev1.EnvVar, *diecorev1.EnvVarDie, *diecorev1.EnvVarDieMut, string] {
 	return diefields.ListMapMutOf(d, builderFields.Get().Env)
 }
 
@@ -202,7 +202,7 @@ func (d *ConditionedDie) Conditions() *diefields.ListMap[diemetav1.Condition, *d
 	return diefields.ListMapOf(d, conditionedFields.Get().Conditions)
 }
 
-func (d *ConditionedDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+func (d *ConditionedDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
 	return diefields.ListMapMutOf(d, conditionedFields.Get().Conditions)
 }
 
@@ -394,7 +394,7 @@ func (d *PipelineDie) Sidecar() *diecorev1.ContainerDie {
 
 func (d *PipelineDie) Builder() *BuilderDie { return diefields.Child(d, pipelineFields.Get().Builder) }
 
-func (d *PipelineDieMut) Steps() *diefields.ListMapMut[diecorev1.Container, *diecorev1.ContainerDieMut, string] {
+func (d *PipelineDieMut) Steps() *diefields.ListMapMut[diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut, string] {
 	return diefields.ListMapMutOf(d, pipelineFields.Get().Steps)
 }
 
@@ -519,11 +519,11 @@ func (d *WorkloadDie) Volumes() *diefields.ListMap[diecorev1.Volume, *diecorev1.
 	return diefields.ListMapOf(d, workloadFields.Get().Volumes)
 }
 
-func (d *WorkloadDieMut) Containers() *diefields.ListMapMut[diecorev1.Container, *diecorev1.ContainerDieMut, string] {
+func (d *WorkloadDieMut) Containers() *diefields.ListMapMut[diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut, string] {
 	return diefields.ListMapMutOf(d, workloadFields.Get().Containers)
 }
 
-func (d *WorkloadDieMut) Volumes() *diefields.ListMapMut[diecorev1.Volume, *diecorev1.VolumeDieMut, string] {
+func (d *WorkloadDieMut) Volumes() *diefields.ListMapMut[diecorev1.Volume, *diecorev1.VolumeDie, *diecorev1.VolumeDieMut, string] {
 	return diefields.ListMapMutOf(d, workloadFields.Get().Volumes)
 }
 

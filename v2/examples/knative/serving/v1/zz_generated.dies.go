@@ -1160,7 +1160,7 @@ func (d *RevisionSpecDie) IdleTimeoutSeconds() diefields.Optional[int64] {
 
 // List of volumes that can be mounted by containers belonging to the pod.
 // More info: https://kubernetes.io/docs/concepts/storage/volumes
-func (d *RevisionSpecDieMut) Volumes() *diefields.ListMapMut[diecorev1.Volume, *diecorev1.VolumeDieMut, string] {
+func (d *RevisionSpecDieMut) Volumes() *diefields.ListMapMut[diecorev1.Volume, *diecorev1.VolumeDie, *diecorev1.VolumeDieMut, string] {
 	return diefields.ListMapMutOf(d, revisionSpecFields.Get().Volumes)
 }
 
@@ -1177,7 +1177,7 @@ func (d *RevisionSpecDieMut) Volumes() *diefields.ListMapMut[diecorev1.Volume, *
 // Init containers cannot currently be added or removed.
 // Cannot be updated.
 // More info: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
-func (d *RevisionSpecDieMut) InitContainers() *diefields.ListMapMut[diecorev1.Container, *diecorev1.ContainerDieMut, string] {
+func (d *RevisionSpecDieMut) InitContainers() *diefields.ListMapMut[diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut, string] {
 	return diefields.ListMapMutOf(d, revisionSpecFields.Get().InitContainers)
 }
 
@@ -1185,7 +1185,7 @@ func (d *RevisionSpecDieMut) InitContainers() *diefields.ListMapMut[diecorev1.Co
 // Containers cannot currently be added or removed.
 // There must be at least one container in a Pod.
 // Cannot be updated.
-func (d *RevisionSpecDieMut) Containers() *diefields.ListMapMut[diecorev1.Container, *diecorev1.ContainerDieMut, string] {
+func (d *RevisionSpecDieMut) Containers() *diefields.ListMapMut[diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut, string] {
 	return diefields.ListMapMutOf(d, revisionSpecFields.Get().Containers)
 }
 
@@ -1193,7 +1193,7 @@ func (d *RevisionSpecDieMut) Containers() *diefields.ListMapMut[diecorev1.Contai
 // pod to perform user-initiated actions such as debugging. This list cannot be specified when
 // creating a pod, and it cannot be modified by updating the pod spec. In order to add an
 // ephemeral container to an existing pod, use the pod's ephemeralcontainers subresource.
-func (d *RevisionSpecDieMut) EphemeralContainers() *diefields.ListMapMut[diecorev1.EphemeralContainer, *diecorev1.EphemeralContainerDieMut, string] {
+func (d *RevisionSpecDieMut) EphemeralContainers() *diefields.ListMapMut[diecorev1.EphemeralContainer, *diecorev1.EphemeralContainerDie, *diecorev1.EphemeralContainerDieMut, string] {
 	return diefields.ListMapMutOf(d, revisionSpecFields.Get().EphemeralContainers)
 }
 
@@ -1306,7 +1306,7 @@ func (d *RevisionSpecDieMut) SecurityContext() *diecorev1.PodSecurityContextDieM
 // ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec.
 // If specified, these secrets will be passed to individual puller implementations for them to use.
 // More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod
-func (d *RevisionSpecDieMut) ImagePullSecrets() *diefields.ListMapMut[diecorev1.LocalObjectReference, *diecorev1.LocalObjectReferenceDieMut, string] {
+func (d *RevisionSpecDieMut) ImagePullSecrets() *diefields.ListMapMut[diecorev1.LocalObjectReference, *diecorev1.LocalObjectReferenceDie, *diecorev1.LocalObjectReferenceDieMut, string] {
 	return diefields.ListMapMutOf(d, revisionSpecFields.Get().ImagePullSecrets)
 }
 
@@ -1340,7 +1340,7 @@ func (d *RevisionSpecDieMut) Tolerations() diefields.ValueMut[[]diecorev1.Tolera
 
 // HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts
 // file if specified.
-func (d *RevisionSpecDieMut) HostAliases() *diefields.ListMapMut[diecorev1.HostAlias, *diecorev1.HostAliasDieMut, string] {
+func (d *RevisionSpecDieMut) HostAliases() *diefields.ListMapMut[diecorev1.HostAlias, *diecorev1.HostAliasDie, *diecorev1.HostAliasDieMut, string] {
 	return diefields.ListMapMutOf(d, revisionSpecFields.Get().HostAliases)
 }
 
@@ -1417,7 +1417,7 @@ func (d *RevisionSpecDieMut) Overhead() *diefields.MapMut[diecorev1.ResourceName
 // TopologySpreadConstraints describes how a group of pods ought to spread across topology
 // domains. Scheduler will schedule pods in a way which abides by the constraints.
 // All topologySpreadConstraints are ANDed.
-func (d *RevisionSpecDieMut) TopologySpreadConstraints() *diefields.ListMapMut[diecorev1.TopologySpreadConstraint, *diecorev1.TopologySpreadConstraintDieMut, TopologySpreadConstraintKey] {
+func (d *RevisionSpecDieMut) TopologySpreadConstraints() *diefields.ListMapMut[diecorev1.TopologySpreadConstraint, *diecorev1.TopologySpreadConstraintDie, *diecorev1.TopologySpreadConstraintDieMut, TopologySpreadConstraintKey] {
 	return diefields.ListMapMutOf(d, revisionSpecFields.Get().TopologySpreadConstraints)
 }
 
@@ -1483,7 +1483,7 @@ func (d *RevisionSpecDieMut) HostUsers() diefields.OptionalMut[bool] {
 // scheduler will not attempt to schedule the pod.
 //
 // SchedulingGates can only be set at pod creation time, and be removed only afterwards.
-func (d *RevisionSpecDieMut) SchedulingGates() *diefields.ListMapMut[diecorev1.PodSchedulingGate, *diecorev1.PodSchedulingGateDieMut, string] {
+func (d *RevisionSpecDieMut) SchedulingGates() *diefields.ListMapMut[diecorev1.PodSchedulingGate, *diecorev1.PodSchedulingGateDie, *diecorev1.PodSchedulingGateDieMut, string] {
 	return diefields.ListMapMutOf(d, revisionSpecFields.Get().SchedulingGates)
 }
 
@@ -1496,7 +1496,7 @@ func (d *RevisionSpecDieMut) SchedulingGates() *diefields.ListMapMut[diecorev1.P
 // DynamicResourceAllocation feature gate is enabled.
 //
 // This field is immutable.
-func (d *RevisionSpecDieMut) ResourceClaims() *diefields.ListMapMut[diecorev1.PodResourceClaim, *diecorev1.PodResourceClaimDieMut, string] {
+func (d *RevisionSpecDieMut) ResourceClaims() *diefields.ListMapMut[diecorev1.PodResourceClaim, *diecorev1.PodResourceClaimDie, *diecorev1.PodResourceClaimDieMut, string] {
 	return diefields.ListMapMutOf(d, revisionSpecFields.Get().ResourceClaims)
 }
 
@@ -1558,7 +1558,7 @@ func (d *RevisionSpecDieMut) SchedulingGroup() *diecorev1.PodSchedulingGroupDieM
 // The maximum length of the responders list is 10.
 // Responders are not supported when the pod is part of a PodGroup (.spec.schedulingGroup is set).
 // This field can only be set on creation and is immutable afterwards.
-func (d *RevisionSpecDieMut) EvictionResponders() *diefields.ListMapMut[diecorev1.EvictionResponder, *diecorev1.EvictionResponderDieMut, string] {
+func (d *RevisionSpecDieMut) EvictionResponders() *diefields.ListMapMut[diecorev1.EvictionResponder, *diecorev1.EvictionResponderDie, *diecorev1.EvictionResponderDieMut, string] {
 	return diefields.ListMapMutOf(d, revisionSpecFields.Get().EvictionResponders)
 }
 

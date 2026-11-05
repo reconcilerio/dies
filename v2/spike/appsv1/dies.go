@@ -199,6 +199,6 @@ func (d *DeploymentStatusDieMut) Replicas() die.ValueMut[int32] {
 func (d *DeploymentStatusDie) Conditions() *die.ListMap[metav1.Condition, *metav1.ConditionDie, string] {
 	return fields.ListMapOf(d, deploymentStatusFields.Conditions)
 }
-func (d *DeploymentStatusDieMut) Conditions() *die.ListMapMut[metav1.Condition, *metav1.ConditionDieMut, string] {
+func (d *DeploymentStatusDieMut) Conditions() *die.ListMapMut[metav1.Condition, *metav1.ConditionDie, *metav1.ConditionDieMut, string] {
 	return fields.ListMapMutOf(d, deploymentStatusFields.Conditions)
 }

@@ -1133,7 +1133,7 @@ func (d *CompositePodGroupStatusDie) Conditions() *diefields.ListMap[diemetav1.C
 // Known reasons for the DisruptionTarget condition:
 //   - "PreemptionByScheduler": The CompositePodGroup was targeted by the scheduler's preemption loop
 //     to free up capacity for higher-priority preemptors.
-func (d *CompositePodGroupStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+func (d *CompositePodGroupStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
 	return diefields.ListMapMutOf(d, compositePodGroupStatusFields.Get().Conditions)
 }
 
@@ -1355,14 +1355,14 @@ func (d *CompositePodGroupTemplateDieMut) PreemptionPolicy() diefields.OptionalM
 // podGroupTemplates is the list of templates for children PodGroups.
 // The maximum number of templates is 8. At least one entry in CompositePodGroupTemplates
 // or PodGroupTemplates must be set.
-func (d *CompositePodGroupTemplateDieMut) PodGroupTemplates() *diefields.ListMapMut[PodGroupTemplate, *PodGroupTemplateDieMut, string] {
+func (d *CompositePodGroupTemplateDieMut) PodGroupTemplates() *diefields.ListMapMut[PodGroupTemplate, *PodGroupTemplateDie, *PodGroupTemplateDieMut, string] {
 	return diefields.ListMapMutOf(d, compositePodGroupTemplateFields.Get().PodGroupTemplates)
 }
 
 // compositePodGroupTemplates is the list of templates for children CompositePodGroups.
 // The maximum number of templates is 8. At least one entry in CompositePodGroupTemplates
 // or PodGroupTemplates must be set.
-func (d *CompositePodGroupTemplateDieMut) CompositePodGroupTemplates() *diefields.ListMapMut[CompositePodGroupTemplate, *CompositePodGroupTemplateDieMut, string] {
+func (d *CompositePodGroupTemplateDieMut) CompositePodGroupTemplates() *diefields.ListMapMut[CompositePodGroupTemplate, *CompositePodGroupTemplateDie, *CompositePodGroupTemplateDieMut, string] {
 	return diefields.ListMapMutOf(d, compositePodGroupTemplateFields.Get().CompositePodGroupTemplates)
 }
 
@@ -2460,7 +2460,7 @@ func (d *PodGroupSpecDieMut) SchedulingConstraints() *PodGroupSchedulingConstrai
 // DRAWorkloadResourceClaims feature gate is enabled.
 //
 // This field is immutable.
-func (d *PodGroupSpecDieMut) ResourceClaims() *diefields.ListMapMut[PodGroupResourceClaim, *PodGroupResourceClaimDieMut, string] {
+func (d *PodGroupSpecDieMut) ResourceClaims() *diefields.ListMapMut[PodGroupResourceClaim, *PodGroupResourceClaimDie, *PodGroupResourceClaimDieMut, string] {
 	return diefields.ListMapMutOf(d, podGroupSpecFields.Get().ResourceClaims)
 }
 
@@ -2630,12 +2630,12 @@ func (d *PodGroupStatusDie) ResourceClaimStatuses() *diefields.ListMap[PodGroupR
 // Known reasons for the DisruptionTarget condition:
 //   - "PreemptionByScheduler": The PodGroup was preempted by the scheduler to make room for
 //     higher-priority PodGroups or Pods.
-func (d *PodGroupStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+func (d *PodGroupStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
 	return diefields.ListMapMutOf(d, podGroupStatusFields.Get().Conditions)
 }
 
 // resourceClaimStatuses is status of resource claims.
-func (d *PodGroupStatusDieMut) ResourceClaimStatuses() *diefields.ListMapMut[PodGroupResourceClaimStatus, *PodGroupResourceClaimStatusDieMut, string] {
+func (d *PodGroupStatusDieMut) ResourceClaimStatuses() *diefields.ListMapMut[PodGroupResourceClaimStatus, *PodGroupResourceClaimStatusDie, *PodGroupResourceClaimStatusDieMut, string] {
 	return diefields.ListMapMutOf(d, podGroupStatusFields.Get().ResourceClaimStatuses)
 }
 
@@ -2824,7 +2824,7 @@ func (d *PodGroupTemplateDieMut) SchedulingConstraints() *PodGroupSchedulingCons
 // DRAWorkloadResourceClaims feature gate is enabled.
 //
 // This field is immutable.
-func (d *PodGroupTemplateDieMut) ResourceClaims() *diefields.ListMapMut[PodGroupResourceClaim, *PodGroupResourceClaimDieMut, string] {
+func (d *PodGroupTemplateDieMut) ResourceClaims() *diefields.ListMapMut[PodGroupResourceClaim, *PodGroupResourceClaimDie, *PodGroupResourceClaimDieMut, string] {
 	return diefields.ListMapMutOf(d, podGroupTemplateFields.Get().ResourceClaims)
 }
 
@@ -4760,7 +4760,7 @@ func (d *WorkloadSpecDieMut) ControllerRef() *TypedLocalObjectReferenceDieMut {
 // The maximum number of templates is 8. Templates cannot be added or removed after the workload is created.
 // Existing templates may still be updated where their individual fields allow it.
 // Exactly one of CompositePodGroupTemplates and PodGroupTemplates must be set.
-func (d *WorkloadSpecDieMut) PodGroupTemplates() *diefields.ListMapMut[PodGroupTemplate, *PodGroupTemplateDieMut, string] {
+func (d *WorkloadSpecDieMut) PodGroupTemplates() *diefields.ListMapMut[PodGroupTemplate, *PodGroupTemplateDie, *PodGroupTemplateDieMut, string] {
 	return diefields.ListMapMutOf(d, workloadSpecFields.Get().PodGroupTemplates)
 }
 
@@ -4769,7 +4769,7 @@ func (d *WorkloadSpecDieMut) PodGroupTemplates() *diefields.ListMapMut[PodGroupT
 // Exactly one of CompositePodGroupTemplates and PodGroupTemplates must be set.
 //
 // This field is used only when the CompositePodGroup feature gate is enabled.
-func (d *WorkloadSpecDieMut) CompositePodGroupTemplates() *diefields.ListMapMut[CompositePodGroupTemplate, *CompositePodGroupTemplateDieMut, string] {
+func (d *WorkloadSpecDieMut) CompositePodGroupTemplates() *diefields.ListMapMut[CompositePodGroupTemplate, *CompositePodGroupTemplateDie, *CompositePodGroupTemplateDieMut, string] {
 	return diefields.ListMapMutOf(d, workloadSpecFields.Get().CompositePodGroupTemplates)
 }
 

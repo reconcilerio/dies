@@ -1157,7 +1157,7 @@ func (d *CSINodeSpecDie) Drivers() *diefields.ListMap[CSINodeDriver, *CSINodeDri
 
 // drivers is a list of information of all CSI Drivers existing on a node.
 // If all drivers in the list are uninstalled, this can become empty.
-func (d *CSINodeSpecDieMut) Drivers() *diefields.ListMapMut[CSINodeDriver, *CSINodeDriverDieMut, string] {
+func (d *CSINodeSpecDieMut) Drivers() *diefields.ListMapMut[CSINodeDriver, *CSINodeDriverDie, *CSINodeDriverDieMut, string] {
 	return diefields.ListMapMutOf(d, cSINodeSpecFields.Get().Drivers)
 }
 
@@ -1248,7 +1248,7 @@ func (d *CSINodeStatusDie) StorageHealth() *diefields.ListMap[StorageHealth, *St
 }
 
 // storageHealth contains backend health reports for CSI drivers registered on the node.
-func (d *CSINodeStatusDieMut) StorageHealth() *diefields.ListMapMut[StorageHealth, *StorageHealthDieMut, string] {
+func (d *CSINodeStatusDieMut) StorageHealth() *diefields.ListMapMut[StorageHealth, *StorageHealthDie, *StorageHealthDieMut, string] {
 	return diefields.ListMapMutOf(d, cSINodeStatusFields.Get().StorageHealth)
 }
 

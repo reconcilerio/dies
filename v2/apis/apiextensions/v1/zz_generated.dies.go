@@ -1373,7 +1373,7 @@ func (d *CustomResourceDefinitionStatusDie) ObservedGeneration() diefields.Value
 }
 
 // conditions indicate state for particular aspects of a CustomResourceDefinition
-func (d *CustomResourceDefinitionStatusDieMut) Conditions() *diefields.ListMapMut[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDieMut, CustomResourceDefinitionConditionType] {
+func (d *CustomResourceDefinitionStatusDieMut) Conditions() *diefields.ListMapMut[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, *CustomResourceDefinitionConditionDieMut, CustomResourceDefinitionConditionType] {
 	return diefields.ListMapMutOf(d, customResourceDefinitionStatusFields.Get().Conditions)
 }
 
@@ -2792,7 +2792,7 @@ func (d *JSONSchemaPropsDieMut) XMapType() diefields.OptionalMut[string] {
 }
 
 // x-kubernetes-validations describes a list of validation rules written in the CEL expression language.
-func (d *JSONSchemaPropsDieMut) XValidations() *diefields.ListMapMut[ValidationRule, *ValidationRuleDieMut, string] {
+func (d *JSONSchemaPropsDieMut) XValidations() *diefields.ListMapMut[ValidationRule, *ValidationRuleDie, *ValidationRuleDieMut, string] {
 	return diefields.ListMapMutOf(d, jSONSchemaPropsFields.Get().XValidations)
 }
 

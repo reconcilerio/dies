@@ -398,7 +398,7 @@ func (d *StorageVersionMigrationStatusDie) ResourceVersion() diefields.Value[str
 }
 
 // The latest available observations of the migration's current state.
-func (d *StorageVersionMigrationStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+func (d *StorageVersionMigrationStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
 	return diefields.ListMapMutOf(d, storageVersionMigrationStatusFields.Get().Conditions)
 }
 

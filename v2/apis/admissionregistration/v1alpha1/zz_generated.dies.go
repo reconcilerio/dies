@@ -1838,7 +1838,7 @@ func (d *MutatingAdmissionPolicySpecDieMut) FailurePolicy() diefields.OptionalMu
 //  3. If any matchCondition evaluates to an error (but none are FALSE):
 //     - If failurePolicy=Fail, reject the request
 //     - If failurePolicy=Ignore, the policy is skipped
-func (d *MutatingAdmissionPolicySpecDieMut) MatchConditions() *diefields.ListMapMut[MatchCondition, *MatchConditionDieMut, string] {
+func (d *MutatingAdmissionPolicySpecDieMut) MatchConditions() *diefields.ListMapMut[MatchCondition, *MatchConditionDie, *MatchConditionDieMut, string] {
 	return diefields.ListMapMutOf(d, mutatingAdmissionPolicySpecFields.Get().MatchConditions)
 }
 
@@ -3388,7 +3388,7 @@ func (d *ValidatingAdmissionPolicySpecDieMut) AuditAnnotations() diefields.Value
 //  3. If any matchCondition evaluates to an error (but none are FALSE):
 //     - If failurePolicy=Fail, reject the request
 //     - If failurePolicy=Ignore, the policy is skipped
-func (d *ValidatingAdmissionPolicySpecDieMut) MatchConditions() *diefields.ListMapMut[MatchCondition, *MatchConditionDieMut, string] {
+func (d *ValidatingAdmissionPolicySpecDieMut) MatchConditions() *diefields.ListMapMut[MatchCondition, *MatchConditionDie, *MatchConditionDieMut, string] {
 	return diefields.ListMapMutOf(d, validatingAdmissionPolicySpecFields.Get().MatchConditions)
 }
 
@@ -3399,7 +3399,7 @@ func (d *ValidatingAdmissionPolicySpecDieMut) MatchConditions() *diefields.ListM
 //
 // The expression of a variable can refer to other variables defined earlier in the list but not those after.
 // Thus, Variables must be sorted by the order of first appearance and acyclic.
-func (d *ValidatingAdmissionPolicySpecDieMut) Variables() *diefields.ListMapMut[Variable, *VariableDieMut, string] {
+func (d *ValidatingAdmissionPolicySpecDieMut) Variables() *diefields.ListMapMut[Variable, *VariableDie, *VariableDieMut, string] {
 	return diefields.ListMapMutOf(d, validatingAdmissionPolicySpecFields.Get().Variables)
 }
 
@@ -3516,7 +3516,7 @@ func (d *ValidatingAdmissionPolicyStatusDieMut) TypeChecking() *TypeCheckingDieM
 }
 
 // conditions represent the latest available observations of a policy's current state.
-func (d *ValidatingAdmissionPolicyStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+func (d *ValidatingAdmissionPolicyStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
 	return diefields.ListMapMutOf(d, validatingAdmissionPolicyStatusFields.Get().Conditions)
 }
 

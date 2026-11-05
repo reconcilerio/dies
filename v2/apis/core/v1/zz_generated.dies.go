@@ -2758,7 +2758,7 @@ func (d *ComponentStatusDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
 }
 
 // List of component conditions observed
-func (d *ComponentStatusDieMut) Conditions() *diefields.ListMapMut[ComponentCondition, *ComponentConditionDieMut, ComponentConditionType] {
+func (d *ComponentStatusDieMut) Conditions() *diefields.ListMapMut[ComponentCondition, *ComponentConditionDie, *ComponentConditionDieMut, ComponentConditionType] {
 	return diefields.ListMapMutOf(d, componentStatusFields.Get().Conditions)
 }
 
@@ -4130,7 +4130,7 @@ func (d *ContainerDieMut) WorkingDir() diefields.ValueMut[string] {
 // Modifying this array with strategic merge patch may corrupt the data.
 // For more information See https://github.com/kubernetes/kubernetes/issues/108255.
 // Cannot be updated.
-func (d *ContainerDieMut) Ports() *diefields.ListMapMut[ContainerPort, *ContainerPortDieMut, ContainerPortKey] {
+func (d *ContainerDieMut) Ports() *diefields.ListMapMut[ContainerPort, *ContainerPortDie, *ContainerPortDieMut, ContainerPortKey] {
 	return diefields.ListMapMutOf(d, containerFields.Get().Ports)
 }
 
@@ -4146,7 +4146,7 @@ func (d *ContainerDieMut) EnvFrom() diefields.ValueMut[[]EnvFromSource] {
 
 // List of environment variables to set in the container.
 // Cannot be updated.
-func (d *ContainerDieMut) Env() *diefields.ListMapMut[EnvVar, *EnvVarDieMut, string] {
+func (d *ContainerDieMut) Env() *diefields.ListMapMut[EnvVar, *EnvVarDie, *EnvVarDieMut, string] {
 	return diefields.ListMapMutOf(d, containerFields.Get().Env)
 }
 
@@ -4199,12 +4199,12 @@ func (d *ContainerDieMut) RestartPolicyRules() diefields.ValueMut[[]ContainerRes
 
 // Pod volumes to mount into the container's filesystem.
 // Cannot be updated.
-func (d *ContainerDieMut) VolumeMounts() *diefields.ListMapMut[VolumeMount, *VolumeMountDieMut, string] {
+func (d *ContainerDieMut) VolumeMounts() *diefields.ListMapMut[VolumeMount, *VolumeMountDie, *VolumeMountDieMut, string] {
 	return diefields.ListMapMutOf(d, containerFields.Get().VolumeMounts)
 }
 
 // volumeDevices is the list of block devices to be used by the container.
-func (d *ContainerDieMut) VolumeDevices() *diefields.ListMapMut[VolumeDevice, *VolumeDeviceDieMut, string] {
+func (d *ContainerDieMut) VolumeDevices() *diefields.ListMapMut[VolumeDevice, *VolumeDeviceDie, *VolumeDeviceDieMut, string] {
 	return diefields.ListMapMutOf(d, containerFields.Get().VolumeDevices)
 }
 
@@ -5782,7 +5782,7 @@ func (d *ContainerStatusDieMut) Resources() *ResourceRequirementsDieMut {
 }
 
 // Status of volume mounts.
-func (d *ContainerStatusDieMut) VolumeMounts() *diefields.ListMapMut[VolumeMountStatus, *VolumeMountStatusDieMut, string] {
+func (d *ContainerStatusDieMut) VolumeMounts() *diefields.ListMapMut[VolumeMountStatus, *VolumeMountStatusDie, *VolumeMountStatusDieMut, string] {
 	return diefields.ListMapMutOf(d, containerStatusFields.Get().VolumeMounts)
 }
 
@@ -5793,7 +5793,7 @@ func (d *ContainerStatusDieMut) User() *ContainerUserDieMut {
 
 // AllocatedResourcesStatus represents the status of various resources
 // allocated for this Pod.
-func (d *ContainerStatusDieMut) AllocatedResourcesStatus() *diefields.ListMapMut[ResourceStatus, *ResourceStatusDieMut, ResourceName] {
+func (d *ContainerStatusDieMut) AllocatedResourcesStatus() *diefields.ListMapMut[ResourceStatus, *ResourceStatusDie, *ResourceStatusDieMut, ResourceName] {
 	return diefields.ListMapMutOf(d, containerStatusFields.Get().AllocatedResourcesStatus)
 }
 
@@ -7916,7 +7916,7 @@ func (d *EphemeralContainerDieMut) WorkingDir() diefields.ValueMut[string] {
 }
 
 // Ports are not allowed for ephemeral containers.
-func (d *EphemeralContainerDieMut) Ports() *diefields.ListMapMut[ContainerPort, *ContainerPortDieMut, ContainerPortKey] {
+func (d *EphemeralContainerDieMut) Ports() *diefields.ListMapMut[ContainerPort, *ContainerPortDie, *ContainerPortDieMut, ContainerPortKey] {
 	return diefields.ListMapMutOf(d, ephemeralContainerFields.Get().Ports)
 }
 
@@ -7932,7 +7932,7 @@ func (d *EphemeralContainerDieMut) EnvFrom() diefields.ValueMut[[]EnvFromSource]
 
 // List of environment variables to set in the container.
 // Cannot be updated.
-func (d *EphemeralContainerDieMut) Env() *diefields.ListMapMut[EnvVar, *EnvVarDieMut, string] {
+func (d *EphemeralContainerDieMut) Env() *diefields.ListMapMut[EnvVar, *EnvVarDie, *EnvVarDieMut, string] {
 	return diefields.ListMapMutOf(d, ephemeralContainerFields.Get().Env)
 }
 
@@ -7963,12 +7963,12 @@ func (d *EphemeralContainerDieMut) RestartPolicyRules() diefields.ValueMut[[]Con
 
 // Pod volumes to mount into the container's filesystem. Subpath mounts are not allowed for ephemeral containers.
 // Cannot be updated.
-func (d *EphemeralContainerDieMut) VolumeMounts() *diefields.ListMapMut[VolumeMount, *VolumeMountDieMut, string] {
+func (d *EphemeralContainerDieMut) VolumeMounts() *diefields.ListMapMut[VolumeMount, *VolumeMountDie, *VolumeMountDieMut, string] {
 	return diefields.ListMapMutOf(d, ephemeralContainerFields.Get().VolumeMounts)
 }
 
 // volumeDevices is the list of block devices to be used by the container.
-func (d *EphemeralContainerDieMut) VolumeDevices() *diefields.ListMapMut[VolumeDevice, *VolumeDeviceDieMut, string] {
+func (d *EphemeralContainerDieMut) VolumeDevices() *diefields.ListMapMut[VolumeDevice, *VolumeDeviceDie, *VolumeDeviceDieMut, string] {
 	return diefields.ListMapMutOf(d, ephemeralContainerFields.Get().VolumeDevices)
 }
 
@@ -8424,7 +8424,7 @@ func (d *EphemeralContainerCommonDieMut) WorkingDir() diefields.ValueMut[string]
 }
 
 // Ports are not allowed for ephemeral containers.
-func (d *EphemeralContainerCommonDieMut) Ports() *diefields.ListMapMut[ContainerPort, *ContainerPortDieMut, ContainerPortKey] {
+func (d *EphemeralContainerCommonDieMut) Ports() *diefields.ListMapMut[ContainerPort, *ContainerPortDie, *ContainerPortDieMut, ContainerPortKey] {
 	return diefields.ListMapMutOf(d, ephemeralContainerCommonFields.Get().Ports)
 }
 
@@ -8440,7 +8440,7 @@ func (d *EphemeralContainerCommonDieMut) EnvFrom() diefields.ValueMut[[]EnvFromS
 
 // List of environment variables to set in the container.
 // Cannot be updated.
-func (d *EphemeralContainerCommonDieMut) Env() *diefields.ListMapMut[EnvVar, *EnvVarDieMut, string] {
+func (d *EphemeralContainerCommonDieMut) Env() *diefields.ListMapMut[EnvVar, *EnvVarDie, *EnvVarDieMut, string] {
 	return diefields.ListMapMutOf(d, ephemeralContainerCommonFields.Get().Env)
 }
 
@@ -8471,12 +8471,12 @@ func (d *EphemeralContainerCommonDieMut) RestartPolicyRules() diefields.ValueMut
 
 // Pod volumes to mount into the container's filesystem. Subpath mounts are not allowed for ephemeral containers.
 // Cannot be updated.
-func (d *EphemeralContainerCommonDieMut) VolumeMounts() *diefields.ListMapMut[VolumeMount, *VolumeMountDieMut, string] {
+func (d *EphemeralContainerCommonDieMut) VolumeMounts() *diefields.ListMapMut[VolumeMount, *VolumeMountDie, *VolumeMountDieMut, string] {
 	return diefields.ListMapMutOf(d, ephemeralContainerCommonFields.Get().VolumeMounts)
 }
 
 // volumeDevices is the list of block devices to be used by the container.
-func (d *EphemeralContainerCommonDieMut) VolumeDevices() *diefields.ListMapMut[VolumeDevice, *VolumeDeviceDieMut, string] {
+func (d *EphemeralContainerCommonDieMut) VolumeDevices() *diefields.ListMapMut[VolumeDevice, *VolumeDeviceDie, *VolumeDeviceDieMut, string] {
 	return diefields.ListMapMutOf(d, ephemeralContainerCommonFields.Get().VolumeDevices)
 }
 
@@ -14356,7 +14356,7 @@ func (d *NamespaceStatusDieMut) Phase() diefields.ValueMut[NamespacePhase] {
 }
 
 // Represents the latest available observations of a namespace's current state.
-func (d *NamespaceStatusDieMut) Conditions() *diefields.ListMapMut[NamespaceCondition, *NamespaceConditionDieMut, NamespaceConditionType] {
+func (d *NamespaceStatusDieMut) Conditions() *diefields.ListMapMut[NamespaceCondition, *NamespaceConditionDie, *NamespaceConditionDieMut, NamespaceConditionType] {
 	return diefields.ListMapMutOf(d, namespaceStatusFields.Get().Conditions)
 }
 
@@ -15109,13 +15109,13 @@ func (d *NodeAllocatableResourceClaimStatusDieMut) Containers() diefields.ValueM
 
 // Mapping contains allocations through devices mapped in the device spec's `nodeAllocatableResources[...].mapping` field.
 // This is used by kubelet for pod level and container-level cgroup enforcement.
-func (d *NodeAllocatableResourceClaimStatusDieMut) Mapping() *diefields.ListMapMut[NodeAllocatableMappedResources, *NodeAllocatableMappedResourcesDieMut, ResourceName] {
+func (d *NodeAllocatableResourceClaimStatusDieMut) Mapping() *diefields.ListMapMut[NodeAllocatableMappedResources, *NodeAllocatableMappedResourcesDie, *NodeAllocatableMappedResourcesDieMut, ResourceName] {
 	return diefields.ListMapMutOf(d, nodeAllocatableResourceClaimStatusFields.Get().Mapping)
 }
 
 // Overhead contains allocations through devices mapped in the device spec's `nodeAllocatableResources[...].overhead` field.
 // This is used by kubelet for pod level and container-level cgroup enforcement.
-func (d *NodeAllocatableResourceClaimStatusDieMut) Overhead() *diefields.ListMapMut[NodeAllocatableOverheadResources, *NodeAllocatableOverheadResourcesDieMut, ResourceName] {
+func (d *NodeAllocatableResourceClaimStatusDieMut) Overhead() *diefields.ListMapMut[NodeAllocatableOverheadResources, *NodeAllocatableOverheadResourcesDie, *NodeAllocatableOverheadResourcesDieMut, ResourceName] {
 	return diefields.ListMapMutOf(d, nodeAllocatableResourceClaimStatusFields.Get().Overhead)
 }
 
@@ -16870,7 +16870,7 @@ func (d *NodeStatusDieMut) Phase() diefields.ValueMut[NodePhase] {
 
 // Conditions is an array of current observed node conditions.
 // More info: https://kubernetes.io/docs/reference/node/node-status/#condition
-func (d *NodeStatusDieMut) Conditions() *diefields.ListMapMut[NodeCondition, *NodeConditionDieMut, NodeConditionType] {
+func (d *NodeStatusDieMut) Conditions() *diefields.ListMapMut[NodeCondition, *NodeConditionDie, *NodeConditionDieMut, NodeConditionType] {
 	return diefields.ListMapMutOf(d, nodeStatusFields.Get().Conditions)
 }
 
@@ -16884,7 +16884,7 @@ func (d *NodeStatusDieMut) Conditions() *diefields.ListMapMut[NodeCondition, *No
 // lifetime of a Node. However, there are some exceptions where this may not
 // be possible, such as Pods that inherit a Node's address in its own status or
 // consumers of the downward API (status.hostIP).
-func (d *NodeStatusDieMut) Addresses() *diefields.ListMapMut[NodeAddress, *NodeAddressDieMut, NodeAddressType] {
+func (d *NodeStatusDieMut) Addresses() *diefields.ListMapMut[NodeAddress, *NodeAddressDie, *NodeAddressDieMut, NodeAddressType] {
 	return diefields.ListMapMutOf(d, nodeStatusFields.Get().Addresses)
 }
 
@@ -18568,7 +18568,7 @@ func (d *PersistentVolumeClaimStatusDieMut) Capacity() *diefields.MapMut[Resourc
 
 // conditions is the current Condition of persistent volume claim. If underlying persistent volume is being
 // resized then the Condition will be set to 'Resizing'.
-func (d *PersistentVolumeClaimStatusDieMut) Conditions() *diefields.ListMapMut[PersistentVolumeClaimCondition, *PersistentVolumeClaimConditionDieMut, PersistentVolumeClaimConditionType] {
+func (d *PersistentVolumeClaimStatusDieMut) Conditions() *diefields.ListMapMut[PersistentVolumeClaimCondition, *PersistentVolumeClaimConditionDie, *PersistentVolumeClaimConditionDieMut, PersistentVolumeClaimConditionType] {
 	return diefields.ListMapMutOf(d, persistentVolumeClaimStatusFields.Get().Conditions)
 }
 
@@ -24095,7 +24095,7 @@ func (d *PodSpecDie) EvictionResponders() *diefields.ListMap[EvictionResponder, 
 
 // List of volumes that can be mounted by containers belonging to the pod.
 // More info: https://kubernetes.io/docs/concepts/storage/volumes
-func (d *PodSpecDieMut) Volumes() *diefields.ListMapMut[Volume, *VolumeDieMut, string] {
+func (d *PodSpecDieMut) Volumes() *diefields.ListMapMut[Volume, *VolumeDie, *VolumeDieMut, string] {
 	return diefields.ListMapMutOf(d, podSpecFields.Get().Volumes)
 }
 
@@ -24112,7 +24112,7 @@ func (d *PodSpecDieMut) Volumes() *diefields.ListMapMut[Volume, *VolumeDieMut, s
 // Init containers cannot currently be added or removed.
 // Cannot be updated.
 // More info: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
-func (d *PodSpecDieMut) InitContainers() *diefields.ListMapMut[Container, *ContainerDieMut, string] {
+func (d *PodSpecDieMut) InitContainers() *diefields.ListMapMut[Container, *ContainerDie, *ContainerDieMut, string] {
 	return diefields.ListMapMutOf(d, podSpecFields.Get().InitContainers)
 }
 
@@ -24120,7 +24120,7 @@ func (d *PodSpecDieMut) InitContainers() *diefields.ListMapMut[Container, *Conta
 // Containers cannot currently be added or removed.
 // There must be at least one container in a Pod.
 // Cannot be updated.
-func (d *PodSpecDieMut) Containers() *diefields.ListMapMut[Container, *ContainerDieMut, string] {
+func (d *PodSpecDieMut) Containers() *diefields.ListMapMut[Container, *ContainerDie, *ContainerDieMut, string] {
 	return diefields.ListMapMutOf(d, podSpecFields.Get().Containers)
 }
 
@@ -24128,7 +24128,7 @@ func (d *PodSpecDieMut) Containers() *diefields.ListMapMut[Container, *Container
 // pod to perform user-initiated actions such as debugging. This list cannot be specified when
 // creating a pod, and it cannot be modified by updating the pod spec. In order to add an
 // ephemeral container to an existing pod, use the pod's ephemeralcontainers subresource.
-func (d *PodSpecDieMut) EphemeralContainers() *diefields.ListMapMut[EphemeralContainer, *EphemeralContainerDieMut, string] {
+func (d *PodSpecDieMut) EphemeralContainers() *diefields.ListMapMut[EphemeralContainer, *EphemeralContainerDie, *EphemeralContainerDieMut, string] {
 	return diefields.ListMapMutOf(d, podSpecFields.Get().EphemeralContainers)
 }
 
@@ -24241,7 +24241,7 @@ func (d *PodSpecDieMut) SecurityContext() *PodSecurityContextDieMut {
 // ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec.
 // If specified, these secrets will be passed to individual puller implementations for them to use.
 // More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod
-func (d *PodSpecDieMut) ImagePullSecrets() *diefields.ListMapMut[LocalObjectReference, *LocalObjectReferenceDieMut, string] {
+func (d *PodSpecDieMut) ImagePullSecrets() *diefields.ListMapMut[LocalObjectReference, *LocalObjectReferenceDie, *LocalObjectReferenceDieMut, string] {
 	return diefields.ListMapMutOf(d, podSpecFields.Get().ImagePullSecrets)
 }
 
@@ -24275,7 +24275,7 @@ func (d *PodSpecDieMut) Tolerations() diefields.ValueMut[[]Toleration] {
 
 // HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts
 // file if specified.
-func (d *PodSpecDieMut) HostAliases() *diefields.ListMapMut[HostAlias, *HostAliasDieMut, string] {
+func (d *PodSpecDieMut) HostAliases() *diefields.ListMapMut[HostAlias, *HostAliasDie, *HostAliasDieMut, string] {
 	return diefields.ListMapMutOf(d, podSpecFields.Get().HostAliases)
 }
 
@@ -24352,7 +24352,7 @@ func (d *PodSpecDieMut) Overhead() *diefields.MapMut[ResourceName, resource.Quan
 // TopologySpreadConstraints describes how a group of pods ought to spread across topology
 // domains. Scheduler will schedule pods in a way which abides by the constraints.
 // All topologySpreadConstraints are ANDed.
-func (d *PodSpecDieMut) TopologySpreadConstraints() *diefields.ListMapMut[TopologySpreadConstraint, *TopologySpreadConstraintDieMut, TopologySpreadConstraintKey] {
+func (d *PodSpecDieMut) TopologySpreadConstraints() *diefields.ListMapMut[TopologySpreadConstraint, *TopologySpreadConstraintDie, *TopologySpreadConstraintDieMut, TopologySpreadConstraintKey] {
 	return diefields.ListMapMutOf(d, podSpecFields.Get().TopologySpreadConstraints)
 }
 
@@ -24416,7 +24416,7 @@ func (d *PodSpecDieMut) HostUsers() diefields.OptionalMut[bool] {
 // scheduler will not attempt to schedule the pod.
 //
 // SchedulingGates can only be set at pod creation time, and be removed only afterwards.
-func (d *PodSpecDieMut) SchedulingGates() *diefields.ListMapMut[PodSchedulingGate, *PodSchedulingGateDieMut, string] {
+func (d *PodSpecDieMut) SchedulingGates() *diefields.ListMapMut[PodSchedulingGate, *PodSchedulingGateDie, *PodSchedulingGateDieMut, string] {
 	return diefields.ListMapMutOf(d, podSpecFields.Get().SchedulingGates)
 }
 
@@ -24429,7 +24429,7 @@ func (d *PodSpecDieMut) SchedulingGates() *diefields.ListMapMut[PodSchedulingGat
 // DynamicResourceAllocation feature gate is enabled.
 //
 // This field is immutable.
-func (d *PodSpecDieMut) ResourceClaims() *diefields.ListMapMut[PodResourceClaim, *PodResourceClaimDieMut, string] {
+func (d *PodSpecDieMut) ResourceClaims() *diefields.ListMapMut[PodResourceClaim, *PodResourceClaimDie, *PodResourceClaimDieMut, string] {
 	return diefields.ListMapMutOf(d, podSpecFields.Get().ResourceClaims)
 }
 
@@ -24491,7 +24491,7 @@ func (d *PodSpecDieMut) SchedulingGroup() *PodSchedulingGroupDieMut {
 // The maximum length of the responders list is 10.
 // Responders are not supported when the pod is part of a PodGroup (.spec.schedulingGroup is set).
 // This field can only be set on creation and is immutable afterwards.
-func (d *PodSpecDieMut) EvictionResponders() *diefields.ListMapMut[EvictionResponder, *EvictionResponderDieMut, string] {
+func (d *PodSpecDieMut) EvictionResponders() *diefields.ListMapMut[EvictionResponder, *EvictionResponderDie, *EvictionResponderDieMut, string] {
 	return diefields.ListMapMutOf(d, podSpecFields.Get().EvictionResponders)
 }
 
@@ -24834,7 +24834,7 @@ func (d *PodStatusDieMut) Phase() diefields.ValueMut[PodPhase] {
 
 // Current service state of pod.
 // More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-conditions
-func (d *PodStatusDieMut) Conditions() *diefields.ListMapMut[PodCondition, *PodConditionDieMut, PodConditionType] {
+func (d *PodStatusDieMut) Conditions() *diefields.ListMapMut[PodCondition, *PodConditionDie, *PodConditionDieMut, PodConditionType] {
 	return diefields.ListMapMutOf(d, podStatusFields.Get().Conditions)
 }
 
@@ -24884,7 +24884,7 @@ func (d *PodStatusDieMut) PodIP() diefields.ValueMut[string] {
 // podIPs holds the IP addresses allocated to the pod. If this field is specified, the 0th entry must
 // match the podIP field. Pods may be allocated at most 1 value for each of IPv4 and IPv6. This list
 // is empty if no IPs have been allocated yet.
-func (d *PodStatusDieMut) PodIPs() *diefields.ListMapMut[PodIP, *PodIPDieMut, string] {
+func (d *PodStatusDieMut) PodIPs() *diefields.ListMapMut[PodIP, *PodIPDie, *PodIPDieMut, string] {
 	return diefields.ListMapMutOf(d, podStatusFields.Get().PodIPs)
 }
 
@@ -24950,7 +24950,7 @@ func (d *PodStatusDieMut) Resize() diefields.ValueMut[PodResizeStatus] {
 }
 
 // Status of resource claims.
-func (d *PodStatusDieMut) ResourceClaimStatuses() *diefields.ListMapMut[PodResourceClaimStatus, *PodResourceClaimStatusDieMut, string] {
+func (d *PodStatusDieMut) ResourceClaimStatuses() *diefields.ListMapMut[PodResourceClaimStatus, *PodResourceClaimStatusDie, *PodResourceClaimStatusDieMut, string] {
 	return diefields.ListMapMutOf(d, podStatusFields.Get().ResourceClaimStatuses)
 }
 
@@ -24978,13 +24978,13 @@ func (d *PodStatusDieMut) Resources() *ResourceRequirementsDieMut {
 // reported in v1.Node `status.allocatable` that are not extended resources
 // (see https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#extended-resources).
 // Examples include "cpu", "memory", "ephemeral-storage", and hugepages.
-func (d *PodStatusDieMut) NodeAllocatableResourceClaimStatuses() *diefields.ListMapMut[NodeAllocatableResourceClaimStatus, *NodeAllocatableResourceClaimStatusDieMut, string] {
+func (d *PodStatusDieMut) NodeAllocatableResourceClaimStatuses() *diefields.ListMapMut[NodeAllocatableResourceClaimStatus, *NodeAllocatableResourceClaimStatusDie, *NodeAllocatableResourceClaimStatusDieMut, string] {
 	return diefields.ListMapMutOf(d, podStatusFields.Get().NodeAllocatableResourceClaimStatuses)
 }
 
 // volumeHealth contains node-reported health for each volume the pod is using.
 // Populated by the kubelet on the pod's node.
-func (d *PodStatusDieMut) VolumeHealth() *diefields.ListMapMut[PodVolumeHealth, *PodVolumeHealthDieMut, string] {
+func (d *PodStatusDieMut) VolumeHealth() *diefields.ListMapMut[PodVolumeHealth, *PodVolumeHealthDie, *PodVolumeHealthDieMut, string] {
 	return diefields.ListMapMutOf(d, podStatusFields.Get().VolumeHealth)
 }
 
@@ -25371,7 +25371,7 @@ func (d *PodVolumeHealthDieMut) Name() diefields.ValueMut[string] {
 // conditions is the set of adverse conditions reported by
 // the CSI node plugin for this volume on this node.
 // At most 16 conditions may be reported.
-func (d *PodVolumeHealthDieMut) HealthConditions() *diefields.ListMapMut[VolumeHealthCondition, *VolumeHealthConditionDieMut, VolumeHealthConditionKey] {
+func (d *PodVolumeHealthDieMut) HealthConditions() *diefields.ListMapMut[VolumeHealthCondition, *VolumeHealthConditionDie, *VolumeHealthConditionDieMut, VolumeHealthConditionKey] {
 	return diefields.ListMapMutOf(d, podVolumeHealthFields.Get().HealthConditions)
 }
 
@@ -27684,7 +27684,7 @@ func (d *ReplicationControllerStatusDieMut) ObservedGeneration() diefields.Value
 }
 
 // Represents the latest available observations of a replication controller's current state.
-func (d *ReplicationControllerStatusDieMut) Conditions() *diefields.ListMapMut[ReplicationControllerCondition, *ReplicationControllerConditionDieMut, ReplicationControllerConditionType] {
+func (d *ReplicationControllerStatusDieMut) Conditions() *diefields.ListMapMut[ReplicationControllerCondition, *ReplicationControllerConditionDie, *ReplicationControllerConditionDieMut, ReplicationControllerConditionType] {
 	return diefields.ListMapMutOf(d, replicationControllerStatusFields.Get().Conditions)
 }
 
@@ -28588,7 +28588,7 @@ func (d *ResourceRequirementsDieMut) Requests() *diefields.MapMut[ResourceName, 
 // DynamicResourceAllocation feature gate.
 //
 // This field is immutable. It can only be set for containers.
-func (d *ResourceRequirementsDieMut) Claims() *diefields.ListMapMut[ResourceClaim, *ResourceClaimDieMut, string] {
+func (d *ResourceRequirementsDieMut) Claims() *diefields.ListMapMut[ResourceClaim, *ResourceClaimDie, *ResourceClaimDieMut, string] {
 	return diefields.ListMapMutOf(d, resourceRequirementsFields.Get().Claims)
 }
 
@@ -28711,7 +28711,7 @@ func (d *ResourceStatusDieMut) Name() diefields.ValueMut[ResourceName] {
 // At a minimum, for the lifetime of a Pod, resource ID must uniquely identify the resource allocated to the Pod on the Node.
 // If other Pod on the same Node reports the status with the same resource ID, it must be the same resource they share.
 // See ResourceID type definition for a specific format it has in various use cases.
-func (d *ResourceStatusDieMut) Resources() *diefields.ListMapMut[ResourceHealth, *ResourceHealthDieMut, ResourceID] {
+func (d *ResourceStatusDieMut) Resources() *diefields.ListMapMut[ResourceHealth, *ResourceHealthDie, *ResourceHealthDieMut, ResourceID] {
 	return diefields.ListMapMutOf(d, resourceStatusFields.Get().Resources)
 }
 
@@ -31215,7 +31215,7 @@ func (d *ServiceAccountDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
 // This field should not be used to find auto-generated service account token secrets for use outside of pods.
 // Instead, tokens can be requested directly using the TokenRequest API, or service account token secrets can be manually created.
 // More info: https://kubernetes.io/docs/concepts/configuration/secret
-func (d *ServiceAccountDieMut) Secrets() *diefields.ListMapMut[ObjectReference, *ObjectReferenceDieMut, string] {
+func (d *ServiceAccountDieMut) Secrets() *diefields.ListMapMut[ObjectReference, *ObjectReferenceDie, *ObjectReferenceDieMut, string] {
 	return diefields.ListMapMutOf(d, serviceAccountFields.Get().Secrets)
 }
 
@@ -32113,7 +32113,7 @@ func (d *ServiceSpecDie) TrafficDistribution() diefields.Optional[string] {
 
 // The list of ports that are exposed by this service.
 // More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
-func (d *ServiceSpecDieMut) Ports() *diefields.ListMapMut[ServicePort, *ServicePortDieMut, ServicePortKey] {
+func (d *ServiceSpecDieMut) Ports() *diefields.ListMapMut[ServicePort, *ServicePortDie, *ServicePortDieMut, ServicePortKey] {
 	return diefields.ListMapMutOf(d, serviceSpecFields.Get().Ports)
 }
 
@@ -32464,7 +32464,7 @@ func (d *ServiceStatusDieMut) LoadBalancer() *LoadBalancerStatusDieMut {
 }
 
 // Current service state
-func (d *ServiceStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+func (d *ServiceStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
 	return diefields.ListMapMutOf(d, serviceStatusFields.Get().Conditions)
 }
 
@@ -35229,7 +35229,7 @@ func (d *VolumeHealthStatusDie) LastTransitionTime() diefields.Value[diemetav1.T
 // conditions is the set of adverse conditions reported by
 // the CSI controller plugin. An empty list means no adverse condition.
 // At most 16 conditions may be reported.
-func (d *VolumeHealthStatusDieMut) HealthConditions() *diefields.ListMapMut[VolumeHealthCondition, *VolumeHealthConditionDieMut, VolumeHealthConditionKey] {
+func (d *VolumeHealthStatusDieMut) HealthConditions() *diefields.ListMapMut[VolumeHealthCondition, *VolumeHealthConditionDie, *VolumeHealthConditionDieMut, VolumeHealthConditionKey] {
 	return diefields.ListMapMutOf(d, volumeHealthStatusFields.Get().HealthConditions)
 }
 

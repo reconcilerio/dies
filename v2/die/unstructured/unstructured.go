@@ -126,8 +126,7 @@ func setUnstructuredContent(h *core.Holder, at base.Path, content map[string]any
 		_, err := h.Write(at, nil, core.SetOp(core.OpSet, reflect.ValueOf(content)), false)
 		return err
 	}
-	h.Base = reflect.ValueOf(content)
-	return nil
+	return h.Commit(reflect.ValueOf(content), h.Ov, h.Wire, nil)
 }
 
 // IsList reports whether the content is a list, with items, as an

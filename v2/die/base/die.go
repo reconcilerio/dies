@@ -66,6 +66,7 @@ type DieOf[T any, D DieOf[T, D, M], M DieMutOf[T, D, M]] interface {
 
 	DieStamp(fns ...func(m M)) D
 	DieStampE(fns ...func(m M) error) (D, error)
+	DieStampAtomic(fns ...func(m M) error) (D, error)
 	DieMutable() M
 	DeepCopy() D
 	DieTare() D
@@ -85,6 +86,7 @@ type DieMutOf[T any, D DieOf[T, D, M], M DieMutOf[T, D, M]] interface {
 	DieFeed(r *T) error
 	DieStamp(fns ...func(m M)) M
 	DieStampE(fns ...func(m M) error) (M, error)
+	DieStampAtomic(fns ...func(m M) error) (M, error)
 	DieImmutable() D
 	DeepCopy() M
 	DieTare()
@@ -306,7 +308,24 @@ func (b *DieBase[T, D, M]) DieStampE(fns ...func(m M) error) (D, error) {
 	}
 	m := wrapMut[T, D, M](h, nil)
 	err = runWith(m, fns)
-	return wrap[T, D, M](with(h, m), nil), err
+	out, kerr := with(h, m)
+	if err == nil {
+		err = kerr
+	}
+	return wrap[T, D, M](out, nil), err
+}
+
+// DieStampAtomic is [DieBase.DieStampE] with each fn as one mutation, and
+// the stamp as one transaction, as [DieMutBase.DieStampAtomic] stamps a
+// mutable die: the observers of the copy are notified after each fn
+// returns. If a fn, or an observer, fails, it returns this die, unchanged,
+// with the error.
+func (b *DieBase[T, D, M]) DieStampAtomic(fns ...func(m M) error) (D, error) {
+	out, err := b.DieMutable().DieStampAtomic(fns...)
+	if err != nil {
+		return wrap[T, D, M](b.hold(), b.at), err
+	}
+	return out.DieImmutable(), nil
 }
 
 func withE[M any](fns []func(m M)) []func(M) error {
@@ -442,8 +461,47 @@ func (b *DieMutBase[T, D, M]) DieStampE(fns ...func(m M) error) (M, error) {
 	r := b.ref()
 	m := b.self()
 	err := runWith(m, fns)
-	withIn(r, m)
+	if kerr := withIn(r, m); err == nil {
+		err = kerr
+	}
 	return m, err
+}
+
+// DieStampAtomic is [DieMutBase.DieStampE] with each fn as one mutation, and
+// the stamp as one transaction. The die's observers are notified after each
+// fn returns, of what it wrote, rather than as it writes, so they see a
+// fn's changes together; within a fn, what observers would write isn't there
+// yet. What the observers write notifies as it is written; an observer that
+// would rather hold its own writes stamps atomically too.
+//
+// If a fn, or an observer, fails, the die is rolled back to what it was
+// before the stamp, whatever the fns and observers wrote and the observers
+// themselves included, and the error returned; what they did outside the die
+// isn't undone. An atomic stamp within a fn of another is held until that fn
+// returns, and if it fails rolls back only its own changes. A jig, whose
+// writes go to its source, can't be rolled back: stamp its source atomically
+// instead.
+func (b *DieMutBase[T, D, M]) DieStampAtomic(fns ...func(m M) error) (M, error) {
+	r := b.ref()
+	if r.H.View != nil {
+		panic(core.Errorf("die: DieStampAtomic is not supported on a jig; use it on the jig's source"))
+	}
+	snap := r.H.Hold()
+	m := b.self()
+	var err error
+	for _, fn := range fns {
+		err = fn(m)
+		if kerr := withIn(r, m); err == nil {
+			err = kerr
+		}
+		if err == nil {
+			err = r.H.Flush()
+		}
+		if err != nil {
+			break
+		}
+	}
+	return m, r.H.Release(snap, err)
 }
 
 // DieImmutable returns an immutable copy of the die: of a root, its value and

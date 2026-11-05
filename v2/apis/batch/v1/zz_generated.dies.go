@@ -1007,7 +1007,7 @@ func (d *JobSchedulingConfigurationDieMut) DisruptionMode() *dieschedulingv1alph
 // At most 4 claims may be set, matching the limit on the resulting PodGroup.
 // This list is immutable after creation: entries may neither be added,
 // removed, nor modified.
-func (d *JobSchedulingConfigurationDieMut) ResourceClaims() *diefields.ListMapMut[dieschedulingv1alpha3.WorkloadPodGroupResourceClaim, *dieschedulingv1alpha3.WorkloadPodGroupResourceClaimDieMut, string] {
+func (d *JobSchedulingConfigurationDieMut) ResourceClaims() *diefields.ListMapMut[dieschedulingv1alpha3.WorkloadPodGroupResourceClaim, *dieschedulingv1alpha3.WorkloadPodGroupResourceClaimDie, *dieschedulingv1alpha3.WorkloadPodGroupResourceClaimDieMut, string] {
 	return diefields.ListMapMutOf(d, jobSchedulingConfigurationFields.Get().ResourceClaims)
 }
 

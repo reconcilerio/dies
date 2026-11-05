@@ -1058,7 +1058,7 @@ func (d *DeploymentStatusDieMut) TerminatingReplicas() diefields.OptionalMut[int
 }
 
 // Represents the latest available observations of a deployment's current state.
-func (d *DeploymentStatusDieMut) Conditions() *diefields.ListMapMut[DeploymentCondition, *DeploymentConditionDieMut, DeploymentConditionType] {
+func (d *DeploymentStatusDieMut) Conditions() *diefields.ListMapMut[DeploymentCondition, *DeploymentConditionDie, *DeploymentConditionDieMut, DeploymentConditionType] {
 	return diefields.ListMapMutOf(d, deploymentStatusFields.Get().Conditions)
 }
 
@@ -2826,7 +2826,7 @@ func (d *StatefulSetStatusDieMut) CollisionCount() diefields.OptionalMut[int32] 
 }
 
 // conditions represent the latest available observations of a statefulset's current state.
-func (d *StatefulSetStatusDieMut) Conditions() *diefields.ListMapMut[StatefulSetCondition, *StatefulSetConditionDieMut, StatefulSetConditionType] {
+func (d *StatefulSetStatusDieMut) Conditions() *diefields.ListMapMut[StatefulSetCondition, *StatefulSetConditionDie, *StatefulSetConditionDieMut, StatefulSetConditionType] {
 	return diefields.ListMapMutOf(d, statefulSetStatusFields.Get().Conditions)
 }
 

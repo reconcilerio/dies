@@ -635,7 +635,7 @@ func (d *APIServiceStatusDie) Conditions() *diefields.ListMap[APIServiceConditio
 }
 
 // Current service state of apiService.
-func (d *APIServiceStatusDieMut) Conditions() *diefields.ListMapMut[APIServiceCondition, *APIServiceConditionDieMut, APIServiceConditionType] {
+func (d *APIServiceStatusDieMut) Conditions() *diefields.ListMapMut[APIServiceCondition, *APIServiceConditionDie, *APIServiceConditionDieMut, APIServiceConditionType] {
 	return diefields.ListMapMutOf(d, aPIServiceStatusFields.Get().Conditions)
 }
 

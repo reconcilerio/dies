@@ -100,6 +100,11 @@ type Located = base.Located
 // a leaf of type X.
 type LocatedAs[X any] = base.LocatedAs[X]
 
+// Change is a change an observer observes, as immutable forms of its target,
+// a die or a handle, before and after. See [base.DieMutBase.DieObserve] and
+// [ObserveAt].
+type Change[D any] = base.Change[D]
+
 // Value is a handle to a leaf field of type V of an immutable die.
 type Value[V any] = fields.Value[V]
 
@@ -120,8 +125,8 @@ type OptionalMut[V any] = fields.OptionalMut[V]
 type ListMap[C, CD, K any] = fields.ListMap[C, CD, K]
 
 // ListMapMut is the collection for a list-map field of a mutable die, of C
-// elements with mutable CDM dies, keyed by K.
-type ListMapMut[C, CDM, K any] = fields.ListMapMut[C, CDM, K]
+// elements with mutable CDM dies and immutable CD dies, keyed by K.
+type ListMapMut[C, CD, CDM, K any] = fields.ListMapMut[C, CD, CDM, K]
 
 // Map is the collection for a map field of an immutable die, with K keys and
 // V values.

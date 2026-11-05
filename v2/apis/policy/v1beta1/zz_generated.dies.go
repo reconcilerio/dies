@@ -743,7 +743,7 @@ func (d *PodDisruptionBudgetStatusDieMut) ExpectedPods() diefields.ValueMut[int3
 //   - SufficientPods: There are more pods than required by the PodDisruptionBudget.
 //     The condition will be True, and the number of allowed
 //     disruptions are provided by the disruptionsAllowed property.
-func (d *PodDisruptionBudgetStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+func (d *PodDisruptionBudgetStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
 	return diefields.ListMapMutOf(d, podDisruptionBudgetStatusFields.Get().Conditions)
 }
 

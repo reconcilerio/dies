@@ -811,7 +811,7 @@ func (d *CertificateSigningRequestStatusDie) Certificate() diefields.Value[[]byt
 }
 
 // conditions applied to the request. Known conditions are "Approved", "Denied", and "Failed".
-func (d *CertificateSigningRequestStatusDieMut) Conditions() *diefields.ListMapMut[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDieMut, RequestConditionType] {
+func (d *CertificateSigningRequestStatusDieMut) Conditions() *diefields.ListMapMut[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, *CertificateSigningRequestConditionDieMut, RequestConditionType] {
 	return diefields.ListMapMutOf(d, certificateSigningRequestStatusFields.Get().Conditions)
 }
 
@@ -1804,7 +1804,7 @@ func (d *PodCertificateRequestStatusDie) NotAfter() diefields.Optional[diemetav1
 //
 // If the request is denied with `Reason=UnsupportedKeyType`, the signer may
 // suggest a key type that will work in the message field.
-func (d *PodCertificateRequestStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+func (d *PodCertificateRequestStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
 	return diefields.ListMapMutOf(d, podCertificateRequestStatusFields.Get().Conditions)
 }
 

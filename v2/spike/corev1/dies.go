@@ -108,7 +108,7 @@ func (d *PodSpecDie) Volumes() *die.ListMap[Volume, *VolumeDie, string] {
 	return fields.ListMapOf(d, podSpecFields.Volumes)
 }
 
-func (d *PodSpecDieMut) Volumes() *die.ListMapMut[Volume, *VolumeDieMut, string] {
+func (d *PodSpecDieMut) Volumes() *die.ListMapMut[Volume, *VolumeDie, *VolumeDieMut, string] {
 	return fields.ListMapMutOf(d, podSpecFields.Volumes)
 }
 
@@ -116,7 +116,7 @@ func (d *PodSpecDie) InitContainers() *die.ListMap[Container, *ContainerDie, str
 	return fields.ListMapOf(d, podSpecFields.InitContainers)
 }
 
-func (d *PodSpecDieMut) InitContainers() *die.ListMapMut[Container, *ContainerDieMut, string] {
+func (d *PodSpecDieMut) InitContainers() *die.ListMapMut[Container, *ContainerDie, *ContainerDieMut, string] {
 	return fields.ListMapMutOf(d, podSpecFields.InitContainers)
 }
 
@@ -124,7 +124,7 @@ func (d *PodSpecDie) Containers() *die.ListMap[Container, *ContainerDie, string]
 	return fields.ListMapOf(d, podSpecFields.Containers)
 }
 
-func (d *PodSpecDieMut) Containers() *die.ListMapMut[Container, *ContainerDieMut, string] {
+func (d *PodSpecDieMut) Containers() *die.ListMapMut[Container, *ContainerDie, *ContainerDieMut, string] {
 	return fields.ListMapMutOf(d, podSpecFields.Containers)
 }
 
@@ -227,7 +227,7 @@ func (d *ContainerDie) Ports() *die.ListMap[ContainerPort, *ContainerPortDie, Po
 	return fields.ListMapOf(d, containerFields.Ports)
 }
 
-func (d *ContainerDieMut) Ports() *die.ListMapMut[ContainerPort, *ContainerPortDieMut, PortKey] {
+func (d *ContainerDieMut) Ports() *die.ListMapMut[ContainerPort, *ContainerPortDie, *ContainerPortDieMut, PortKey] {
 	return fields.ListMapMutOf(d, containerFields.Ports)
 }
 
@@ -235,7 +235,7 @@ func (d *ContainerDie) Env() *die.ListMap[EnvVar, *EnvVarDie, string] {
 	return fields.ListMapOf(d, containerFields.Env)
 }
 
-func (d *ContainerDieMut) Env() *die.ListMapMut[EnvVar, *EnvVarDieMut, string] {
+func (d *ContainerDieMut) Env() *die.ListMapMut[EnvVar, *EnvVarDie, *EnvVarDieMut, string] {
 	return fields.ListMapMutOf(d, containerFields.Env)
 }
 
@@ -243,7 +243,7 @@ func (d *ContainerDie) VolumeMounts() *die.ListMap[VolumeMount, *VolumeMountDie,
 	return fields.ListMapOf(d, containerFields.VolumeMounts)
 }
 
-func (d *ContainerDieMut) VolumeMounts() *die.ListMapMut[VolumeMount, *VolumeMountDieMut, string] {
+func (d *ContainerDieMut) VolumeMounts() *die.ListMapMut[VolumeMount, *VolumeMountDie, *VolumeMountDieMut, string] {
 	return fields.ListMapMutOf(d, containerFields.VolumeMounts)
 }
 

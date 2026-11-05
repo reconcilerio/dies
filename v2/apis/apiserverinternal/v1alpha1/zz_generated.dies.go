@@ -641,7 +641,7 @@ func (d *StorageVersionStatusDie) Conditions() *diefields.ListMap[StorageVersion
 }
 
 // storageVersions lists the reported versions per API server instance.
-func (d *StorageVersionStatusDieMut) StorageVersions() *diefields.ListMapMut[ServerStorageVersion, *ServerStorageVersionDieMut, string] {
+func (d *StorageVersionStatusDieMut) StorageVersions() *diefields.ListMapMut[ServerStorageVersion, *ServerStorageVersionDie, *ServerStorageVersionDieMut, string] {
 	return diefields.ListMapMutOf(d, storageVersionStatusFields.Get().StorageVersions)
 }
 
@@ -655,7 +655,7 @@ func (d *StorageVersionStatusDieMut) CommonEncodingVersion() diefields.OptionalM
 }
 
 // conditions lists the latest available observations of the storageVersion's state.
-func (d *StorageVersionStatusDieMut) Conditions() *diefields.ListMapMut[StorageVersionCondition, *StorageVersionConditionDieMut, StorageVersionConditionType] {
+func (d *StorageVersionStatusDieMut) Conditions() *diefields.ListMapMut[StorageVersionCondition, *StorageVersionConditionDie, *StorageVersionConditionDieMut, StorageVersionConditionType] {
 	return diefields.ListMapMutOf(d, storageVersionStatusFields.Get().Conditions)
 }
 

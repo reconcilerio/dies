@@ -36,6 +36,7 @@ v2 is a rewrite, and its API is not compatible with v0. The v0 API is documented
 - [Unstructured dies](#unstructured-dies)
 	- [Molds: unstructured dies with the server's schema](#molds-unstructured-dies-with-the-servers-schema)
 - [Jigs](#jigs)
+- [Observers](#observers)
 - [JSONPath](#jsonpath)
 - [Validation and defaulting](#validation-and-defaulting)
 	- [Checks from markers](#checks-from-markers)
@@ -447,6 +448,74 @@ if ok {
 ```
 
 A jig holds nothing of its own. Its writes go to the source, and the source's patches carry them. `Hold` takes a `die.ImmutableDie` and returns an immutable die of the jig's type, which reads; `HoldMut` takes a `die.MutableDie` and returns a mutable one, which also writes. A read-only jig of a mutable die would see its writes, so `Hold` doesn't take one. Either takes unstructured dies too, and `HoldUnstructured` takes an `*unstructured.Unstructured`, which the jig changes in place. `jigs.BindVia` converts between shapes that differ. See [`v2/examples/jigs/v1`](v2/examples/jigs/v1) for a complete example.
+
+## Observers
+
+An observer is a function a die calls after each change to it. `DieObserve` observes the die itself. The function gets the die, mutable, as the change left it, so it can write in response, and a `die.Change` holding immutable dies of it before and after. They make it explicit that a change is only read. They read as dies do, so they tell an unset field from one set to zero, and each is within its root as it was then.
+
+```go
+err := deployment.Spec().DieObserve(func(spec *dieappsv1.DeploymentSpecDieMut, c die.Change[*dieappsv1.DeploymentSpecDie]) error {
+	replicas := c.After.Replicas()
+	return spec.Paused().Set(replicas.Has() && replicas.Get() == 0)
+})
+```
+
+`die.ObserveAt` observes a location within a mutable die, which can be a field or a collection as well as a die. Its second argument returns that location from the die, and the observer is called with a mutable handle to it. The handle's `DieRoot` is the changed die, so the observer can write anywhere in it. The change holds the location's immutable form before and after, as its `DieReadOnly` returns it: an immutable die, or a handle such as a `die.Value` or `die.ListMap`, whose `Has` says whether it's present. The callback's types follow from the location's, so an editor can complete them. A function that takes the handle and the change can observe dies of any type:
+
+```go
+err := die.ObserveAt(deployment, func(m *dieappsv1.DeploymentDieMut) die.ValueMut[int32] {
+	return m.Spec().MinReadySeconds()
+}, func(v die.ValueMut[int32], c die.Change[die.Value[int32]]) error {
+	if !c.After.Has() {
+		return v.Set(10) // cleared, not set to zero
+	}
+	return nil
+})
+```
+
+A mutable list map's `DieObserveEach` observes each of its elements. The observer is called once for each element a change added, removed or changed, with the element's die and its own change, so elements come matched by key, and elements that didn't change aren't called. Its change holds immutable dies of the element: for an added element, `Before.DieHas()` is false, and for a removed one, `After.DieHas()` is false and the die it's called with reads as absent. Register it on a mutable die, or for an immutable die, within a stamp of its root.
+
+The condition sets in [`v2/examples/conditions`](v2/examples/conditions) keep a happy condition, such as Ready, the aggregate of the conditions it depends on, observing the whole list. `conditions.LastTransitionTime` observes each condition, and updates its `lastTransitionTime` when it changes:
+
+```go
+ready := conditions.NewConditionSet("Ready", "Configured", "Deployed")
+widgetConditions := func(m *widgetv1.WidgetDieMut) *conditions.Conditions { return m.Status().Conditions() }
+
+blank, err := widgetv1.WidgetBlank.DieStampE(func(m *widgetv1.WidgetDieMut) error {
+	return errors.Join(
+		die.ObserveAt(m, widgetConditions, ready.Observe),
+		m.Status().Conditions().DieObserveEach(conditions.LastTransitionTime(metav1.Now)),
+	)
+})
+
+widget := blank.DieStamp(func(d *widgetv1.WidgetDieMut) {
+	// Ready becomes Unknown, waiting for Deployed
+	err := die.StampValue(d.Status().Conditions().At("Configured"), func(c *metav1.Condition) {
+		c.Status, c.Reason = metav1.ConditionTrue, "Applied"
+	})
+	// ...
+})
+```
+
+- **A change is compared, not just written.** After each write, each observer whose location the write may have reached reads it again. The observer is called only if the value differs from what it last saw. The change's `Before` is what it last saw, so writes it didn't see individually arrive together.
+- **Observers cascade.** An observer's writes notify the die's other observers in turn. With condition sets where A and B make C, and C and D make E, marking B updates C and then E. Observers run in the order they're registered, and the result shouldn't depend on that order.
+- **Observers settle.** An observer isn't called again for its own writes while it runs. Once it returns, it's called again if its location changed since it was called, until the location stops changing. An observer that changes its location every time, or observers that undo each other, make the write fail.
+- **Derived dies keep observers.** A die's observers are copied to its stamps, its mutable and immutable copies, deep copies and tares. Observing an immutable die returns a new die, and its observers run within the dies derived from it, as in `DieStamp` above. A copy of a die within another keeps the observers registered at or below it.
+- **A part of an immutable die is observed through its root.** `DieObserve` on an immutable die within another, or on an immutable jig, panics: it would observe a detached copy. Observe the part within a stamp of its root: `root.DieStamp(func(m M) { m.Status().DieObserve(fn) })`. `die.ObserveAt` and `DieObserveEach` take only mutable dies, so they're registered on an immutable die the same way. A mutable die within another shares its root's state, so it can be observed directly.
+- **A jig's observers see writes through the jig,** not writes made to its source directly.
+
+Observers are notified as each write is made, so they see a change made in several writes part by part. Writing a condition's status and then its reason runs them twice. `die.StampValue` writes several fields as one change. `DieStampAtomic` holds notifications until each of its functions returns, so each function's writes are one change. Within a function, what the observers would write isn't there yet.
+
+`DieStampAtomic` is used for rollback. Nothing is undone implicitly: a write whose observer fails is kept, along with what its observers wrote, and returns the observer's error. Within `DieStampAtomic`, a function that returns `nil` commits its writes. A function that returns an error, or whose observers fail, rolls back the whole stamp: every function's writes, what the observers wrote and saw, and any observer registered within it. It returns the error. What an observer did outside the die isn't undone. A stamp nested in another's function is held until that function returns, and if it fails, it rolls back only its own changes. A jig can't be rolled back, because its writes go to its source: stamp the source instead.
+
+```go
+updated, err := current.DieStampAtomic(func(d *widgetv1.WidgetDieMut) error {
+	c := d.Status().Conditions().At("Deployed")
+	return errors.Join(c.Status().Set(metav1.ConditionFalse), c.Reason().Set("ImagePullBackOff"))
+})
+```
+
+An atomic stamp covers every write to the die while it runs, through any reference to it, not only the die it passes to its functions. A mutable die isn't safe for concurrent use, with or without observers, so write it from one goroutine at a time.
 
 ## JSONPath
 

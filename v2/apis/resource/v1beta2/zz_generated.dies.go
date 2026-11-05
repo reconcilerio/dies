@@ -217,7 +217,7 @@ func (d *AllocatedDeviceStatusDieMut) ShareID() diefields.OptionalMut[string] {
 // config references, the `Ready` condition should be True.
 //
 // Must not contain more than 8 entries.
-func (d *AllocatedDeviceStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+func (d *AllocatedDeviceStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
 	return diefields.ListMapMutOf(d, allocatedDeviceStatusFields.Get().Conditions)
 }
 
@@ -4930,7 +4930,7 @@ func (d *DeviceTaintRuleStatusDie) Conditions() *diefields.ListMap[diemetav1.Con
 // set once to avoid having to constantly update the status.
 //
 // Must have 8 or fewer entries.
-func (d *DeviceTaintRuleStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+func (d *DeviceTaintRuleStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
 	return diefields.ListMapMutOf(d, deviceTaintRuleStatusFields.Get().Conditions)
 }
 
@@ -6813,14 +6813,14 @@ func (d *ResourceClaimStatusDieMut) Allocation() *AllocationResultDieMut {
 //
 // There can be at most 256 such reservations. This may get increased in
 // the future, but not reduced.
-func (d *ResourceClaimStatusDieMut) ReservedFor() *diefields.ListMapMut[ResourceClaimConsumerReference, *ResourceClaimConsumerReferenceDieMut, types.UID] {
+func (d *ResourceClaimStatusDieMut) ReservedFor() *diefields.ListMapMut[ResourceClaimConsumerReference, *ResourceClaimConsumerReferenceDie, *ResourceClaimConsumerReferenceDieMut, types.UID] {
 	return diefields.ListMapMutOf(d, resourceClaimStatusFields.Get().ReservedFor)
 }
 
 // Devices contains the status of each device allocated for this
 // claim, as reported by the driver. This can include driver-specific
 // information. Entries are owned by their respective drivers.
-func (d *ResourceClaimStatusDieMut) Devices() *diefields.ListMapMut[AllocatedDeviceStatus, *AllocatedDeviceStatusDieMut, AllocatedDeviceStatusKey] {
+func (d *ResourceClaimStatusDieMut) Devices() *diefields.ListMapMut[AllocatedDeviceStatus, *AllocatedDeviceStatusDie, *AllocatedDeviceStatusDieMut, AllocatedDeviceStatusKey] {
 	return diefields.ListMapMutOf(d, resourceClaimStatusFields.Get().Devices)
 }
 

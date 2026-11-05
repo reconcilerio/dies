@@ -37,20 +37,31 @@ func intent(r refs.Ref) string {
 }
 
 // with returns the holder of an immutable die of what a mutable copy, made
-// for functions, holds after them.
-func with(h *core.Holder, m any) *core.Holder {
-	// the result is what m holds now, which may not be the holder it was
-	// given: a client zeroes the object it decodes into, holder and all
-	r := held(m, h)
-	return &core.Holder{Base: r.Base, Ov: r.Ov, Wire: r.Wire, Schema: r.Schema}
+// for functions, holds after them, with the copy's observers.
+func with(h *core.Holder, m any) (*core.Holder, error) {
+	err := keepIn(h, m)
+	out := &core.Holder{Base: h.Base, Ov: h.Ov, Wire: h.Wire, Schema: h.Schema}
+	out.ObserversOf(h, nil)
+	return out, err
 }
 
 // withIn keeps what functions passed a mutable die left it holding in the
 // die's own holder, which its children share, as a client zeroes the object
 // it decodes into, holder and all.
-func withIn(r refs.Ref, m any) {
-	if h := held(m, r.H); h != r.H {
-		r.H.Base, r.H.Ov, r.H.Wire = h.Base, h.Ov, h.Wire
-		core.SetState(m, r.H, r.At)
+func withIn(r refs.Ref, m any) error {
+	err := keepIn(r.H, m)
+	core.SetState(m, r.H, r.At)
+	return err
+}
+
+// keepIn keeps what m holds in h, if it holds another holder, notifying h's
+// observers: the other holder, made when its state was zeroed, has none.
+func keepIn(h *core.Holder, m any) error {
+	// what m holds now may not be the holder it was given: a client zeroes
+	// the object it decodes into, holder and all
+	r := held(m, h)
+	if r == h {
+		return nil
 	}
+	return h.Commit(r.Base, r.Ov, r.Wire, nil)
 }

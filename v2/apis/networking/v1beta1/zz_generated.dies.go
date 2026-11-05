@@ -2717,7 +2717,7 @@ func (d *ServiceCIDRStatusDie) Conditions() *diefields.ListMap[diemetav1.Conditi
 
 // conditions holds an array of metav1.Condition that describe the state of the ServiceCIDR.
 // Current service state
-func (d *ServiceCIDRStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+func (d *ServiceCIDRStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
 	return diefields.ListMapMutOf(d, serviceCIDRStatusFields.Get().Conditions)
 }
 

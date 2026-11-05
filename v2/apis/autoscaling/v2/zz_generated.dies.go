@@ -1668,7 +1668,7 @@ func (d *HorizontalPodAutoscalerStatusDieMut) CurrentMetrics() diefields.ValueMu
 
 // conditions is the set of conditions required for this autoscaler to scale its target,
 // and indicates whether or not those conditions are met.
-func (d *HorizontalPodAutoscalerStatusDieMut) Conditions() *diefields.ListMapMut[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDieMut, HorizontalPodAutoscalerConditionType] {
+func (d *HorizontalPodAutoscalerStatusDieMut) Conditions() *diefields.ListMapMut[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut, HorizontalPodAutoscalerConditionType] {
 	return diefields.ListMapMutOf(d, horizontalPodAutoscalerStatusFields.Get().Conditions)
 }
 

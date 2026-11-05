@@ -821,7 +821,7 @@ func (d *FlowSchemaStatusDie) Conditions() *diefields.ListMap[FlowSchemaConditio
 }
 
 // `conditions` is a list of the current states of FlowSchema.
-func (d *FlowSchemaStatusDieMut) Conditions() *diefields.ListMapMut[FlowSchemaCondition, *FlowSchemaConditionDieMut, FlowSchemaConditionType] {
+func (d *FlowSchemaStatusDieMut) Conditions() *diefields.ListMapMut[FlowSchemaCondition, *FlowSchemaConditionDie, *FlowSchemaConditionDieMut, FlowSchemaConditionType] {
 	return diefields.ListMapMutOf(d, flowSchemaStatusFields.Get().Conditions)
 }
 
@@ -2145,7 +2145,7 @@ func (d *PriorityLevelConfigurationStatusDie) Conditions() *diefields.ListMap[Pr
 }
 
 // `conditions` is the current state of "request-priority".
-func (d *PriorityLevelConfigurationStatusDieMut) Conditions() *diefields.ListMapMut[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDieMut, PriorityLevelConfigurationConditionType] {
+func (d *PriorityLevelConfigurationStatusDieMut) Conditions() *diefields.ListMapMut[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie, *PriorityLevelConfigurationConditionDieMut, PriorityLevelConfigurationConditionType] {
 	return diefields.ListMapMutOf(d, priorityLevelConfigurationStatusFields.Get().Conditions)
 }
 

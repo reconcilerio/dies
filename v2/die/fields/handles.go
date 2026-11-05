@@ -62,6 +62,10 @@ type Value[V any] struct{ l leaf }
 // writes it.
 type ValueMut[V any] struct{ Value[V] }
 
+// DieReadOnly returns the immutable handle of the same field, sharing this
+// one's state: it reads what is written through this one.
+func (v ValueMut[V]) DieReadOnly() Value[V] { return v.Value }
+
 // DieValue marks a handle as a location of a V, for [base.LocatedAs]. It does
 // nothing.
 func (Value[V]) DieValue(*V) {}
@@ -156,6 +160,10 @@ type Optional[V any] struct{ l leaf }
 // OptionalMut is a handle to a pointer leaf field of type *V of a mutable
 // die, which writes V.
 type OptionalMut[V any] struct{ Optional[V] }
+
+// DieReadOnly returns the immutable handle of the same field, sharing this
+// one's state: it reads what is written through this one.
+func (v OptionalMut[V]) DieReadOnly() Optional[V] { return v.Optional }
 
 // OptionalOf returns the handle for a pointer leaf field of an immutable die.
 func OptionalOf[T, V any](d base.LocatedAs[T], f Field[T, *V]) Optional[V] {

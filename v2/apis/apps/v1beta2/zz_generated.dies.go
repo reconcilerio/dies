@@ -928,7 +928,7 @@ func (d *DaemonSetStatusDieMut) CollisionCount() diefields.OptionalMut[int32] {
 }
 
 // Represents the latest available observations of a DaemonSet's current state.
-func (d *DaemonSetStatusDieMut) Conditions() *diefields.ListMapMut[DaemonSetCondition, *DaemonSetConditionDieMut, DaemonSetConditionType] {
+func (d *DaemonSetStatusDieMut) Conditions() *diefields.ListMapMut[DaemonSetCondition, *DaemonSetConditionDie, *DaemonSetConditionDieMut, DaemonSetConditionType] {
 	return diefields.ListMapMutOf(d, daemonSetStatusFields.Get().Conditions)
 }
 
@@ -1756,7 +1756,7 @@ func (d *DeploymentStatusDieMut) TerminatingReplicas() diefields.OptionalMut[int
 }
 
 // Represents the latest available observations of a deployment's current state.
-func (d *DeploymentStatusDieMut) Conditions() *diefields.ListMapMut[DeploymentCondition, *DeploymentConditionDieMut, DeploymentConditionType] {
+func (d *DeploymentStatusDieMut) Conditions() *diefields.ListMapMut[DeploymentCondition, *DeploymentConditionDie, *DeploymentConditionDieMut, DeploymentConditionType] {
 	return diefields.ListMapMutOf(d, deploymentStatusFields.Get().Conditions)
 }
 
@@ -2518,7 +2518,7 @@ func (d *ReplicaSetStatusDieMut) ObservedGeneration() diefields.ValueMut[int64] 
 }
 
 // Represents the latest available observations of a replica set's current state.
-func (d *ReplicaSetStatusDieMut) Conditions() *diefields.ListMapMut[ReplicaSetCondition, *ReplicaSetConditionDieMut, ReplicaSetConditionType] {
+func (d *ReplicaSetStatusDieMut) Conditions() *diefields.ListMapMut[ReplicaSetCondition, *ReplicaSetConditionDie, *ReplicaSetConditionDieMut, ReplicaSetConditionType] {
 	return diefields.ListMapMutOf(d, replicaSetStatusFields.Get().Conditions)
 }
 
@@ -4281,7 +4281,7 @@ func (d *StatefulSetStatusDieMut) CollisionCount() diefields.OptionalMut[int32] 
 }
 
 // Represents the latest available observations of a statefulset's current state.
-func (d *StatefulSetStatusDieMut) Conditions() *diefields.ListMapMut[StatefulSetCondition, *StatefulSetConditionDieMut, StatefulSetConditionType] {
+func (d *StatefulSetStatusDieMut) Conditions() *diefields.ListMapMut[StatefulSetCondition, *StatefulSetConditionDie, *StatefulSetConditionDieMut, StatefulSetConditionType] {
 	return diefields.ListMapMutOf(d, statefulSetStatusFields.Get().Conditions)
 }
 

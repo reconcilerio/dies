@@ -828,7 +828,7 @@ func (d *DeviceTaintRuleStatusDie) Conditions() *diefields.ListMap[diemetav1.Con
 // set once to avoid having to constantly update the status.
 //
 // Must have 8 or fewer entries.
-func (d *DeviceTaintRuleStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+func (d *DeviceTaintRuleStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
 	return diefields.ListMapMutOf(d, deviceTaintRuleStatusFields.Get().Conditions)
 }
 
@@ -1875,7 +1875,7 @@ func (d *ResourcePoolStatusRequestStatusDieMut) Pools() diefields.ValueMut[[]Poo
 // Known condition types:
 // - "Complete": True when the request has been processed successfully
 // - "Failed": True when the request could not be processed
-func (d *ResourcePoolStatusRequestStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+func (d *ResourcePoolStatusRequestStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
 	return diefields.ListMapMutOf(d, resourcePoolStatusRequestStatusFields.Get().Conditions)
 }
 

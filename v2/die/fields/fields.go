@@ -140,9 +140,9 @@ func ListMapOf[T, C any, CD base.DieOf[C, CD, CDM], CDM base.DieMutOf[C, CD, CDM
 
 // ListMapMutOf returns the collection for a list-map field of a mutable die,
 // attached to it.
-func ListMapMutOf[T, C any, CD base.DieOf[C, CD, CDM], CDM base.DieMutOf[C, CD, CDM], K any](d base.LocatedAs[T], f ListMapField[T, C, CD, CDM, K]) *ListMapMut[C, CDM, K] {
+func ListMapMutOf[T, C any, CD base.DieOf[C, CD, CDM], CDM base.DieMutOf[C, CD, CDM], K any](d base.LocatedAs[T], f ListMapField[T, C, CD, CDM, K]) *ListMapMut[C, CD, CDM, K] {
 	h, at := dies.MustStateOf(d)
-	return &ListMapMut[C, CDM, K]{ListMap[C, CDM, K]{h: h, at: core.ChildPath(at, core.FieldStep(f.fd.Wire)), keys: f.fd.Keys, key: f.key, keyOf: f.keyOf, wrap: dies.WrapDieMut[C, CD, CDM]}}
+	return &ListMapMut[C, CD, CDM, K]{ListMap: ListMap[C, CDM, K]{h: h, at: core.ChildPath(at, core.FieldStep(f.fd.Wire)), keys: f.fd.Keys, key: f.key, keyOf: f.keyOf, wrap: dies.WrapDieMut[C, CD, CDM]}, readOnly: dies.WrapDie[C, CD, CDM]}
 }
 
 // MapOf returns the collection for a map field of an immutable die, attached

@@ -986,7 +986,7 @@ func (pg *pkgGen) accessorMut(mname, table string, wf wfield) {
 	case fListMap:
 		elem := ft.Underlying().(*types.Slice).Elem()
 		k, _, _ := pg.listMapKey(elem, wf.spec.listMapKey)
-		f.p("func (d *%s) %s() *die.ListMapMut[%s, %s, %s] { return die.ListMapMutOf(d, %s.Get().%s) }", mname, wf.accessor, pg.typeExpr(elem), pg.dieMutExpr(elem), k, table, wf.accessor)
+		f.p("func (d *%s) %s() *die.ListMapMut[%s, %s, %s, %s] { return die.ListMapMutOf(d, %s.Get().%s) }", mname, wf.accessor, pg.typeExpr(elem), pg.dieExpr(elem), pg.dieMutExpr(elem), k, table, wf.accessor)
 	case fMap:
 		m := ft.Underlying().(*types.Map)
 		f.p("func (d *%s) %s() *die.MapMut[%s, %s] { return die.MapMutOf(d, %s.Get().%s) }", mname, wf.accessor, pg.typeExpr(m.Key()), pg.typeExpr(m.Elem()), table, wf.accessor)

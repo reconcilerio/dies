@@ -110,7 +110,9 @@ func (m *Molds) Cast(d *Object) (*Object, error) {
 		return nil, err
 	}
 	out := &Object{}
-	core.SetState(out, &core.Holder{Base: h.Base, Ov: h.Ov, Wire: h.Wire, Schema: sc}, nil)
+	held := &core.Holder{Base: h.Base, Ov: h.Ov, Wire: h.Wire, Schema: sc}
+	held.ObserversOf(h, nil)
+	core.SetState(out, held, nil)
 	return out, nil
 }
 

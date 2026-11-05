@@ -41,9 +41,17 @@ type ListMap[C, CD, K any] struct {
 }
 
 // ListMapMut is the list map of a mutable die, whose element dies, CDM, are
-// mutable.
-type ListMapMut[C, CDM, K any] struct {
+// mutable. CD is the immutable die of an element, of its [ListMapMut.DieReadOnly].
+type ListMapMut[C, CD, CDM, K any] struct {
 	ListMap[C, CDM, K]
+	readOnly func(*core.Holder, core.Path) CD
+}
+
+// DieReadOnly returns the immutable list map of the same location, sharing
+// this one's state, as [base.DieMutBase.DieReadOnly] does a die's: it reads
+// what is written through this one.
+func (l *ListMapMut[C, CD, CDM, K]) DieReadOnly() *ListMap[C, CD, K] {
+	return &ListMap[C, CD, K]{h: l.h, at: l.at, keys: l.keys, key: l.key, keyOf: l.keyOf, wrap: l.readOnly}
 }
 
 func (l *ListMap[C, CD, K]) DiePath() base.Path { return l.at }
@@ -76,23 +84,23 @@ func (l *ListMap[C, CD, K]) Has(k K) bool {
 }
 
 // write writes through the list, returning it.
-func (l *ListMapMut[C, CDM, K]) write(rel base.Path, o core.Op, union bool) error {
+func (l *ListMapMut[C, CD, CDM, K]) write(rel base.Path, o core.Op, union bool) error {
 	_, err := l.h.Write(l.at, rel, core.SetOp(o, reflect.Value{}), union)
 	return err
 }
 
 // Remove removes the element with key k.
-func (l *ListMapMut[C, CDM, K]) Remove(k K) error {
+func (l *ListMapMut[C, CD, CDM, K]) Remove(k K) error {
 	return l.write(base.Path{l.step(k)}, core.OpClear, false)
 }
 
 // Clear removes the list: null in patches.
-func (l *ListMapMut[C, CDM, K]) Clear() error {
+func (l *ListMapMut[C, CD, CDM, K]) Clear() error {
 	return l.write(nil, core.OpClear, false)
 }
 
 // Empty sets the list to present and empty: [] in patches.
-func (l *ListMapMut[C, CDM, K]) Empty() error {
+func (l *ListMapMut[C, CD, CDM, K]) Empty() error {
 	return l.write(nil, core.OpEmpty, true)
 }
 
@@ -124,6 +132,88 @@ func (l *ListMap[C, CD, K]) All() iter.Seq2[K, CD] {
 	}
 }
 
+// DieObserveEach observes each element of the list: after each mutation of
+// the list, fn is called once for each element it changed, added or
+// removed, with the element's die, mutable, and the element's change, as
+// immutable dies of the element as the observer last saw it and now, so the
+// elements come matched by key. Changed and added elements are called in
+// list order, then removed ones, in the order they were. The die of an
+// element that was absent, or is, reads as absent, so DieHas tells an added
+// or removed element; writing through a removed element's die adds it
+// again.
+//
+// It is an observer of the list, as die.ObserveAt registers one: it is kept
+// by the dies derived from the die, cascades, settles and is held within an
+// atomic stamp, as other observers are. An element's die reads it as it is,
+// which another element's observer may have changed since the change, as
+// the observer is then called again.
+//
+// The list of an immutable die is observed within a stamp of its root, as
+// a die within one is.
+func (l *ListMapMut[C, CD, CDM, K]) DieObserveEach(fn func(e CDM, c base.Change[CD]) error) error {
+	proto := *l
+	on := func(h *core.Holder, at core.Path) *ListMapMut[C, CD, CDM, K] {
+		list := proto
+		list.h, list.at = h, at
+		return &list
+	}
+	return l.h.Observe(&core.Observer{
+		At:     l.at,
+		Target: l.at,
+		Read:   func(h *core.Holder, at core.Path) (reflect.Value, error) { return h.ValueAt(at) },
+		Fn: func(h *core.Holder, at core.Path, d core.Delta) error {
+			was, now := on(d.Was, at).DieReadOnly(), on(d.Now, at).DieReadOnly()
+			return on(h, at).each(d, func(k K, e CDM) error {
+				return fn(e, base.Change[CD]{Before: was.At(k), After: now.At(k)})
+			})
+		},
+	})
+}
+
+// each calls fn for each element that differs between a change's values of
+// the list.
+func (l *ListMap[C, CD, K]) each(d core.Delta, fn func(k K, e CD) error) error {
+	was, wasOrder := l.byKey(d.Before)
+	now, order := l.byKey(d.After)
+	for _, k := range order {
+		if b, had := was[any(k)]; had && reflect.DeepEqual(now[any(k)], b) {
+			continue
+		}
+		if err := fn(k, l.At(k)); err != nil {
+			return err
+		}
+	}
+	for _, k := range wasOrder {
+		if _, has := now[any(k)]; has {
+			continue
+		}
+		if err := fn(k, l.At(k)); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// byKey returns a value of the list's elements by key, with the keys in list
+// order.
+func (l *ListMap[C, CD, K]) byKey(v reflect.Value) (map[any]C, []K) {
+	for v.IsValid() && (v.Kind() == reflect.Interface || v.Kind() == reflect.Pointer) && !v.IsNil() {
+		v = v.Elem()
+	}
+	out := map[any]C{}
+	var order []K
+	if !v.IsValid() || v.Kind() != reflect.Slice {
+		return out, order
+	}
+	for i := range v.Len() {
+		e := v.Index(i).Interface().(C)
+		k := l.keyOf(core.WithKeyDefaults(v.Index(i), l.keys).Interface().(C))
+		out[any(k)] = e
+		order = append(order, k)
+	}
+	return out, order
+}
+
 // Map is a map of string-kinded keys K to V values.
 type Map[K ~string, V any] struct {
 	h  *core.Holder
@@ -135,7 +225,18 @@ type MapMut[K ~string, V any] struct {
 	Map[K, V]
 }
 
+// DieReadOnly returns the immutable map of the same location, sharing this
+// one's state: it reads what is written through this one.
+func (m *MapMut[K, V]) DieReadOnly() *Map[K, V] {
+	ro := m.Map
+	return &ro
+}
+
 func (m *Map[K, V]) DiePath() base.Path { return m.at }
+
+// DieValue marks a map as a location of a map[K]V, for [base.LocatedAs]. It
+// does nothing.
+func (*Map[K, V]) DieValue(*map[K]V) {}
 
 // DieRoot returns the root die this is within: see [base.DieBase.DieRoot].
 func (m *Map[K, V]) DieRoot() base.Die { return base.RootOf(m.h) }

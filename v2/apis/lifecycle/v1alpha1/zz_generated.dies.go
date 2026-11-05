@@ -922,7 +922,7 @@ func (d *EvictionRequestStatusDie) ObservedGeneration() diefields.Optional[int64
 // been submitted.
 //
 // The maximum length of the conditions list is 100.
-func (d *EvictionRequestStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+func (d *EvictionRequestStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
 	return diefields.ListMapMutOf(d, evictionRequestStatusFields.Get().Conditions)
 }
 
@@ -1288,7 +1288,7 @@ func (d *EvictionStatusDie) Responders() *diefields.ListMap[ResponderStatus, *Re
 //   - TargetEvicted means that the target has been evicted (e.g. a pod has been terminated or deleted).
 //
 //     The maximum length of the conditions list is 100.
-func (d *EvictionStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+func (d *EvictionStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
 	return diefields.ListMapMutOf(d, evictionStatusFields.Get().Conditions)
 }
 
@@ -1305,7 +1305,7 @@ func (d *EvictionStatusDieMut) ObservedGeneration() diefields.OptionalMut[int64]
 //
 // The maximum length of the requesters list is 100.
 // If this limit is exceeded, requesters with Withdrawn intent should be dropped first.
-func (d *EvictionStatusDieMut) Requesters() *diefields.ListMapMut[Requester, *RequesterDieMut, string] {
+func (d *EvictionStatusDieMut) Requesters() *diefields.ListMapMut[Requester, *RequesterDie, *RequesterDieMut, string] {
 	return diefields.ListMapMutOf(d, evictionStatusFields.Get().Requesters)
 }
 
@@ -1328,7 +1328,7 @@ func (d *EvictionStatusDieMut) Requesters() *diefields.ListMapMut[Requester, *Re
 // The maximum length of the responders list is 11.
 // The length and keys of the list cannot change once set.
 // This field is managed by evictionrequest-controller.
-func (d *EvictionStatusDieMut) TargetResponders() *diefields.ListMapMut[TargetResponder, *TargetResponderDieMut, string] {
+func (d *EvictionStatusDieMut) TargetResponders() *diefields.ListMapMut[TargetResponder, *TargetResponderDie, *TargetResponderDieMut, string] {
 	return diefields.ListMapMutOf(d, evictionStatusFields.Get().TargetResponders)
 }
 
@@ -1341,7 +1341,7 @@ func (d *EvictionStatusDieMut) TargetResponders() *diefields.ListMapMut[TargetRe
 //
 // Each ResponderStatus is initialized by evictionrequest-controller and then managed by
 // the designated responder.
-func (d *EvictionStatusDieMut) Responders() *diefields.ListMapMut[ResponderStatus, *ResponderStatusDieMut, string] {
+func (d *EvictionStatusDieMut) Responders() *diefields.ListMapMut[ResponderStatus, *ResponderStatusDie, *ResponderStatusDieMut, string] {
 	return diefields.ListMapMutOf(d, evictionStatusFields.Get().Responders)
 }
 

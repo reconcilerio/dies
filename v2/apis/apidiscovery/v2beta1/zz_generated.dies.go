@@ -141,7 +141,7 @@ func (d *APIGroupDiscoveryDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
 
 // versions are the versions supported in this group. They are sorted in descending order of preference,
 // with the preferred version being the first entry.
-func (d *APIGroupDiscoveryDieMut) Versions() *diefields.ListMapMut[APIVersionDiscovery, *APIVersionDiscoveryDieMut, string] {
+func (d *APIGroupDiscoveryDieMut) Versions() *diefields.ListMapMut[APIVersionDiscovery, *APIVersionDiscoveryDie, *APIVersionDiscoveryDieMut, string] {
 	return diefields.ListMapMutOf(d, aPIGroupDiscoveryFields.Get().Versions)
 }
 
@@ -322,7 +322,7 @@ func (d *APIResourceDiscoveryDieMut) Categories() diefields.ValueMut[[]string] {
 }
 
 // subresources is a list of subresources provided by this resource. Subresources are located at /apis/<APIGroupDiscovery.objectMeta.name>/<APIVersionDiscovery.version>/<APIResourceDiscovery.Resource>/name-of-instance/<APIResourceDiscovery.subresources[i].subresource>
-func (d *APIResourceDiscoveryDieMut) Subresources() *diefields.ListMapMut[APISubresourceDiscovery, *APISubresourceDiscoveryDieMut, string] {
+func (d *APIResourceDiscoveryDieMut) Subresources() *diefields.ListMapMut[APISubresourceDiscovery, *APISubresourceDiscoveryDie, *APISubresourceDiscoveryDieMut, string] {
 	return diefields.ListMapMutOf(d, aPIResourceDiscoveryFields.Get().Subresources)
 }
 
@@ -422,7 +422,7 @@ func (d *APISubresourceDiscoveryDieMut) ResponseKind() *diemetav1.GroupVersionKi
 // Subresources may accept the standard content types or define
 // custom negotiation schemes. The list may not be exhaustive for
 // all operations.
-func (d *APISubresourceDiscoveryDieMut) AcceptedTypes() *diefields.ListMapMut[diemetav1.GroupVersionKind, *diemetav1.GroupVersionKindDieMut, GroupVersionKindKey] {
+func (d *APISubresourceDiscoveryDieMut) AcceptedTypes() *diefields.ListMapMut[diemetav1.GroupVersionKind, *diemetav1.GroupVersionKindDie, *diemetav1.GroupVersionKindDieMut, GroupVersionKindKey] {
 	return diefields.ListMapMutOf(d, aPISubresourceDiscoveryFields.Get().AcceptedTypes)
 }
 
@@ -509,7 +509,7 @@ func (d *APIVersionDiscoveryDieMut) Version() diefields.ValueMut[string] {
 }
 
 // resources is a list of APIResourceDiscovery objects for the corresponding group version.
-func (d *APIVersionDiscoveryDieMut) Resources() *diefields.ListMapMut[APIResourceDiscovery, *APIResourceDiscoveryDieMut, string] {
+func (d *APIVersionDiscoveryDieMut) Resources() *diefields.ListMapMut[APIResourceDiscovery, *APIResourceDiscoveryDie, *APIResourceDiscoveryDieMut, string] {
 	return diefields.ListMapMutOf(d, aPIVersionDiscoveryFields.Get().Resources)
 }
 

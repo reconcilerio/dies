@@ -47,6 +47,14 @@ type Holder struct {
 	// root makes the root die over this holder, as the first die made at its
 	// root, which knows its type, records it
 	root func(*Holder) any
+	// observers are called when what they observe changes: see Observe
+	observers []*observing
+	// notifying is how deep observers are cascading
+	notifying int
+	// holding is how many atomic stamps hold notifications back, and
+	// pending the paths written while they do
+	holding int
+	pending []Path
 }
 
 // SetRoot records how to make the root die over the holder, unless it's
@@ -166,7 +174,10 @@ func (h *Holder) Has(p Path) (bool, error) {
 func (h *Holder) Write(at, rel Path, fn func(*Onode) *Onode, union bool) (*Holder, error) {
 	if h.View != nil {
 		n := fn(&Onode{})
-		return h, h.View.write(at.join(rel), n.Op, n.Val)
+		if err := h.View.write(at.join(rel), n.Op, n.Val); err != nil {
+			return h, err
+		}
+		return h, h.Notify(at.join(rel))
 	}
 	if !h.Mutable && len(at) > 0 {
 		// the types don't allow it: an immutable die's handles don't write
@@ -177,10 +188,15 @@ func (h *Holder) Write(at, rel Path, fn func(*Onode) *Onode, union bool) (*Holde
 		return h.writeElement(at, full, k, fn, union)
 	}
 	ov := h.Ov
+	// what the write may change: a union's members are siblings
+	written := full
 	if union {
 		var err error
 		if ov, err = h.clearUnionSiblings(ov, full); err != nil {
 			return nil, err
+		}
+		if ov != h.Ov && len(full) > 0 {
+			written = full[:len(full)-1]
 		}
 	}
 	if TypeAt(h.Base.Type(), full).Kind() == reflect.Interface {
@@ -202,7 +218,7 @@ func (h *Holder) Write(at, rel Path, fn func(*Onode) *Onode, union bool) (*Holde
 		if convErr != nil {
 			return nil, convErr
 		}
-		return h.Replace(at, ov)
+		return h.replace(at, written, ov)
 	}
 	// a value written whole, and an element whose key a write changes, must
 	// leave every list map with unique keys
@@ -217,7 +233,7 @@ func (h *Holder) Write(at, rel Path, fn func(*Onode) *Onode, union bool) (*Holde
 			return nil, err
 		}
 	}
-	return h.Replace(at, ov)
+	return h.replace(at, written, ov)
 }
 
 // list returns a private copy of the list at p, or an invalid value when
@@ -288,18 +304,28 @@ func (h *Holder) writeElement(at, full Path, k int, fn func(*Onode) *Onode, unio
 	return h.Write(at, lp[len(at):], SetOp(OpSet, l), false)
 }
 
-func (h *Holder) Replace(at Path, ov *Onode) (*Holder, error) {
+// Replace replaces the overlay of a die at at, notifying observers of the
+// change there.
+func (h *Holder) Replace(at Path, ov *Onode) (*Holder, error) { return h.replace(at, at, ov) }
+
+// replace replaces the overlay of a die at at, notifying observers of a
+// change at written.
+func (h *Holder) replace(at, written Path, ov *Onode) (*Holder, error) {
 	if h.View != nil {
-		return h, h.View.replay(NodeAt(ov, at), at)
+		if err := h.View.replay(NodeAt(ov, at), at); err != nil {
+			return h, err
+		}
+		return h, h.Notify(written)
 	}
 	if h.Mutable {
-		h.Ov = ov
-		return h, nil
+		return h, h.Commit(h.Base, ov, h.Wire, written)
 	}
 	if len(at) > 0 {
 		panic(ErrImmutableChild)
 	}
-	return &Holder{Base: h.Base, Ov: ov, Wire: h.Wire, Schema: h.Schema}, nil
+	out := &Holder{Base: h.Base, Ov: ov, Wire: h.Wire, Schema: h.Schema}
+	out.ObserversOf(h, nil)
+	return out, nil
 }
 
 // clearUnionSiblings clears the present members of every union the path
