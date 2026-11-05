@@ -71,6 +71,12 @@ limitations under the License.
 // signature that calls it through DieReadOnly, so a method that reads is
 // written once.
 //
+// A die package names the list maps of the element types its list-map fields
+// list, <Elem>ListMap and <Elem>ListMapMut, which its accessors return, and
+// those of a type marked with the keys it is listed by elsewhere,
+// +die:listMap:keys=type, as metav1.Condition is. An accessor of another
+// package's elements, keyed by one field, returns that package's.
+//
 // Markers that validate and default a field, rather than shape its die, are
 // read for die.ValidateCreate, die.ValidateUpdate and die.Default: declarative validation's, such as
 // +k8s:format, +k8s:minimum and +k8s:required, kubebuilder's, such as

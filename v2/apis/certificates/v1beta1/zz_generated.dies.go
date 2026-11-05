@@ -747,7 +747,7 @@ var certificateSigningRequestStatusFields = &diefields.Table[certificateSigningR
 }}
 
 // Conditions applied to the request, such as approval or denial.
-func (d *CertificateSigningRequestStatusDie) Conditions() *diefields.ListMap[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, RequestConditionType] {
+func (d *CertificateSigningRequestStatusDie) Conditions() *CertificateSigningRequestConditionListMap {
 	return diefields.ListMapOf(d, certificateSigningRequestStatusFields.Get().Conditions)
 }
 
@@ -757,7 +757,7 @@ func (d *CertificateSigningRequestStatusDie) Certificate() diefields.Value[[]byt
 }
 
 // Conditions applied to the request, such as approval or denial.
-func (d *CertificateSigningRequestStatusDieMut) Conditions() *diefields.ListMapMut[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, *CertificateSigningRequestConditionDieMut, RequestConditionType] {
+func (d *CertificateSigningRequestStatusDieMut) Conditions() *CertificateSigningRequestConditionListMapMut {
 	return diefields.ListMapMutOf(d, certificateSigningRequestStatusFields.Get().Conditions)
 }
 
@@ -1758,7 +1758,7 @@ var podCertificateRequestStatusFields = &diefields.Table[podCertificateRequestSt
 //
 // If the request is denied with `Reason=UnsupportedKeyType`, the signer may
 // suggest a key type that will work in the message field.
-func (d *PodCertificateRequestStatusDie) Conditions() *diefields.ListMap[diemetav1.Condition, *diemetav1.ConditionDie, string] {
+func (d *PodCertificateRequestStatusDie) Conditions() *diemetav1.ConditionListMap {
 	return diefields.ListMapOf(d, podCertificateRequestStatusFields.Get().Conditions)
 }
 
@@ -1823,7 +1823,7 @@ func (d *PodCertificateRequestStatusDie) NotAfter() diefields.Optional[diemetav1
 //
 // If the request is denied with `Reason=UnsupportedKeyType`, the signer may
 // suggest a key type that will work in the message field.
-func (d *PodCertificateRequestStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
+func (d *PodCertificateRequestStatusDieMut) Conditions() *diemetav1.ConditionListMapMut {
 	return diefields.ListMapMutOf(d, podCertificateRequestStatusFields.Get().Conditions)
 }
 
@@ -1900,6 +1900,12 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }
+
+// CertificateSigningRequestConditionListMap is the list map of an immutable die's CertificateSigningRequestCondition elements, keyed by type.
+type CertificateSigningRequestConditionListMap = diefields.ListMap[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, RequestConditionType]
+
+// CertificateSigningRequestConditionListMapMut is the list map of a mutable die's CertificateSigningRequestCondition elements, keyed by type.
+type CertificateSigningRequestConditionListMapMut = diefields.ListMapMut[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, *CertificateSigningRequestConditionDieMut, RequestConditionType]
 
 var annotated = diecodegen.Register(diecodegen.Package{
 	Types: []string{

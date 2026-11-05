@@ -16,6 +16,12 @@ limitations under the License.
 
 package v1
 
+// A resource lists its conditions by type, so the list maps of conditions are
+// named: ConditionListMap and ConditionListMapMut.
+//
+// +die:listMap:keys=type
+type _ = Condition
+
 // IsStale reports whether the condition observed a generation other than
 // that of the object it is of. A generation of 0 is none: a condition that
 // observed none, as the wire can't tell it from one that observed 0, is

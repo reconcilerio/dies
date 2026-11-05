@@ -3876,13 +3876,13 @@ var serviceCIDRStatusFields = &diefields.Table[serviceCIDRStatusFieldsTable]{Bui
 
 // conditions holds an array of metav1.Condition that describe the state of the ServiceCIDR.
 // Current service state
-func (d *ServiceCIDRStatusDie) Conditions() *diefields.ListMap[diemetav1.Condition, *diemetav1.ConditionDie, string] {
+func (d *ServiceCIDRStatusDie) Conditions() *diemetav1.ConditionListMap {
 	return diefields.ListMapOf(d, serviceCIDRStatusFields.Get().Conditions)
 }
 
 // conditions holds an array of metav1.Condition that describe the state of the ServiceCIDR.
 // Current service state
-func (d *ServiceCIDRStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
+func (d *ServiceCIDRStatusDieMut) Conditions() *diemetav1.ConditionListMapMut {
 	return diefields.ListMapMutOf(d, serviceCIDRStatusFields.Get().Conditions)
 }
 

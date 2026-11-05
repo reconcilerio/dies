@@ -44,11 +44,11 @@ import (
 
 // Conditions is the handle to a die's conditions that their observers are
 // given.
-type Conditions = die.ListMapMut[metav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string]
+type Conditions = diemetav1.ConditionListMapMut
 
 // ConditionsChange is a change to a die's conditions, as their immutable list
 // maps before and after.
-type ConditionsChange = die.Change[*die.ListMap[metav1.Condition, *diemetav1.ConditionDie, string]]
+type ConditionsChange = die.Change[*diemetav1.ConditionListMap]
 
 // Observer is an observer of a die's conditions, as die.ObserveAt registers
 // it.

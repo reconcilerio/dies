@@ -686,7 +686,7 @@ func (d *PodDisruptionBudgetStatusDie) ExpectedPods() diefields.Value[int32] {
 //   - SufficientPods: There are more pods than required by the PodDisruptionBudget.
 //     The condition will be True, and the number of allowed
 //     disruptions are provided by the disruptionsAllowed property.
-func (d *PodDisruptionBudgetStatusDie) Conditions() *diefields.ListMap[diemetav1.Condition, *diemetav1.ConditionDie, string] {
+func (d *PodDisruptionBudgetStatusDie) Conditions() *diemetav1.ConditionListMap {
 	return diefields.ListMapOf(d, podDisruptionBudgetStatusFields.Get().Conditions)
 }
 
@@ -743,7 +743,7 @@ func (d *PodDisruptionBudgetStatusDieMut) ExpectedPods() diefields.ValueMut[int3
 //   - SufficientPods: There are more pods than required by the PodDisruptionBudget.
 //     The condition will be True, and the number of allowed
 //     disruptions are provided by the disruptionsAllowed property.
-func (d *PodDisruptionBudgetStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
+func (d *PodDisruptionBudgetStatusDieMut) Conditions() *diemetav1.ConditionListMapMut {
 	return diefields.ListMapMutOf(d, podDisruptionBudgetStatusFields.Get().Conditions)
 }
 

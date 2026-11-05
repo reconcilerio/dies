@@ -1752,7 +1752,7 @@ func (d *MutatingAdmissionPolicySpecDie) FailurePolicy() diefields.Optional[Fail
 //  3. If any matchCondition evaluates to an error (but none are FALSE):
 //     - If failurePolicy=Fail, reject the request
 //     - If failurePolicy=Ignore, the policy is skipped
-func (d *MutatingAdmissionPolicySpecDie) MatchConditions() *diefields.ListMap[MatchCondition, *MatchConditionDie, string] {
+func (d *MutatingAdmissionPolicySpecDie) MatchConditions() *MatchConditionListMap {
 	return diefields.ListMapOf(d, mutatingAdmissionPolicySpecFields.Get().MatchConditions)
 }
 
@@ -1838,7 +1838,7 @@ func (d *MutatingAdmissionPolicySpecDieMut) FailurePolicy() diefields.OptionalMu
 //  3. If any matchCondition evaluates to an error (but none are FALSE):
 //     - If failurePolicy=Fail, reject the request
 //     - If failurePolicy=Ignore, the policy is skipped
-func (d *MutatingAdmissionPolicySpecDieMut) MatchConditions() *diefields.ListMapMut[MatchCondition, *MatchConditionDie, *MatchConditionDieMut, string] {
+func (d *MutatingAdmissionPolicySpecDieMut) MatchConditions() *MatchConditionListMapMut {
 	return diefields.ListMapMutOf(d, mutatingAdmissionPolicySpecFields.Get().MatchConditions)
 }
 
@@ -2133,7 +2133,7 @@ func (d *MutatingWebhookDie) ReinvocationPolicy() diefields.Optional[dieadmissio
 //  3. If any matchCondition evaluates to an error (but none are FALSE):
 //     - If failurePolicy=Fail, reject the request
 //     - If failurePolicy=Ignore, the error is ignored and the webhook is skipped
-func (d *MutatingWebhookDie) MatchConditions() *diefields.ListMap[MatchCondition, *MatchConditionDie, string] {
+func (d *MutatingWebhookDie) MatchConditions() *MatchConditionListMap {
 	return diefields.ListMapOf(d, mutatingWebhookFields.Get().MatchConditions)
 }
 
@@ -2311,7 +2311,7 @@ func (d *MutatingWebhookDieMut) ReinvocationPolicy() diefields.OptionalMut[diead
 //  3. If any matchCondition evaluates to an error (but none are FALSE):
 //     - If failurePolicy=Fail, reject the request
 //     - If failurePolicy=Ignore, the error is ignored and the webhook is skipped
-func (d *MutatingWebhookDieMut) MatchConditions() *diefields.ListMapMut[MatchCondition, *MatchConditionDie, *MatchConditionDieMut, string] {
+func (d *MutatingWebhookDieMut) MatchConditions() *MatchConditionListMapMut {
 	return diefields.ListMapMutOf(d, mutatingWebhookFields.Get().MatchConditions)
 }
 
@@ -2426,7 +2426,7 @@ func (d *MutatingWebhookConfigurationDie) Metadata() *diemetav1.ObjectMetaDie {
 }
 
 // webhooks is a list of webhooks and the affected resources and operations.
-func (d *MutatingWebhookConfigurationDie) Webhooks() *diefields.ListMap[MutatingWebhook, *MutatingWebhookDie, string] {
+func (d *MutatingWebhookConfigurationDie) Webhooks() *MutatingWebhookListMap {
 	return diefields.ListMapOf(d, mutatingWebhookConfigurationFields.Get().Webhooks)
 }
 
@@ -2453,7 +2453,7 @@ func (d *MutatingWebhookConfigurationDieMut) Metadata() *diemetav1.ObjectMetaDie
 }
 
 // webhooks is a list of webhooks and the affected resources and operations.
-func (d *MutatingWebhookConfigurationDieMut) Webhooks() *diefields.ListMapMut[MutatingWebhook, *MutatingWebhookDie, *MutatingWebhookDieMut, string] {
+func (d *MutatingWebhookConfigurationDieMut) Webhooks() *MutatingWebhookListMapMut {
 	return diefields.ListMapMutOf(d, mutatingWebhookConfigurationFields.Get().Webhooks)
 }
 
@@ -4078,7 +4078,7 @@ func (d *ValidatingAdmissionPolicySpecDie) AuditAnnotations() diefields.Value[[]
 //  3. If any matchCondition evaluates to an error (but none are FALSE):
 //     - If failurePolicy=Fail, reject the request
 //     - If failurePolicy=Ignore, the policy is skipped
-func (d *ValidatingAdmissionPolicySpecDie) MatchConditions() *diefields.ListMap[MatchCondition, *MatchConditionDie, string] {
+func (d *ValidatingAdmissionPolicySpecDie) MatchConditions() *MatchConditionListMap {
 	return diefields.ListMapOf(d, validatingAdmissionPolicySpecFields.Get().MatchConditions)
 }
 
@@ -4089,7 +4089,7 @@ func (d *ValidatingAdmissionPolicySpecDie) MatchConditions() *diefields.ListMap[
 //
 // The expression of a variable can refer to other variables defined earlier in the list but not those after.
 // Thus, Variables must be sorted by the order of first appearance and acyclic.
-func (d *ValidatingAdmissionPolicySpecDie) Variables() *diefields.ListMap[Variable, *VariableDie, string] {
+func (d *ValidatingAdmissionPolicySpecDie) Variables() *VariableListMap {
 	return diefields.ListMapOf(d, validatingAdmissionPolicySpecFields.Get().Variables)
 }
 
@@ -4156,7 +4156,7 @@ func (d *ValidatingAdmissionPolicySpecDieMut) AuditAnnotations() diefields.Value
 //  3. If any matchCondition evaluates to an error (but none are FALSE):
 //     - If failurePolicy=Fail, reject the request
 //     - If failurePolicy=Ignore, the policy is skipped
-func (d *ValidatingAdmissionPolicySpecDieMut) MatchConditions() *diefields.ListMapMut[MatchCondition, *MatchConditionDie, *MatchConditionDieMut, string] {
+func (d *ValidatingAdmissionPolicySpecDieMut) MatchConditions() *MatchConditionListMapMut {
 	return diefields.ListMapMutOf(d, validatingAdmissionPolicySpecFields.Get().MatchConditions)
 }
 
@@ -4167,7 +4167,7 @@ func (d *ValidatingAdmissionPolicySpecDieMut) MatchConditions() *diefields.ListM
 //
 // The expression of a variable can refer to other variables defined earlier in the list but not those after.
 // Thus, Variables must be sorted by the order of first appearance and acyclic.
-func (d *ValidatingAdmissionPolicySpecDieMut) Variables() *diefields.ListMapMut[Variable, *VariableDie, *VariableDieMut, string] {
+func (d *ValidatingAdmissionPolicySpecDieMut) Variables() *VariableListMapMut {
 	return diefields.ListMapMutOf(d, validatingAdmissionPolicySpecFields.Get().Variables)
 }
 
@@ -4268,7 +4268,7 @@ func (d *ValidatingAdmissionPolicyStatusDie) TypeChecking() *TypeCheckingDie {
 }
 
 // conditions represent the latest available observations of a policy's current state.
-func (d *ValidatingAdmissionPolicyStatusDie) Conditions() *diefields.ListMap[diemetav1.Condition, *diemetav1.ConditionDie, string] {
+func (d *ValidatingAdmissionPolicyStatusDie) Conditions() *diemetav1.ConditionListMap {
 	return diefields.ListMapOf(d, validatingAdmissionPolicyStatusFields.Get().Conditions)
 }
 
@@ -4284,7 +4284,7 @@ func (d *ValidatingAdmissionPolicyStatusDieMut) TypeChecking() *TypeCheckingDieM
 }
 
 // conditions represent the latest available observations of a policy's current state.
-func (d *ValidatingAdmissionPolicyStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
+func (d *ValidatingAdmissionPolicyStatusDieMut) Conditions() *diemetav1.ConditionListMapMut {
 	return diefields.ListMapMutOf(d, validatingAdmissionPolicyStatusFields.Get().Conditions)
 }
 
@@ -4544,7 +4544,7 @@ func (d *ValidatingWebhookDie) AdmissionReviewVersions() diefields.Value[[]strin
 //  3. If any matchCondition evaluates to an error (but none are FALSE):
 //     - If failurePolicy=Fail, reject the request
 //     - If failurePolicy=Ignore, the error is ignored and the webhook is skipped
-func (d *ValidatingWebhookDie) MatchConditions() *diefields.ListMap[MatchCondition, *MatchConditionDie, string] {
+func (d *ValidatingWebhookDie) MatchConditions() *MatchConditionListMap {
 	return diefields.ListMapOf(d, validatingWebhookFields.Get().MatchConditions)
 }
 
@@ -4703,7 +4703,7 @@ func (d *ValidatingWebhookDieMut) AdmissionReviewVersions() diefields.ValueMut[[
 //  3. If any matchCondition evaluates to an error (but none are FALSE):
 //     - If failurePolicy=Fail, reject the request
 //     - If failurePolicy=Ignore, the error is ignored and the webhook is skipped
-func (d *ValidatingWebhookDieMut) MatchConditions() *diefields.ListMapMut[MatchCondition, *MatchConditionDie, *MatchConditionDieMut, string] {
+func (d *ValidatingWebhookDieMut) MatchConditions() *MatchConditionListMapMut {
 	return diefields.ListMapMutOf(d, validatingWebhookFields.Get().MatchConditions)
 }
 
@@ -4818,7 +4818,7 @@ func (d *ValidatingWebhookConfigurationDie) Metadata() *diemetav1.ObjectMetaDie 
 }
 
 // webhooks is a list of webhooks and the affected resources and operations.
-func (d *ValidatingWebhookConfigurationDie) Webhooks() *diefields.ListMap[ValidatingWebhook, *ValidatingWebhookDie, string] {
+func (d *ValidatingWebhookConfigurationDie) Webhooks() *ValidatingWebhookListMap {
 	return diefields.ListMapOf(d, validatingWebhookConfigurationFields.Get().Webhooks)
 }
 
@@ -4845,7 +4845,7 @@ func (d *ValidatingWebhookConfigurationDieMut) Metadata() *diemetav1.ObjectMetaD
 }
 
 // webhooks is a list of webhooks and the affected resources and operations.
-func (d *ValidatingWebhookConfigurationDieMut) Webhooks() *diefields.ListMapMut[ValidatingWebhook, *ValidatingWebhookDie, *ValidatingWebhookDieMut, string] {
+func (d *ValidatingWebhookConfigurationDieMut) Webhooks() *ValidatingWebhookListMapMut {
 	return diefields.ListMapMutOf(d, validatingWebhookConfigurationFields.Get().Webhooks)
 }
 
@@ -5427,6 +5427,30 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }
+
+// MatchConditionListMap is the list map of an immutable die's MatchCondition elements, keyed by name.
+type MatchConditionListMap = diefields.ListMap[MatchCondition, *MatchConditionDie, string]
+
+// MatchConditionListMapMut is the list map of a mutable die's MatchCondition elements, keyed by name.
+type MatchConditionListMapMut = diefields.ListMapMut[MatchCondition, *MatchConditionDie, *MatchConditionDieMut, string]
+
+// MutatingWebhookListMap is the list map of an immutable die's MutatingWebhook elements, keyed by name.
+type MutatingWebhookListMap = diefields.ListMap[MutatingWebhook, *MutatingWebhookDie, string]
+
+// MutatingWebhookListMapMut is the list map of a mutable die's MutatingWebhook elements, keyed by name.
+type MutatingWebhookListMapMut = diefields.ListMapMut[MutatingWebhook, *MutatingWebhookDie, *MutatingWebhookDieMut, string]
+
+// ValidatingWebhookListMap is the list map of an immutable die's ValidatingWebhook elements, keyed by name.
+type ValidatingWebhookListMap = diefields.ListMap[ValidatingWebhook, *ValidatingWebhookDie, string]
+
+// ValidatingWebhookListMapMut is the list map of a mutable die's ValidatingWebhook elements, keyed by name.
+type ValidatingWebhookListMapMut = diefields.ListMapMut[ValidatingWebhook, *ValidatingWebhookDie, *ValidatingWebhookDieMut, string]
+
+// VariableListMap is the list map of an immutable die's Variable elements, keyed by name.
+type VariableListMap = diefields.ListMap[Variable, *VariableDie, string]
+
+// VariableListMapMut is the list map of a mutable die's Variable elements, keyed by name.
+type VariableListMapMut = diefields.ListMapMut[Variable, *VariableDie, *VariableDieMut, string]
 
 var annotated = diecodegen.Register(diecodegen.Package{
 	Types: []string{

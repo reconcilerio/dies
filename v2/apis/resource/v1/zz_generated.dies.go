@@ -166,7 +166,7 @@ func (d *AllocatedDeviceStatusDie) ShareID() diefields.Optional[string] {
 // config references, the `Ready` condition should be True.
 //
 // Must not contain more than 8 entries.
-func (d *AllocatedDeviceStatusDie) Conditions() *diefields.ListMap[diemetav1.Condition, *diemetav1.ConditionDie, string] {
+func (d *AllocatedDeviceStatusDie) Conditions() *diemetav1.ConditionListMap {
 	return diefields.ListMapOf(d, allocatedDeviceStatusFields.Get().Conditions)
 }
 
@@ -217,7 +217,7 @@ func (d *AllocatedDeviceStatusDieMut) ShareID() diefields.OptionalMut[string] {
 // config references, the `Ready` condition should be True.
 //
 // Must not contain more than 8 entries.
-func (d *AllocatedDeviceStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
+func (d *AllocatedDeviceStatusDieMut) Conditions() *diemetav1.ConditionListMapMut {
 	return diefields.ListMapMutOf(d, allocatedDeviceStatusFields.Get().Conditions)
 }
 
@@ -4901,7 +4901,7 @@ var deviceTaintRuleStatusFields = &diefields.Table[deviceTaintRuleStatusFieldsTa
 // set once to avoid having to constantly update the status.
 //
 // Must have 8 or fewer entries.
-func (d *DeviceTaintRuleStatusDie) Conditions() *diefields.ListMap[diemetav1.Condition, *diemetav1.ConditionDie, string] {
+func (d *DeviceTaintRuleStatusDie) Conditions() *diemetav1.ConditionListMap {
 	return diefields.ListMapOf(d, deviceTaintRuleStatusFields.Get().Conditions)
 }
 
@@ -4925,7 +4925,7 @@ func (d *DeviceTaintRuleStatusDie) Conditions() *diefields.ListMap[diemetav1.Con
 // set once to avoid having to constantly update the status.
 //
 // Must have 8 or fewer entries.
-func (d *DeviceTaintRuleStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
+func (d *DeviceTaintRuleStatusDieMut) Conditions() *diemetav1.ConditionListMapMut {
 	return diefields.ListMapMutOf(d, deviceTaintRuleStatusFields.Get().Conditions)
 }
 
@@ -6768,14 +6768,14 @@ func (d *ResourceClaimStatusDie) Allocation() *AllocationResultDie {
 //
 // There can be at most 256 such reservations. This may get increased in
 // the future, but not reduced.
-func (d *ResourceClaimStatusDie) ReservedFor() *diefields.ListMap[ResourceClaimConsumerReference, *ResourceClaimConsumerReferenceDie, types.UID] {
+func (d *ResourceClaimStatusDie) ReservedFor() *ResourceClaimConsumerReferenceListMap {
 	return diefields.ListMapOf(d, resourceClaimStatusFields.Get().ReservedFor)
 }
 
 // Devices contains the status of each device allocated for this
 // claim, as reported by the driver. This can include driver-specific
 // information. Entries are owned by their respective drivers.
-func (d *ResourceClaimStatusDie) Devices() *diefields.ListMap[AllocatedDeviceStatus, *AllocatedDeviceStatusDie, AllocatedDeviceStatusKey] {
+func (d *ResourceClaimStatusDie) Devices() *AllocatedDeviceStatusListMap {
 	return diefields.ListMapOf(d, resourceClaimStatusFields.Get().Devices)
 }
 
@@ -6803,14 +6803,14 @@ func (d *ResourceClaimStatusDieMut) Allocation() *AllocationResultDieMut {
 //
 // There can be at most 256 such reservations. This may get increased in
 // the future, but not reduced.
-func (d *ResourceClaimStatusDieMut) ReservedFor() *diefields.ListMapMut[ResourceClaimConsumerReference, *ResourceClaimConsumerReferenceDie, *ResourceClaimConsumerReferenceDieMut, types.UID] {
+func (d *ResourceClaimStatusDieMut) ReservedFor() *ResourceClaimConsumerReferenceListMapMut {
 	return diefields.ListMapMutOf(d, resourceClaimStatusFields.Get().ReservedFor)
 }
 
 // Devices contains the status of each device allocated for this
 // claim, as reported by the driver. This can include driver-specific
 // information. Entries are owned by their respective drivers.
-func (d *ResourceClaimStatusDieMut) Devices() *diefields.ListMapMut[AllocatedDeviceStatus, *AllocatedDeviceStatusDie, *AllocatedDeviceStatusDieMut, AllocatedDeviceStatusKey] {
+func (d *ResourceClaimStatusDieMut) Devices() *AllocatedDeviceStatusListMapMut {
 	return diefields.ListMapMutOf(d, resourceClaimStatusFields.Get().Devices)
 }
 
@@ -7773,6 +7773,18 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }
+
+// AllocatedDeviceStatusListMap is the list map of an immutable die's AllocatedDeviceStatus elements, keyed by driver, device, pool, shareID.
+type AllocatedDeviceStatusListMap = diefields.ListMap[AllocatedDeviceStatus, *AllocatedDeviceStatusDie, AllocatedDeviceStatusKey]
+
+// AllocatedDeviceStatusListMapMut is the list map of a mutable die's AllocatedDeviceStatus elements, keyed by driver, device, pool, shareID.
+type AllocatedDeviceStatusListMapMut = diefields.ListMapMut[AllocatedDeviceStatus, *AllocatedDeviceStatusDie, *AllocatedDeviceStatusDieMut, AllocatedDeviceStatusKey]
+
+// ResourceClaimConsumerReferenceListMap is the list map of an immutable die's ResourceClaimConsumerReference elements, keyed by uid.
+type ResourceClaimConsumerReferenceListMap = diefields.ListMap[ResourceClaimConsumerReference, *ResourceClaimConsumerReferenceDie, types.UID]
+
+// ResourceClaimConsumerReferenceListMapMut is the list map of a mutable die's ResourceClaimConsumerReference elements, keyed by uid.
+type ResourceClaimConsumerReferenceListMapMut = diefields.ListMapMut[ResourceClaimConsumerReference, *ResourceClaimConsumerReferenceDie, *ResourceClaimConsumerReferenceDieMut, types.UID]
 
 // +kubebuilder:object:generate=false
 // +k8s:deepcopy-gen=false

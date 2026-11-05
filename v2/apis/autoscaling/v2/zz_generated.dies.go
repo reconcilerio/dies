@@ -1634,7 +1634,7 @@ func (d *HorizontalPodAutoscalerStatusDie) CurrentMetrics() diefields.Value[[]Me
 
 // conditions is the set of conditions required for this autoscaler to scale its target,
 // and indicates whether or not those conditions are met.
-func (d *HorizontalPodAutoscalerStatusDie) Conditions() *diefields.ListMap[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, HorizontalPodAutoscalerConditionType] {
+func (d *HorizontalPodAutoscalerStatusDie) Conditions() *HorizontalPodAutoscalerConditionListMap {
 	return diefields.ListMapOf(d, horizontalPodAutoscalerStatusFields.Get().Conditions)
 }
 
@@ -1668,7 +1668,7 @@ func (d *HorizontalPodAutoscalerStatusDieMut) CurrentMetrics() diefields.ValueMu
 
 // conditions is the set of conditions required for this autoscaler to scale its target,
 // and indicates whether or not those conditions are met.
-func (d *HorizontalPodAutoscalerStatusDieMut) Conditions() *diefields.ListMapMut[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut, HorizontalPodAutoscalerConditionType] {
+func (d *HorizontalPodAutoscalerStatusDieMut) Conditions() *HorizontalPodAutoscalerConditionListMapMut {
 	return diefields.ListMapMutOf(d, horizontalPodAutoscalerStatusFields.Get().Conditions)
 }
 
@@ -3076,6 +3076,12 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }
+
+// HorizontalPodAutoscalerConditionListMap is the list map of an immutable die's HorizontalPodAutoscalerCondition elements, keyed by type.
+type HorizontalPodAutoscalerConditionListMap = diefields.ListMap[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, HorizontalPodAutoscalerConditionType]
+
+// HorizontalPodAutoscalerConditionListMapMut is the list map of a mutable die's HorizontalPodAutoscalerCondition elements, keyed by type.
+type HorizontalPodAutoscalerConditionListMapMut = diefields.ListMapMut[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut, HorizontalPodAutoscalerConditionType]
 
 var annotated = diecodegen.Register(diecodegen.Package{
 	Types: []string{

@@ -816,12 +816,12 @@ var flowSchemaStatusFields = &diefields.Table[flowSchemaStatusFieldsTable]{Build
 }}
 
 // `conditions` is a list of the current states of FlowSchema.
-func (d *FlowSchemaStatusDie) Conditions() *diefields.ListMap[FlowSchemaCondition, *FlowSchemaConditionDie, FlowSchemaConditionType] {
+func (d *FlowSchemaStatusDie) Conditions() *FlowSchemaConditionListMap {
 	return diefields.ListMapOf(d, flowSchemaStatusFields.Get().Conditions)
 }
 
 // `conditions` is a list of the current states of FlowSchema.
-func (d *FlowSchemaStatusDieMut) Conditions() *diefields.ListMapMut[FlowSchemaCondition, *FlowSchemaConditionDie, *FlowSchemaConditionDieMut, FlowSchemaConditionType] {
+func (d *FlowSchemaStatusDieMut) Conditions() *FlowSchemaConditionListMapMut {
 	return diefields.ListMapMutOf(d, flowSchemaStatusFields.Get().Conditions)
 }
 
@@ -2140,12 +2140,12 @@ var priorityLevelConfigurationStatusFields = &diefields.Table[priorityLevelConfi
 }}
 
 // `conditions` is the current state of "request-priority".
-func (d *PriorityLevelConfigurationStatusDie) Conditions() *diefields.ListMap[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie, PriorityLevelConfigurationConditionType] {
+func (d *PriorityLevelConfigurationStatusDie) Conditions() *PriorityLevelConfigurationConditionListMap {
 	return diefields.ListMapOf(d, priorityLevelConfigurationStatusFields.Get().Conditions)
 }
 
 // `conditions` is the current state of "request-priority".
-func (d *PriorityLevelConfigurationStatusDieMut) Conditions() *diefields.ListMapMut[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie, *PriorityLevelConfigurationConditionDieMut, PriorityLevelConfigurationConditionType] {
+func (d *PriorityLevelConfigurationStatusDieMut) Conditions() *PriorityLevelConfigurationConditionListMapMut {
 	return diefields.ListMapMutOf(d, priorityLevelConfigurationStatusFields.Get().Conditions)
 }
 
@@ -2829,6 +2829,18 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }
+
+// FlowSchemaConditionListMap is the list map of an immutable die's FlowSchemaCondition elements, keyed by type.
+type FlowSchemaConditionListMap = diefields.ListMap[FlowSchemaCondition, *FlowSchemaConditionDie, FlowSchemaConditionType]
+
+// FlowSchemaConditionListMapMut is the list map of a mutable die's FlowSchemaCondition elements, keyed by type.
+type FlowSchemaConditionListMapMut = diefields.ListMapMut[FlowSchemaCondition, *FlowSchemaConditionDie, *FlowSchemaConditionDieMut, FlowSchemaConditionType]
+
+// PriorityLevelConfigurationConditionListMap is the list map of an immutable die's PriorityLevelConfigurationCondition elements, keyed by type.
+type PriorityLevelConfigurationConditionListMap = diefields.ListMap[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie, PriorityLevelConfigurationConditionType]
+
+// PriorityLevelConfigurationConditionListMapMut is the list map of a mutable die's PriorityLevelConfigurationCondition elements, keyed by type.
+type PriorityLevelConfigurationConditionListMapMut = diefields.ListMapMut[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie, *PriorityLevelConfigurationConditionDieMut, PriorityLevelConfigurationConditionType]
 
 var annotated = diecodegen.Register(diecodegen.Package{
 	Types: []string{

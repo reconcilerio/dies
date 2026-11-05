@@ -25,7 +25,7 @@ import (
 // WorkloadJig presents workloads as their containers and volumes. A
 // Deployment's containers and init containers are one list: changing a
 // container goes back to the list it is in, but adding one is ambiguous.
-var WorkloadJig = jigs.NewJig[Workload, *WorkloadDie]().
+var WorkloadJig = jigs.NewJig(WorkloadBlank).
 	MustClamp(dieappsv1.DeploymentBlank,
 		jigs.BindAll(WorkloadBlank.Containers(),
 			jigs.Each(dieappsv1.DeploymentBlank.Spec().Template().Spec().Containers()),
@@ -60,7 +60,7 @@ var WorkloadJig = jigs.NewJig[Workload, *WorkloadDie]().
 	)
 
 // BuilderContainerJig presents a [Builder] as a Container.
-var BuilderContainerJig = jigs.NewJig[diecorev1.Container, *diecorev1.ContainerDie]().
+var BuilderContainerJig = jigs.NewJig(diecorev1.ContainerBlank).
 	MustClamp(BuilderBlank,
 		jigs.Bind(diecorev1.ContainerBlank.Name(), BuilderBlank.Name()),
 		jigs.Bind(diecorev1.ContainerBlank.Image(), BuilderBlank.Image()),

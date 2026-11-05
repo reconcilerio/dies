@@ -1151,13 +1151,13 @@ var cSINodeSpecFields = &diefields.Table[cSINodeSpecFieldsTable]{Build: func() (
 
 // drivers is a list of information of all CSI Drivers existing on a node.
 // If all drivers in the list are uninstalled, this can become empty.
-func (d *CSINodeSpecDie) Drivers() *diefields.ListMap[CSINodeDriver, *CSINodeDriverDie, string] {
+func (d *CSINodeSpecDie) Drivers() *CSINodeDriverListMap {
 	return diefields.ListMapOf(d, cSINodeSpecFields.Get().Drivers)
 }
 
 // drivers is a list of information of all CSI Drivers existing on a node.
 // If all drivers in the list are uninstalled, this can become empty.
-func (d *CSINodeSpecDieMut) Drivers() *diefields.ListMapMut[CSINodeDriver, *CSINodeDriverDie, *CSINodeDriverDieMut, string] {
+func (d *CSINodeSpecDieMut) Drivers() *CSINodeDriverListMapMut {
 	return diefields.ListMapMutOf(d, cSINodeSpecFields.Get().Drivers)
 }
 
@@ -1243,12 +1243,12 @@ var cSINodeStatusFields = &diefields.Table[cSINodeStatusFieldsTable]{Build: func
 }}
 
 // storageHealth contains backend health reports for CSI drivers registered on the node.
-func (d *CSINodeStatusDie) StorageHealth() *diefields.ListMap[StorageHealth, *StorageHealthDie, string] {
+func (d *CSINodeStatusDie) StorageHealth() *StorageHealthListMap {
 	return diefields.ListMapOf(d, cSINodeStatusFields.Get().StorageHealth)
 }
 
 // storageHealth contains backend health reports for CSI drivers registered on the node.
-func (d *CSINodeStatusDieMut) StorageHealth() *diefields.ListMapMut[StorageHealth, *StorageHealthDie, *StorageHealthDieMut, string] {
+func (d *CSINodeStatusDieMut) StorageHealth() *StorageHealthListMapMut {
 	return diefields.ListMapMutOf(d, cSINodeStatusFields.Get().StorageHealth)
 }
 
@@ -3178,6 +3178,18 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }
+
+// CSINodeDriverListMap is the list map of an immutable die's CSINodeDriver elements, keyed by name.
+type CSINodeDriverListMap = diefields.ListMap[CSINodeDriver, *CSINodeDriverDie, string]
+
+// CSINodeDriverListMapMut is the list map of a mutable die's CSINodeDriver elements, keyed by name.
+type CSINodeDriverListMapMut = diefields.ListMapMut[CSINodeDriver, *CSINodeDriverDie, *CSINodeDriverDieMut, string]
+
+// StorageHealthListMap is the list map of an immutable die's StorageHealth elements, keyed by name.
+type StorageHealthListMap = diefields.ListMap[StorageHealth, *StorageHealthDie, string]
+
+// StorageHealthListMapMut is the list map of a mutable die's StorageHealth elements, keyed by name.
+type StorageHealthListMapMut = diefields.ListMapMut[StorageHealth, *StorageHealthDie, *StorageHealthDieMut, string]
 
 var annotated = diecodegen.Register(diecodegen.Package{
 	Types: []string{

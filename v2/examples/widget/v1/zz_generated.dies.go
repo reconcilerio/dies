@@ -516,7 +516,7 @@ var widgetSpecFields = &diefields.Table[widgetSpecFieldsTable]{Build: func() (f 
 }}
 
 // Ports exposed by the widget, which may be added but not removed.
-func (d *WidgetSpecDie) Ports() *diefields.ListMap[WidgetPort, *WidgetPortDie, string] {
+func (d *WidgetSpecDie) Ports() *WidgetPortListMap {
 	return diefields.ListMapOf(d, widgetSpecFields.Get().Ports)
 }
 
@@ -536,7 +536,7 @@ func (d *WidgetSpecDie) Match() *WidgetMatchDie {
 }
 
 // Ports exposed by the widget, which may be added but not removed.
-func (d *WidgetSpecDieMut) Ports() *diefields.ListMapMut[WidgetPort, *WidgetPortDie, *WidgetPortDieMut, string] {
+func (d *WidgetSpecDieMut) Ports() *WidgetPortListMapMut {
 	return diefields.ListMapMutOf(d, widgetSpecFields.Get().Ports)
 }
 
@@ -601,7 +601,7 @@ func (d *WidgetStatusDie) ObservedGeneration() diefields.Value[int64] {
 	return diefields.ValueOf(d, widgetStatusFields.Get().ObservedGeneration)
 }
 
-func (d *WidgetStatusDie) Conditions() *diefields.ListMap[diemetav1.Condition, *diemetav1.ConditionDie, string] {
+func (d *WidgetStatusDie) Conditions() *diemetav1.ConditionListMap {
 	return diefields.ListMapOf(d, widgetStatusFields.Get().Conditions)
 }
 
@@ -609,7 +609,7 @@ func (d *WidgetStatusDieMut) ObservedGeneration() diefields.ValueMut[int64] {
 	return diefields.ValueMutOf(d, widgetStatusFields.Get().ObservedGeneration)
 }
 
-func (d *WidgetStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
+func (d *WidgetStatusDieMut) Conditions() *diemetav1.ConditionListMapMut {
 	return diefields.ListMapMutOf(d, widgetStatusFields.Get().Conditions)
 }
 
@@ -628,6 +628,12 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }
+
+// WidgetPortListMap is the list map of an immutable die's WidgetPort elements, keyed by name.
+type WidgetPortListMap = diefields.ListMap[WidgetPort, *WidgetPortDie, string]
+
+// WidgetPortListMapMut is the list map of a mutable die's WidgetPort elements, keyed by name.
+type WidgetPortListMapMut = diefields.ListMapMut[WidgetPort, *WidgetPortDie, *WidgetPortDieMut, string]
 
 var annotated = diecodegen.Register(diecodegen.Package{
 	Types: []string{

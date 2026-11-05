@@ -428,7 +428,7 @@ Caveats:
 A jig holds material in place so that a tool can work on it. A jig here holds dies of different types as one type, such as anything with a pod template, so the same code works on all of them. Each binding pairs a location of the jig's type with a location of a source type. Both are navigated from blanks, so a mismatched binding doesn't compile:
 
 ```go
-var PodSpecableJig = jigs.NewJig[PodSpecable, *PodSpecableDie, *PodSpecableDieMut]().
+var PodSpecableJig = jigs.NewJig(PodSpecableBlank).
 	MustClamp(dieappsv1.DeploymentBlank,
 		jigs.Bind(PodSpecableBlank.Metadata(), dieappsv1.DeploymentBlank.Metadata()),
 		jigs.Bind(PodSpecableBlank.Template(), dieappsv1.DeploymentBlank.Spec().Template()),
@@ -724,6 +724,10 @@ A field whose type is from another package uses that type's die: from the built-
 | `+die:field:name=…,…`                               | type    | Sets a field's `listType`, `listMapKey`, `mapType`, `structType`, `default` or `nullable`, renames its accessor with `accessor=`, or sets how it's validated: `required=true` or `nonzero`, or a check such as `minimum=0`, `format=k8s-short-name`, `immutable=true` or `each.maxLength=63` |
 | `+die:union:name=…,members={…}[,oneOf=true]`        | type    | Declares a union, whose members clear the others when set; at most one may be set, or with `oneOf=true` exactly one                                                                                                                                                                          |
 | `+die:subresource:name=…`                           | type    | Declares a subresource, for `die.Subresource` and `die.MainResource`                                                                                                                                                                                                                         |
+| `+die:listMap:keys=…`                               | type    | Names the list maps of the type, keyed by those fields, for a type listed by another package, as `metav1.Condition` is: `ConditionListMap` and `ConditionListMapMut`                                                                                                                         |
+| `+die:shared`                                       | method  | On a hand-written method of an immutable die, generates the same method on its mutable die, reading through `DieReadOnly`                                                                                                                                                                    |
+
+A die package names the list maps of the element types its list-map fields list, such as `ContainerListMap` and `ContainerListMapMut`, which its accessors return. An accessor of another package's elements, keyed by one field, returns that package's, such as `*diemetav1.ConditionListMapMut`. An element type listed by more than one set of keys isn't named.
 
 Fields in `+die:field` and `+die:union` are named by their wire names. A type's `+structType=atomic` applies to every field of that type, unless the field says `+structType=granular`.
 

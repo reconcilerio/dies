@@ -622,7 +622,7 @@ var storageVersionStatusFields = &diefields.Table[storageVersionStatusFieldsTabl
 }}
 
 // storageVersions lists the reported versions per API server instance.
-func (d *StorageVersionStatusDie) StorageVersions() *diefields.ListMap[ServerStorageVersion, *ServerStorageVersionDie, string] {
+func (d *StorageVersionStatusDie) StorageVersions() *ServerStorageVersionListMap {
 	return diefields.ListMapOf(d, storageVersionStatusFields.Get().StorageVersions)
 }
 
@@ -636,12 +636,12 @@ func (d *StorageVersionStatusDie) CommonEncodingVersion() diefields.Optional[str
 }
 
 // conditions lists the latest available observations of the storageVersion's state.
-func (d *StorageVersionStatusDie) Conditions() *diefields.ListMap[StorageVersionCondition, *StorageVersionConditionDie, StorageVersionConditionType] {
+func (d *StorageVersionStatusDie) Conditions() *StorageVersionConditionListMap {
 	return diefields.ListMapOf(d, storageVersionStatusFields.Get().Conditions)
 }
 
 // storageVersions lists the reported versions per API server instance.
-func (d *StorageVersionStatusDieMut) StorageVersions() *diefields.ListMapMut[ServerStorageVersion, *ServerStorageVersionDie, *ServerStorageVersionDieMut, string] {
+func (d *StorageVersionStatusDieMut) StorageVersions() *ServerStorageVersionListMapMut {
 	return diefields.ListMapMutOf(d, storageVersionStatusFields.Get().StorageVersions)
 }
 
@@ -655,7 +655,7 @@ func (d *StorageVersionStatusDieMut) CommonEncodingVersion() diefields.OptionalM
 }
 
 // conditions lists the latest available observations of the storageVersion's state.
-func (d *StorageVersionStatusDieMut) Conditions() *diefields.ListMapMut[StorageVersionCondition, *StorageVersionConditionDie, *StorageVersionConditionDieMut, StorageVersionConditionType] {
+func (d *StorageVersionStatusDieMut) Conditions() *StorageVersionConditionListMapMut {
 	return diefields.ListMapMutOf(d, storageVersionStatusFields.Get().Conditions)
 }
 
@@ -675,6 +675,18 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }
+
+// ServerStorageVersionListMap is the list map of an immutable die's ServerStorageVersion elements, keyed by apiServerID.
+type ServerStorageVersionListMap = diefields.ListMap[ServerStorageVersion, *ServerStorageVersionDie, string]
+
+// ServerStorageVersionListMapMut is the list map of a mutable die's ServerStorageVersion elements, keyed by apiServerID.
+type ServerStorageVersionListMapMut = diefields.ListMapMut[ServerStorageVersion, *ServerStorageVersionDie, *ServerStorageVersionDieMut, string]
+
+// StorageVersionConditionListMap is the list map of an immutable die's StorageVersionCondition elements, keyed by type.
+type StorageVersionConditionListMap = diefields.ListMap[StorageVersionCondition, *StorageVersionConditionDie, StorageVersionConditionType]
+
+// StorageVersionConditionListMapMut is the list map of a mutable die's StorageVersionCondition elements, keyed by type.
+type StorageVersionConditionListMapMut = diefields.ListMapMut[StorageVersionCondition, *StorageVersionConditionDie, *StorageVersionConditionDieMut, StorageVersionConditionType]
 
 var annotated = diecodegen.Register(diecodegen.Package{
 	Types: []string{

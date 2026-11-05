@@ -1006,7 +1006,7 @@ func (d *DeploymentStatusDie) TerminatingReplicas() diefields.Optional[int32] {
 }
 
 // Represents the latest available observations of a deployment's current state.
-func (d *DeploymentStatusDie) Conditions() *diefields.ListMap[DeploymentCondition, *DeploymentConditionDie, DeploymentConditionType] {
+func (d *DeploymentStatusDie) Conditions() *DeploymentConditionListMap {
 	return diefields.ListMapOf(d, deploymentStatusFields.Get().Conditions)
 }
 
@@ -1058,7 +1058,7 @@ func (d *DeploymentStatusDieMut) TerminatingReplicas() diefields.OptionalMut[int
 }
 
 // Represents the latest available observations of a deployment's current state.
-func (d *DeploymentStatusDieMut) Conditions() *diefields.ListMapMut[DeploymentCondition, *DeploymentConditionDie, *DeploymentConditionDieMut, DeploymentConditionType] {
+func (d *DeploymentStatusDieMut) Conditions() *DeploymentConditionListMapMut {
 	return diefields.ListMapMutOf(d, deploymentStatusFields.Get().Conditions)
 }
 
@@ -2769,7 +2769,7 @@ func (d *StatefulSetStatusDie) CollisionCount() diefields.Optional[int32] {
 }
 
 // conditions represent the latest available observations of a statefulset's current state.
-func (d *StatefulSetStatusDie) Conditions() *diefields.ListMap[StatefulSetCondition, *StatefulSetConditionDie, StatefulSetConditionType] {
+func (d *StatefulSetStatusDie) Conditions() *StatefulSetConditionListMap {
 	return diefields.ListMapOf(d, statefulSetStatusFields.Get().Conditions)
 }
 
@@ -2826,7 +2826,7 @@ func (d *StatefulSetStatusDieMut) CollisionCount() diefields.OptionalMut[int32] 
 }
 
 // conditions represent the latest available observations of a statefulset's current state.
-func (d *StatefulSetStatusDieMut) Conditions() *diefields.ListMapMut[StatefulSetCondition, *StatefulSetConditionDie, *StatefulSetConditionDieMut, StatefulSetConditionType] {
+func (d *StatefulSetStatusDieMut) Conditions() *StatefulSetConditionListMapMut {
 	return diefields.ListMapMutOf(d, statefulSetStatusFields.Get().Conditions)
 }
 
@@ -2962,6 +2962,18 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }
+
+// DeploymentConditionListMap is the list map of an immutable die's DeploymentCondition elements, keyed by type.
+type DeploymentConditionListMap = diefields.ListMap[DeploymentCondition, *DeploymentConditionDie, DeploymentConditionType]
+
+// DeploymentConditionListMapMut is the list map of a mutable die's DeploymentCondition elements, keyed by type.
+type DeploymentConditionListMapMut = diefields.ListMapMut[DeploymentCondition, *DeploymentConditionDie, *DeploymentConditionDieMut, DeploymentConditionType]
+
+// StatefulSetConditionListMap is the list map of an immutable die's StatefulSetCondition elements, keyed by type.
+type StatefulSetConditionListMap = diefields.ListMap[StatefulSetCondition, *StatefulSetConditionDie, StatefulSetConditionType]
+
+// StatefulSetConditionListMapMut is the list map of a mutable die's StatefulSetCondition elements, keyed by type.
+type StatefulSetConditionListMapMut = diefields.ListMapMut[StatefulSetCondition, *StatefulSetConditionDie, *StatefulSetConditionDieMut, StatefulSetConditionType]
 
 var annotated = diecodegen.Register(diecodegen.Package{
 	Types: []string{

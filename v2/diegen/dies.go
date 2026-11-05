@@ -46,7 +46,9 @@ type pkgGen struct {
 	// checks are the interfaces beyond DieOf and DieMutOf that typed and
 	// object dies are checked to satisfy, by the generated test
 	checks []dieCheck
-	err    error
+	// aliases are the list maps the package names, by element die name
+	aliases map[string]*listMapAlias
+	err     error
 }
 
 // dieCheck is a die's pair of interfaces to satisfy.
@@ -459,6 +461,7 @@ func (pg *pkgGen) emit() error {
 	if err != nil {
 		return err
 	}
+	pg.aliases = pg.listMapAliases()
 	for _, tg := range pg.targets {
 		if item, ok := pg.listItem(tg); ok {
 			if err := pg.emitList(tg, item); err != nil {
@@ -557,6 +560,7 @@ func (pg *pkgGen) emit() error {
 	if err := pg.emitRegister(); err != nil {
 		return err
 	}
+	pg.emitListMapAliases()
 
 	names := slices.Sorted(func(yield func(string) bool) {
 		for k := range pg.keys {
@@ -963,6 +967,10 @@ func (pg *pkgGen) accessor(dname, table string, wf wfield) {
 	case fListMap:
 		elem := ft.Underlying().(*types.Slice).Elem()
 		k, _, _ := pg.listMapKey(elem, wf.spec.listMapKey)
+		if alias, ok := pg.listMapAlias(elem, wf.spec.listMapKey); ok {
+			f.p("func (d *%s) %s() *%s { return die.ListMapOf(d, %s.Get().%s) }", dname, wf.accessor, alias, table, wf.accessor)
+			break
+		}
 		f.p("func (d *%s) %s() *die.ListMap[%s, %s, %s] { return die.ListMapOf(d, %s.Get().%s) }", dname, wf.accessor, pg.typeExpr(elem), pg.dieExpr(elem), k, table, wf.accessor)
 	case fMap:
 		m := ft.Underlying().(*types.Map)
@@ -986,6 +994,10 @@ func (pg *pkgGen) accessorMut(mname, table string, wf wfield) {
 	case fListMap:
 		elem := ft.Underlying().(*types.Slice).Elem()
 		k, _, _ := pg.listMapKey(elem, wf.spec.listMapKey)
+		if alias, ok := pg.listMapAlias(elem, wf.spec.listMapKey); ok {
+			f.p("func (d *%s) %s() *%sMut { return die.ListMapMutOf(d, %s.Get().%s) }", mname, wf.accessor, alias, table, wf.accessor)
+			break
+		}
 		f.p("func (d *%s) %s() *die.ListMapMut[%s, %s, %s, %s] { return die.ListMapMutOf(d, %s.Get().%s) }", mname, wf.accessor, pg.typeExpr(elem), pg.dieExpr(elem), pg.dieMutExpr(elem), k, table, wf.accessor)
 	case fMap:
 		m := ft.Underlying().(*types.Map)

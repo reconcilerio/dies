@@ -42,6 +42,8 @@ type generator struct {
 	acs map[string]*acSet
 	// kubebuilder has the packages of custom resources, by import path
 	kubebuilder map[string]*kubebuilderPackage
+	// listMaps has the list maps each die package names, by import path
+	listMaps map[string]map[string]*listMapAlias
 }
 
 func newGenerator() *generator {
@@ -54,6 +56,7 @@ func newGenerator() *generator {
 		acs:       map[string]*acSet{},
 
 		kubebuilder: map[string]*kubebuilderPackage{},
+		listMaps:    map[string]map[string]*listMapAlias{},
 	}
 }
 

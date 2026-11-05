@@ -3371,7 +3371,7 @@ func (d *ObjectMetaDie) Annotations() *diefields.Map[string, string] {
 // been deleted, this object will be garbage collected. If this object is managed by a controller,
 // then an entry in this list will point to this controller, with the controller field set to true.
 // There cannot be more than one managing controller.
-func (d *ObjectMetaDie) OwnerReferences() *diefields.ListMap[OwnerReference, *OwnerReferenceDie, types.UID] {
+func (d *ObjectMetaDie) OwnerReferences() *OwnerReferenceListMap {
 	return diefields.ListMapOf(d, objectMetaFields.Get().OwnerReferences)
 }
 
@@ -3539,7 +3539,7 @@ func (d *ObjectMetaDieMut) Annotations() *diefields.MapMut[string, string] {
 // been deleted, this object will be garbage collected. If this object is managed by a controller,
 // then an entry in this list will point to this controller, with the controller field set to true.
 // There cannot be more than one managing controller.
-func (d *ObjectMetaDieMut) OwnerReferences() *diefields.ListMapMut[OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut, types.UID] {
+func (d *ObjectMetaDieMut) OwnerReferences() *OwnerReferenceListMapMut {
 	return diefields.ListMapMutOf(d, objectMetaFields.Get().OwnerReferences)
 }
 
@@ -5786,6 +5786,18 @@ var SchemeBuilder = runtime.NewSchemeBuilder()
 
 // AddToScheme registers this package's dies with a scheme: here, nothing.
 var AddToScheme = SchemeBuilder.AddToScheme
+
+// ConditionListMap is the list map of an immutable die's Condition elements, keyed by type.
+type ConditionListMap = diefields.ListMap[Condition, *ConditionDie, string]
+
+// ConditionListMapMut is the list map of a mutable die's Condition elements, keyed by type.
+type ConditionListMapMut = diefields.ListMapMut[Condition, *ConditionDie, *ConditionDieMut, string]
+
+// OwnerReferenceListMap is the list map of an immutable die's OwnerReference elements, keyed by uid.
+type OwnerReferenceListMap = diefields.ListMap[OwnerReference, *OwnerReferenceDie, types.UID]
+
+// OwnerReferenceListMapMut is the list map of a mutable die's OwnerReference elements, keyed by uid.
+type OwnerReferenceListMapMut = diefields.ListMapMut[OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut, types.UID]
 
 var annotated = diecodegen.Register(diecodegen.Package{
 	Types: []string{

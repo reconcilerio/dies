@@ -140,7 +140,7 @@ func (d *BuilderDie) Image() diefields.Value[string] {
 	return diefields.ValueOf(d, builderFields.Get().Image)
 }
 
-func (d *BuilderDie) Env() *diefields.ListMap[diecorev1.EnvVar, *diecorev1.EnvVarDie, string] {
+func (d *BuilderDie) Env() *diecorev1.EnvVarListMap {
 	return diefields.ListMapOf(d, builderFields.Get().Env)
 }
 
@@ -152,7 +152,7 @@ func (d *BuilderDieMut) Image() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, builderFields.Get().Image)
 }
 
-func (d *BuilderDieMut) Env() *diefields.ListMapMut[diecorev1.EnvVar, *diecorev1.EnvVarDie, *diecorev1.EnvVarDieMut, string] {
+func (d *BuilderDieMut) Env() *diecorev1.EnvVarListMapMut {
 	return diefields.ListMapMutOf(d, builderFields.Get().Env)
 }
 
@@ -198,11 +198,11 @@ var conditionedFields = &diefields.Table[conditionedFieldsTable]{Build: func() (
 	return
 }}
 
-func (d *ConditionedDie) Conditions() *diefields.ListMap[diemetav1.Condition, *diemetav1.ConditionDie, string] {
+func (d *ConditionedDie) Conditions() *diemetav1.ConditionListMap {
 	return diefields.ListMapOf(d, conditionedFields.Get().Conditions)
 }
 
-func (d *ConditionedDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
+func (d *ConditionedDieMut) Conditions() *diemetav1.ConditionListMapMut {
 	return diefields.ListMapMutOf(d, conditionedFields.Get().Conditions)
 }
 
@@ -384,7 +384,7 @@ var pipelineFields = &diefields.Table[pipelineFieldsTable]{Build: func() (f pipe
 	return
 }}
 
-func (d *PipelineDie) Steps() *diefields.ListMap[diecorev1.Container, *diecorev1.ContainerDie, string] {
+func (d *PipelineDie) Steps() *diecorev1.ContainerListMap {
 	return diefields.ListMapOf(d, pipelineFields.Get().Steps)
 }
 
@@ -394,7 +394,7 @@ func (d *PipelineDie) Sidecar() *diecorev1.ContainerDie {
 
 func (d *PipelineDie) Builder() *BuilderDie { return diefields.Child(d, pipelineFields.Get().Builder) }
 
-func (d *PipelineDieMut) Steps() *diefields.ListMapMut[diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut, string] {
+func (d *PipelineDieMut) Steps() *diecorev1.ContainerListMapMut {
 	return diefields.ListMapMutOf(d, pipelineFields.Get().Steps)
 }
 
@@ -511,19 +511,19 @@ var workloadFields = &diefields.Table[workloadFieldsTable]{Build: func() (f work
 	return
 }}
 
-func (d *WorkloadDie) Containers() *diefields.ListMap[diecorev1.Container, *diecorev1.ContainerDie, string] {
+func (d *WorkloadDie) Containers() *diecorev1.ContainerListMap {
 	return diefields.ListMapOf(d, workloadFields.Get().Containers)
 }
 
-func (d *WorkloadDie) Volumes() *diefields.ListMap[diecorev1.Volume, *diecorev1.VolumeDie, string] {
+func (d *WorkloadDie) Volumes() *diecorev1.VolumeListMap {
 	return diefields.ListMapOf(d, workloadFields.Get().Volumes)
 }
 
-func (d *WorkloadDieMut) Containers() *diefields.ListMapMut[diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut, string] {
+func (d *WorkloadDieMut) Containers() *diecorev1.ContainerListMapMut {
 	return diefields.ListMapMutOf(d, workloadFields.Get().Containers)
 }
 
-func (d *WorkloadDieMut) Volumes() *diefields.ListMapMut[diecorev1.Volume, *diecorev1.VolumeDie, *diecorev1.VolumeDieMut, string] {
+func (d *WorkloadDieMut) Volumes() *diecorev1.VolumeListMapMut {
 	return diefields.ListMapMutOf(d, workloadFields.Get().Volumes)
 }
 

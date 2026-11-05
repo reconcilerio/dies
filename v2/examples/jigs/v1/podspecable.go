@@ -28,7 +28,7 @@ import (
 // PodSpecableJig presents workloads as [PodSpecable]. Each binding pairs a
 // location of the jig with a location of the source, both navigated from
 // blanks; binding locations of different types does not compile.
-var PodSpecableJig = jigs.NewJig[PodSpecable, *PodSpecableDie]().
+var PodSpecableJig = jigs.NewJig(PodSpecableBlank).
 	MustClamp(dieappsv1.DeploymentBlank,
 		jigs.Bind(PodSpecableBlank.Metadata(), dieappsv1.DeploymentBlank.Metadata()),
 		jigs.Bind(PodSpecableBlank.Template(), dieappsv1.DeploymentBlank.Spec().Template()),

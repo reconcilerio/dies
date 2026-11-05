@@ -59,8 +59,13 @@ type Jig[V any, VD base.DieOf[V, VD, VDM], VDM base.DieMutOf[V, VD, VDM]] struct
 // [Bind], [BindVia], [BindPath], [BindPathVia] and [BindAll].
 type Binding = core.Binding
 
-// NewJig returns a jig with no sources.
-func NewJig[V any, VD base.DieOf[V, VD, VDM], VDM base.DieMutOf[V, VD, VDM]]() *Jig[V, VD, VDM] {
+// NewJig returns a jig with no sources, of the type of a blank, such as
+// PodSpecableBlank: the blank gives the jig's types, so they needn't be
+// spelled out.
+//
+//	var PodSpecableJig = jigs.NewJig(PodSpecableBlank).
+//		MustClamp(dieappsv1.DeploymentBlank, …)
+func NewJig[V any, VD base.DieOf[V, VD, VDM], VDM base.DieMutOf[V, VD, VDM]](blank VD) *Jig[V, VD, VDM] {
 	return &Jig[V, VD, VDM]{sources: map[reflect.Type][]Binding{}, kinds: map[schema.GroupVersionKind][]Binding{}}
 }
 

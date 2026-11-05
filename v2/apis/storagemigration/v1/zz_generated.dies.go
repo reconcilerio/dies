@@ -386,7 +386,7 @@ var storageVersionMigrationStatusFields = &diefields.Table[storageVersionMigrati
 }}
 
 // The latest available observations of the migration's current state.
-func (d *StorageVersionMigrationStatusDie) Conditions() *diefields.ListMap[diemetav1.Condition, *diemetav1.ConditionDie, string] {
+func (d *StorageVersionMigrationStatusDie) Conditions() *diemetav1.ConditionListMap {
 	return diefields.ListMapOf(d, storageVersionMigrationStatusFields.Get().Conditions)
 }
 
@@ -398,7 +398,7 @@ func (d *StorageVersionMigrationStatusDie) ResourceVersion() diefields.Value[str
 }
 
 // The latest available observations of the migration's current state.
-func (d *StorageVersionMigrationStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string] {
+func (d *StorageVersionMigrationStatusDieMut) Conditions() *diemetav1.ConditionListMapMut {
 	return diefields.ListMapMutOf(d, storageVersionMigrationStatusFields.Get().Conditions)
 }
 

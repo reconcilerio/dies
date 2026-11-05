@@ -630,12 +630,12 @@ var aPIServiceStatusFields = &diefields.Table[aPIServiceStatusFieldsTable]{Build
 }}
 
 // Current service state of apiService.
-func (d *APIServiceStatusDie) Conditions() *diefields.ListMap[APIServiceCondition, *APIServiceConditionDie, APIServiceConditionType] {
+func (d *APIServiceStatusDie) Conditions() *APIServiceConditionListMap {
 	return diefields.ListMapOf(d, aPIServiceStatusFields.Get().Conditions)
 }
 
 // Current service state of apiService.
-func (d *APIServiceStatusDieMut) Conditions() *diefields.ListMapMut[APIServiceCondition, *APIServiceConditionDie, *APIServiceConditionDieMut, APIServiceConditionType] {
+func (d *APIServiceStatusDieMut) Conditions() *APIServiceConditionListMapMut {
 	return diefields.ListMapMutOf(d, aPIServiceStatusFields.Get().Conditions)
 }
 
@@ -774,6 +774,12 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }
+
+// APIServiceConditionListMap is the list map of an immutable die's APIServiceCondition elements, keyed by type.
+type APIServiceConditionListMap = diefields.ListMap[APIServiceCondition, *APIServiceConditionDie, APIServiceConditionType]
+
+// APIServiceConditionListMapMut is the list map of a mutable die's APIServiceCondition elements, keyed by type.
+type APIServiceConditionListMapMut = diefields.ListMapMut[APIServiceCondition, *APIServiceConditionDie, *APIServiceConditionDieMut, APIServiceConditionType]
 
 var annotated = diecodegen.Register(diecodegen.Package{
 	Types: []string{

@@ -109,7 +109,7 @@ func (d *APIGroupDiscoveryDie) Metadata() *diemetav1.ObjectMetaDie {
 
 // versions are the versions supported in this group. They are sorted in descending order of preference,
 // with the preferred version being the first entry.
-func (d *APIGroupDiscoveryDie) Versions() *diefields.ListMap[APIVersionDiscovery, *APIVersionDiscoveryDie, string] {
+func (d *APIGroupDiscoveryDie) Versions() *APIVersionDiscoveryListMap {
 	return diefields.ListMapOf(d, aPIGroupDiscoveryFields.Get().Versions)
 }
 
@@ -141,7 +141,7 @@ func (d *APIGroupDiscoveryDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
 
 // versions are the versions supported in this group. They are sorted in descending order of preference,
 // with the preferred version being the first entry.
-func (d *APIGroupDiscoveryDieMut) Versions() *diefields.ListMapMut[APIVersionDiscovery, *APIVersionDiscoveryDie, *APIVersionDiscoveryDieMut, string] {
+func (d *APIGroupDiscoveryDieMut) Versions() *APIVersionDiscoveryListMapMut {
 	return diefields.ListMapMutOf(d, aPIGroupDiscoveryFields.Get().Versions)
 }
 
@@ -271,7 +271,7 @@ func (d *APIResourceDiscoveryDie) Categories() diefields.Value[[]string] {
 }
 
 // subresources is a list of subresources provided by this resource. Subresources are located at /apis/<APIGroupDiscovery.objectMeta.name>/<APIVersionDiscovery.version>/<APIResourceDiscovery.Resource>/name-of-instance/<APIResourceDiscovery.subresources[i].subresource>
-func (d *APIResourceDiscoveryDie) Subresources() *diefields.ListMap[APISubresourceDiscovery, *APISubresourceDiscoveryDie, string] {
+func (d *APIResourceDiscoveryDie) Subresources() *APISubresourceDiscoveryListMap {
 	return diefields.ListMapOf(d, aPIResourceDiscoveryFields.Get().Subresources)
 }
 
@@ -322,7 +322,7 @@ func (d *APIResourceDiscoveryDieMut) Categories() diefields.ValueMut[[]string] {
 }
 
 // subresources is a list of subresources provided by this resource. Subresources are located at /apis/<APIGroupDiscovery.objectMeta.name>/<APIVersionDiscovery.version>/<APIResourceDiscovery.Resource>/name-of-instance/<APIResourceDiscovery.subresources[i].subresource>
-func (d *APIResourceDiscoveryDieMut) Subresources() *diefields.ListMapMut[APISubresourceDiscovery, *APISubresourceDiscoveryDie, *APISubresourceDiscoveryDieMut, string] {
+func (d *APIResourceDiscoveryDieMut) Subresources() *APISubresourceDiscoveryListMapMut {
 	return diefields.ListMapMutOf(d, aPIResourceDiscoveryFields.Get().Subresources)
 }
 
@@ -488,7 +488,7 @@ func (d *APIVersionDiscoveryDie) Version() diefields.Value[string] {
 }
 
 // resources is a list of APIResourceDiscovery objects for the corresponding group version.
-func (d *APIVersionDiscoveryDie) Resources() *diefields.ListMap[APIResourceDiscovery, *APIResourceDiscoveryDie, string] {
+func (d *APIVersionDiscoveryDie) Resources() *APIResourceDiscoveryListMap {
 	return diefields.ListMapOf(d, aPIVersionDiscoveryFields.Get().Resources)
 }
 
@@ -509,7 +509,7 @@ func (d *APIVersionDiscoveryDieMut) Version() diefields.ValueMut[string] {
 }
 
 // resources is a list of APIResourceDiscovery objects for the corresponding group version.
-func (d *APIVersionDiscoveryDieMut) Resources() *diefields.ListMapMut[APIResourceDiscovery, *APIResourceDiscoveryDie, *APIResourceDiscoveryDieMut, string] {
+func (d *APIVersionDiscoveryDieMut) Resources() *APIResourceDiscoveryListMapMut {
 	return diefields.ListMapMutOf(d, aPIVersionDiscoveryFields.Get().Resources)
 }
 
@@ -540,6 +540,24 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }
+
+// APIResourceDiscoveryListMap is the list map of an immutable die's APIResourceDiscovery elements, keyed by resource.
+type APIResourceDiscoveryListMap = diefields.ListMap[APIResourceDiscovery, *APIResourceDiscoveryDie, string]
+
+// APIResourceDiscoveryListMapMut is the list map of a mutable die's APIResourceDiscovery elements, keyed by resource.
+type APIResourceDiscoveryListMapMut = diefields.ListMapMut[APIResourceDiscovery, *APIResourceDiscoveryDie, *APIResourceDiscoveryDieMut, string]
+
+// APISubresourceDiscoveryListMap is the list map of an immutable die's APISubresourceDiscovery elements, keyed by subresource.
+type APISubresourceDiscoveryListMap = diefields.ListMap[APISubresourceDiscovery, *APISubresourceDiscoveryDie, string]
+
+// APISubresourceDiscoveryListMapMut is the list map of a mutable die's APISubresourceDiscovery elements, keyed by subresource.
+type APISubresourceDiscoveryListMapMut = diefields.ListMapMut[APISubresourceDiscovery, *APISubresourceDiscoveryDie, *APISubresourceDiscoveryDieMut, string]
+
+// APIVersionDiscoveryListMap is the list map of an immutable die's APIVersionDiscovery elements, keyed by version.
+type APIVersionDiscoveryListMap = diefields.ListMap[APIVersionDiscovery, *APIVersionDiscoveryDie, string]
+
+// APIVersionDiscoveryListMapMut is the list map of a mutable die's APIVersionDiscovery elements, keyed by version.
+type APIVersionDiscoveryListMapMut = diefields.ListMapMut[APIVersionDiscovery, *APIVersionDiscoveryDie, *APIVersionDiscoveryDieMut, string]
 
 // +kubebuilder:object:generate=false
 // +k8s:deepcopy-gen=false

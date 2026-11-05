@@ -189,6 +189,9 @@ type target struct {
 	// spec is the type's upstream markers, normalized, with its +die
 	// markers and any extra metadata applied over them
 	spec *typeSpec
+	// markers are the declaration's doc and any extra metadata, for the +die
+	// markers of the die
+	markers []string
 }
 
 func (t *target) name() string { return t.obj.Name() }
@@ -269,7 +272,7 @@ func (g *generator) collect(p *packages.Package) (*pkgMeta, error) {
 		if d.obj.IsAlias() {
 			doc = append(slices.Clone(doc), g.typeDocs[named.Obj()]...)
 		}
-		t := &target{obj: d.obj, named: named, st: st, doc: doc, spec: spec}
+		t := &target{obj: d.obj, named: named, st: st, doc: doc, spec: spec, markers: append(slices.Clone(d.doc), extra[named]...)}
 		m.targets = append(m.targets, t)
 		m.byNamed[named] = t
 		m.byName[qualified(named)] = spec

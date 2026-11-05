@@ -1347,7 +1347,7 @@ var customResourceDefinitionStatusFields = &diefields.Table[customResourceDefini
 }}
 
 // conditions indicate state for particular aspects of a CustomResourceDefinition
-func (d *CustomResourceDefinitionStatusDie) Conditions() *diefields.ListMap[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, CustomResourceDefinitionConditionType] {
+func (d *CustomResourceDefinitionStatusDie) Conditions() *CustomResourceDefinitionConditionListMap {
 	return diefields.ListMapOf(d, customResourceDefinitionStatusFields.Get().Conditions)
 }
 
@@ -1373,7 +1373,7 @@ func (d *CustomResourceDefinitionStatusDie) ObservedGeneration() diefields.Value
 }
 
 // conditions indicate state for particular aspects of a CustomResourceDefinition
-func (d *CustomResourceDefinitionStatusDieMut) Conditions() *diefields.ListMapMut[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, *CustomResourceDefinitionConditionDieMut, CustomResourceDefinitionConditionType] {
+func (d *CustomResourceDefinitionStatusDieMut) Conditions() *CustomResourceDefinitionConditionListMapMut {
 	return diefields.ListMapMutOf(d, customResourceDefinitionStatusFields.Get().Conditions)
 }
 
@@ -2525,7 +2525,7 @@ func (d *JSONSchemaPropsDie) XMapType() diefields.Optional[string] {
 }
 
 // x-kubernetes-validations describes a list of validation rules written in the CEL expression language.
-func (d *JSONSchemaPropsDie) XValidations() *diefields.ListMap[ValidationRule, *ValidationRuleDie, string] {
+func (d *JSONSchemaPropsDie) XValidations() *ValidationRuleListMap {
 	return diefields.ListMapOf(d, jSONSchemaPropsFields.Get().XValidations)
 }
 
@@ -2792,7 +2792,7 @@ func (d *JSONSchemaPropsDieMut) XMapType() diefields.OptionalMut[string] {
 }
 
 // x-kubernetes-validations describes a list of validation rules written in the CEL expression language.
-func (d *JSONSchemaPropsDieMut) XValidations() *diefields.ListMapMut[ValidationRule, *ValidationRuleDie, *ValidationRuleDieMut, string] {
+func (d *JSONSchemaPropsDieMut) XValidations() *ValidationRuleListMapMut {
 	return diefields.ListMapMutOf(d, jSONSchemaPropsFields.Get().XValidations)
 }
 
@@ -3694,6 +3694,18 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }
+
+// CustomResourceDefinitionConditionListMap is the list map of an immutable die's CustomResourceDefinitionCondition elements, keyed by type.
+type CustomResourceDefinitionConditionListMap = diefields.ListMap[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, CustomResourceDefinitionConditionType]
+
+// CustomResourceDefinitionConditionListMapMut is the list map of a mutable die's CustomResourceDefinitionCondition elements, keyed by type.
+type CustomResourceDefinitionConditionListMapMut = diefields.ListMapMut[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, *CustomResourceDefinitionConditionDieMut, CustomResourceDefinitionConditionType]
+
+// ValidationRuleListMap is the list map of an immutable die's ValidationRule elements, keyed by rule.
+type ValidationRuleListMap = diefields.ListMap[ValidationRule, *ValidationRuleDie, string]
+
+// ValidationRuleListMapMut is the list map of a mutable die's ValidationRule elements, keyed by rule.
+type ValidationRuleListMapMut = diefields.ListMapMut[ValidationRule, *ValidationRuleDie, *ValidationRuleDieMut, string]
 
 var annotated = diecodegen.Register(diecodegen.Package{
 	Types: []string{
