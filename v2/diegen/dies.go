@@ -72,6 +72,7 @@ func (g *generator) diesFor(p *packages.Package) error {
 	if err := g.checkDiePackages(p, pg.dies); err != nil {
 		return err
 	}
+	pg.f.hidden = true
 	if err := pg.f.write(filepath.Dir(out), diesFile); err != nil {
 		return err
 	}
@@ -470,6 +471,7 @@ func (pg *pkgGen) emit() error {
 
 		ob := pg.objectBase(tg, name, dname)
 		params := fmt.Sprintf("%s, *%s, *%s", name, dname, mname)
+		f.noDeepCopy()
 		if doc := docText(tg.doc); len(doc) > 0 {
 			f.doc(doc)
 			f.p("//")
@@ -480,6 +482,7 @@ func (pg *pkgGen) emit() error {
 		f.p("\tdie.%s[%s]", ob.base, params)
 		f.p("}")
 		f.p("")
+		f.noDeepCopy()
 		f.p("// %s is the mutable die of [%s]: see [%s].", mname, name, dname)
 		f.p("type %s struct {", mname)
 		f.p("\tdie.%s[%s]", ob.mutBase, params)
@@ -513,6 +516,7 @@ func (pg *pkgGen) emit() error {
 		// the field table is laid out statically and built on first use
 		table := lowerFirst(name) + "Fields"
 		tables = append(tables, table)
+		f.noDeepCopy()
 		f.p("type %sTable struct {", table)
 		var inits []string
 		for _, wf := range fields {
@@ -559,6 +563,7 @@ func (pg *pkgGen) emit() error {
 		if obj := pg.p.Types.Scope().Lookup(name); obj != nil && filepath.Base(pg.p.Fset.File(obj.Pos()).Name()) != diesFile {
 			return fmt.Errorf("%s: generated key %s collides with a declared name", pg.p.PkgPath, name)
 		}
+		f.noDeepCopy()
 		f.p("// %s identifies an element of a list map.", name)
 		f.p("type %s struct {", name)
 		for _, kf := range pg.keys[name] {
@@ -698,6 +703,7 @@ func (pg *pkgGen) emitList(tg *target, item string) error {
 	}
 	m, _ := findDieMarker(tg.doc, "die:object")
 	runtime := f.use("k8s.io/apimachinery/pkg/runtime")
+	f.noDeepCopy()
 	f.doc(docText(tg.doc))
 	f.p("type %s struct {", dname)
 	f.p("	die.List[%s]", item)
