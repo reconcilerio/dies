@@ -454,6 +454,17 @@ func (b *DieMutBase[T, D, M]) DieImmutable() D {
 	return wrap[T, D, M](core.Must(b.ref().CopyOf(false)), nil)
 }
 
+// DieReadOnly returns an immutable die of the same location, sharing this
+// die's state rather than copying it, as [DieMutBase.DieImmutable] does: it
+// reads what is written through this die, later writes too, and is within the
+// same root, so [DieBase.DieRoot] is this die's root. It lets a method written
+// for the immutable die serve the mutable die too:
+//
+//	func (d *ConditionDieMut) IsTrue() bool { return d.DieReadOnly().IsTrue() }
+func (b *DieMutBase[T, D, M]) DieReadOnly() D {
+	return wrap[T, D, M](b.hold(), b.at)
+}
+
 // DeepCopy returns an independent, mutable copy: see [DieBase.DeepCopy].
 func (b *DieMutBase[T, D, M]) DeepCopy() M {
 	return wrapMut[T, D, M](core.Must(b.ref().CopyOf(true)), nil)

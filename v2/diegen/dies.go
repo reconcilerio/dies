@@ -455,6 +455,10 @@ func (pg *pkgGen) emit() error {
 		}
 	}()
 
+	shared, err := pg.sharedMethods()
+	if err != nil {
+		return err
+	}
 	for _, tg := range pg.targets {
 		if item, ok := pg.listItem(tg); ok {
 			if err := pg.emitList(tg, item); err != nil {
@@ -544,6 +548,9 @@ func (pg *pkgGen) emit() error {
 		}
 		for _, wf := range fields {
 			pg.accessorMut(mname, table, wf)
+		}
+		for _, fn := range shared[dname] {
+			pg.emitShared(dname, mname, fn)
 		}
 	}
 

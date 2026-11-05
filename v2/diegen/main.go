@@ -66,6 +66,11 @@ limitations under the License.
 //
 // A field type with no die is used as a value.
 //
+// A method written by hand on a die, marked +die:shared in its doc comment,
+// is shared with the mutable die: the mutable die gets a method of the same
+// signature that calls it through DieReadOnly, so a method that reads is
+// written once.
+//
 // Markers that validate and default a field, rather than shape its die, are
 // read for die.ValidateCreate, die.ValidateUpdate and die.Default: declarative validation's, such as
 // +k8s:format, +k8s:minimum and +k8s:required, kubebuilder's, such as

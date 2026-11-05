@@ -989,6 +989,26 @@ func (d *ConditionDieMut) Message() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, conditionFields.Get().Message)
 }
 
+// IsStale is [ConditionDie.IsStale], shared by +die:shared.
+func (d *ConditionDieMut) IsStale() bool {
+	return d.DieReadOnly().IsStale()
+}
+
+// IsTrue is [ConditionDie.IsTrue], shared by +die:shared.
+func (d *ConditionDieMut) IsTrue() bool {
+	return d.DieReadOnly().IsTrue()
+}
+
+// IsFalse is [ConditionDie.IsFalse], shared by +die:shared.
+func (d *ConditionDieMut) IsFalse() bool {
+	return d.DieReadOnly().IsFalse()
+}
+
+// IsUnknown is [ConditionDie.IsUnknown], shared by +die:shared.
+func (d *ConditionDieMut) IsUnknown() bool {
+	return d.DieReadOnly().IsUnknown()
+}
+
 // +kubebuilder:object:generate=false
 // +k8s:deepcopy-gen=false
 
