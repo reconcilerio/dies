@@ -20,7 +20,7 @@ jobs:
       - name: Ensure generated code is committed
         run: ./hack/update-codegen.sh && git diff --exit-code
       - name: Test
-        run: go test ./... -coverprofile cover.out
+        run: go test ./... -coverpkg=./... -coverprofile cover.out
         working-directory: v2
       - name: Test examples with their own modules
         run: |
