@@ -3298,7 +3298,7 @@ func (d *StorageHealthConditionDie) Status(v storagev1.StorageHealthStatusType) 
 
 // reason is a brief CamelCase machine-parseable reason.
 //
-// Maximum permitted length of a reason is 256 characters.
+// Maximum permitted length of a reason is 256 bytes.
 func (d *StorageHealthConditionDie) Reason(v string) *StorageHealthConditionDie {
 	return d.DieStamp(func(r *storagev1.StorageHealthCondition) {
 		r.Reason = v
@@ -3307,7 +3307,7 @@ func (d *StorageHealthConditionDie) Reason(v string) *StorageHealthConditionDie 
 
 // message is a human-readable description.
 //
-// Maximum permitted length of a message is 1024 characters.
+// Maximum permitted length of a message is 1024 bytes.
 func (d *StorageHealthConditionDie) Message(v string) *StorageHealthConditionDie {
 	return d.DieStamp(func(r *storagev1.StorageHealthCondition) {
 		r.Message = v

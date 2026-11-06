@@ -26,7 +26,7 @@ import (
 	cmp "github.com/google/go-cmp/cmp"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
-	schedulingv1alpha3 "k8s.io/api/scheduling/v1alpha3"
+	apischedulingv1 "k8s.io/api/scheduling/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -37,7 +37,7 @@ import (
 	osx "os"
 	apiscorev1 "reconciler.io/dies/apis/core/v1"
 	metav1 "reconciler.io/dies/apis/meta/v1"
-	v1alpha3 "reconciler.io/dies/apis/scheduling/v1alpha3"
+	schedulingv1 "reconciler.io/dies/apis/scheduling/v1"
 	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
@@ -402,7 +402,7 @@ func (d *CronJobDie) StatusDie(fn func(d *CronJobStatusDie)) *CronJobDie {
 	})
 }
 
-// Specification of the desired behavior of a cron job, including the schedule.
+// spec is the specification of the desired behavior of a cron job, including the schedule.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *CronJobDie) Spec(v batchv1.CronJobSpec) *CronJobDie {
@@ -411,7 +411,7 @@ func (d *CronJobDie) Spec(v batchv1.CronJobSpec) *CronJobDie {
 	})
 }
 
-// Current status of a cron job.
+// status is the current status of a cron job.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *CronJobDie) Status(v batchv1.CronJobStatus) *CronJobDie {
@@ -666,14 +666,14 @@ func (d *CronJobSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// The schedule in Cron format, see https://en.wikipedia.org/wiki/Cron.
+// schedule is the schedule in Cron format, see https://en.wikipedia.org/wiki/Cron.
 func (d *CronJobSpecDie) Schedule(v string) *CronJobSpecDie {
 	return d.DieStamp(func(r *batchv1.CronJobSpec) {
 		r.Schedule = v
 	})
 }
 
-// The time zone name for the given schedule, see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones.
+// timeZone is the time zone name for the given schedule, see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones.
 //
 // If not specified, this will default to the time zone of the kube-controller-manager process.
 //
@@ -696,7 +696,7 @@ func (d *CronJobSpecDie) TimeZone(v *string) *CronJobSpecDie {
 	})
 }
 
-// Optional deadline in seconds for starting the job if it misses scheduled
+// startingDeadlineSeconds is the optional deadline in seconds for starting the job if it misses scheduled
 //
 // time for any reason.  Missed jobs executions will be counted as failed ones.
 func (d *CronJobSpecDie) StartingDeadlineSeconds(v *int64) *CronJobSpecDie {
@@ -705,7 +705,7 @@ func (d *CronJobSpecDie) StartingDeadlineSeconds(v *int64) *CronJobSpecDie {
 	})
 }
 
-// Specifies how to treat concurrent executions of a Job.
+// concurrencyPolicy specifies how to treat concurrent executions of a Job.
 //
 // Valid values are:
 //
@@ -720,7 +720,7 @@ func (d *CronJobSpecDie) ConcurrencyPolicy(v batchv1.ConcurrencyPolicy) *CronJob
 	})
 }
 
-// This flag tells the controller to suspend subsequent executions, it does
+// suspend is a flag that tells the controller to suspend subsequent executions, it does
 //
 // not apply to already started executions.  Defaults to false.
 func (d *CronJobSpecDie) Suspend(v *bool) *CronJobSpecDie {
@@ -729,14 +729,14 @@ func (d *CronJobSpecDie) Suspend(v *bool) *CronJobSpecDie {
 	})
 }
 
-// Specifies the job that will be created when executing a CronJob.
+// jobTemplate specifies the job that will be created when executing a CronJob.
 func (d *CronJobSpecDie) JobTemplate(v batchv1.JobTemplateSpec) *CronJobSpecDie {
 	return d.DieStamp(func(r *batchv1.CronJobSpec) {
 		r.JobTemplate = v
 	})
 }
 
-// The number of successful finished jobs to retain. Value must be non-negative integer.
+// successfulJobsHistoryLimit is the number of successful finished jobs to retain. Value must be non-negative integer.
 //
 // Defaults to 3.
 func (d *CronJobSpecDie) SuccessfulJobsHistoryLimit(v *int32) *CronJobSpecDie {
@@ -745,7 +745,7 @@ func (d *CronJobSpecDie) SuccessfulJobsHistoryLimit(v *int32) *CronJobSpecDie {
 	})
 }
 
-// The number of failed finished jobs to retain. Value must be non-negative integer.
+// failedJobsHistoryLimit is the number of failed finished jobs to retain. Value must be non-negative integer.
 //
 // Defaults to 1.
 func (d *CronJobSpecDie) FailedJobsHistoryLimit(v *int32) *CronJobSpecDie {
@@ -1380,7 +1380,7 @@ func (d *JobDie) StatusDie(fn func(d *JobStatusDie)) *JobDie {
 	})
 }
 
-// Specification of the desired behavior of a job.
+// spec is the specification of the desired behavior of a job.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *JobDie) Spec(v batchv1.JobSpec) *JobDie {
@@ -1389,7 +1389,7 @@ func (d *JobDie) Spec(v batchv1.JobSpec) *JobDie {
 	})
 }
 
-// Current status of a job.
+// status is the current status of a job.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *JobDie) Status(v batchv1.JobStatus) *JobDie {
@@ -1646,7 +1646,7 @@ func (d *JobSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // PodFailurePolicyDie mutates PodFailurePolicy as a die.
 //
-// Specifies the policy of handling failed pods. In particular, it allows to
+// podFailurePolicy specifies the policy of handling failed pods. In particular, it allows to
 //
 // specify the set of actions and conditions which need to be
 //
@@ -1688,7 +1688,7 @@ func (d *JobSpecDie) SuccessPolicyDie(fn func(d *SuccessPolicyDie)) *JobSpecDie 
 
 // SelectorDie mutates Selector as a die.
 //
-// A label query over pods that should match the pod count.
+// selector is a label query over pods that should match the pod count.
 //
 // Normally, the system sets this field for you.
 //
@@ -1703,7 +1703,7 @@ func (d *JobSpecDie) SelectorDie(fn func(d *metav1.LabelSelectorDie)) *JobSpecDi
 
 // TemplateDie mutates Template as a die.
 //
-// Describes the pod that will be created when executing a job.
+// template describes the pod that will be created when executing a job.
 //
 // The only allowed template.spec.restartPolicy values are "Never" or "OnFailure".
 //
@@ -1726,9 +1726,9 @@ func (d *JobSpecDie) TemplateDie(fn func(d *apiscorev1.PodTemplateSpecDie)) *Job
 //
 // # When omitted, the Job defaults to the basic scheduling policy, which behaves
 //
-// as standard pod-by-pod scheduling.
+// as standard pod-by-pod scheduling. This field is gated by the WorkloadWithJob
 //
-// This field is alpha-level and requires the WorkloadWithJob feature gate.
+// feature gate.
 //
 // # This field is immutable, including whether it is set at all, only
 //
@@ -1741,7 +1741,7 @@ func (d *JobSpecDie) SchedulingDie(fn func(d *JobSchedulingConfigurationDie)) *J
 	})
 }
 
-// Specifies the maximum desired number of pods the job should
+// parallelism specifies the maximum desired number of pods the job should
 //
 // run at any given time. The actual number of pods running in steady state will
 //
@@ -1756,7 +1756,7 @@ func (d *JobSpecDie) Parallelism(v *int32) *JobSpecDie {
 	})
 }
 
-// Specifies the desired number of successfully finished pods the
+// completions specifies the desired number of successfully finished pods the
 //
 // job should be run with.  Setting to null means that the success of any
 //
@@ -1773,7 +1773,7 @@ func (d *JobSpecDie) Completions(v *int32) *JobSpecDie {
 	})
 }
 
-// Specifies the duration in seconds relative to the startTime that the job
+// activeDeadlineSeconds specifies the duration in seconds relative to the startTime that the job
 //
 // may be continuously active before the system tries to terminate it; value
 //
@@ -1788,7 +1788,7 @@ func (d *JobSpecDie) ActiveDeadlineSeconds(v *int64) *JobSpecDie {
 	})
 }
 
-// Specifies the policy of handling failed pods. In particular, it allows to
+// podFailurePolicy specifies the policy of handling failed pods. In particular, it allows to
 //
 // specify the set of actions and conditions which need to be
 //
@@ -1822,7 +1822,7 @@ func (d *JobSpecDie) SuccessPolicy(v *batchv1.SuccessPolicy) *JobSpecDie {
 	})
 }
 
-// Specifies the number of retries before marking this job failed.
+// backoffLimit specifies the number of retries before marking this job failed.
 //
 // Defaults to 6, unless backoffLimitPerIndex (only Indexed Job) is specified.
 //
@@ -1833,7 +1833,7 @@ func (d *JobSpecDie) BackoffLimit(v *int32) *JobSpecDie {
 	})
 }
 
-// Specifies the limit for the number of retries within an
+// backoffLimitPerIndex specifies the limit for the number of retries within an
 //
 // index before marking this index as failed. When enabled the number of
 //
@@ -1850,7 +1850,7 @@ func (d *JobSpecDie) BackoffLimitPerIndex(v *int32) *JobSpecDie {
 	})
 }
 
-// Specifies the maximal number of failed indexes before marking the Job as
+// maxFailedIndexes specifies the maximal number of failed indexes before marking the Job as
 //
 // failed, when backoffLimitPerIndex is set. Once the number of failed
 //
@@ -1871,7 +1871,7 @@ func (d *JobSpecDie) MaxFailedIndexes(v *int32) *JobSpecDie {
 	})
 }
 
-// A label query over pods that should match the pod count.
+// selector is a label query over pods that should match the pod count.
 //
 // Normally, the system sets this field for you.
 //
@@ -1907,7 +1907,7 @@ func (d *JobSpecDie) ManualSelector(v *bool) *JobSpecDie {
 	})
 }
 
-// Describes the pod that will be created when executing a job.
+// template describes the pod that will be created when executing a job.
 //
 // The only allowed template.spec.restartPolicy values are "Never" or "OnFailure".
 //
@@ -2020,7 +2020,7 @@ func (d *JobSpecDie) PodReplacementPolicy(v *batchv1.PodReplacementPolicy) *JobS
 	})
 }
 
-// ManagedBy field indicates the controller that manages a Job. The k8s Job
+// managedBy field indicates the controller that manages a Job. The k8s Job
 //
 // controller reconciles jobs which don't have this field at all or the field
 //
@@ -2051,9 +2051,9 @@ func (d *JobSpecDie) ManagedBy(v *string) *JobSpecDie {
 //
 // # When omitted, the Job defaults to the basic scheduling policy, which behaves
 //
-// as standard pod-by-pod scheduling.
+// as standard pod-by-pod scheduling. This field is gated by the WorkloadWithJob
 //
-// This field is alpha-level and requires the WorkloadWithJob feature gate.
+// feature gate.
 //
 // # This field is immutable, including whether it is set at all, only
 //
@@ -2312,7 +2312,7 @@ func (d *PodFailurePolicyDie) DiePatch(patchType types.PatchType) ([]byte, error
 
 // RulesDie replaces Rules by collecting the released value from each die passed.
 //
-// A list of pod failure policy rules. The rules are evaluated in order.
+// rules is a list of pod failure policy rules. The rules are evaluated in order.
 //
 // Once a rule matches a Pod failure, the remaining of the rules are ignored.
 //
@@ -2330,7 +2330,7 @@ func (d *PodFailurePolicyDie) RulesDie(v ...*PodFailurePolicyRuleDie) *PodFailur
 	})
 }
 
-// A list of pod failure policy rules. The rules are evaluated in order.
+// rules is a list of pod failure policy rules. The rules are evaluated in order.
 //
 // Once a rule matches a Pod failure, the remaining of the rules are ignored.
 //
@@ -2593,7 +2593,7 @@ func (d *PodFailurePolicyRuleDie) DiePatch(patchType types.PatchType) ([]byte, e
 
 // OnExitCodesDie mutates OnExitCodes as a die.
 //
-// Represents the requirement on the container exit codes.
+// onExitCodes represents the requirement on the container exit codes.
 func (d *PodFailurePolicyRuleDie) OnExitCodesDie(fn func(d *PodFailurePolicyOnExitCodesRequirementDie)) *PodFailurePolicyRuleDie {
 	return d.DieStamp(func(r *batchv1.PodFailurePolicyRule) {
 		d := PodFailurePolicyOnExitCodesRequirementBlank.DieImmutable(false).DieFeedPtr(r.OnExitCodes)
@@ -2604,7 +2604,7 @@ func (d *PodFailurePolicyRuleDie) OnExitCodesDie(fn func(d *PodFailurePolicyOnEx
 
 // OnPodConditionsDie replaces OnPodConditions by collecting the released value from each die passed.
 //
-// Represents the requirement on the pod conditions. The requirement is represented
+// onPodConditions represents the requirement on the pod conditions. The requirement is represented
 //
 // as a list of pod condition patterns. The requirement is satisfied if at
 //
@@ -2618,7 +2618,7 @@ func (d *PodFailurePolicyRuleDie) OnPodConditionsDie(v ...*PodFailurePolicyOnPod
 	})
 }
 
-// Specifies the action taken on a pod failure when the requirements are satisfied.
+// action specifies the action taken on a pod failure when the requirements are satisfied.
 //
 // Possible values are:
 //
@@ -2647,14 +2647,14 @@ func (d *PodFailurePolicyRuleDie) Action(v batchv1.PodFailurePolicyAction) *PodF
 	})
 }
 
-// Represents the requirement on the container exit codes.
+// onExitCodes represents the requirement on the container exit codes.
 func (d *PodFailurePolicyRuleDie) OnExitCodes(v *batchv1.PodFailurePolicyOnExitCodesRequirement) *PodFailurePolicyRuleDie {
 	return d.DieStamp(func(r *batchv1.PodFailurePolicyRule) {
 		r.OnExitCodes = v
 	})
 }
 
-// Represents the requirement on the pod conditions. The requirement is represented
+// onPodConditions represents the requirement on the pod conditions. The requirement is represented
 //
 // as a list of pod condition patterns. The requirement is satisfied if at
 //
@@ -2911,7 +2911,7 @@ func (d *PodFailurePolicyOnExitCodesRequirementDie) DiePatch(patchType types.Pat
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Restricts the check for exit codes to the container with the
+// containerName restricts the check for exit codes to the container with the
 //
 // specified name. When null, the rule applies to all containers.
 //
@@ -2924,7 +2924,7 @@ func (d *PodFailurePolicyOnExitCodesRequirementDie) ContainerName(v *string) *Po
 	})
 }
 
-// Represents the relationship between the container exit code(s) and the
+// operator represents the relationship between the container exit code(s) and the
 //
 // specified values. Containers completed with success (exit code 0) are
 //
@@ -2951,7 +2951,7 @@ func (d *PodFailurePolicyOnExitCodesRequirementDie) Operator(v batchv1.PodFailur
 	})
 }
 
-// Specifies the set of values. Each returned container exit code (might be
+// values specifies the set of values. Each returned container exit code (might be
 //
 // multiple in case of multiple containers) is checked against this set of
 //
@@ -3212,7 +3212,7 @@ func (d *PodFailurePolicyOnPodConditionsPatternDie) DiePatch(patchType types.Pat
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Specifies the required Pod condition type. To match a pod condition
+// type specifies the required Pod condition type. To match a pod condition
 //
 // it is required that specified type equals the pod condition type.
 func (d *PodFailurePolicyOnPodConditionsPatternDie) Type(v corev1.PodConditionType) *PodFailurePolicyOnPodConditionsPatternDie {
@@ -3221,7 +3221,7 @@ func (d *PodFailurePolicyOnPodConditionsPatternDie) Type(v corev1.PodConditionTy
 	})
 }
 
-// Specifies the required Pod condition status. To match a pod condition
+// status specifies the required Pod condition status. To match a pod condition
 //
 // it is required that the specified status equals the pod condition status.
 //
@@ -4063,7 +4063,7 @@ func (d *JobSchedulingConfigurationDie) DiePatch(patchType types.PatchType) ([]b
 
 // SchedulingPolicyDie mutates SchedulingPolicy as a die.
 //
-// SchedulingPolicy defines the scheduling policy for this Job.
+// schedulingPolicy defines the scheduling policy for this Job.
 //
 // Exactly one of Basic or Gang must be set.
 //
@@ -4072,9 +4072,9 @@ func (d *JobSchedulingConfigurationDie) DiePatch(patchType types.PatchType) ([]b
 // removed. The policy variant (basic/gang) is frozen by hand-written
 //
 // validation; only schedulingPolicy.gang.minCount may be changed.
-func (d *JobSchedulingConfigurationDie) SchedulingPolicyDie(fn func(d *v1alpha3.WorkloadPodGroupSchedulingPolicyDie)) *JobSchedulingConfigurationDie {
+func (d *JobSchedulingConfigurationDie) SchedulingPolicyDie(fn func(d *schedulingv1.WorkloadPodGroupSchedulingPolicyDie)) *JobSchedulingConfigurationDie {
 	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
-		d := v1alpha3.WorkloadPodGroupSchedulingPolicyBlank.DieImmutable(false).DieFeedPtr(r.SchedulingPolicy)
+		d := schedulingv1.WorkloadPodGroupSchedulingPolicyBlank.DieImmutable(false).DieFeedPtr(r.SchedulingPolicy)
 		fn(d)
 		r.SchedulingPolicy = d.DieReleasePtr()
 	})
@@ -4082,14 +4082,14 @@ func (d *JobSchedulingConfigurationDie) SchedulingPolicyDie(fn func(d *v1alpha3.
 
 // SchedulingConstraintsDie mutates SchedulingConstraints as a die.
 //
-// SchedulingConstraints defines scheduling constraints (e.g. topology)
+// schedulingConstraints defines scheduling constraints (e.g. topology)
 //
 // for the Job's pods.
 //
 // This field is immutable after creation.
-func (d *JobSchedulingConfigurationDie) SchedulingConstraintsDie(fn func(d *v1alpha3.WorkloadPodGroupSchedulingConstraintsDie)) *JobSchedulingConfigurationDie {
+func (d *JobSchedulingConfigurationDie) SchedulingConstraintsDie(fn func(d *schedulingv1.WorkloadPodGroupSchedulingConstraintsDie)) *JobSchedulingConfigurationDie {
 	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
-		d := v1alpha3.WorkloadPodGroupSchedulingConstraintsBlank.DieImmutable(false).DieFeedPtr(r.SchedulingConstraints)
+		d := schedulingv1.WorkloadPodGroupSchedulingConstraintsBlank.DieImmutable(false).DieFeedPtr(r.SchedulingConstraints)
 		fn(d)
 		r.SchedulingConstraints = d.DieReleasePtr()
 	})
@@ -4097,16 +4097,16 @@ func (d *JobSchedulingConfigurationDie) SchedulingConstraintsDie(fn func(d *v1al
 
 // DisruptionModeDie mutates DisruptionMode as a die.
 //
-// DisruptionMode defines the mode in which the Job's pods can be disrupted.
+// disruptionMode defines the mode in which the Job's pods can be disrupted.
 //
 // One of Single, All.
 //
 // This field is immutable after creation: it may not be added or removed,
 //
 // and the selected mode may not be changed.
-func (d *JobSchedulingConfigurationDie) DisruptionModeDie(fn func(d *v1alpha3.WorkloadPodGroupDisruptionModeDie)) *JobSchedulingConfigurationDie {
+func (d *JobSchedulingConfigurationDie) DisruptionModeDie(fn func(d *schedulingv1.WorkloadPodGroupDisruptionModeDie)) *JobSchedulingConfigurationDie {
 	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
-		d := v1alpha3.WorkloadPodGroupDisruptionModeBlank.DieImmutable(false).DieFeedPtr(r.DisruptionMode)
+		d := schedulingv1.WorkloadPodGroupDisruptionModeBlank.DieImmutable(false).DieFeedPtr(r.DisruptionMode)
 		fn(d)
 		r.DisruptionMode = d.DieReleasePtr()
 	})
@@ -4114,7 +4114,7 @@ func (d *JobSchedulingConfigurationDie) DisruptionModeDie(fn func(d *v1alpha3.Wo
 
 // ResourceClaimDie mutates a single item in ResourceClaims matched by the nested field Name, appending a new item if no match is found.
 //
-// # ResourceClaims defines which ResourceClaims may be shared among Pods in
+// resourceClaims defines which ResourceClaims may be shared among Pods in
 //
 // the Job. Pods consume the devices allocated to a PodGroup's claim by
 //
@@ -4129,24 +4129,24 @@ func (d *JobSchedulingConfigurationDie) DisruptionModeDie(fn func(d *v1alpha3.Wo
 // This list is immutable after creation: entries may neither be added,
 //
 // removed, nor modified.
-func (d *JobSchedulingConfigurationDie) ResourceClaimDie(v string, fn func(d *v1alpha3.WorkloadPodGroupResourceClaimDie)) *JobSchedulingConfigurationDie {
+func (d *JobSchedulingConfigurationDie) ResourceClaimDie(v string, fn func(d *schedulingv1.WorkloadPodGroupResourceClaimDie)) *JobSchedulingConfigurationDie {
 	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
 		for i := range r.ResourceClaims {
 			if v == r.ResourceClaims[i].Name {
-				d := v1alpha3.WorkloadPodGroupResourceClaimBlank.DieImmutable(false).DieFeed(r.ResourceClaims[i])
+				d := schedulingv1.WorkloadPodGroupResourceClaimBlank.DieImmutable(false).DieFeed(r.ResourceClaims[i])
 				fn(d)
 				r.ResourceClaims[i] = d.DieRelease()
 				return
 			}
 		}
 
-		d := v1alpha3.WorkloadPodGroupResourceClaimBlank.DieImmutable(false).DieFeed(schedulingv1alpha3.WorkloadPodGroupResourceClaim{Name: v})
+		d := schedulingv1.WorkloadPodGroupResourceClaimBlank.DieImmutable(false).DieFeed(apischedulingv1.WorkloadPodGroupResourceClaim{Name: v})
 		fn(d)
 		r.ResourceClaims = append(r.ResourceClaims, d.DieRelease())
 	})
 }
 
-// SchedulingPolicy defines the scheduling policy for this Job.
+// schedulingPolicy defines the scheduling policy for this Job.
 //
 // Exactly one of Basic or Gang must be set.
 //
@@ -4155,37 +4155,37 @@ func (d *JobSchedulingConfigurationDie) ResourceClaimDie(v string, fn func(d *v1
 // removed. The policy variant (basic/gang) is frozen by hand-written
 //
 // validation; only schedulingPolicy.gang.minCount may be changed.
-func (d *JobSchedulingConfigurationDie) SchedulingPolicy(v *schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy) *JobSchedulingConfigurationDie {
+func (d *JobSchedulingConfigurationDie) SchedulingPolicy(v *apischedulingv1.WorkloadPodGroupSchedulingPolicy) *JobSchedulingConfigurationDie {
 	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
 		r.SchedulingPolicy = v
 	})
 }
 
-// SchedulingConstraints defines scheduling constraints (e.g. topology)
+// schedulingConstraints defines scheduling constraints (e.g. topology)
 //
 // for the Job's pods.
 //
 // This field is immutable after creation.
-func (d *JobSchedulingConfigurationDie) SchedulingConstraints(v *schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints) *JobSchedulingConfigurationDie {
+func (d *JobSchedulingConfigurationDie) SchedulingConstraints(v *apischedulingv1.WorkloadPodGroupSchedulingConstraints) *JobSchedulingConfigurationDie {
 	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
 		r.SchedulingConstraints = v
 	})
 }
 
-// DisruptionMode defines the mode in which the Job's pods can be disrupted.
+// disruptionMode defines the mode in which the Job's pods can be disrupted.
 //
 // One of Single, All.
 //
 // This field is immutable after creation: it may not be added or removed,
 //
 // and the selected mode may not be changed.
-func (d *JobSchedulingConfigurationDie) DisruptionMode(v *schedulingv1alpha3.WorkloadPodGroupDisruptionMode) *JobSchedulingConfigurationDie {
+func (d *JobSchedulingConfigurationDie) DisruptionMode(v *apischedulingv1.WorkloadPodGroupDisruptionMode) *JobSchedulingConfigurationDie {
 	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
 		r.DisruptionMode = v
 	})
 }
 
-// ResourceClaims defines which ResourceClaims may be shared among Pods in
+// resourceClaims defines which ResourceClaims may be shared among Pods in
 //
 // the Job. Pods consume the devices allocated to a PodGroup's claim by
 //
@@ -4200,7 +4200,7 @@ func (d *JobSchedulingConfigurationDie) DisruptionMode(v *schedulingv1alpha3.Wor
 // This list is immutable after creation: entries may neither be added,
 //
 // removed, nor modified.
-func (d *JobSchedulingConfigurationDie) ResourceClaims(v ...schedulingv1alpha3.WorkloadPodGroupResourceClaim) *JobSchedulingConfigurationDie {
+func (d *JobSchedulingConfigurationDie) ResourceClaims(v ...apischedulingv1.WorkloadPodGroupResourceClaim) *JobSchedulingConfigurationDie {
 	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
 		r.ResourceClaims = v
 	})

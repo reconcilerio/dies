@@ -422,6 +422,24 @@ func TestSeccompProfileDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestSecurityProfileOCIDie_MissingMethods(t *testingx.T) {
+	die := SecurityProfileOCIBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SecurityProfileOCIDie: %s", diff.List())
+	}
+}
+
+func TestSecurityProfileOCIBaseDie_MissingMethods(t *testingx.T) {
+	die := SecurityProfileOCIBaseBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SecurityProfileOCIBaseDie: %s", diff.List())
+	}
+}
+
 func TestAppArmorProfileDie_MissingMethods(t *testingx.T) {
 	die := AppArmorProfileBlank
 	ignore := []string{}
@@ -1178,6 +1196,15 @@ func TestPodSchedulingGroupDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestEvictionResponderDie_MissingMethods(t *testingx.T) {
+	die := EvictionResponderBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for EvictionResponderDie: %s", diff.List())
+	}
+}
+
 func TestPodStatusDie_MissingMethods(t *testingx.T) {
 	die := PodStatusBlank
 	ignore := []string{}
@@ -1229,6 +1256,15 @@ func TestNodeAllocatableOverheadResourcesDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for NodeAllocatableOverheadResourcesDie: %s", diff.List())
+	}
+}
+
+func TestPodVolumeHealthDie_MissingMethods(t *testingx.T) {
+	die := PodVolumeHealthBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PodVolumeHealthDie: %s", diff.List())
 	}
 }
 

@@ -28,6 +28,7 @@ type _ = authorizationv1.SubjectAccessReview
 // +die:ignore={Extra}
 // +die:field:name=ResourceAttributes,die=ResourceAttributesDie,pointer=true
 // +die:field:name=NonResourceAttributes,die=NonResourceAttributesDie,pointer=true
+// +die:field:name=AuthorizationOptions,die=AuthorizationOptionsDie,pointer=true
 type _ = authorizationv1.SubjectAccessReviewSpec
 
 // Extra corresponds to the user.Info.GetExtra() method from the authenticator.  Since that is input to the authorizer it needs a reflection here.
@@ -55,7 +56,35 @@ type _ = authorizationv1.ResourceAttributes
 type _ = authorizationv1.NonResourceAttributes
 
 // +die
+type _ = authorizationv1.AuthorizationOptions
+
+// +die
+// +die:field:name=ConditionalDecision,die=ConditionsAwareDecisionDie,pointer=true
 type _ = authorizationv1.SubjectAccessReviewStatus
+
+// +die
+// +die:field:name=Deny,die=UnconditionalDecisionDie,pointer=true
+// +die:field:name=NoOpinion,die=UnconditionalDecisionDie,pointer=true
+// +die:field:name=Allow,die=UnconditionalDecisionDie,pointer=true
+// +die:field:name=ConditionsMap,die=ConditionsMapDie,pointer=true
+// +die:field:name=Union,die=NamedConditionsAwareDecisionDie,listType=map,listMapKey=AuthorizerName
+type _ = authorizationv1.ConditionsAwareDecision
+
+// +die
+type _ = authorizationv1.UnconditionalDecision
+
+// +die
+// +die:field:name=DenyConditions,die=ConditionDie,listType=map,listMapKey=ID
+// +die:field:name=NoOpinionConditions,die=ConditionDie,listType=map,listMapKey=ID
+// +die:field:name=AllowConditions,die=ConditionDie,listType=map,listMapKey=ID
+type _ = authorizationv1.ConditionsMap
+
+// +die
+type _ = authorizationv1.Condition
+
+// +die
+// +die:field:name=Decision,die=ConditionsAwareDecisionDie
+type _ = authorizationv1.NamedConditionsAwareDecision
 
 // +die
 // +die:field:name=Requirements,package=_/meta/v1,die=FieldSelectorRequirementDie,listType=atomic

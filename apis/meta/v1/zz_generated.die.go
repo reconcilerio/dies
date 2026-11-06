@@ -1911,7 +1911,7 @@ func (d *ListMetaDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 //
 // of the collection.
 //
-// This is an alpha field and requires enabling the ShardedListAndWatch feature gate.
+// This is a beta field and is enabled by default via the ShardedListAndWatch feature gate.
 func (d *ListMetaDie) ShardInfoDie(fn func(d *ShardInfoDie)) *ListMetaDie {
 	return d.DieStamp(func(r *metav1.ListMeta) {
 		d := ShardInfoBlank.DieImmutable(false).DieFeedPtr(r.ShardInfo)
@@ -1996,7 +1996,7 @@ func (d *ListMetaDie) RemainingItemCount(v *int64) *ListMetaDie {
 //
 // of the collection.
 //
-// This is an alpha field and requires enabling the ShardedListAndWatch feature gate.
+// This is a beta field and is enabled by default via the ShardedListAndWatch feature gate.
 func (d *ListMetaDie) ShardInfo(v *metav1.ShardInfo) *ListMetaDie {
 	return d.DieStamp(func(r *metav1.ListMeta) {
 		r.ShardInfo = v

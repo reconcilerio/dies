@@ -1037,6 +1037,21 @@ func (d *SelfSubjectAccessReviewSpecDie) NonResourceAttributesDie(fn func(d *Non
 	})
 }
 
+// AuthorizationOptionsDie mutates AuthorizationOptions as a die.
+//
+// authorizationOptions contains options for specifying the client's authorization abilities.
+//
+// If unset, only unconditional authorization is supported, for backwards-compatibility.
+//
+// Requires the ConditionalAuthorization feature to be enabled.
+func (d *SelfSubjectAccessReviewSpecDie) AuthorizationOptionsDie(fn func(d *AuthorizationOptionsDie)) *SelfSubjectAccessReviewSpecDie {
+	return d.DieStamp(func(r *authorizationv1.SelfSubjectAccessReviewSpec) {
+		d := AuthorizationOptionsBlank.DieImmutable(false).DieFeedPtr(r.AuthorizationOptions)
+		fn(d)
+		r.AuthorizationOptions = d.DieReleasePtr()
+	})
+}
+
 // resourceAttributes describes information for a resource access request
 func (d *SelfSubjectAccessReviewSpecDie) ResourceAttributes(v *authorizationv1.ResourceAttributes) *SelfSubjectAccessReviewSpecDie {
 	return d.DieStamp(func(r *authorizationv1.SelfSubjectAccessReviewSpec) {
@@ -1048,6 +1063,17 @@ func (d *SelfSubjectAccessReviewSpecDie) ResourceAttributes(v *authorizationv1.R
 func (d *SelfSubjectAccessReviewSpecDie) NonResourceAttributes(v *authorizationv1.NonResourceAttributes) *SelfSubjectAccessReviewSpecDie {
 	return d.DieStamp(func(r *authorizationv1.SelfSubjectAccessReviewSpec) {
 		r.NonResourceAttributes = v
+	})
+}
+
+// authorizationOptions contains options for specifying the client's authorization abilities.
+//
+// If unset, only unconditional authorization is supported, for backwards-compatibility.
+//
+// Requires the ConditionalAuthorization feature to be enabled.
+func (d *SelfSubjectAccessReviewSpecDie) AuthorizationOptions(v *authorizationv1.AuthorizationOptions) *SelfSubjectAccessReviewSpecDie {
+	return d.DieStamp(func(r *authorizationv1.SelfSubjectAccessReviewSpec) {
+		r.AuthorizationOptions = v
 	})
 }
 
@@ -3170,6 +3196,21 @@ func (d *SubjectAccessReviewSpecDie) NonResourceAttributesDie(fn func(d *NonReso
 	})
 }
 
+// AuthorizationOptionsDie mutates AuthorizationOptions as a die.
+//
+// authorizationOptions contains options for specifying the client's authorization abilities.
+//
+// If unset, only unconditional authorization is supported, for backwards-compatibility.
+//
+// Requires the ConditionalAuthorization feature to be enabled.
+func (d *SubjectAccessReviewSpecDie) AuthorizationOptionsDie(fn func(d *AuthorizationOptionsDie)) *SubjectAccessReviewSpecDie {
+	return d.DieStamp(func(r *authorizationv1.SubjectAccessReviewSpec) {
+		d := AuthorizationOptionsBlank.DieImmutable(false).DieFeedPtr(r.AuthorizationOptions)
+		fn(d)
+		r.AuthorizationOptions = d.DieReleasePtr()
+	})
+}
+
 // resourceAttributes describes information for a resource access request
 func (d *SubjectAccessReviewSpecDie) ResourceAttributes(v *authorizationv1.ResourceAttributes) *SubjectAccessReviewSpecDie {
 	return d.DieStamp(func(r *authorizationv1.SubjectAccessReviewSpec) {
@@ -3204,6 +3245,17 @@ func (d *SubjectAccessReviewSpecDie) Groups(v ...string) *SubjectAccessReviewSpe
 func (d *SubjectAccessReviewSpecDie) UID(v string) *SubjectAccessReviewSpecDie {
 	return d.DieStamp(func(r *authorizationv1.SubjectAccessReviewSpec) {
 		r.UID = v
+	})
+}
+
+// authorizationOptions contains options for specifying the client's authorization abilities.
+//
+// If unset, only unconditional authorization is supported, for backwards-compatibility.
+//
+// Requires the ConditionalAuthorization feature to be enabled.
+func (d *SubjectAccessReviewSpecDie) AuthorizationOptions(v *authorizationv1.AuthorizationOptions) *SubjectAccessReviewSpecDie {
+	return d.DieStamp(func(r *authorizationv1.SubjectAccessReviewSpec) {
+		r.AuthorizationOptions = v
 	})
 }
 
@@ -3804,6 +3856,277 @@ func (d *NonResourceAttributesDie) Verb(v string) *NonResourceAttributesDie {
 	})
 }
 
+var AuthorizationOptionsBlank = (&AuthorizationOptionsDie{}).DieFeed(authorizationv1.AuthorizationOptions{})
+
+type AuthorizationOptionsDie struct {
+	mutable bool
+	r       authorizationv1.AuthorizationOptions
+	seal    authorizationv1.AuthorizationOptions
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *AuthorizationOptionsDie) DieImmutable(immutable bool) *AuthorizationOptionsDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *AuthorizationOptionsDie) DieFeed(r authorizationv1.AuthorizationOptions) *AuthorizationOptionsDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &AuthorizationOptionsDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *AuthorizationOptionsDie) DieFeedPtr(r *authorizationv1.AuthorizationOptions) *AuthorizationOptionsDie {
+	if r == nil {
+		r = &authorizationv1.AuthorizationOptions{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *AuthorizationOptionsDie) DieFeedDuck(v any) *AuthorizationOptionsDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *AuthorizationOptionsDie) DieFeedJSON(j []byte) *AuthorizationOptionsDie {
+	r := authorizationv1.AuthorizationOptions{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *AuthorizationOptionsDie) DieFeedYAML(y []byte) *AuthorizationOptionsDie {
+	r := authorizationv1.AuthorizationOptions{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *AuthorizationOptionsDie) DieFeedYAMLFile(name string) *AuthorizationOptionsDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *AuthorizationOptionsDie) DieFeedRawExtension(raw runtime.RawExtension) *AuthorizationOptionsDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *AuthorizationOptionsDie) DieRelease() authorizationv1.AuthorizationOptions {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *AuthorizationOptionsDie) DieReleasePtr() *authorizationv1.AuthorizationOptions {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *AuthorizationOptionsDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *AuthorizationOptionsDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *AuthorizationOptionsDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *AuthorizationOptionsDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *AuthorizationOptionsDie) DieStamp(fn func(r *authorizationv1.AuthorizationOptions)) *AuthorizationOptionsDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *AuthorizationOptionsDie) DieStampAt(jp string, fn interface{}) *AuthorizationOptionsDie {
+	return d.DieStamp(func(r *authorizationv1.AuthorizationOptions) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *AuthorizationOptionsDie) DieWith(fns ...func(d *AuthorizationOptionsDie)) *AuthorizationOptionsDie {
+	nd := AuthorizationOptionsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *AuthorizationOptionsDie) DeepCopy() *AuthorizationOptionsDie {
+	r := *d.r.DeepCopy()
+	return &AuthorizationOptionsDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *AuthorizationOptionsDie) DieSeal() *AuthorizationOptionsDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *AuthorizationOptionsDie) DieSealFeed(r authorizationv1.AuthorizationOptions) *AuthorizationOptionsDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *AuthorizationOptionsDie) DieSealFeedPtr(r *authorizationv1.AuthorizationOptions) *AuthorizationOptionsDie {
+	if r == nil {
+		r = &authorizationv1.AuthorizationOptions{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *AuthorizationOptionsDie) DieSealRelease() authorizationv1.AuthorizationOptions {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *AuthorizationOptionsDie) DieSealReleasePtr() *authorizationv1.AuthorizationOptions {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *AuthorizationOptionsDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *AuthorizationOptionsDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// handledDecisionTypes specifies what decision types the client can handle in the context it is in.
+//
+// Currently valid values are:
+//
+// - [Allow, Deny, NoOpinion] (for conditions-unaware clients) or
+//
+// - [Allow, Deny, NoOpinion, ConditionsMap, Union, ...] (for conditions-aware clients)
+//
+// If the authorizer would like to return conditions, but the client does not opt in to handle those here,
+//
+// the authorizer must fail closed to a safe unconditional decision
+//
+// (Deny if any Deny conditions were present, otherwise NoOpinion).
+//
+// Order does not matter in this slice; set semantics should be used.
+//
+// # The server does not reject unrecognized decision types, but focuses on whether the client
+//
+// supports a mode that the server does. All clients must support "classic", conditions-unaware authorization.
+func (d *AuthorizationOptionsDie) HandledDecisionTypes(v ...authorizationv1.ConditionsAwareDecisionType) *AuthorizationOptionsDie {
+	return d.DieStamp(func(r *authorizationv1.AuthorizationOptions) {
+		r.HandledDecisionTypes = v
+	})
+}
+
 var SubjectAccessReviewStatusBlank = (&SubjectAccessReviewStatusDie{}).DieFeed(authorizationv1.SubjectAccessReviewStatus{})
 
 type SubjectAccessReviewStatusDie struct {
@@ -4050,20 +4373,45 @@ func (d *SubjectAccessReviewStatusDie) DiePatch(patchType types.PatchType) ([]by
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// allowed is required. True if the action would be allowed, false otherwise.
+// ConditionalDecisionDie mutates ConditionalDecision as a die.
+//
+// conditionalDecision represents a conditional decision returned by the authorizer.
+//
+// When conditionalDecision is set, allowed, denied, reason and evaluationError must have their zero values.
+//
+// # The top-level decision type should be ConditionsAwareDecisionTypeConditionsMap or
+//
+// ConditionsAwareDecisionTypeUnion, as Allow/Deny/NoOpinion decisions can be represented
+//
+// with SubjectAccessReviewStatus.Allowed and SubjectAccessReviewStatus.Denied alone.
+//
+// May only be set if spec.authorizationOptions.handledDecisionTypes includes `ConditionsMap` and `Union`.
+//
+// Requires the ConditionalAuthorization feature to be enabled.
+func (d *SubjectAccessReviewStatusDie) ConditionalDecisionDie(fn func(d *ConditionsAwareDecisionDie)) *SubjectAccessReviewStatusDie {
+	return d.DieStamp(func(r *authorizationv1.SubjectAccessReviewStatus) {
+		d := ConditionsAwareDecisionBlank.DieImmutable(false).DieFeedPtr(r.ConditionalDecision)
+		fn(d)
+		r.ConditionalDecision = d.DieReleasePtr()
+	})
+}
+
+// allowed is true if the action would be allowed, false otherwise.
+//
+// allowed=true is mutually exclusive with denied=true and conditionalDecision != nil.
 func (d *SubjectAccessReviewStatusDie) Allowed(v bool) *SubjectAccessReviewStatusDie {
 	return d.DieStamp(func(r *authorizationv1.SubjectAccessReviewStatus) {
 		r.Allowed = v
 	})
 }
 
-// denied is optional. True if the action would be denied, otherwise
+// denied is optional. True if the action would be denied, otherwise false
 //
-// false. If both allowed is false and denied is false, then the
+// If allowed is false, denied is false, and conditionalDecision is unset,
 //
-// authorizer has no opinion on whether to authorize the action. Denied
+// then the authorizer has no opinion on whether to authorize the action.
 //
-// may not be true if Allowed is true.
+// denied=true is mutually exclusive with allowed=true and conditionalDecision != nil.
 func (d *SubjectAccessReviewStatusDie) Denied(v bool) *SubjectAccessReviewStatusDie {
 	return d.DieStamp(func(r *authorizationv1.SubjectAccessReviewStatus) {
 		r.Denied = v
@@ -4085,6 +4433,1595 @@ func (d *SubjectAccessReviewStatusDie) Reason(v string) *SubjectAccessReviewStat
 func (d *SubjectAccessReviewStatusDie) EvaluationError(v string) *SubjectAccessReviewStatusDie {
 	return d.DieStamp(func(r *authorizationv1.SubjectAccessReviewStatus) {
 		r.EvaluationError = v
+	})
+}
+
+// conditionalDecision represents a conditional decision returned by the authorizer.
+//
+// When conditionalDecision is set, allowed, denied, reason and evaluationError must have their zero values.
+//
+// # The top-level decision type should be ConditionsAwareDecisionTypeConditionsMap or
+//
+// ConditionsAwareDecisionTypeUnion, as Allow/Deny/NoOpinion decisions can be represented
+//
+// with SubjectAccessReviewStatus.Allowed and SubjectAccessReviewStatus.Denied alone.
+//
+// May only be set if spec.authorizationOptions.handledDecisionTypes includes `ConditionsMap` and `Union`.
+//
+// Requires the ConditionalAuthorization feature to be enabled.
+func (d *SubjectAccessReviewStatusDie) ConditionalDecision(v *authorizationv1.ConditionsAwareDecision) *SubjectAccessReviewStatusDie {
+	return d.DieStamp(func(r *authorizationv1.SubjectAccessReviewStatus) {
+		r.ConditionalDecision = v
+	})
+}
+
+var ConditionsAwareDecisionBlank = (&ConditionsAwareDecisionDie{}).DieFeed(authorizationv1.ConditionsAwareDecision{})
+
+type ConditionsAwareDecisionDie struct {
+	mutable bool
+	r       authorizationv1.ConditionsAwareDecision
+	seal    authorizationv1.ConditionsAwareDecision
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ConditionsAwareDecisionDie) DieImmutable(immutable bool) *ConditionsAwareDecisionDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ConditionsAwareDecisionDie) DieFeed(r authorizationv1.ConditionsAwareDecision) *ConditionsAwareDecisionDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ConditionsAwareDecisionDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ConditionsAwareDecisionDie) DieFeedPtr(r *authorizationv1.ConditionsAwareDecision) *ConditionsAwareDecisionDie {
+	if r == nil {
+		r = &authorizationv1.ConditionsAwareDecision{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ConditionsAwareDecisionDie) DieFeedDuck(v any) *ConditionsAwareDecisionDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ConditionsAwareDecisionDie) DieFeedJSON(j []byte) *ConditionsAwareDecisionDie {
+	r := authorizationv1.ConditionsAwareDecision{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ConditionsAwareDecisionDie) DieFeedYAML(y []byte) *ConditionsAwareDecisionDie {
+	r := authorizationv1.ConditionsAwareDecision{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ConditionsAwareDecisionDie) DieFeedYAMLFile(name string) *ConditionsAwareDecisionDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ConditionsAwareDecisionDie) DieFeedRawExtension(raw runtime.RawExtension) *ConditionsAwareDecisionDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ConditionsAwareDecisionDie) DieRelease() authorizationv1.ConditionsAwareDecision {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ConditionsAwareDecisionDie) DieReleasePtr() *authorizationv1.ConditionsAwareDecision {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ConditionsAwareDecisionDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ConditionsAwareDecisionDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ConditionsAwareDecisionDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ConditionsAwareDecisionDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ConditionsAwareDecisionDie) DieStamp(fn func(r *authorizationv1.ConditionsAwareDecision)) *ConditionsAwareDecisionDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ConditionsAwareDecisionDie) DieStampAt(jp string, fn interface{}) *ConditionsAwareDecisionDie {
+	return d.DieStamp(func(r *authorizationv1.ConditionsAwareDecision) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ConditionsAwareDecisionDie) DieWith(fns ...func(d *ConditionsAwareDecisionDie)) *ConditionsAwareDecisionDie {
+	nd := ConditionsAwareDecisionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ConditionsAwareDecisionDie) DeepCopy() *ConditionsAwareDecisionDie {
+	r := *d.r.DeepCopy()
+	return &ConditionsAwareDecisionDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ConditionsAwareDecisionDie) DieSeal() *ConditionsAwareDecisionDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ConditionsAwareDecisionDie) DieSealFeed(r authorizationv1.ConditionsAwareDecision) *ConditionsAwareDecisionDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ConditionsAwareDecisionDie) DieSealFeedPtr(r *authorizationv1.ConditionsAwareDecision) *ConditionsAwareDecisionDie {
+	if r == nil {
+		r = &authorizationv1.ConditionsAwareDecision{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ConditionsAwareDecisionDie) DieSealRelease() authorizationv1.ConditionsAwareDecision {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ConditionsAwareDecisionDie) DieSealReleasePtr() *authorizationv1.ConditionsAwareDecision {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ConditionsAwareDecisionDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ConditionsAwareDecisionDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// DenyDie mutates Deny as a die.
+//
+// deny represents an unconditional Deny decision.
+//
+// Must be non-null when type == "Deny", otherwise this field must be unset.
+func (d *ConditionsAwareDecisionDie) DenyDie(fn func(d *UnconditionalDecisionDie)) *ConditionsAwareDecisionDie {
+	return d.DieStamp(func(r *authorizationv1.ConditionsAwareDecision) {
+		d := UnconditionalDecisionBlank.DieImmutable(false).DieFeedPtr(r.Deny)
+		fn(d)
+		r.Deny = d.DieReleasePtr()
+	})
+}
+
+// NoOpinionDie mutates NoOpinion as a die.
+//
+// noOpinion represents an unconditional NoOpinion decision.
+//
+// Must be non-null when type == "NoOpinion", otherwise this field must be unset.
+func (d *ConditionsAwareDecisionDie) NoOpinionDie(fn func(d *UnconditionalDecisionDie)) *ConditionsAwareDecisionDie {
+	return d.DieStamp(func(r *authorizationv1.ConditionsAwareDecision) {
+		d := UnconditionalDecisionBlank.DieImmutable(false).DieFeedPtr(r.NoOpinion)
+		fn(d)
+		r.NoOpinion = d.DieReleasePtr()
+	})
+}
+
+// AllowDie mutates Allow as a die.
+//
+// allow represents an unconditional Allow decision.
+//
+// Must be non-null when type == "Allow", otherwise this field must be unset.
+func (d *ConditionsAwareDecisionDie) AllowDie(fn func(d *UnconditionalDecisionDie)) *ConditionsAwareDecisionDie {
+	return d.DieStamp(func(r *authorizationv1.ConditionsAwareDecision) {
+		d := UnconditionalDecisionBlank.DieImmutable(false).DieFeedPtr(r.Allow)
+		fn(d)
+		r.Allow = d.DieReleasePtr()
+	})
+}
+
+// ConditionsMapDie mutates ConditionsMap as a die.
+//
+// conditionsMap represents a conditional decision, modelled as a map of conditions.
+//
+// Must be non-null when type == "ConditionsMap", otherwise this field must be unset.
+func (d *ConditionsAwareDecisionDie) ConditionsMapDie(fn func(d *ConditionsMapDie)) *ConditionsAwareDecisionDie {
+	return d.DieStamp(func(r *authorizationv1.ConditionsAwareDecision) {
+		d := ConditionsMapBlank.DieImmutable(false).DieFeedPtr(r.ConditionsMap)
+		fn(d)
+		r.ConditionsMap = d.DieReleasePtr()
+	})
+}
+
+// UnionDie mutates a single item in Union matched by the nested field AuthorizerName, appending a new item if no match is found.
+//
+// union forms an ordered tree of decisions, where the union decision is represented by
+//
+// an internal node, and all other decision types are leaf nodes. During evaluation, the
+//
+// leaf decisions are evaluated in depth-first order, until an Allow or Deny decision is found.
+//
+// # The order of the decisions should match the order of the authorizers in the union authorizer
+//
+// for interpretability, but the authorizerName is the map key.
+//
+// # At least one of the leaves must be of type ConditionsMap, as otherwise the union could be trivially
+//
+// reduced to just a single Allow/Deny/NoOpinion.
+//
+// Must have at least one element when type == "Union", otherwise this field must be unset.
+func (d *ConditionsAwareDecisionDie) UnionDie(v string, fn func(d *NamedConditionsAwareDecisionDie)) *ConditionsAwareDecisionDie {
+	return d.DieStamp(func(r *authorizationv1.ConditionsAwareDecision) {
+		for i := range r.Union {
+			if v == r.Union[i].AuthorizerName {
+				d := NamedConditionsAwareDecisionBlank.DieImmutable(false).DieFeed(r.Union[i])
+				fn(d)
+				r.Union[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := NamedConditionsAwareDecisionBlank.DieImmutable(false).DieFeed(authorizationv1.NamedConditionsAwareDecision{AuthorizerName: v})
+		fn(d)
+		r.Union = append(r.Union, d.DieRelease())
+	})
+}
+
+// type describes the type of the decision, and acts as an enum discriminator.
+func (d *ConditionsAwareDecisionDie) Type(v authorizationv1.ConditionsAwareDecisionType) *ConditionsAwareDecisionDie {
+	return d.DieStamp(func(r *authorizationv1.ConditionsAwareDecision) {
+		r.Type = v
+	})
+}
+
+// deny represents an unconditional Deny decision.
+//
+// Must be non-null when type == "Deny", otherwise this field must be unset.
+func (d *ConditionsAwareDecisionDie) Deny(v *authorizationv1.UnconditionalDecision) *ConditionsAwareDecisionDie {
+	return d.DieStamp(func(r *authorizationv1.ConditionsAwareDecision) {
+		r.Deny = v
+	})
+}
+
+// noOpinion represents an unconditional NoOpinion decision.
+//
+// Must be non-null when type == "NoOpinion", otherwise this field must be unset.
+func (d *ConditionsAwareDecisionDie) NoOpinion(v *authorizationv1.UnconditionalDecision) *ConditionsAwareDecisionDie {
+	return d.DieStamp(func(r *authorizationv1.ConditionsAwareDecision) {
+		r.NoOpinion = v
+	})
+}
+
+// allow represents an unconditional Allow decision.
+//
+// Must be non-null when type == "Allow", otherwise this field must be unset.
+func (d *ConditionsAwareDecisionDie) Allow(v *authorizationv1.UnconditionalDecision) *ConditionsAwareDecisionDie {
+	return d.DieStamp(func(r *authorizationv1.ConditionsAwareDecision) {
+		r.Allow = v
+	})
+}
+
+// conditionsMap represents a conditional decision, modelled as a map of conditions.
+//
+// Must be non-null when type == "ConditionsMap", otherwise this field must be unset.
+func (d *ConditionsAwareDecisionDie) ConditionsMap(v *authorizationv1.ConditionsMap) *ConditionsAwareDecisionDie {
+	return d.DieStamp(func(r *authorizationv1.ConditionsAwareDecision) {
+		r.ConditionsMap = v
+	})
+}
+
+// union forms an ordered tree of decisions, where the union decision is represented by
+//
+// an internal node, and all other decision types are leaf nodes. During evaluation, the
+//
+// leaf decisions are evaluated in depth-first order, until an Allow or Deny decision is found.
+//
+// # The order of the decisions should match the order of the authorizers in the union authorizer
+//
+// for interpretability, but the authorizerName is the map key.
+//
+// # At least one of the leaves must be of type ConditionsMap, as otherwise the union could be trivially
+//
+// reduced to just a single Allow/Deny/NoOpinion.
+//
+// Must have at least one element when type == "Union", otherwise this field must be unset.
+func (d *ConditionsAwareDecisionDie) Union(v ...authorizationv1.NamedConditionsAwareDecision) *ConditionsAwareDecisionDie {
+	return d.DieStamp(func(r *authorizationv1.ConditionsAwareDecision) {
+		r.Union = v
+	})
+}
+
+var UnconditionalDecisionBlank = (&UnconditionalDecisionDie{}).DieFeed(authorizationv1.UnconditionalDecision{})
+
+type UnconditionalDecisionDie struct {
+	mutable bool
+	r       authorizationv1.UnconditionalDecision
+	seal    authorizationv1.UnconditionalDecision
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *UnconditionalDecisionDie) DieImmutable(immutable bool) *UnconditionalDecisionDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *UnconditionalDecisionDie) DieFeed(r authorizationv1.UnconditionalDecision) *UnconditionalDecisionDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &UnconditionalDecisionDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *UnconditionalDecisionDie) DieFeedPtr(r *authorizationv1.UnconditionalDecision) *UnconditionalDecisionDie {
+	if r == nil {
+		r = &authorizationv1.UnconditionalDecision{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *UnconditionalDecisionDie) DieFeedDuck(v any) *UnconditionalDecisionDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *UnconditionalDecisionDie) DieFeedJSON(j []byte) *UnconditionalDecisionDie {
+	r := authorizationv1.UnconditionalDecision{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *UnconditionalDecisionDie) DieFeedYAML(y []byte) *UnconditionalDecisionDie {
+	r := authorizationv1.UnconditionalDecision{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *UnconditionalDecisionDie) DieFeedYAMLFile(name string) *UnconditionalDecisionDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *UnconditionalDecisionDie) DieFeedRawExtension(raw runtime.RawExtension) *UnconditionalDecisionDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *UnconditionalDecisionDie) DieRelease() authorizationv1.UnconditionalDecision {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *UnconditionalDecisionDie) DieReleasePtr() *authorizationv1.UnconditionalDecision {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *UnconditionalDecisionDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *UnconditionalDecisionDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *UnconditionalDecisionDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *UnconditionalDecisionDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *UnconditionalDecisionDie) DieStamp(fn func(r *authorizationv1.UnconditionalDecision)) *UnconditionalDecisionDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *UnconditionalDecisionDie) DieStampAt(jp string, fn interface{}) *UnconditionalDecisionDie {
+	return d.DieStamp(func(r *authorizationv1.UnconditionalDecision) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *UnconditionalDecisionDie) DieWith(fns ...func(d *UnconditionalDecisionDie)) *UnconditionalDecisionDie {
+	nd := UnconditionalDecisionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *UnconditionalDecisionDie) DeepCopy() *UnconditionalDecisionDie {
+	r := *d.r.DeepCopy()
+	return &UnconditionalDecisionDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *UnconditionalDecisionDie) DieSeal() *UnconditionalDecisionDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *UnconditionalDecisionDie) DieSealFeed(r authorizationv1.UnconditionalDecision) *UnconditionalDecisionDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *UnconditionalDecisionDie) DieSealFeedPtr(r *authorizationv1.UnconditionalDecision) *UnconditionalDecisionDie {
+	if r == nil {
+		r = &authorizationv1.UnconditionalDecision{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *UnconditionalDecisionDie) DieSealRelease() authorizationv1.UnconditionalDecision {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *UnconditionalDecisionDie) DieSealReleasePtr() *authorizationv1.UnconditionalDecision {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *UnconditionalDecisionDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *UnconditionalDecisionDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// reason is optional. It indicates why a request was allowed or denied.
+func (d *UnconditionalDecisionDie) Reason(v string) *UnconditionalDecisionDie {
+	return d.DieStamp(func(r *authorizationv1.UnconditionalDecision) {
+		r.Reason = v
+	})
+}
+
+// evaluationError is an indication that some error occurred during the authorization check.
+//
+// It is entirely possible to get an error and be able to continue determine authorization status in spite of it.
+//
+// For instance, RBAC can be missing a role, but enough roles are still present and bound to reason about the request.
+func (d *UnconditionalDecisionDie) EvaluationError(v string) *UnconditionalDecisionDie {
+	return d.DieStamp(func(r *authorizationv1.UnconditionalDecision) {
+		r.EvaluationError = v
+	})
+}
+
+var ConditionsMapBlank = (&ConditionsMapDie{}).DieFeed(authorizationv1.ConditionsMap{})
+
+type ConditionsMapDie struct {
+	mutable bool
+	r       authorizationv1.ConditionsMap
+	seal    authorizationv1.ConditionsMap
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ConditionsMapDie) DieImmutable(immutable bool) *ConditionsMapDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ConditionsMapDie) DieFeed(r authorizationv1.ConditionsMap) *ConditionsMapDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ConditionsMapDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ConditionsMapDie) DieFeedPtr(r *authorizationv1.ConditionsMap) *ConditionsMapDie {
+	if r == nil {
+		r = &authorizationv1.ConditionsMap{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ConditionsMapDie) DieFeedDuck(v any) *ConditionsMapDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ConditionsMapDie) DieFeedJSON(j []byte) *ConditionsMapDie {
+	r := authorizationv1.ConditionsMap{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ConditionsMapDie) DieFeedYAML(y []byte) *ConditionsMapDie {
+	r := authorizationv1.ConditionsMap{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ConditionsMapDie) DieFeedYAMLFile(name string) *ConditionsMapDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ConditionsMapDie) DieFeedRawExtension(raw runtime.RawExtension) *ConditionsMapDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ConditionsMapDie) DieRelease() authorizationv1.ConditionsMap {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ConditionsMapDie) DieReleasePtr() *authorizationv1.ConditionsMap {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ConditionsMapDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ConditionsMapDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ConditionsMapDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ConditionsMapDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ConditionsMapDie) DieStamp(fn func(r *authorizationv1.ConditionsMap)) *ConditionsMapDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ConditionsMapDie) DieStampAt(jp string, fn interface{}) *ConditionsMapDie {
+	return d.DieStamp(func(r *authorizationv1.ConditionsMap) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ConditionsMapDie) DieWith(fns ...func(d *ConditionsMapDie)) *ConditionsMapDie {
+	nd := ConditionsMapBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ConditionsMapDie) DeepCopy() *ConditionsMapDie {
+	r := *d.r.DeepCopy()
+	return &ConditionsMapDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ConditionsMapDie) DieSeal() *ConditionsMapDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ConditionsMapDie) DieSealFeed(r authorizationv1.ConditionsMap) *ConditionsMapDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ConditionsMapDie) DieSealFeedPtr(r *authorizationv1.ConditionsMap) *ConditionsMapDie {
+	if r == nil {
+		r = &authorizationv1.ConditionsMap{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ConditionsMapDie) DieSealRelease() authorizationv1.ConditionsMap {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ConditionsMapDie) DieSealReleasePtr() *authorizationv1.ConditionsMap {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ConditionsMapDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ConditionsMapDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// DenyConditionDie mutates a single item in DenyConditions matched by the nested field ID, appending a new item if no match is found.
+//
+// denyConditions contains the conditions with Deny effect. If any such condition evaluates to
+//
+// true or error, the ConditionsMap as a whole must evaluate to Deny.
+func (d *ConditionsMapDie) DenyConditionDie(v string, fn func(d *ConditionDie)) *ConditionsMapDie {
+	return d.DieStamp(func(r *authorizationv1.ConditionsMap) {
+		for i := range r.DenyConditions {
+			if v == r.DenyConditions[i].ID {
+				d := ConditionBlank.DieImmutable(false).DieFeed(r.DenyConditions[i])
+				fn(d)
+				r.DenyConditions[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := ConditionBlank.DieImmutable(false).DieFeed(authorizationv1.Condition{ID: v})
+		fn(d)
+		r.DenyConditions = append(r.DenyConditions, d.DieRelease())
+	})
+}
+
+// NoOpinionConditionDie mutates a single item in NoOpinionConditions matched by the nested field ID, appending a new item if no match is found.
+//
+// noOpinionConditions contains the conditions with NoOpinion effect. If any such condition evaluates to
+//
+// true or error, the ConditionsMap as a whole must evaluate to NoOpinion.
+func (d *ConditionsMapDie) NoOpinionConditionDie(v string, fn func(d *ConditionDie)) *ConditionsMapDie {
+	return d.DieStamp(func(r *authorizationv1.ConditionsMap) {
+		for i := range r.NoOpinionConditions {
+			if v == r.NoOpinionConditions[i].ID {
+				d := ConditionBlank.DieImmutable(false).DieFeed(r.NoOpinionConditions[i])
+				fn(d)
+				r.NoOpinionConditions[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := ConditionBlank.DieImmutable(false).DieFeed(authorizationv1.Condition{ID: v})
+		fn(d)
+		r.NoOpinionConditions = append(r.NoOpinionConditions, d.DieRelease())
+	})
+}
+
+// AllowConditionDie mutates a single item in AllowConditions matched by the nested field ID, appending a new item if no match is found.
+//
+// allowConditions contains the conditions with Allow effect. If any such condition evaluates to
+//
+// true, the ConditionsMap as a whole must evaluate to Allow.
+func (d *ConditionsMapDie) AllowConditionDie(v string, fn func(d *ConditionDie)) *ConditionsMapDie {
+	return d.DieStamp(func(r *authorizationv1.ConditionsMap) {
+		for i := range r.AllowConditions {
+			if v == r.AllowConditions[i].ID {
+				d := ConditionBlank.DieImmutable(false).DieFeed(r.AllowConditions[i])
+				fn(d)
+				r.AllowConditions[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := ConditionBlank.DieImmutable(false).DieFeed(authorizationv1.Condition{ID: v})
+		fn(d)
+		r.AllowConditions = append(r.AllowConditions, d.DieRelease())
+	})
+}
+
+// denyConditions contains the conditions with Deny effect. If any such condition evaluates to
+//
+// true or error, the ConditionsMap as a whole must evaluate to Deny.
+func (d *ConditionsMapDie) DenyConditions(v ...authorizationv1.Condition) *ConditionsMapDie {
+	return d.DieStamp(func(r *authorizationv1.ConditionsMap) {
+		r.DenyConditions = v
+	})
+}
+
+// noOpinionConditions contains the conditions with NoOpinion effect. If any such condition evaluates to
+//
+// true or error, the ConditionsMap as a whole must evaluate to NoOpinion.
+func (d *ConditionsMapDie) NoOpinionConditions(v ...authorizationv1.Condition) *ConditionsMapDie {
+	return d.DieStamp(func(r *authorizationv1.ConditionsMap) {
+		r.NoOpinionConditions = v
+	})
+}
+
+// allowConditions contains the conditions with Allow effect. If any such condition evaluates to
+//
+// true, the ConditionsMap as a whole must evaluate to Allow.
+func (d *ConditionsMapDie) AllowConditions(v ...authorizationv1.Condition) *ConditionsMapDie {
+	return d.DieStamp(func(r *authorizationv1.ConditionsMap) {
+		r.AllowConditions = v
+	})
+}
+
+var ConditionBlank = (&ConditionDie{}).DieFeed(authorizationv1.Condition{})
+
+type ConditionDie struct {
+	mutable bool
+	r       authorizationv1.Condition
+	seal    authorizationv1.Condition
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ConditionDie) DieImmutable(immutable bool) *ConditionDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ConditionDie) DieFeed(r authorizationv1.Condition) *ConditionDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ConditionDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ConditionDie) DieFeedPtr(r *authorizationv1.Condition) *ConditionDie {
+	if r == nil {
+		r = &authorizationv1.Condition{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ConditionDie) DieFeedDuck(v any) *ConditionDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ConditionDie) DieFeedJSON(j []byte) *ConditionDie {
+	r := authorizationv1.Condition{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ConditionDie) DieFeedYAML(y []byte) *ConditionDie {
+	r := authorizationv1.Condition{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ConditionDie) DieFeedYAMLFile(name string) *ConditionDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ConditionDie) DieFeedRawExtension(raw runtime.RawExtension) *ConditionDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ConditionDie) DieRelease() authorizationv1.Condition {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ConditionDie) DieReleasePtr() *authorizationv1.Condition {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ConditionDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ConditionDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ConditionDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ConditionDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ConditionDie) DieStamp(fn func(r *authorizationv1.Condition)) *ConditionDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ConditionDie) DieStampAt(jp string, fn interface{}) *ConditionDie {
+	return d.DieStamp(func(r *authorizationv1.Condition) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ConditionDie) DieWith(fns ...func(d *ConditionDie)) *ConditionDie {
+	nd := ConditionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ConditionDie) DeepCopy() *ConditionDie {
+	r := *d.r.DeepCopy()
+	return &ConditionDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ConditionDie) DieSeal() *ConditionDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ConditionDie) DieSealFeed(r authorizationv1.Condition) *ConditionDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ConditionDie) DieSealFeedPtr(r *authorizationv1.Condition) *ConditionDie {
+	if r == nil {
+		r = &authorizationv1.Condition{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ConditionDie) DieSealRelease() authorizationv1.Condition {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ConditionDie) DieSealReleasePtr() *authorizationv1.Condition {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ConditionDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ConditionDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// id uniquely identifies this condition within the scope of the authorizer
+//
+// that authored it and ConditionsMap it is part of. Validated as a Kubernetes label key.
+//
+// Any domain of form *.k8s.io or *.kubernetes.io is reserved for Kubernetes use.
+func (d *ConditionDie) ID(v string) *ConditionDie {
+	return d.DieStamp(func(r *authorizationv1.Condition) {
+		r.ID = v
+	})
+}
+
+// condition returns a string encoding of the condition to be evaluated.
+//
+// It is a pure, deterministic function from ConditionsData to a boolean (or error).
+//
+// Might or might not be human-readable.
+//
+// Optional, if the ID alone is enough for the authorizer to know how to evaluate the condition.
+func (d *ConditionDie) Condition(v string) *ConditionDie {
+	return d.DieStamp(func(r *authorizationv1.Condition) {
+		r.Condition = v
+	})
+}
+
+// type describes the type of the condition, if there are multiple possibilities.
+//
+// Should be formatted as a Kubernetes label key.
+//
+// Any domain of form *.k8s.io or *.kubernetes.io is reserved for Kubernetes use.
+//
+// authorizer.kubernetes.io/cel is a conditions type for CEL, handled by kube-apiserver.
+//
+// Optional. Can be omitted if the authorizer already knows how to evaluate the condition.
+func (d *ConditionDie) Type(v string) *ConditionDie {
+	return d.DieStamp(func(r *authorizationv1.Condition) {
+		r.Type = v
+	})
+}
+
+// description is an optional human-friendly description that can be shown
+//
+// as an error message or for debugging. Optional.
+func (d *ConditionDie) Description(v string) *ConditionDie {
+	return d.DieStamp(func(r *authorizationv1.Condition) {
+		r.Description = v
+	})
+}
+
+var NamedConditionsAwareDecisionBlank = (&NamedConditionsAwareDecisionDie{}).DieFeed(authorizationv1.NamedConditionsAwareDecision{})
+
+type NamedConditionsAwareDecisionDie struct {
+	mutable bool
+	r       authorizationv1.NamedConditionsAwareDecision
+	seal    authorizationv1.NamedConditionsAwareDecision
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *NamedConditionsAwareDecisionDie) DieImmutable(immutable bool) *NamedConditionsAwareDecisionDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *NamedConditionsAwareDecisionDie) DieFeed(r authorizationv1.NamedConditionsAwareDecision) *NamedConditionsAwareDecisionDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &NamedConditionsAwareDecisionDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *NamedConditionsAwareDecisionDie) DieFeedPtr(r *authorizationv1.NamedConditionsAwareDecision) *NamedConditionsAwareDecisionDie {
+	if r == nil {
+		r = &authorizationv1.NamedConditionsAwareDecision{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *NamedConditionsAwareDecisionDie) DieFeedDuck(v any) *NamedConditionsAwareDecisionDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *NamedConditionsAwareDecisionDie) DieFeedJSON(j []byte) *NamedConditionsAwareDecisionDie {
+	r := authorizationv1.NamedConditionsAwareDecision{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *NamedConditionsAwareDecisionDie) DieFeedYAML(y []byte) *NamedConditionsAwareDecisionDie {
+	r := authorizationv1.NamedConditionsAwareDecision{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *NamedConditionsAwareDecisionDie) DieFeedYAMLFile(name string) *NamedConditionsAwareDecisionDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NamedConditionsAwareDecisionDie) DieFeedRawExtension(raw runtime.RawExtension) *NamedConditionsAwareDecisionDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *NamedConditionsAwareDecisionDie) DieRelease() authorizationv1.NamedConditionsAwareDecision {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *NamedConditionsAwareDecisionDie) DieReleasePtr() *authorizationv1.NamedConditionsAwareDecision {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *NamedConditionsAwareDecisionDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *NamedConditionsAwareDecisionDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *NamedConditionsAwareDecisionDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NamedConditionsAwareDecisionDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *NamedConditionsAwareDecisionDie) DieStamp(fn func(r *authorizationv1.NamedConditionsAwareDecision)) *NamedConditionsAwareDecisionDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *NamedConditionsAwareDecisionDie) DieStampAt(jp string, fn interface{}) *NamedConditionsAwareDecisionDie {
+	return d.DieStamp(func(r *authorizationv1.NamedConditionsAwareDecision) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NamedConditionsAwareDecisionDie) DieWith(fns ...func(d *NamedConditionsAwareDecisionDie)) *NamedConditionsAwareDecisionDie {
+	nd := NamedConditionsAwareDecisionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *NamedConditionsAwareDecisionDie) DeepCopy() *NamedConditionsAwareDecisionDie {
+	r := *d.r.DeepCopy()
+	return &NamedConditionsAwareDecisionDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *NamedConditionsAwareDecisionDie) DieSeal() *NamedConditionsAwareDecisionDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *NamedConditionsAwareDecisionDie) DieSealFeed(r authorizationv1.NamedConditionsAwareDecision) *NamedConditionsAwareDecisionDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *NamedConditionsAwareDecisionDie) DieSealFeedPtr(r *authorizationv1.NamedConditionsAwareDecision) *NamedConditionsAwareDecisionDie {
+	if r == nil {
+		r = &authorizationv1.NamedConditionsAwareDecision{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *NamedConditionsAwareDecisionDie) DieSealRelease() authorizationv1.NamedConditionsAwareDecision {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *NamedConditionsAwareDecisionDie) DieSealReleasePtr() *authorizationv1.NamedConditionsAwareDecision {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *NamedConditionsAwareDecisionDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *NamedConditionsAwareDecisionDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// DecisionDie mutates Decision as a die.
+//
+// decision carries the inner decision returned from the authorizer.
+func (d *NamedConditionsAwareDecisionDie) DecisionDie(fn func(d *ConditionsAwareDecisionDie)) *NamedConditionsAwareDecisionDie {
+	return d.DieStamp(func(r *authorizationv1.NamedConditionsAwareDecision) {
+		d := ConditionsAwareDecisionBlank.DieImmutable(false).DieFeed(r.Decision)
+		fn(d)
+		r.Decision = d.DieRelease()
+	})
+}
+
+// authorizerName details the name of the authorizer that authored the condition, such that
+//
+// the right Decision can be paired with the right authorizer when evaluating the conditions,
+//
+// even across API server replicas. The name must be stable over time.
+//
+// This name must be unique within a given union authorizer, not necessarily globally.
+func (d *NamedConditionsAwareDecisionDie) AuthorizerName(v string) *NamedConditionsAwareDecisionDie {
+	return d.DieStamp(func(r *authorizationv1.NamedConditionsAwareDecision) {
+		r.AuthorizerName = v
+	})
+}
+
+// decision carries the inner decision returned from the authorizer.
+func (d *NamedConditionsAwareDecisionDie) Decision(v authorizationv1.ConditionsAwareDecision) *NamedConditionsAwareDecisionDie {
+	return d.DieStamp(func(r *authorizationv1.NamedConditionsAwareDecision) {
+		r.Decision = v
 	})
 }
 

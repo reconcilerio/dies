@@ -398,14 +398,14 @@ func (d *StorageVersionMigrationDie) StatusDie(fn func(d *StorageVersionMigratio
 	})
 }
 
-// Specification of the migration.
+// spec is the specification of the migration.
 func (d *StorageVersionMigrationDie) Spec(v storagemigrationv1beta1.StorageVersionMigrationSpec) *StorageVersionMigrationDie {
 	return d.DieStamp(func(r *storagemigrationv1beta1.StorageVersionMigration) {
 		r.Spec = v
 	})
 }
 
-// Status of the migration.
+// status is the status of the migration.
 func (d *StorageVersionMigrationDie) Status(v storagemigrationv1beta1.StorageVersionMigrationStatus) *StorageVersionMigrationDie {
 	return d.DieStamp(func(r *storagemigrationv1beta1.StorageVersionMigration) {
 		r.Status = v
@@ -660,7 +660,7 @@ func (d *StorageVersionMigrationSpecDie) DiePatch(patchType types.PatchType) ([]
 
 // ResourceDie mutates Resource as a die.
 //
-// The resource that is being migrated. The migrator sends requests to
+// resource is the resource that is being migrated. The migrator sends requests to
 //
 // the endpoint serving the resource.
 //
@@ -673,7 +673,7 @@ func (d *StorageVersionMigrationSpecDie) ResourceDie(fn func(d *v1.GroupResource
 	})
 }
 
-// The resource that is being migrated. The migrator sends requests to
+// resource is the resource that is being migrated. The migrator sends requests to
 //
 // the endpoint serving the resource.
 //
@@ -932,7 +932,7 @@ func (d *StorageVersionMigrationStatusDie) DiePatch(patchType types.PatchType) (
 
 // ConditionsDie replaces Conditions by collecting the released value from each die passed.
 //
-// The latest available observations of the migration's current state.
+// conditions is the latest available observations of the migration's current state.
 func (d *StorageVersionMigrationStatusDie) ConditionsDie(v ...*v1.ConditionDie) *StorageVersionMigrationStatusDie {
 	return d.DieStamp(func(r *storagemigrationv1beta1.StorageVersionMigrationStatus) {
 		r.Conditions = make([]metav1.Condition, len(v))
@@ -942,14 +942,14 @@ func (d *StorageVersionMigrationStatusDie) ConditionsDie(v ...*v1.ConditionDie) 
 	})
 }
 
-// The latest available observations of the migration's current state.
+// conditions is the latest available observations of the migration's current state.
 func (d *StorageVersionMigrationStatusDie) Conditions(v ...metav1.Condition) *StorageVersionMigrationStatusDie {
 	return d.DieStamp(func(r *storagemigrationv1beta1.StorageVersionMigrationStatus) {
 		r.Conditions = v
 	})
 }
 
-// ResourceVersion to compare with the GC cache for performing the migration.
+// resourceVersion is the resource version to compare with the GC cache for performing the migration.
 //
 // # This is the current resource version of given group, version and resource when
 //

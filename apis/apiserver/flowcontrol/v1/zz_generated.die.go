@@ -398,7 +398,7 @@ func (d *FlowSchemaDie) StatusDie(fn func(d *FlowSchemaStatusDie)) *FlowSchemaDi
 	})
 }
 
-// `spec` is the specification of the desired behavior of a FlowSchema.
+// spec is the specification of the desired behavior of a FlowSchema.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *FlowSchemaDie) Spec(v flowcontrolv1.FlowSchemaSpec) *FlowSchemaDie {
@@ -407,7 +407,7 @@ func (d *FlowSchemaDie) Spec(v flowcontrolv1.FlowSchemaSpec) *FlowSchemaDie {
 	})
 }
 
-// `status` is the current status of a FlowSchema.
+// status is the current status of a FlowSchema.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *FlowSchemaDie) Status(v flowcontrolv1.FlowSchemaStatus) *FlowSchemaDie {
@@ -664,7 +664,7 @@ func (d *FlowSchemaSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 
 // PriorityLevelConfigurationDie mutates PriorityLevelConfiguration as a die.
 //
-// `priorityLevelConfiguration` should reference a PriorityLevelConfiguration in the cluster. If the reference cannot
+// priorityLevelConfiguration should reference a PriorityLevelConfiguration in the cluster. If the reference cannot
 //
 // be resolved, the FlowSchema will be ignored and marked as invalid in its status.
 //
@@ -679,7 +679,7 @@ func (d *FlowSchemaSpecDie) PriorityLevelConfigurationDie(fn func(d *PriorityLev
 
 // DistinguisherMethodDie mutates DistinguisherMethod as a die.
 //
-// `distinguisherMethod` defines how to compute the flow distinguisher for requests that match this schema.
+// distinguisherMethod defines how to compute the flow distinguisher for requests that match this schema.
 //
 // `nil` specifies that the distinguisher is disabled and thus will always be the empty string.
 func (d *FlowSchemaSpecDie) DistinguisherMethodDie(fn func(d *FlowDistinguisherMethodDie)) *FlowSchemaSpecDie {
@@ -692,7 +692,7 @@ func (d *FlowSchemaSpecDie) DistinguisherMethodDie(fn func(d *FlowDistinguisherM
 
 // RulesDie replaces Rules by collecting the released value from each die passed.
 //
-// `rules` describes which requests will match this flow schema. This FlowSchema matches a request if and only if
+// rules describes which requests will match this flow schema. This FlowSchema matches a request if and only if
 //
 // at least one member of rules matches the request.
 //
@@ -706,7 +706,7 @@ func (d *FlowSchemaSpecDie) RulesDie(v ...*PolicyRulesWithSubjectsDie) *FlowSche
 	})
 }
 
-// `priorityLevelConfiguration` should reference a PriorityLevelConfiguration in the cluster. If the reference cannot
+// priorityLevelConfiguration should reference a PriorityLevelConfiguration in the cluster. If the reference cannot
 //
 // be resolved, the FlowSchema will be ignored and marked as invalid in its status.
 //
@@ -717,7 +717,7 @@ func (d *FlowSchemaSpecDie) PriorityLevelConfiguration(v flowcontrolv1.PriorityL
 	})
 }
 
-// `matchingPrecedence` is used to choose among the FlowSchemas that match a given request. The chosen
+// matchingPrecedence is used to choose among the FlowSchemas that match a given request. The chosen
 //
 // FlowSchema is among those with the numerically lowest (which we take to be logically highest)
 //
@@ -730,7 +730,7 @@ func (d *FlowSchemaSpecDie) MatchingPrecedence(v int32) *FlowSchemaSpecDie {
 	})
 }
 
-// `distinguisherMethod` defines how to compute the flow distinguisher for requests that match this schema.
+// distinguisherMethod defines how to compute the flow distinguisher for requests that match this schema.
 //
 // `nil` specifies that the distinguisher is disabled and thus will always be the empty string.
 func (d *FlowSchemaSpecDie) DistinguisherMethod(v *flowcontrolv1.FlowDistinguisherMethod) *FlowSchemaSpecDie {
@@ -739,7 +739,7 @@ func (d *FlowSchemaSpecDie) DistinguisherMethod(v *flowcontrolv1.FlowDistinguish
 	})
 }
 
-// `rules` describes which requests will match this flow schema. This FlowSchema matches a request if and only if
+// rules describes which requests will match this flow schema. This FlowSchema matches a request if and only if
 //
 // at least one member of rules matches the request.
 //
@@ -1249,7 +1249,7 @@ func (d *PriorityLevelConfigurationReferenceDie) DiePatch(patchType types.PatchT
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// `name` is the name of the priority level configuration being referenced
+// name is the name of the priority level configuration being referenced
 //
 // Required.
 func (d *PriorityLevelConfigurationReferenceDie) Name(v string) *PriorityLevelConfigurationReferenceDie {
@@ -1504,7 +1504,7 @@ func (d *FlowDistinguisherMethodDie) DiePatch(patchType types.PatchType) ([]byte
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// `type` is the type of flow distinguisher method
+// type is the type of flow distinguisher method
 //
 // The supported types are "ByUser" and "ByNamespace".
 //
@@ -1781,7 +1781,7 @@ func (d *PolicyRulesWithSubjectsDie) SubjectsDie(v ...*SubjectDie) *PolicyRulesW
 
 // ResourceRulesDie replaces ResourceRules by collecting the released value from each die passed.
 //
-// `resourceRules` is a slice of ResourcePolicyRules that identify matching requests according to their verb and the
+// resourceRules is a slice of ResourcePolicyRules that identify matching requests according to their verb and the
 //
 // target resource.
 //
@@ -1797,7 +1797,7 @@ func (d *PolicyRulesWithSubjectsDie) ResourceRulesDie(v ...*ResourcePolicyRuleDi
 
 // NonResourceRulesDie replaces NonResourceRules by collecting the released value from each die passed.
 //
-// `nonResourceRules` is a list of NonResourcePolicyRules that identify matching requests according to their verb
+// nonResourceRules is a list of NonResourcePolicyRules that identify matching requests according to their verb
 //
 // and the target non-resource URL.
 func (d *PolicyRulesWithSubjectsDie) NonResourceRulesDie(v ...*NonResourcePolicyRuleDie) *PolicyRulesWithSubjectsDie {
@@ -1822,7 +1822,7 @@ func (d *PolicyRulesWithSubjectsDie) Subjects(v ...flowcontrolv1.Subject) *Polic
 	})
 }
 
-// `resourceRules` is a slice of ResourcePolicyRules that identify matching requests according to their verb and the
+// resourceRules is a slice of ResourcePolicyRules that identify matching requests according to their verb and the
 //
 // target resource.
 //
@@ -1833,7 +1833,7 @@ func (d *PolicyRulesWithSubjectsDie) ResourceRules(v ...flowcontrolv1.ResourcePo
 	})
 }
 
-// `nonResourceRules` is a list of NonResourcePolicyRules that identify matching requests according to their verb
+// nonResourceRules is a list of NonResourcePolicyRules that identify matching requests according to their verb
 //
 // and the target non-resource URL.
 func (d *PolicyRulesWithSubjectsDie) NonResourceRules(v ...flowcontrolv1.NonResourcePolicyRule) *PolicyRulesWithSubjectsDie {
@@ -2088,7 +2088,7 @@ func (d *SubjectDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// `kind` indicates which one of the other fields is non-empty.
+// kind indicates which one of the other fields is non-empty.
 //
 // Required
 func (d *SubjectDie) Kind(v flowcontrolv1.SubjectKind) *SubjectDie {
@@ -2097,21 +2097,21 @@ func (d *SubjectDie) Kind(v flowcontrolv1.SubjectKind) *SubjectDie {
 	})
 }
 
-// `user` matches based on username.
+// user matches based on username.
 func (d *SubjectDie) User(v *flowcontrolv1.UserSubject) *SubjectDie {
 	return d.DieStamp(func(r *flowcontrolv1.Subject) {
 		r.User = v
 	})
 }
 
-// `group` matches based on user group name.
+// group matches based on user group name.
 func (d *SubjectDie) Group(v *flowcontrolv1.GroupSubject) *SubjectDie {
 	return d.DieStamp(func(r *flowcontrolv1.Subject) {
 		r.Group = v
 	})
 }
 
-// `serviceAccount` matches ServiceAccounts.
+// serviceAccount matches ServiceAccounts.
 func (d *SubjectDie) ServiceAccount(v *flowcontrolv1.ServiceAccountSubject) *SubjectDie {
 	return d.DieStamp(func(r *flowcontrolv1.Subject) {
 		r.ServiceAccount = v
@@ -2364,7 +2364,7 @@ func (d *UserSubjectDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// `name` is the username that matches, or "*" to match all usernames.
+// name is the username that matches, or "*" to match all usernames.
 //
 // Required.
 func (d *UserSubjectDie) Name(v string) *UserSubjectDie {
@@ -2878,7 +2878,7 @@ func (d *ServiceAccountSubjectDie) DiePatch(patchType types.PatchType) ([]byte, 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// `namespace` is the namespace of matching ServiceAccount objects.
+// namespace is the namespace of matching ServiceAccount objects.
 //
 // Required.
 func (d *ServiceAccountSubjectDie) Namespace(v string) *ServiceAccountSubjectDie {
@@ -2887,7 +2887,7 @@ func (d *ServiceAccountSubjectDie) Namespace(v string) *ServiceAccountSubjectDie
 	})
 }
 
-// `name` is the name of matching ServiceAccount objects, or "*" to match regardless of name.
+// name is the name of matching ServiceAccount objects, or "*" to match regardless of name.
 //
 // Required.
 func (d *ServiceAccountSubjectDie) Name(v string) *ServiceAccountSubjectDie {
@@ -3142,7 +3142,7 @@ func (d *ResourcePolicyRuleDie) DiePatch(patchType types.PatchType) ([]byte, err
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// `verbs` is a list of matching verbs and may not be empty.
+// verbs is a list of matching verbs and may not be empty.
 //
 // "*" matches all verbs and, if present, must be the only entry.
 //
@@ -3153,7 +3153,7 @@ func (d *ResourcePolicyRuleDie) Verbs(v ...string) *ResourcePolicyRuleDie {
 	})
 }
 
-// `apiGroups` is a list of matching API groups and may not be empty.
+// apiGroups is a list of matching API groups and may not be empty.
 //
 // "*" matches all API groups and, if present, must be the only entry.
 //
@@ -3164,7 +3164,7 @@ func (d *ResourcePolicyRuleDie) APIGroups(v ...string) *ResourcePolicyRuleDie {
 	})
 }
 
-// `resources` is a list of matching resources (i.e., lowercase
+// resources is a list of matching resources (i.e., lowercase
 //
 // and plural) with, if desired, subresource.  For example, [
 //
@@ -3179,7 +3179,7 @@ func (d *ResourcePolicyRuleDie) Resources(v ...string) *ResourcePolicyRuleDie {
 	})
 }
 
-// `clusterScope` indicates whether to match requests that do not
+// clusterScope indicates whether to match requests that do not
 //
 // specify a namespace (which happens either because the resource
 //
@@ -3194,7 +3194,7 @@ func (d *ResourcePolicyRuleDie) ClusterScope(v bool) *ResourcePolicyRuleDie {
 	})
 }
 
-// `namespaces` is a list of target namespaces that restricts
+// namespaces is a list of target namespaces that restricts
 //
 // matches.  A request that specifies a target namespace matches
 //
@@ -3461,7 +3461,7 @@ func (d *NonResourcePolicyRuleDie) DiePatch(patchType types.PatchType) ([]byte, 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// `verbs` is a list of matching verbs and may not be empty.
+// verbs is a list of matching verbs and may not be empty.
 //
 // "*" matches all verbs. If it is present, it must be the only entry.
 //
@@ -3472,7 +3472,7 @@ func (d *NonResourcePolicyRuleDie) Verbs(v ...string) *NonResourcePolicyRuleDie 
 	})
 }
 
-// `nonResourceURLs` is a set of url prefixes that a user should have access to and may not be empty.
+// nonResourceURLs is a set of url prefixes that a user should have access to and may not be empty.
 //
 // For example:
 //
@@ -3854,7 +3854,7 @@ func (d *PriorityLevelConfigurationDie) StatusDie(fn func(d *PriorityLevelConfig
 	})
 }
 
-// `spec` is the specification of the desired behavior of a "request-priority".
+// spec is the specification of the desired behavior of a "request-priority".
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *PriorityLevelConfigurationDie) Spec(v flowcontrolv1.PriorityLevelConfigurationSpec) *PriorityLevelConfigurationDie {
@@ -3863,7 +3863,7 @@ func (d *PriorityLevelConfigurationDie) Spec(v flowcontrolv1.PriorityLevelConfig
 	})
 }
 
-// `status` is the current status of a "request-priority".
+// status is the current status of a "request-priority".
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *PriorityLevelConfigurationDie) Status(v flowcontrolv1.PriorityLevelConfigurationStatus) *PriorityLevelConfigurationDie {
@@ -4120,9 +4120,9 @@ func (d *PriorityLevelConfigurationSpecDie) DiePatch(patchType types.PatchType) 
 
 // LimitedDie mutates Limited as a die.
 //
-// `limited` specifies how requests are handled for a Limited priority level.
+// limited specifies how requests are handled for a Limited priority level.
 //
-// This field must be non-empty if and only if `type` is `"Limited"`.
+// This field must be non-empty if and only if type is `"Limited"`.
 func (d *PriorityLevelConfigurationSpecDie) LimitedDie(fn func(d *LimitedPriorityLevelConfigurationDie)) *PriorityLevelConfigurationSpecDie {
 	return d.DieStamp(func(r *flowcontrolv1.PriorityLevelConfigurationSpec) {
 		d := LimitedPriorityLevelConfigurationBlank.DieImmutable(false).DieFeedPtr(r.Limited)
@@ -4133,7 +4133,7 @@ func (d *PriorityLevelConfigurationSpecDie) LimitedDie(fn func(d *LimitedPriorit
 
 // ExemptDie mutates Exempt as a die.
 //
-// `exempt` specifies how requests are handled for an exempt priority level.
+// exempt specifies how requests are handled for an exempt priority level.
 //
 // This field MUST be empty if `type` is `"Limited"`.
 //
@@ -4150,7 +4150,7 @@ func (d *PriorityLevelConfigurationSpecDie) ExemptDie(fn func(d *ExemptPriorityL
 	})
 }
 
-// `type` indicates whether this priority level is subject to
+// type indicates whether this priority level is subject to
 //
 // limitation on request execution.  A value of `"Exempt"` means
 //
@@ -4173,16 +4173,16 @@ func (d *PriorityLevelConfigurationSpecDie) Type(v flowcontrolv1.PriorityLevelEn
 	})
 }
 
-// `limited` specifies how requests are handled for a Limited priority level.
+// limited specifies how requests are handled for a Limited priority level.
 //
-// This field must be non-empty if and only if `type` is `"Limited"`.
+// This field must be non-empty if and only if type is `"Limited"`.
 func (d *PriorityLevelConfigurationSpecDie) Limited(v *flowcontrolv1.LimitedPriorityLevelConfiguration) *PriorityLevelConfigurationSpecDie {
 	return d.DieStamp(func(r *flowcontrolv1.PriorityLevelConfigurationSpec) {
 		r.Limited = v
 	})
 }
 
-// `exempt` specifies how requests are handled for an exempt priority level.
+// exempt specifies how requests are handled for an exempt priority level.
 //
 // This field MUST be empty if `type` is `"Limited"`.
 //
@@ -4445,7 +4445,7 @@ func (d *LimitedPriorityLevelConfigurationDie) DiePatch(patchType types.PatchTyp
 
 // LimitResponseDie mutates LimitResponse as a die.
 //
-// `limitResponse` indicates what to do with requests that can not be executed right now
+// limitResponse indicates what to do with requests that can not be executed right now
 func (d *LimitedPriorityLevelConfigurationDie) LimitResponseDie(fn func(d *LimitResponseDie)) *LimitedPriorityLevelConfigurationDie {
 	return d.DieStamp(func(r *flowcontrolv1.LimitedPriorityLevelConfiguration) {
 		d := LimitResponseBlank.DieImmutable(false).DieFeed(r.LimitResponse)
@@ -4454,7 +4454,7 @@ func (d *LimitedPriorityLevelConfigurationDie) LimitResponseDie(fn func(d *Limit
 	})
 }
 
-// `nominalConcurrencyShares` (NCS) contributes to the computation of the
+// nominalConcurrencyShares (NCS) contributes to the computation of the
 //
 // NominalConcurrencyLimit (NominalCL) of this level.
 //
@@ -4489,14 +4489,14 @@ func (d *LimitedPriorityLevelConfigurationDie) NominalConcurrencyShares(v *int32
 	})
 }
 
-// `limitResponse` indicates what to do with requests that can not be executed right now
+// limitResponse indicates what to do with requests that can not be executed right now
 func (d *LimitedPriorityLevelConfigurationDie) LimitResponse(v flowcontrolv1.LimitResponse) *LimitedPriorityLevelConfigurationDie {
 	return d.DieStamp(func(r *flowcontrolv1.LimitedPriorityLevelConfiguration) {
 		r.LimitResponse = v
 	})
 }
 
-// `lendablePercent` prescribes the fraction of the level's NominalCL that
+// lendablePercent prescribes the fraction of the level's NominalCL that
 //
 // can be borrowed by other priority levels. The value of this
 //
@@ -4513,9 +4513,9 @@ func (d *LimitedPriorityLevelConfigurationDie) LendablePercent(v *int32) *Limite
 	})
 }
 
-// `borrowingLimitPercent`, if present, configures a limit on how many
+// borrowingLimitPercent configures a limit on how many
 //
-// seats this priority level can borrow from other priority levels.
+// seats this priority level can borrow from other priority levels, if present.
 //
 // # The limit is known as this level's BorrowingConcurrencyLimit
 //
@@ -4792,7 +4792,7 @@ func (d *LimitResponseDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // QueuingDie mutates Queuing as a die.
 //
-// `queuing` holds the configuration parameters for queuing.
+// queuing holds the configuration parameters for queuing.
 //
 // This field may be non-empty only if `type` is `"Queue"`.
 func (d *LimitResponseDie) QueuingDie(fn func(d *QueuingConfigurationDie)) *LimitResponseDie {
@@ -4803,7 +4803,7 @@ func (d *LimitResponseDie) QueuingDie(fn func(d *QueuingConfigurationDie)) *Limi
 	})
 }
 
-// `type` is "Queue" or "Reject".
+// type is "Queue" or "Reject".
 //
 // "Queue" means that requests that can not be executed upon arrival
 //
@@ -4822,7 +4822,7 @@ func (d *LimitResponseDie) Type(v flowcontrolv1.LimitResponseType) *LimitRespons
 	})
 }
 
-// `queuing` holds the configuration parameters for queuing.
+// queuing holds the configuration parameters for queuing.
 //
 // This field may be non-empty only if `type` is `"Queue"`.
 func (d *LimitResponseDie) Queuing(v *flowcontrolv1.QueuingConfiguration) *LimitResponseDie {
@@ -5077,7 +5077,7 @@ func (d *ExemptPriorityLevelConfigurationDie) DiePatch(patchType types.PatchType
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// `nominalConcurrencyShares` (NCS) contributes to the computation of the
+// nominalConcurrencyShares (NCS) contributes to the computation of the
 //
 // NominalConcurrencyLimit (NominalCL) of this level.
 //
@@ -5106,7 +5106,7 @@ func (d *ExemptPriorityLevelConfigurationDie) NominalConcurrencyShares(v *int32)
 	})
 }
 
-// `lendablePercent` prescribes the fraction of the level's NominalCL that
+// lendablePercent prescribes the fraction of the level's NominalCL that
 //
 // can be borrowed by other priority levels.  This value of this
 //
@@ -5369,7 +5369,7 @@ func (d *QueuingConfigurationDie) DiePatch(patchType types.PatchType) ([]byte, e
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// `queues` is the number of queues for this priority level. The
+// queues is the number of queues for this priority level. The
 //
 // queues exist independently at each apiserver. The value must be
 //
@@ -5386,7 +5386,7 @@ func (d *QueuingConfigurationDie) Queues(v int32) *QueuingConfigurationDie {
 	})
 }
 
-// `handSize` is a small positive number that configures the
+// handSize is a small positive number that configures the
 //
 // shuffle sharding of requests into queues.  When enqueuing a request
 //
@@ -5413,7 +5413,7 @@ func (d *QueuingConfigurationDie) HandSize(v int32) *QueuingConfigurationDie {
 	})
 }
 
-// `queueLengthLimit` is the maximum number of requests allowed to
+// queueLengthLimit is the maximum number of requests allowed to
 //
 // be waiting in a given queue of this priority level at a time;
 //

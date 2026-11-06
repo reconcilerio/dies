@@ -56,10 +56,10 @@ type _ = batchv1.SuccessPolicy
 type _ = batchv1.SuccessPolicyRule
 
 // +die
-// +die:field:name=SchedulingPolicy,package=_/scheduling/v1alpha3,die=WorkloadPodGroupSchedulingPolicyDie,pointer=true
-// +die:field:name=SchedulingConstraints,package=_/scheduling/v1alpha3,die=WorkloadPodGroupSchedulingConstraintsDie,pointer=true
-// +die:field:name=DisruptionMode,package=_/scheduling/v1alpha3,die=WorkloadPodGroupDisruptionModeDie,pointer=true
-// +die:field:name=ResourceClaims,package=_/scheduling/v1alpha3,die=WorkloadPodGroupResourceClaimDie,listType=map
+// +die:field:name=SchedulingPolicy,package=_/scheduling/v1,die=WorkloadPodGroupSchedulingPolicyDie,pointer=true
+// +die:field:name=SchedulingConstraints,package=_/scheduling/v1,die=WorkloadPodGroupSchedulingConstraintsDie,pointer=true
+// +die:field:name=DisruptionMode,package=_/scheduling/v1,die=WorkloadPodGroupDisruptionModeDie,pointer=true
+// +die:field:name=ResourceClaims,package=_/scheduling/v1,die=WorkloadPodGroupResourceClaimDie,listType=map
 type _ = batchv1.JobSchedulingConfiguration
 
 // +die

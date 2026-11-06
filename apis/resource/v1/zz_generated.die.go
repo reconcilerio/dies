@@ -392,7 +392,7 @@ func (d *DeviceClassDie) SpecDie(fn func(d *DeviceClassSpecDie)) *DeviceClassDie
 	})
 }
 
-// Spec defines what can be allocated and how to configure it.
+// spec defines what can be allocated and how to configure it.
 //
 // This is mutable. Consumers have to be prepared for classes changing
 //
@@ -657,7 +657,7 @@ func (d *DeviceClassSpecDie) DiePatch(patchType types.PatchType) ([]byte, error)
 
 // SelectorsDie replaces Selectors by collecting the released value from each die passed.
 //
-// Each selector must be satisfied by a device which is claimed via this class.
+// selectors is the list of device selectors. Each selector must be satisfied by a device which is claimed via this class.
 func (d *DeviceClassSpecDie) SelectorsDie(v ...*DeviceSelectorDie) *DeviceClassSpecDie {
 	return d.DieStamp(func(r *resourcev1.DeviceClassSpec) {
 		r.Selectors = make([]resourcev1.DeviceSelector, len(v))
@@ -669,7 +669,7 @@ func (d *DeviceClassSpecDie) SelectorsDie(v ...*DeviceSelectorDie) *DeviceClassS
 
 // ConfigDie replaces Config by collecting the released value from each die passed.
 //
-// Config defines configuration parameters that apply to each device that is claimed via this class.
+// config defines configuration parameters that apply to each device that is claimed via this class.
 //
 // # Some classses may potentially be satisfied by multiple drivers, so each instance of a vendor
 //
@@ -685,14 +685,14 @@ func (d *DeviceClassSpecDie) ConfigDie(v ...*DeviceClassConfigurationDie) *Devic
 	})
 }
 
-// Each selector must be satisfied by a device which is claimed via this class.
+// selectors is the list of device selectors. Each selector must be satisfied by a device which is claimed via this class.
 func (d *DeviceClassSpecDie) Selectors(v ...resourcev1.DeviceSelector) *DeviceClassSpecDie {
 	return d.DieStamp(func(r *resourcev1.DeviceClassSpec) {
 		r.Selectors = v
 	})
 }
 
-// Config defines configuration parameters that apply to each device that is claimed via this class.
+// config defines configuration parameters that apply to each device that is claimed via this class.
 //
 // # Some classses may potentially be satisfied by multiple drivers, so each instance of a vendor
 //
@@ -705,7 +705,7 @@ func (d *DeviceClassSpecDie) Config(v ...resourcev1.DeviceClassConfiguration) *D
 	})
 }
 
-// ExtendedResourceName is the extended resource name for the devices of this class.
+// extendedResourceName is the extended resource name for the devices of this class.
 //
 // The devices of this class can be used to satisfy a pod's extended resource requests.
 //
@@ -974,7 +974,7 @@ func (d *DeviceSelectorDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 
 // CELDie mutates CEL as a die.
 //
-// CEL contains a CEL expression for selecting a device.
+// cel contains a CEL expression for selecting a device.
 func (d *DeviceSelectorDie) CELDie(fn func(d *CELDeviceSelectorDie)) *DeviceSelectorDie {
 	return d.DieStamp(func(r *resourcev1.DeviceSelector) {
 		d := CELDeviceSelectorBlank.DieImmutable(false).DieFeedPtr(r.CEL)
@@ -983,7 +983,7 @@ func (d *DeviceSelectorDie) CELDie(fn func(d *CELDeviceSelectorDie)) *DeviceSele
 	})
 }
 
-// CEL contains a CEL expression for selecting a device.
+// cel contains a CEL expression for selecting a device.
 func (d *DeviceSelectorDie) CEL(v *resourcev1.CELDeviceSelector) *DeviceSelectorDie {
 	return d.DieStamp(func(r *resourcev1.DeviceSelector) {
 		r.CEL = v
@@ -1236,7 +1236,7 @@ func (d *CELDeviceSelectorDie) DiePatch(patchType types.PatchType) ([]byte, erro
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Expression is a CEL expression which evaluates a single device. It
+// expression is a CEL expression which evaluates a single device. It
 //
 // must evaluate to true when the device under consideration satisfies
 //
@@ -1851,7 +1851,7 @@ func (d *DeviceConfigurationDie) DiePatch(patchType types.PatchType) ([]byte, er
 
 // OpaqueDie mutates Opaque as a die.
 //
-// Opaque provides driver-specific configuration parameters.
+// opaque provides driver-specific configuration parameters.
 func (d *DeviceConfigurationDie) OpaqueDie(fn func(d *OpaqueDeviceConfigurationDie)) *DeviceConfigurationDie {
 	return d.DieStamp(func(r *resourcev1.DeviceConfiguration) {
 		d := OpaqueDeviceConfigurationBlank.DieImmutable(false).DieFeedPtr(r.Opaque)
@@ -1860,7 +1860,7 @@ func (d *DeviceConfigurationDie) OpaqueDie(fn func(d *OpaqueDeviceConfigurationD
 	})
 }
 
-// Opaque provides driver-specific configuration parameters.
+// opaque provides driver-specific configuration parameters.
 func (d *DeviceConfigurationDie) Opaque(v *resourcev1.OpaqueDeviceConfiguration) *DeviceConfigurationDie {
 	return d.DieStamp(func(r *resourcev1.DeviceConfiguration) {
 		r.Opaque = v
@@ -2113,7 +2113,7 @@ func (d *OpaqueDeviceConfigurationDie) DiePatch(patchType types.PatchType) ([]by
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Driver is used to determine which kubelet plugin needs
+// driver is used to determine which kubelet plugin needs
 //
 // to be passed these configuration parameters.
 //
@@ -2130,7 +2130,7 @@ func (d *OpaqueDeviceConfigurationDie) Driver(v string) *OpaqueDeviceConfigurati
 	})
 }
 
-// Parameters can contain arbitrary data. It is the responsibility of
+// parameters can contain arbitrary data. It is the responsibility of
 //
 // the driver developer to handle validation and versioning. Typically this
 //
@@ -2504,7 +2504,7 @@ func (d *ResourceClaimDie) StatusDie(fn func(d *ResourceClaimStatusDie)) *Resour
 	})
 }
 
-// Spec describes what is being requested and how to configure it.
+// spec describes what is being requested and how to configure it.
 //
 // The spec is immutable.
 func (d *ResourceClaimDie) Spec(v resourcev1.ResourceClaimSpec) *ResourceClaimDie {
@@ -2513,7 +2513,7 @@ func (d *ResourceClaimDie) Spec(v resourcev1.ResourceClaimSpec) *ResourceClaimDi
 	})
 }
 
-// Status describes whether the claim is ready to use and what has been allocated.
+// status describes whether the claim is ready to use and what has been allocated.
 func (d *ResourceClaimDie) Status(v resourcev1.ResourceClaimStatus) *ResourceClaimDie {
 	return d.DieStamp(func(r *resourcev1.ResourceClaim) {
 		r.Status = v
@@ -2768,7 +2768,7 @@ func (d *ResourceClaimSpecDie) DiePatch(patchType types.PatchType) ([]byte, erro
 
 // DevicesDie mutates Devices as a die.
 //
-// Devices defines how to request devices.
+// devices defines how to request devices.
 func (d *ResourceClaimSpecDie) DevicesDie(fn func(d *DeviceClaimDie)) *ResourceClaimSpecDie {
 	return d.DieStamp(func(r *resourcev1.ResourceClaimSpec) {
 		d := DeviceClaimBlank.DieImmutable(false).DieFeed(r.Devices)
@@ -2777,7 +2777,7 @@ func (d *ResourceClaimSpecDie) DevicesDie(fn func(d *DeviceClaimDie)) *ResourceC
 	})
 }
 
-// Devices defines how to request devices.
+// devices defines how to request devices.
 func (d *ResourceClaimSpecDie) Devices(v resourcev1.DeviceClaim) *ResourceClaimSpecDie {
 	return d.DieStamp(func(r *resourcev1.ResourceClaimSpec) {
 		r.Devices = v
@@ -3032,7 +3032,7 @@ func (d *DeviceClaimDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // RequestsDie replaces Requests by collecting the released value from each die passed.
 //
-// # Requests represent individual requests for distinct devices which
+// requests represent individual requests for distinct devices which
 //
 // must all be satisfied. If empty, nothing needs to be allocated.
 func (d *DeviceClaimDie) RequestsDie(v ...*DeviceRequestDie) *DeviceClaimDie {
@@ -3046,7 +3046,7 @@ func (d *DeviceClaimDie) RequestsDie(v ...*DeviceRequestDie) *DeviceClaimDie {
 
 // ConstraintsDie replaces Constraints by collecting the released value from each die passed.
 //
-// # These constraints must be satisfied by the set of devices that get
+// constraints must be satisfied by the set of devices that get
 //
 // allocated for the claim.
 func (d *DeviceClaimDie) ConstraintsDie(v ...*DeviceConstraintDie) *DeviceClaimDie {
@@ -3060,7 +3060,7 @@ func (d *DeviceClaimDie) ConstraintsDie(v ...*DeviceConstraintDie) *DeviceClaimD
 
 // ConfigDie replaces Config by collecting the released value from each die passed.
 //
-// # This field holds configuration for multiple potential drivers which
+// config holds configuration for multiple potential drivers which
 //
 // could satisfy requests in this claim. It is ignored while allocating
 //
@@ -3074,7 +3074,7 @@ func (d *DeviceClaimDie) ConfigDie(v ...*DeviceClaimConfigurationDie) *DeviceCla
 	})
 }
 
-// Requests represent individual requests for distinct devices which
+// requests represent individual requests for distinct devices which
 //
 // must all be satisfied. If empty, nothing needs to be allocated.
 func (d *DeviceClaimDie) Requests(v ...resourcev1.DeviceRequest) *DeviceClaimDie {
@@ -3083,7 +3083,7 @@ func (d *DeviceClaimDie) Requests(v ...resourcev1.DeviceRequest) *DeviceClaimDie
 	})
 }
 
-// These constraints must be satisfied by the set of devices that get
+// constraints must be satisfied by the set of devices that get
 //
 // allocated for the claim.
 func (d *DeviceClaimDie) Constraints(v ...resourcev1.DeviceConstraint) *DeviceClaimDie {
@@ -3092,7 +3092,7 @@ func (d *DeviceClaimDie) Constraints(v ...resourcev1.DeviceConstraint) *DeviceCl
 	})
 }
 
-// This field holds configuration for multiple potential drivers which
+// config holds configuration for multiple potential drivers which
 //
 // could satisfy requests in this claim. It is ignored while allocating
 //
@@ -3351,7 +3351,7 @@ func (d *DeviceRequestDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // ExactlyDie mutates Exactly as a die.
 //
-// # Exactly specifies the details for a single request that must
+// exactly specifies the details for a single request that must
 //
 // be met exactly for the request to be satisfied.
 //
@@ -3366,7 +3366,7 @@ func (d *DeviceRequestDie) ExactlyDie(fn func(d *ExactDeviceRequestDie)) *Device
 
 // FirstAvailableDie replaces FirstAvailable by collecting the released value from each die passed.
 //
-// # FirstAvailable contains subrequests, of which exactly one will be
+// firstAvailable contains subrequests, of which exactly one will be
 //
 // selected by the scheduler. It tries to
 //
@@ -3398,7 +3398,7 @@ func (d *DeviceRequestDie) FirstAvailableDie(v ...*DeviceSubRequestDie) *DeviceR
 	})
 }
 
-// Name can be used to reference this request in a pod.spec.containers[].resources.claims
+// name can be used to reference this request in a pod.spec.containers[].resources.claims
 //
 // entry and in a constraint of the claim.
 //
@@ -3419,7 +3419,7 @@ func (d *DeviceRequestDie) Name(v string) *DeviceRequestDie {
 	})
 }
 
-// Exactly specifies the details for a single request that must
+// exactly specifies the details for a single request that must
 //
 // be met exactly for the request to be satisfied.
 //
@@ -3430,7 +3430,7 @@ func (d *DeviceRequestDie) Exactly(v *resourcev1.ExactDeviceRequest) *DeviceRequ
 	})
 }
 
-// FirstAvailable contains subrequests, of which exactly one will be
+// firstAvailable contains subrequests, of which exactly one will be
 //
 // selected by the scheduler. It tries to
 //
@@ -3707,7 +3707,7 @@ func (d *DeviceSubRequestDie) DiePatch(patchType types.PatchType) ([]byte, error
 
 // SelectorsDie replaces Selectors by collecting the released value from each die passed.
 //
-// # Selectors define criteria which must be satisfied by a specific
+// selectors define criteria which must be satisfied by a specific
 //
 // device in order for that device to be considered for this
 //
@@ -3725,7 +3725,7 @@ func (d *DeviceSubRequestDie) SelectorsDie(v ...*DeviceSelectorDie) *DeviceSubRe
 
 // TolerationsDie replaces Tolerations by collecting the released value from each die passed.
 //
-// If specified, the request's tolerations.
+// tolerations if specified, the request's tolerations.
 //
 // # Tolerations for NoSchedule are required to allocate a
 //
@@ -3761,7 +3761,7 @@ func (d *DeviceSubRequestDie) TolerationsDie(v ...*DeviceTolerationDie) *DeviceS
 
 // CapacityDie mutates Capacity as a die.
 //
-// Capacity define resource requirements against each capacity.
+// capacity define resource requirements against each capacity.
 //
 // If this field is unset and the device supports multiple allocations,
 //
@@ -3790,7 +3790,7 @@ func (d *DeviceSubRequestDie) CapacityDie(fn func(d *CapacityRequirementsDie)) *
 
 // DerivedAttributesDie replaces DerivedAttributes by collecting the released value from each die passed.
 //
-// # DerivedAttributes defines a set of virtual attributes computed via CEL expressions
+// derivedAttributes defines a set of virtual attributes computed via CEL expressions
 //
 // for each candidate device. These virtual attributes can be referenced in
 //
@@ -3830,7 +3830,7 @@ func (d *DeviceSubRequestDie) DerivedAttributesDie(v ...*DeviceDerivedAttributeD
 	})
 }
 
-// Name can be used to reference this subrequest in the list of constraints
+// name can be used to reference this subrequest in the list of constraints
 //
 // or the list of configurations for the claim. References must use the
 //
@@ -3843,7 +3843,7 @@ func (d *DeviceSubRequestDie) Name(v string) *DeviceSubRequestDie {
 	})
 }
 
-// DeviceClassName references a specific DeviceClass, which can define
+// deviceClassName references a specific DeviceClass, which can define
 //
 // additional configuration and selectors to be inherited by this
 //
@@ -3866,7 +3866,7 @@ func (d *DeviceSubRequestDie) DeviceClassName(v string) *DeviceSubRequestDie {
 	})
 }
 
-// Selectors define criteria which must be satisfied by a specific
+// selectors define criteria which must be satisfied by a specific
 //
 // device in order for that device to be considered for this
 //
@@ -3879,7 +3879,7 @@ func (d *DeviceSubRequestDie) Selectors(v ...resourcev1.DeviceSelector) *DeviceS
 	})
 }
 
-// AllocationMode and its related fields define how devices are allocated
+// allocationMode and its related fields define how devices are allocated
 //
 // to satisfy this subrequest. Supported values are:
 //
@@ -3910,7 +3910,7 @@ func (d *DeviceSubRequestDie) AllocationMode(v resourcev1.DeviceAllocationMode) 
 	})
 }
 
-// Count is used only when the count mode is "ExactCount". Must be greater than zero.
+// count is used only when the count mode is "ExactCount". Must be greater than zero.
 //
 // If AllocationMode is ExactCount and this field is not specified, the default is one.
 func (d *DeviceSubRequestDie) Count(v int64) *DeviceSubRequestDie {
@@ -3919,7 +3919,7 @@ func (d *DeviceSubRequestDie) Count(v int64) *DeviceSubRequestDie {
 	})
 }
 
-// If specified, the request's tolerations.
+// tolerations if specified, the request's tolerations.
 //
 // # Tolerations for NoSchedule are required to allocate a
 //
@@ -3950,7 +3950,7 @@ func (d *DeviceSubRequestDie) Tolerations(v ...resourcev1.DeviceToleration) *Dev
 	})
 }
 
-// Capacity define resource requirements against each capacity.
+// capacity define resource requirements against each capacity.
 //
 // If this field is unset and the device supports multiple allocations,
 //
@@ -3975,7 +3975,7 @@ func (d *DeviceSubRequestDie) Capacity(v *resourcev1.CapacityRequirements) *Devi
 	})
 }
 
-// DerivedAttributes defines a set of virtual attributes computed via CEL expressions
+// derivedAttributes defines a set of virtual attributes computed via CEL expressions
 //
 // for each candidate device. These virtual attributes can be referenced in
 //
@@ -4504,7 +4504,7 @@ func (d *DeviceDerivedAttributeDie) DiePatch(patchType types.PatchType) ([]byte,
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Name is the identifier for this derived attribute, used in constraints.
+// name is the identifier for this derived attribute, used in constraints.
 //
 // It must be a DNS subdomain followed by a slash ("/") followed by a C identifier
 //
@@ -4531,7 +4531,7 @@ func (d *DeviceDerivedAttributeDie) Name(v resourcev1.FullyQualifiedName) *Devic
 	})
 }
 
-// Expression is a CEL expression evaluated against each candidate device.
+// expression is a CEL expression evaluated against each candidate device.
 //
 // The expression must evaluate to a primitive scalar (string, integer,
 //
@@ -4830,7 +4830,7 @@ func (d *ExactDeviceRequestDie) DiePatch(patchType types.PatchType) ([]byte, err
 
 // SelectorsDie replaces Selectors by collecting the released value from each die passed.
 //
-// # Selectors define criteria which must be satisfied by a specific
+// selectors define criteria which must be satisfied by a specific
 //
 // device in order for that device to be considered for this
 //
@@ -4848,7 +4848,7 @@ func (d *ExactDeviceRequestDie) SelectorsDie(v ...*DeviceSelectorDie) *ExactDevi
 
 // TolerationsDie replaces Tolerations by collecting the released value from each die passed.
 //
-// If specified, the request's tolerations.
+// tolerations if specified, the request's tolerations.
 //
 // # Tolerations for NoSchedule are required to allocate a
 //
@@ -4882,7 +4882,49 @@ func (d *ExactDeviceRequestDie) TolerationsDie(v ...*DeviceTolerationDie) *Exact
 	})
 }
 
-// DeviceClassName references a specific DeviceClass, which can define
+// DerivedAttributesDie replaces DerivedAttributes by collecting the released value from each die passed.
+//
+// derivedAttributes defines a set of virtual attributes computed via CEL expressions
+//
+// for each candidate device. These virtual attributes can be referenced in
+//
+// `.devices.constraints` to align and match different devices (e.g., co-allocating
+//
+// a GPU and a NIC on the same NUMA node) even if their drivers publish different
+//
+// attributes. Derived attributes are not available via `device.attributes`
+//
+// in the CEL environment when evaluating selector expressions.
+//
+// # Derived attributes allow you to extract, transform, or normalize topology
+//
+// information (such as extracting a NUMA index from a complex topology string or
+//
+// renaming a vendor-specific attribute) into a common virtual attribute name at
+//
+// scheduling time. The scheduler then evaluates these virtual attributes exactly
+//
+// like static attributes when matching constraints.
+//
+// # Every derived attribute defined in this list must be referenced by at least one
+//
+// MatchAttribute or DistinctAttribute constraint in the `.devices.constraints` list.
+//
+// The maximum number of derived attributes is 32.
+//
+// # This is an alpha field and requires enabling the DRADerivedAttributes
+//
+// feature gate.
+func (d *ExactDeviceRequestDie) DerivedAttributesDie(v ...*DeviceDerivedAttributeDie) *ExactDeviceRequestDie {
+	return d.DieStamp(func(r *resourcev1.ExactDeviceRequest) {
+		r.DerivedAttributes = make([]resourcev1.DeviceDerivedAttribute, len(v))
+		for i := range v {
+			r.DerivedAttributes[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// deviceClassName references a specific DeviceClass, which can define
 //
 // additional configuration and selectors to be inherited by this
 //
@@ -4905,7 +4947,7 @@ func (d *ExactDeviceRequestDie) DeviceClassName(v string) *ExactDeviceRequestDie
 	})
 }
 
-// Selectors define criteria which must be satisfied by a specific
+// selectors define criteria which must be satisfied by a specific
 //
 // device in order for that device to be considered for this
 //
@@ -4918,7 +4960,7 @@ func (d *ExactDeviceRequestDie) Selectors(v ...resourcev1.DeviceSelector) *Exact
 	})
 }
 
-// AllocationMode and its related fields define how devices are allocated
+// allocationMode and its related fields define how devices are allocated
 //
 // to satisfy this request. Supported values are:
 //
@@ -4951,7 +4993,7 @@ func (d *ExactDeviceRequestDie) AllocationMode(v resourcev1.DeviceAllocationMode
 	})
 }
 
-// Count is used only when the count mode is "ExactCount". Must be greater than zero.
+// count is used only when the count mode is "ExactCount". Must be greater than zero.
 //
 // If AllocationMode is ExactCount and this field is not specified, the default is one.
 func (d *ExactDeviceRequestDie) Count(v int64) *ExactDeviceRequestDie {
@@ -4960,7 +5002,7 @@ func (d *ExactDeviceRequestDie) Count(v int64) *ExactDeviceRequestDie {
 	})
 }
 
-// AdminAccess indicates that this is a claim for administrative access
+// adminAccess indicates that this is a claim for administrative access
 //
 // to the device(s). Claims with AdminAccess are expected to be used for
 //
@@ -4979,7 +5021,7 @@ func (d *ExactDeviceRequestDie) AdminAccess(v *bool) *ExactDeviceRequestDie {
 	})
 }
 
-// If specified, the request's tolerations.
+// tolerations if specified, the request's tolerations.
 //
 // # Tolerations for NoSchedule are required to allocate a
 //
@@ -5010,7 +5052,7 @@ func (d *ExactDeviceRequestDie) Tolerations(v ...resourcev1.DeviceToleration) *E
 	})
 }
 
-// Capacity define resource requirements against each capacity.
+// capacity define resource requirements against each capacity.
 //
 // If this field is unset and the device supports multiple allocations,
 //
@@ -5035,7 +5077,7 @@ func (d *ExactDeviceRequestDie) Capacity(v *resourcev1.CapacityRequirements) *Ex
 	})
 }
 
-// DerivedAttributes defines a set of virtual attributes computed via CEL expressions
+// derivedAttributes defines a set of virtual attributes computed via CEL expressions
 //
 // for each candidate device. These virtual attributes can be referenced in
 //
@@ -5318,7 +5360,7 @@ func (d *DeviceTolerationDie) DiePatch(patchType types.PatchType) ([]byte, error
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Key is the taint key that the toleration applies to. Empty means match all taint keys.
+// key is the taint key that the toleration applies to. Empty means match all taint keys.
 //
 // If the key is empty, operator must be Exists; this combination means to match all values and all keys.
 //
@@ -5329,7 +5371,7 @@ func (d *DeviceTolerationDie) Key(v string) *DeviceTolerationDie {
 	})
 }
 
-// Operator represents a key's relationship to the value.
+// operator represents a key's relationship to the value.
 //
 // Valid operators are Exists and Equal. Defaults to Equal.
 //
@@ -5342,7 +5384,7 @@ func (d *DeviceTolerationDie) Operator(v resourcev1.DeviceTolerationOperator) *D
 	})
 }
 
-// Value is the taint value the toleration matches to.
+// value is the taint value the toleration matches to.
 //
 // If the operator is Exists, the value must be empty, otherwise just a regular string.
 //
@@ -5353,7 +5395,7 @@ func (d *DeviceTolerationDie) Value(v string) *DeviceTolerationDie {
 	})
 }
 
-// Effect indicates the taint effect to match. Empty means match all taint effects.
+// effect indicates the taint effect to match. Empty means match all taint effects.
 //
 // When specified, allowed values are NoSchedule and NoExecute.
 func (d *DeviceTolerationDie) Effect(v resourcev1.DeviceTaintEffect) *DeviceTolerationDie {
@@ -5362,7 +5404,7 @@ func (d *DeviceTolerationDie) Effect(v resourcev1.DeviceTaintEffect) *DeviceTole
 	})
 }
 
-// TolerationSeconds represents the period of time the toleration (which must be
+// tolerationSeconds represents the period of time the toleration (which must be
 //
 // of effect NoExecute, otherwise this field is ignored) tolerates the taint. By default,
 //
@@ -5625,7 +5667,7 @@ func (d *DeviceConstraintDie) DiePatch(patchType types.PatchType) ([]byte, error
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Requests is a list of the one or more requests in this claim which
+// requests is a list of the one or more requests in this claim which
 //
 // must co-satisfy this constraint. If a request is fulfilled by
 //
@@ -5646,7 +5688,7 @@ func (d *DeviceConstraintDie) Requests(v ...string) *DeviceConstraintDie {
 	})
 }
 
-// MatchAttribute requires that all devices in question have this
+// matchAttribute requires that all devices in question have this
 //
 // attribute and that its type and value are the same across those
 //
@@ -5679,7 +5721,7 @@ func (d *DeviceConstraintDie) MatchAttribute(v *resourcev1.FullyQualifiedName) *
 	})
 }
 
-// DistinctAttribute requires that all devices in question have this
+// distinctAttribute requires that all devices in question have this
 //
 // attribute and that its type and value are unique across those devices.
 //
@@ -5961,7 +6003,7 @@ func (d *DeviceClaimConfigurationDie) DeviceConfigurationDie(fn func(d *DeviceCo
 	})
 }
 
-// Requests lists the names of requests where the configuration applies.
+// requests lists the names of requests where the configuration applies.
 //
 // If empty, it applies to all requests.
 //
@@ -6230,7 +6272,7 @@ func (d *ResourceClaimStatusDie) DiePatch(patchType types.PatchType) ([]byte, er
 
 // AllocationDie mutates Allocation as a die.
 //
-// Allocation is set once the claim has been allocated successfully.
+// allocation is set once the claim has been allocated successfully.
 func (d *ResourceClaimStatusDie) AllocationDie(fn func(d *AllocationResultDie)) *ResourceClaimStatusDie {
 	return d.DieStamp(func(r *resourcev1.ResourceClaimStatus) {
 		d := AllocationResultBlank.DieImmutable(false).DieFeedPtr(r.Allocation)
@@ -6241,7 +6283,7 @@ func (d *ResourceClaimStatusDie) AllocationDie(fn func(d *AllocationResultDie)) 
 
 // ReservedForDie mutates a single item in ReservedFor matched by the nested field UID, appending a new item if no match is found.
 //
-// # ReservedFor indicates which entities are currently allowed to use
+// reservedFor indicates which entities are currently allowed to use
 //
 // the claim. A Pod which references a ResourceClaim which is not
 //
@@ -6289,14 +6331,14 @@ func (d *ResourceClaimStatusDie) ReservedForDie(v types.UID, fn func(d *Resource
 	})
 }
 
-// Allocation is set once the claim has been allocated successfully.
+// allocation is set once the claim has been allocated successfully.
 func (d *ResourceClaimStatusDie) Allocation(v *resourcev1.AllocationResult) *ResourceClaimStatusDie {
 	return d.DieStamp(func(r *resourcev1.ResourceClaimStatus) {
 		r.Allocation = v
 	})
 }
 
-// ReservedFor indicates which entities are currently allowed to use
+// reservedFor indicates which entities are currently allowed to use
 //
 // the claim. A Pod which references a ResourceClaim which is not
 //
@@ -6333,7 +6375,7 @@ func (d *ResourceClaimStatusDie) ReservedFor(v ...resourcev1.ResourceClaimConsum
 	})
 }
 
-// Devices contains the status of each device allocated for this
+// devices contains the status of each device allocated for this
 //
 // claim, as reported by the driver. This can include driver-specific
 //
@@ -6946,7 +6988,7 @@ func (d *NetworkDeviceDataDie) DiePatch(patchType types.PatchType) ([]byte, erro
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// InterfaceName specifies the name of the network interface associated with
+// interfaceName specifies the name of the network interface associated with
 //
 // the allocated device. This might be the name of a physical or virtual
 //
@@ -6959,7 +7001,7 @@ func (d *NetworkDeviceDataDie) InterfaceName(v string) *NetworkDeviceDataDie {
 	})
 }
 
-// IPs lists the network addresses assigned to the device's network interface.
+// ips lists the network addresses assigned to the device's network interface.
 //
 // This can include both IPv4 and IPv6 addresses.
 //
@@ -6974,7 +7016,7 @@ func (d *NetworkDeviceDataDie) IPs(v ...string) *NetworkDeviceDataDie {
 	})
 }
 
-// HardwareAddress represents the hardware address (e.g. MAC Address) of the device's network interface.
+// hardwareAddress represents the hardware address (e.g. MAC Address) of the device's network interface.
 //
 // Must not be longer than 128 bytes.
 func (d *NetworkDeviceDataDie) HardwareAddress(v string) *NetworkDeviceDataDie {
@@ -7231,7 +7273,7 @@ func (d *AllocationResultDie) DiePatch(patchType types.PatchType) ([]byte, error
 
 // DevicesDie mutates Devices as a die.
 //
-// Devices is the result of allocating devices.
+// devices is the result of allocating devices.
 func (d *AllocationResultDie) DevicesDie(fn func(d *DeviceAllocationResultDie)) *AllocationResultDie {
 	return d.DieStamp(func(r *resourcev1.AllocationResult) {
 		d := DeviceAllocationResultBlank.DieImmutable(false).DieFeed(r.Devices)
@@ -7242,7 +7284,7 @@ func (d *AllocationResultDie) DevicesDie(fn func(d *DeviceAllocationResultDie)) 
 
 // NodeSelectorDie mutates NodeSelector as a die.
 //
-// NodeSelector defines where the allocated resources are available. If
+// nodeSelector defines where the allocated resources are available. If
 //
 // unset, they are available everywhere.
 func (d *AllocationResultDie) NodeSelectorDie(fn func(d *corev1.NodeSelectorDie)) *AllocationResultDie {
@@ -7253,14 +7295,14 @@ func (d *AllocationResultDie) NodeSelectorDie(fn func(d *corev1.NodeSelectorDie)
 	})
 }
 
-// Devices is the result of allocating devices.
+// devices is the result of allocating devices.
 func (d *AllocationResultDie) Devices(v resourcev1.DeviceAllocationResult) *AllocationResultDie {
 	return d.DieStamp(func(r *resourcev1.AllocationResult) {
 		r.Devices = v
 	})
 }
 
-// NodeSelector defines where the allocated resources are available. If
+// nodeSelector defines where the allocated resources are available. If
 //
 // unset, they are available everywhere.
 func (d *AllocationResultDie) NodeSelector(v *apicorev1.NodeSelector) *AllocationResultDie {
@@ -7269,13 +7311,9 @@ func (d *AllocationResultDie) NodeSelector(v *apicorev1.NodeSelector) *Allocatio
 	})
 }
 
-// AllocationTimestamp stores the time when the resources were allocated.
+// allocationTimestamp stores the time when the resources were allocated.
 //
 // This field is not guaranteed to be set, in which case that time is unknown.
-//
-// # This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
-//
-// feature gate.
 func (d *AllocationResultDie) AllocationTimestamp(v *apismetav1.Time) *AllocationResultDie {
 	return d.DieStamp(func(r *resourcev1.AllocationResult) {
 		r.AllocationTimestamp = v
@@ -7530,7 +7568,7 @@ func (d *DeviceAllocationResultDie) DiePatch(patchType types.PatchType) ([]byte,
 
 // ResultsDie replaces Results by collecting the released value from each die passed.
 //
-// Results lists all allocated devices.
+// results lists all allocated devices.
 func (d *DeviceAllocationResultDie) ResultsDie(v ...*DeviceRequestAllocationResultDie) *DeviceAllocationResultDie {
 	return d.DieStamp(func(r *resourcev1.DeviceAllocationResult) {
 		r.Results = make([]resourcev1.DeviceRequestAllocationResult, len(v))
@@ -7542,7 +7580,7 @@ func (d *DeviceAllocationResultDie) ResultsDie(v ...*DeviceRequestAllocationResu
 
 // ConfigDie replaces Config by collecting the released value from each die passed.
 //
-// This field is a combination of all the claim and class configuration parameters.
+// config is a combination of all the claim and class configuration parameters.
 //
 // Drivers can distinguish between those based on a flag.
 //
@@ -7562,14 +7600,14 @@ func (d *DeviceAllocationResultDie) ConfigDie(v ...*DeviceAllocationConfiguratio
 	})
 }
 
-// Results lists all allocated devices.
+// results lists all allocated devices.
 func (d *DeviceAllocationResultDie) Results(v ...resourcev1.DeviceRequestAllocationResult) *DeviceAllocationResultDie {
 	return d.DieStamp(func(r *resourcev1.DeviceAllocationResult) {
 		r.Results = v
 	})
 }
 
-// This field is a combination of all the claim and class configuration parameters.
+// config is a combination of all the claim and class configuration parameters.
 //
 // Drivers can distinguish between those based on a flag.
 //
@@ -7834,7 +7872,7 @@ func (d *DeviceRequestAllocationResultDie) DiePatch(patchType types.PatchType) (
 
 // TolerationsDie replaces Tolerations by collecting the released value from each die passed.
 //
-// # A copy of all tolerations specified in the request at the time
+// tolerations is a copy of all tolerations specified in the request at the time
 //
 // when the device got allocated.
 //
@@ -7852,7 +7890,7 @@ func (d *DeviceRequestAllocationResultDie) TolerationsDie(v ...*DeviceToleration
 	})
 }
 
-// Request is the name of the request in the claim which caused this
+// request is the name of the request in the claim which caused this
 //
 // device to be allocated. If it references a subrequest in the
 //
@@ -7869,7 +7907,7 @@ func (d *DeviceRequestAllocationResultDie) Request(v string) *DeviceRequestAlloc
 	})
 }
 
-// Driver specifies the name of the DRA driver whose kubelet
+// driver specifies the name of the DRA driver whose kubelet
 //
 // plugin should be invoked to process the allocation once the claim is
 //
@@ -7884,7 +7922,7 @@ func (d *DeviceRequestAllocationResultDie) Driver(v string) *DeviceRequestAlloca
 	})
 }
 
-// This name together with the driver name and the device name field
+// pool specifies the name together with the driver name and the device name field
 //
 // identify which device was allocated (`<driver name>/<pool name>/<device name>`).
 //
@@ -7897,7 +7935,7 @@ func (d *DeviceRequestAllocationResultDie) Pool(v string) *DeviceRequestAllocati
 	})
 }
 
-// Device references one device instance via its name in the driver's
+// device references one device instance via its name in the driver's
 //
 // resource pool. It must be a DNS label.
 func (d *DeviceRequestAllocationResultDie) Device(v string) *DeviceRequestAllocationResultDie {
@@ -7906,7 +7944,7 @@ func (d *DeviceRequestAllocationResultDie) Device(v string) *DeviceRequestAlloca
 	})
 }
 
-// AdminAccess indicates that this device was allocated for
+// adminAccess indicates that this device was allocated for
 //
 // administrative access. See the corresponding request field
 //
@@ -7921,7 +7959,7 @@ func (d *DeviceRequestAllocationResultDie) AdminAccess(v *bool) *DeviceRequestAl
 	})
 }
 
-// A copy of all tolerations specified in the request at the time
+// tolerations is a copy of all tolerations specified in the request at the time
 //
 // when the device got allocated.
 //
@@ -7936,33 +7974,25 @@ func (d *DeviceRequestAllocationResultDie) Tolerations(v ...resourcev1.DeviceTol
 	})
 }
 
-// BindingConditions contains a copy of the BindingConditions
+// bindingConditions contains a copy of the BindingConditions
 //
 // from the corresponding ResourceSlice at the time of allocation.
-//
-// # This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
-//
-// feature gates.
 func (d *DeviceRequestAllocationResultDie) BindingConditions(v ...string) *DeviceRequestAllocationResultDie {
 	return d.DieStamp(func(r *resourcev1.DeviceRequestAllocationResult) {
 		r.BindingConditions = v
 	})
 }
 
-// BindingFailureConditions contains a copy of the BindingFailureConditions
+// bindingFailureConditions contains a copy of the BindingFailureConditions
 //
 // from the corresponding ResourceSlice at the time of allocation.
-//
-// # This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
-//
-// feature gates.
 func (d *DeviceRequestAllocationResultDie) BindingFailureConditions(v ...string) *DeviceRequestAllocationResultDie {
 	return d.DieStamp(func(r *resourcev1.DeviceRequestAllocationResult) {
 		r.BindingFailureConditions = v
 	})
 }
 
-// ShareID uniquely identifies an individual allocation share of the device,
+// shareID uniquely identifies an individual allocation share of the device,
 //
 // used when the device supports multiple simultaneous allocations.
 //
@@ -7975,7 +8005,7 @@ func (d *DeviceRequestAllocationResultDie) ShareID(v *types.UID) *DeviceRequestA
 	})
 }
 
-// SkipNodeOperations lists node-local resource operations (gRPC calls)
+// skipNodeOperations lists node-local resource operations (gRPC calls)
 //
 // that will be skipped for this allocated device when determining whether
 //
@@ -8245,7 +8275,7 @@ func (d *DeviceAllocationConfigurationDie) DeviceConfigurationDie(fn func(d *Dev
 	})
 }
 
-// Source records whether the configuration comes from a class and thus
+// source records whether the configuration comes from a class and thus
 //
 // is not something that a normal user would have been able to set
 //
@@ -8256,7 +8286,7 @@ func (d *DeviceAllocationConfigurationDie) Source(v resourcev1.AllocationConfigS
 	})
 }
 
-// Requests lists the names of requests where the configuration applies.
+// requests lists the names of requests where the configuration applies.
 //
 // If empty, its applies to all requests.
 //
@@ -8523,7 +8553,7 @@ func (d *ResourceClaimConsumerReferenceDie) DiePatch(patchType types.PatchType) 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// APIGroup is the group for the resource being referenced. It is
+// apiGroup is the group for the resource being referenced. It is
 //
 // empty for the core API. This matches the group in the APIVersion
 //
@@ -8534,21 +8564,21 @@ func (d *ResourceClaimConsumerReferenceDie) APIGroup(v string) *ResourceClaimCon
 	})
 }
 
-// Resource is the type of resource being referenced, for example "pods".
+// resource is the type of resource being referenced, for example "pods".
 func (d *ResourceClaimConsumerReferenceDie) Resource(v string) *ResourceClaimConsumerReferenceDie {
 	return d.DieStamp(func(r *resourcev1.ResourceClaimConsumerReference) {
 		r.Resource = v
 	})
 }
 
-// Name is the name of resource being referenced.
+// name is the name of resource being referenced.
 func (d *ResourceClaimConsumerReferenceDie) Name(v string) *ResourceClaimConsumerReferenceDie {
 	return d.DieStamp(func(r *resourcev1.ResourceClaimConsumerReference) {
 		r.Name = v
 	})
 }
 
-// UID identifies exactly one incarnation of the resource.
+// uid identifies exactly one incarnation of the resource.
 func (d *ResourceClaimConsumerReferenceDie) UID(v types.UID) *ResourceClaimConsumerReferenceDie {
 	return d.DieStamp(func(r *resourcev1.ResourceClaimConsumerReference) {
 		r.UID = v
@@ -8897,7 +8927,7 @@ func (d *ResourceClaimTemplateDie) SpecDie(fn func(d *ResourceClaimTemplateSpecD
 	})
 }
 
-// Describes the ResourceClaim that is to be generated.
+// spec describes the ResourceClaim that is to be generated.
 //
 // This field is immutable. A ResourceClaim will get created by the
 //
@@ -9158,7 +9188,7 @@ func (d *ResourceClaimTemplateSpecDie) DiePatch(patchType types.PatchType) ([]by
 
 // SpecDie mutates Spec as a die.
 //
-// Spec for the ResourceClaim. The entire content is copied unchanged
+// spec for the ResourceClaim. The entire content is copied unchanged
 //
 // into the ResourceClaim that gets created from this template. The
 //
@@ -9171,7 +9201,7 @@ func (d *ResourceClaimTemplateSpecDie) SpecDie(fn func(d *ResourceClaimSpecDie))
 	})
 }
 
-// ObjectMeta may contain labels and annotations that will be copied into the ResourceClaim
+// metadata may contain labels and annotations that will be copied into the ResourceClaim
 //
 // when creating it. No other fields are allowed and will be rejected during
 //
@@ -9182,7 +9212,7 @@ func (d *ResourceClaimTemplateSpecDie) ObjectMeta(v apismetav1.ObjectMeta) *Reso
 	})
 }
 
-// Spec for the ResourceClaim. The entire content is copied unchanged
+// spec for the ResourceClaim. The entire content is copied unchanged
 //
 // into the ResourceClaim that gets created from this template. The
 //
@@ -9543,7 +9573,7 @@ func (d *ResourceSliceDie) SpecDie(fn func(d *ResourceSliceSpecDie)) *ResourceSl
 	})
 }
 
-// Contains the information published by the driver.
+// spec contains the information published by the driver.
 //
 // Changing the spec automatically increments the metadata.generation number.
 func (d *ResourceSliceDie) Spec(v resourcev1.ResourceSliceSpec) *ResourceSliceDie {
@@ -9800,7 +9830,7 @@ func (d *ResourceSliceSpecDie) DiePatch(patchType types.PatchType) ([]byte, erro
 
 // PoolDie mutates Pool as a die.
 //
-// Pool describes the pool that this ResourceSlice belongs to.
+// pool describes the pool that this ResourceSlice belongs to.
 func (d *ResourceSliceSpecDie) PoolDie(fn func(d *ResourcePoolDie)) *ResourceSliceSpecDie {
 	return d.DieStamp(func(r *resourcev1.ResourceSliceSpec) {
 		d := ResourcePoolBlank.DieImmutable(false).DieFeed(r.Pool)
@@ -9811,7 +9841,7 @@ func (d *ResourceSliceSpecDie) PoolDie(fn func(d *ResourcePoolDie)) *ResourceSli
 
 // NodeSelectorDie mutates NodeSelector as a die.
 //
-// NodeSelector defines which nodes have access to the resources in the pool,
+// nodeSelector defines which nodes have access to the resources in the pool,
 //
 // when that pool is not limited to a single node.
 //
@@ -9828,7 +9858,7 @@ func (d *ResourceSliceSpecDie) NodeSelectorDie(fn func(d *corev1.NodeSelectorDie
 
 // DevicesDie replaces Devices by collecting the released value from each die passed.
 //
-// Devices lists some or all of the devices in this pool.
+// devices lists some or all of the devices in this pool.
 //
 // Must not have more than 128 entries. If any device uses taints or consumes counters the limit is 64.
 //
@@ -9844,7 +9874,7 @@ func (d *ResourceSliceSpecDie) DevicesDie(v ...*DeviceDie) *ResourceSliceSpecDie
 
 // SharedCountersDie replaces SharedCounters by collecting the released value from each die passed.
 //
-// # SharedCounters defines a list of counter sets, each of which
+// sharedCounters defines a list of counter sets, each of which
 //
 // has a name and a list of counters available.
 //
@@ -9862,7 +9892,7 @@ func (d *ResourceSliceSpecDie) SharedCountersDie(v ...*CounterSetDie) *ResourceS
 	})
 }
 
-// Driver identifies the DRA driver providing the capacity information.
+// driver identifies the DRA driver providing the capacity information.
 //
 // # A field selector can be used to list only ResourceSlice
 //
@@ -9879,14 +9909,14 @@ func (d *ResourceSliceSpecDie) Driver(v string) *ResourceSliceSpecDie {
 	})
 }
 
-// Pool describes the pool that this ResourceSlice belongs to.
+// pool describes the pool that this ResourceSlice belongs to.
 func (d *ResourceSliceSpecDie) Pool(v resourcev1.ResourcePool) *ResourceSliceSpecDie {
 	return d.DieStamp(func(r *resourcev1.ResourceSliceSpec) {
 		r.Pool = v
 	})
 }
 
-// NodeName identifies the node which provides the resources in this pool.
+// nodeName identifies the node which provides the resources in this pool.
 //
 // # A field selector can be used to list only ResourceSlice
 //
@@ -9909,7 +9939,7 @@ func (d *ResourceSliceSpecDie) NodeName(v *string) *ResourceSliceSpecDie {
 	})
 }
 
-// NodeSelector defines which nodes have access to the resources in the pool,
+// nodeSelector defines which nodes have access to the resources in the pool,
 //
 // when that pool is not limited to a single node.
 //
@@ -9922,7 +9952,7 @@ func (d *ResourceSliceSpecDie) NodeSelector(v *apicorev1.NodeSelector) *Resource
 	})
 }
 
-// AllNodes indicates that all nodes have access to the resources in the pool.
+// allNodes indicates that all nodes have access to the resources in the pool.
 //
 // Exactly one of NodeName, NodeSelector, AllNodes, and PerDeviceNodeSelection must be set.
 func (d *ResourceSliceSpecDie) AllNodes(v *bool) *ResourceSliceSpecDie {
@@ -9931,7 +9961,7 @@ func (d *ResourceSliceSpecDie) AllNodes(v *bool) *ResourceSliceSpecDie {
 	})
 }
 
-// Devices lists some or all of the devices in this pool.
+// devices lists some or all of the devices in this pool.
 //
 // Must not have more than 128 entries. If any device uses taints or consumes counters the limit is 64.
 //
@@ -9942,7 +9972,7 @@ func (d *ResourceSliceSpecDie) Devices(v ...resourcev1.Device) *ResourceSliceSpe
 	})
 }
 
-// PerDeviceNodeSelection defines whether the access from nodes to
+// perDeviceNodeSelection defines whether the access from nodes to
 //
 // resources in the pool is set on the ResourceSlice level or on each
 //
@@ -9957,7 +9987,7 @@ func (d *ResourceSliceSpecDie) PerDeviceNodeSelection(v *bool) *ResourceSliceSpe
 	})
 }
 
-// SharedCounters defines a list of counter sets, each of which
+// sharedCounters defines a list of counter sets, each of which
 //
 // has a name and a list of counters available.
 //
@@ -9972,7 +10002,7 @@ func (d *ResourceSliceSpecDie) SharedCounters(v ...resourcev1.CounterSet) *Resou
 	})
 }
 
-// PartitionTypeAttribute names a string device attribute (by fully
+// partitionTypeAttribute names a string device attribute (by fully
 //
 // qualified name, e.g. "gpu.example.com/profile") whose value labels
 //
@@ -9989,7 +10019,7 @@ func (d *ResourceSliceSpecDie) PartitionTypeAttribute(v *resourcev1.FullyQualifi
 	})
 }
 
-// SkipNodeOperations lists node-local resource operations (gRPC calls)
+// skipNodeOperations lists node-local resource operations (gRPC calls)
 //
 // that will be skipped for the devices in this slice when determining whether
 //
@@ -10262,7 +10292,7 @@ func (d *ResourcePoolDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Name is used to identify the pool. For node-local devices, this
+// name is used to identify the pool. For node-local devices, this
 //
 // is often the node name, but this is not required.
 //
@@ -10279,7 +10309,7 @@ func (d *ResourcePoolDie) Name(v string) *ResourcePoolDie {
 	})
 }
 
-// Generation tracks the change in a pool over time. Whenever a driver
+// generation tracks the change in a pool over time. Whenever a driver
 //
 // changes something about one or more of the resources in a pool, it
 //
@@ -10306,7 +10336,7 @@ func (d *ResourcePoolDie) Generation(v int64) *ResourcePoolDie {
 	})
 }
 
-// ResourceSliceCount is the total number of ResourceSlices in the pool at this
+// resourceSliceCount is the total number of ResourceSlices in the pool at this
 //
 // generation number. Must be greater than zero.
 //
@@ -10567,7 +10597,7 @@ func (d *DeviceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // ConsumesCountersDie replaces ConsumesCounters by collecting the released value from each die passed.
 //
-// # ConsumesCounters defines a list of references to sharedCounters
+// consumesCounters defines a list of references to sharedCounters
 //
 // and the set of counters that the device will
 //
@@ -10589,7 +10619,7 @@ func (d *DeviceDie) ConsumesCountersDie(v ...*DeviceCounterConsumptionDie) *Devi
 
 // NodeSelectorDie mutates NodeSelector as a die.
 //
-// NodeSelector defines the nodes where the device is available.
+// nodeSelector defines the nodes where the device is available.
 //
 // Must use exactly one term.
 //
@@ -10606,7 +10636,7 @@ func (d *DeviceDie) NodeSelectorDie(fn func(d *corev1.NodeSelectorDie)) *DeviceD
 
 // TaintsDie replaces Taints by collecting the released value from each die passed.
 //
-// If specified, these are the driver-defined taints.
+// taints if specified, these are the driver-defined taints.
 //
 // The maximum number of taints is 16. If taints are set for
 //
@@ -10626,7 +10656,7 @@ func (d *DeviceDie) TaintsDie(v ...*DeviceTaintDie) *DeviceDie {
 	})
 }
 
-// Name is unique identifier among all devices managed by
+// name is unique identifier among all devices managed by
 //
 // the driver in the pool. It must be a DNS label.
 func (d *DeviceDie) Name(v string) *DeviceDie {
@@ -10635,7 +10665,7 @@ func (d *DeviceDie) Name(v string) *DeviceDie {
 	})
 }
 
-// ConsumesCounters defines a list of references to sharedCounters
+// consumesCounters defines a list of references to sharedCounters
 //
 // and the set of counters that the device will
 //
@@ -10652,7 +10682,7 @@ func (d *DeviceDie) ConsumesCounters(v ...resourcev1.DeviceCounterConsumption) *
 	})
 }
 
-// NodeName identifies the node where the device is available.
+// nodeName identifies the node where the device is available.
 //
 // Must only be set if Spec.PerDeviceNodeSelection is set to true.
 //
@@ -10663,7 +10693,7 @@ func (d *DeviceDie) NodeName(v *string) *DeviceDie {
 	})
 }
 
-// NodeSelector defines the nodes where the device is available.
+// nodeSelector defines the nodes where the device is available.
 //
 // Must use exactly one term.
 //
@@ -10676,7 +10706,7 @@ func (d *DeviceDie) NodeSelector(v *apicorev1.NodeSelector) *DeviceDie {
 	})
 }
 
-// AllNodes indicates that all nodes have access to the device.
+// allNodes indicates that all nodes have access to the device.
 //
 // Must only be set if Spec.PerDeviceNodeSelection is set to true.
 //
@@ -10687,7 +10717,7 @@ func (d *DeviceDie) AllNodes(v *bool) *DeviceDie {
 	})
 }
 
-// If specified, these are the driver-defined taints.
+// taints if specified, these are the driver-defined taints.
 //
 // The maximum number of taints is 16. If taints are set for
 //
@@ -10704,24 +10734,20 @@ func (d *DeviceDie) Taints(v ...resourcev1.DeviceTaint) *DeviceDie {
 	})
 }
 
-// BindsToNode indicates if the usage of an allocation involving this device
+// bindsToNode indicates if the usage of an allocation involving this device
 //
 // has to be limited to exactly the node that was chosen when allocating the claim.
 //
 // # If set to true, the scheduler will set the ResourceClaim.Status.Allocation.NodeSelector
 //
 // to match the node where the allocation was made.
-//
-// # This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
-//
-// feature gates.
 func (d *DeviceDie) BindsToNode(v *bool) *DeviceDie {
 	return d.DieStamp(func(r *resourcev1.Device) {
 		r.BindsToNode = v
 	})
 }
 
-// BindingConditions defines the conditions for proceeding with binding.
+// bindingConditions defines the conditions for proceeding with binding.
 //
 // # All of these conditions must be set in the per-device status
 //
@@ -10732,17 +10758,13 @@ func (d *DeviceDie) BindsToNode(v *bool) *DeviceDie {
 // The maximum number of binding conditions is 4.
 //
 // The conditions must be a valid condition type string.
-//
-// # This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
-//
-// feature gates.
 func (d *DeviceDie) BindingConditions(v ...string) *DeviceDie {
 	return d.DieStamp(func(r *resourcev1.Device) {
 		r.BindingConditions = v
 	})
 }
 
-// BindingFailureConditions defines the conditions for binding failure.
+// bindingFailureConditions defines the conditions for binding failure.
 //
 // They may be set in the per-device status conditions.
 //
@@ -10751,17 +10773,13 @@ func (d *DeviceDie) BindingConditions(v ...string) *DeviceDie {
 // The maximum number of binding failure conditions is 4.
 //
 // The conditions must be a valid condition type string.
-//
-// # This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
-//
-// feature gates.
 func (d *DeviceDie) BindingFailureConditions(v ...string) *DeviceDie {
 	return d.DieStamp(func(r *resourcev1.Device) {
 		r.BindingFailureConditions = v
 	})
 }
 
-// AllowMultipleAllocations marks whether the device is allowed to be allocated to multiple DeviceRequests.
+// allowMultipleAllocations marks whether the device is allowed to be allocated to multiple DeviceRequests.
 //
 // If AllowMultipleAllocations is set to true, the device can be allocated more than once,
 //
@@ -11018,28 +11036,28 @@ func (d *DeviceAttributeDie) DiePatch(patchType types.PatchType) ([]byte, error)
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// IntValue is a number.
+// int is a number.
 func (d *DeviceAttributeDie) IntValue(v *int64) *DeviceAttributeDie {
 	return d.DieStamp(func(r *resourcev1.DeviceAttribute) {
 		r.IntValue = v
 	})
 }
 
-// BoolValue is a true/false value.
+// bool is a true/false value.
 func (d *DeviceAttributeDie) BoolValue(v *bool) *DeviceAttributeDie {
 	return d.DieStamp(func(r *resourcev1.DeviceAttribute) {
 		r.BoolValue = v
 	})
 }
 
-// StringValue is a string. Must not be longer than 64 characters.
+// string is a string. Must not be longer than 64 characters.
 func (d *DeviceAttributeDie) StringValue(v *string) *DeviceAttributeDie {
 	return d.DieStamp(func(r *resourcev1.DeviceAttribute) {
 		r.StringValue = v
 	})
 }
 
-// VersionValue is a semantic version according to semver.org spec 2.0.0.
+// version is a semantic version according to semver.org spec 2.0.0.
 //
 // Must not be longer than 64 characters.
 func (d *DeviceAttributeDie) VersionValue(v *string) *DeviceAttributeDie {
@@ -11048,7 +11066,7 @@ func (d *DeviceAttributeDie) VersionValue(v *string) *DeviceAttributeDie {
 	})
 }
 
-// IntValues is a non-empty list of numbers.
+// ints is a non-empty list of numbers.
 //
 // This is an alpha field and requires enabling the DRAListTypeAttributes feature gate.
 func (d *DeviceAttributeDie) IntValues(v ...int64) *DeviceAttributeDie {
@@ -11057,14 +11075,14 @@ func (d *DeviceAttributeDie) IntValues(v ...int64) *DeviceAttributeDie {
 	})
 }
 
-// BoolValues is a non-empty list of true/false values.
+// bools is a non-empty list of true/false values.
 func (d *DeviceAttributeDie) BoolValues(v ...bool) *DeviceAttributeDie {
 	return d.DieStamp(func(r *resourcev1.DeviceAttribute) {
 		r.BoolValues = v
 	})
 }
 
-// StringValues is a non-empty list of strings.
+// strings is a non-empty list of strings.
 //
 // Each string must not be longer than 64 characters.
 //
@@ -11075,7 +11093,7 @@ func (d *DeviceAttributeDie) StringValues(v ...string) *DeviceAttributeDie {
 	})
 }
 
-// VersionValues is a non-empty list of semantic versions according to semver.org spec 2.0.0.
+// versions is a non-empty list of semantic versions according to semver.org spec 2.0.0.
 //
 // Each version string must not be longer than 64 characters.
 //
@@ -11334,7 +11352,7 @@ func (d *DeviceCapacityDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 
 // RequestPolicyDie mutates RequestPolicy as a die.
 //
-// # RequestPolicy defines how this DeviceCapacity must be consumed
+// requestPolicy defines how this DeviceCapacity must be consumed
 //
 // when the device is allowed to be shared by multiple allocations.
 //
@@ -11355,7 +11373,7 @@ func (d *DeviceCapacityDie) RequestPolicyDie(fn func(d *CapacityRequestPolicyDie
 	})
 }
 
-// Value defines how much of a certain capacity that device has.
+// value defines how much of a certain capacity that device has.
 //
 // This field reflects the fixed total capacity and does not change.
 //
@@ -11370,7 +11388,7 @@ func (d *DeviceCapacityDie) Value(v resource.Quantity) *DeviceCapacityDie {
 
 // ValueString sets Value by parsing the string as a Quantity. Panics if the string is not parsable.
 //
-// Value defines how much of a certain capacity that device has.
+// value defines how much of a certain capacity that device has.
 //
 // This field reflects the fixed total capacity and does not change.
 //
@@ -11382,7 +11400,7 @@ func (d *DeviceCapacityDie) ValueString(s string) *DeviceCapacityDie {
 	return d.Value(q)
 }
 
-// RequestPolicy defines how this DeviceCapacity must be consumed
+// requestPolicy defines how this DeviceCapacity must be consumed
 //
 // when the device is allowed to be shared by multiple allocations.
 //
@@ -11649,7 +11667,7 @@ func (d *NodeAllocatableResourceDie) DiePatch(patchType types.PatchType) ([]byte
 
 // MappingDie mutates Mapping as a die.
 //
-// # Mapping is used when the device directly models a node allocatable resource like standard CPU or memory
+// mapping is used when the device directly models a node allocatable resource like standard CPU or memory
 //
 // (e.g., with a CPU DRA driver). The calculated quantity is accounted for exactly once per claim instance
 //
@@ -11666,7 +11684,7 @@ func (d *NodeAllocatableResourceDie) MappingDie(fn func(d *NodeAllocatableMappin
 
 // OverheadDie mutates Overhead as a die.
 //
-// # Overhead contains fields for modeling auxiliary overhead incurred on node allocatable resources
+// overhead contains fields for modeling auxiliary overhead incurred on node allocatable resources
 //
 // when allocating devices that are not themselves modeling a node allocatable resource (e.g., host memory overhead for GPUs).
 //
@@ -11691,7 +11709,7 @@ func (d *NodeAllocatableResourceDie) OverheadDie(fn func(d *NodeAllocatableOverh
 	})
 }
 
-// Mapping is used when the device directly models a node allocatable resource like standard CPU or memory
+// mapping is used when the device directly models a node allocatable resource like standard CPU or memory
 //
 // (e.g., with a CPU DRA driver). The calculated quantity is accounted for exactly once per claim instance
 //
@@ -11704,7 +11722,7 @@ func (d *NodeAllocatableResourceDie) Mapping(v *resourcev1.NodeAllocatableMappin
 	})
 }
 
-// Overhead contains fields for modeling auxiliary overhead incurred on node allocatable resources
+// overhead contains fields for modeling auxiliary overhead incurred on node allocatable resources
 //
 // when allocating devices that are not themselves modeling a node allocatable resource (e.g., host memory overhead for GPUs).
 //
@@ -11973,7 +11991,7 @@ func (d *NodeAllocatableMappingDie) DiePatch(patchType types.PatchType) ([]byte,
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// CapacityKey references a capacity name defined as a key in the
+// capacityKey references a capacity name defined as a key in the
 //
 // `spec.devices[*].capacity` map. When this field is set, the value associated with
 //
@@ -11994,13 +12012,21 @@ func (d *NodeAllocatableMappingDie) DiePatch(patchType types.PatchType) ([]byte,
 // node allocatable resource mapping will be "4Gi".
 //
 // The final node allocatable resource amount is `consumedCapacity[capacityKey]` * `capacityMultiplier`.
+//
+// In this example, "dra.example.com/memory" is a fictional standardized capacity name.
+//
+// For driver-specific capacities the driver name can be omitted.
+//
+// # As defined for consumedCapacity, the capacity consumption may be recorded
+//
+// there with or without the driver name.
 func (d *NodeAllocatableMappingDie) CapacityKey(v *resourcev1.QualifiedName) *NodeAllocatableMappingDie {
 	return d.DieStamp(func(r *resourcev1.NodeAllocatableMapping) {
 		r.CapacityKey = v
 	})
 }
 
-// CapacityMultiplier is used as a multiplier for the allocated capacity consumed.
+// capacityMultiplier is used as a multiplier for the allocated capacity consumed.
 //
 // It is only valid if `capacityKey` is set.
 //
@@ -12021,7 +12047,7 @@ func (d *NodeAllocatableMappingDie) CapacityMultiplier(v *resource.Quantity) *No
 
 // CapacityMultiplierString sets CapacityMultiplier by parsing the string as a Quantity. Panics if the string is not parsable.
 //
-// CapacityMultiplier is used as a multiplier for the allocated capacity consumed.
+// capacityMultiplier is used as a multiplier for the allocated capacity consumed.
 //
 // It is only valid if `capacityKey` is set.
 //
@@ -12039,7 +12065,7 @@ func (d *NodeAllocatableMappingDie) CapacityMultiplierString(s string) *NodeAllo
 	return d.CapacityMultiplier(&q)
 }
 
-// DeviceMultiplier is used as a multiplier for the allocated device count in the claim.
+// deviceMultiplier is used as a multiplier for the allocated device count in the claim.
 //
 // The final node allocatable resource amount is `deviceCount` * `deviceMultiplier`.
 //
@@ -12058,7 +12084,7 @@ func (d *NodeAllocatableMappingDie) DeviceMultiplier(v *resource.Quantity) *Node
 
 // DeviceMultiplierString sets DeviceMultiplier by parsing the string as a Quantity. Panics if the string is not parsable.
 //
-// DeviceMultiplier is used as a multiplier for the allocated device count in the claim.
+// deviceMultiplier is used as a multiplier for the allocated device count in the claim.
 //
 // The final node allocatable resource amount is `deviceCount` * `deviceMultiplier`.
 //
@@ -12320,7 +12346,7 @@ func (d *NodeAllocatableOverheadDie) DiePatch(patchType types.PatchType) ([]byte
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// PerPod is overhead applied once per pod referencing the claim on this node.
+// perPod is overhead applied once per pod referencing the claim on this node.
 //
 // This is a flat overhead incurred for every pod referencing the claim.
 func (d *NodeAllocatableOverheadDie) PerPod(v *resource.Quantity) *NodeAllocatableOverheadDie {
@@ -12331,7 +12357,7 @@ func (d *NodeAllocatableOverheadDie) PerPod(v *resource.Quantity) *NodeAllocatab
 
 // PerPodString sets PerPod by parsing the string as a Quantity. Panics if the string is not parsable.
 //
-// PerPod is overhead applied once per pod referencing the claim on this node.
+// perPod is overhead applied once per pod referencing the claim on this node.
 //
 // This is a flat overhead incurred for every pod referencing the claim.
 func (d *NodeAllocatableOverheadDie) PerPodString(s string) *NodeAllocatableOverheadDie {
@@ -12339,7 +12365,7 @@ func (d *NodeAllocatableOverheadDie) PerPodString(s string) *NodeAllocatableOver
 	return d.PerPod(&q)
 }
 
-// PerContainer is applied per container reference to the claim.
+// perContainer is applied per container reference to the claim.
 //
 // This models overhead scaling linearly with the number of containers actively using the device.
 //
@@ -12356,6 +12382,10 @@ func (d *NodeAllocatableOverheadDie) PerPodString(s string) *NodeAllocatableOver
 // - Container-level cgroup (limits only): Kubelet adds PerPod + PerContainer for each referencing container.
 //
 // This allows any single container to access the pod-level overhead, while the parent cgroup caps the total usage to account for PerPod exactly once.
+//
+// # PerContainer overhead of a claim referenced by a non-restartable init container is counted towards
+//
+// the pod's peak resource calculation (see Pod `spec.initContainers`), not for the pod's entire duration.
 func (d *NodeAllocatableOverheadDie) PerContainer(v *resource.Quantity) *NodeAllocatableOverheadDie {
 	return d.DieStamp(func(r *resourcev1.NodeAllocatableOverhead) {
 		r.PerContainer = v
@@ -12364,7 +12394,7 @@ func (d *NodeAllocatableOverheadDie) PerContainer(v *resource.Quantity) *NodeAll
 
 // PerContainerString sets PerContainer by parsing the string as a Quantity. Panics if the string is not parsable.
 //
-// PerContainer is applied per container reference to the claim.
+// perContainer is applied per container reference to the claim.
 //
 // This models overhead scaling linearly with the number of containers actively using the device.
 //
@@ -12381,6 +12411,10 @@ func (d *NodeAllocatableOverheadDie) PerContainer(v *resource.Quantity) *NodeAll
 // - Container-level cgroup (limits only): Kubelet adds PerPod + PerContainer for each referencing container.
 //
 // This allows any single container to access the pod-level overhead, while the parent cgroup caps the total usage to account for PerPod exactly once.
+//
+// # PerContainer overhead of a claim referenced by a non-restartable init container is counted towards
+//
+// the pod's peak resource calculation (see Pod `spec.initContainers`), not for the pod's entire duration.
 func (d *NodeAllocatableOverheadDie) PerContainerString(s string) *NodeAllocatableOverheadDie {
 	q := resource.MustParse(s)
 	return d.PerContainer(&q)
@@ -12634,7 +12668,7 @@ func (d *CapacityRequestPolicyDie) DiePatch(patchType types.PatchType) ([]byte, 
 
 // ValidRangeDie mutates ValidRange as a die.
 //
-// ValidRange defines an acceptable quantity value range in consuming requests.
+// validRange defines an acceptable quantity value range in consuming requests.
 //
 // If this field is set,
 //
@@ -12653,7 +12687,7 @@ func (d *CapacityRequestPolicyDie) ValidRangeDie(fn func(d *CapacityRequestPolic
 	})
 }
 
-// Default specifies how much of this capacity is consumed by a request
+// default specifies how much of this capacity is consumed by a request
 //
 // that does not contain an entry for it in DeviceRequest's Capacity.
 func (d *CapacityRequestPolicyDie) Default(v *resource.Quantity) *CapacityRequestPolicyDie {
@@ -12664,7 +12698,7 @@ func (d *CapacityRequestPolicyDie) Default(v *resource.Quantity) *CapacityReques
 
 // DefaultString sets Default by parsing the string as a Quantity. Panics if the string is not parsable.
 //
-// # Default specifies how much of this capacity is consumed by a request
+// default specifies how much of this capacity is consumed by a request
 //
 // that does not contain an entry for it in DeviceRequest's Capacity.
 func (d *CapacityRequestPolicyDie) DefaultString(s string) *CapacityRequestPolicyDie {
@@ -12672,7 +12706,7 @@ func (d *CapacityRequestPolicyDie) DefaultString(s string) *CapacityRequestPolic
 	return d.Default(&q)
 }
 
-// ValidValues defines a set of acceptable quantity values in consuming requests.
+// validValues defines a set of acceptable quantity values in consuming requests.
 //
 // Must not contain more than 10 entries.
 //
@@ -12697,7 +12731,7 @@ func (d *CapacityRequestPolicyDie) ValidValues(v ...resource.Quantity) *Capacity
 	})
 }
 
-// ValidRange defines an acceptable quantity value range in consuming requests.
+// validRange defines an acceptable quantity value range in consuming requests.
 //
 // If this field is set,
 //
@@ -12960,7 +12994,7 @@ func (d *CapacityRequestPolicyRangeDie) DiePatch(patchType types.PatchType) ([]b
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Min specifies the minimum capacity allowed for a consumption request.
+// min specifies the minimum capacity allowed for a consumption request.
 //
 // Min must be greater than or equal to zero,
 //
@@ -12975,7 +13009,7 @@ func (d *CapacityRequestPolicyRangeDie) Min(v *resource.Quantity) *CapacityReque
 
 // MinString sets Min by parsing the string as a Quantity. Panics if the string is not parsable.
 //
-// Min specifies the minimum capacity allowed for a consumption request.
+// min specifies the minimum capacity allowed for a consumption request.
 //
 // Min must be greater than or equal to zero,
 //
@@ -12987,7 +13021,7 @@ func (d *CapacityRequestPolicyRangeDie) MinString(s string) *CapacityRequestPoli
 	return d.Min(&q)
 }
 
-// Max defines the upper limit for capacity that can be requested.
+// max defines the upper limit for capacity that can be requested.
 //
 // Max must be less than or equal to the capacity value.
 //
@@ -13000,7 +13034,7 @@ func (d *CapacityRequestPolicyRangeDie) Max(v *resource.Quantity) *CapacityReque
 
 // MaxString sets Max by parsing the string as a Quantity. Panics if the string is not parsable.
 //
-// Max defines the upper limit for capacity that can be requested.
+// max defines the upper limit for capacity that can be requested.
 //
 // Max must be less than or equal to the capacity value.
 //
@@ -13010,7 +13044,7 @@ func (d *CapacityRequestPolicyRangeDie) MaxString(s string) *CapacityRequestPoli
 	return d.Max(&q)
 }
 
-// Step defines the step size between valid capacity amounts within the range.
+// step defines the step size between valid capacity amounts within the range.
 //
 // Max (if set) and requestPolicy.default must be a multiple of Step.
 //
@@ -13023,7 +13057,7 @@ func (d *CapacityRequestPolicyRangeDie) Step(v *resource.Quantity) *CapacityRequ
 
 // StepString sets Step by parsing the string as a Quantity. Panics if the string is not parsable.
 //
-// Step defines the step size between valid capacity amounts within the range.
+// step defines the step size between valid capacity amounts within the range.
 //
 // Max (if set) and requestPolicy.default must be a multiple of Step.
 //
@@ -13279,7 +13313,7 @@ func (d *DeviceCounterConsumptionDie) DiePatch(patchType types.PatchType) ([]byt
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// CounterSet is the name of the set from which the
+// counterSet is the name of the set from which the
 //
 // counters defined will be consumed.
 func (d *DeviceCounterConsumptionDie) CounterSet(v string) *DeviceCounterConsumptionDie {
@@ -13288,7 +13322,7 @@ func (d *DeviceCounterConsumptionDie) CounterSet(v string) *DeviceCounterConsump
 	})
 }
 
-// CompatibilityGroups is a list of opaque group names for
+// compatibilityGroups is a list of opaque group names for
 //
 // this counter set consumption.
 //
@@ -13569,7 +13603,7 @@ func (d *CounterDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Value defines how much of a certain device counter is available.
+// value defines how much of a certain device counter is available.
 func (d *CounterDie) Value(v resource.Quantity) *CounterDie {
 	return d.DieStamp(func(r *resourcev1.Counter) {
 		r.Value = v
@@ -13578,7 +13612,7 @@ func (d *CounterDie) Value(v resource.Quantity) *CounterDie {
 
 // ValueString sets Value by parsing the string as a Quantity. Panics if the string is not parsable.
 //
-// Value defines how much of a certain device counter is available.
+// value defines how much of a certain device counter is available.
 func (d *CounterDie) ValueString(s string) *CounterDie {
 	q := resource.MustParse(s)
 	return d.Value(q)
@@ -13830,7 +13864,7 @@ func (d *CounterSetDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Name defines the name of the counter set.
+// name defines the name of the counter set.
 //
 // It must be a DNS label.
 func (d *CounterSetDie) Name(v string) *CounterSetDie {
@@ -14085,7 +14119,7 @@ func (d *DeviceTaintDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// The taint key to be applied to a device.
+// key is the taint key to be applied to a device.
 //
 // Must be a label name.
 func (d *DeviceTaintDie) Key(v string) *DeviceTaintDie {
@@ -14094,7 +14128,7 @@ func (d *DeviceTaintDie) Key(v string) *DeviceTaintDie {
 	})
 }
 
-// The taint value corresponding to the taint key.
+// value is the taint value corresponding to the taint key.
 //
 // Must be a label value.
 func (d *DeviceTaintDie) Value(v string) *DeviceTaintDie {
@@ -14103,7 +14137,7 @@ func (d *DeviceTaintDie) Value(v string) *DeviceTaintDie {
 	})
 }
 
-// The effect of the taint on claims that do not tolerate the taint
+// effect is the effect of the taint on claims that do not tolerate the taint
 //
 // and through such claims on the pods using them.
 //
@@ -14118,7 +14152,7 @@ func (d *DeviceTaintDie) Effect(v resourcev1.DeviceTaintEffect) *DeviceTaintDie 
 	})
 }
 
-// TimeAdded represents the time at which the taint was added or
+// timeAdded represents the time at which the taint was added or
 //
 // (only in a DeviceTaintRule) the effect was modified.
 //

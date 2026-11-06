@@ -384,7 +384,7 @@ func (d *BindingDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *BindingDie {
 
 // TargetDie mutates Target as a die.
 //
-// The target object that you want to bind to the standard object.
+// target is the target object that you want to bind to the standard object.
 func (d *BindingDie) TargetDie(fn func(d *ObjectReferenceDie)) *BindingDie {
 	return d.DieStamp(func(r *corev1.Binding) {
 		d := ObjectReferenceBlank.DieImmutable(false).DieFeed(r.Target)
@@ -393,7 +393,7 @@ func (d *BindingDie) TargetDie(fn func(d *ObjectReferenceDie)) *BindingDie {
 	})
 }
 
-// The target object that you want to bind to the standard object.
+// target is the target object that you want to bind to the standard object.
 func (d *BindingDie) Target(v corev1.ObjectReference) *BindingDie {
 	return d.DieStamp(func(r *corev1.Binding) {
 		r.Target = v
@@ -646,7 +646,7 @@ func (d *ObjectReferenceDie) DiePatch(patchType types.PatchType) ([]byte, error)
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Kind of the referent.
+// kind of the referent.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
 func (d *ObjectReferenceDie) Kind(v string) *ObjectReferenceDie {
@@ -655,7 +655,7 @@ func (d *ObjectReferenceDie) Kind(v string) *ObjectReferenceDie {
 	})
 }
 
-// Namespace of the referent.
+// namespace of the referent.
 //
 // More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
 func (d *ObjectReferenceDie) Namespace(v string) *ObjectReferenceDie {
@@ -664,7 +664,7 @@ func (d *ObjectReferenceDie) Namespace(v string) *ObjectReferenceDie {
 	})
 }
 
-// Name of the referent.
+// name of the referent.
 //
 // More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 func (d *ObjectReferenceDie) Name(v string) *ObjectReferenceDie {
@@ -673,7 +673,7 @@ func (d *ObjectReferenceDie) Name(v string) *ObjectReferenceDie {
 	})
 }
 
-// UID of the referent.
+// uid of the referent.
 //
 // More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
 func (d *ObjectReferenceDie) UID(v types.UID) *ObjectReferenceDie {
@@ -682,14 +682,14 @@ func (d *ObjectReferenceDie) UID(v types.UID) *ObjectReferenceDie {
 	})
 }
 
-// API version of the referent.
+// apiVersion is API version of the referent.
 func (d *ObjectReferenceDie) APIVersion(v string) *ObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.ObjectReference) {
 		r.APIVersion = v
 	})
 }
 
-// Specific resourceVersion to which this reference is made, if any.
+// resourceVersion is the specific resourceVersion to which this reference is made, if any.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
 func (d *ObjectReferenceDie) ResourceVersion(v string) *ObjectReferenceDie {
@@ -698,7 +698,7 @@ func (d *ObjectReferenceDie) ResourceVersion(v string) *ObjectReferenceDie {
 	})
 }
 
-// If referring to a piece of an object instead of an entire object, this string
+// fieldPath if referring to a piece of an object instead of an entire object, this string
 //
 // should contain a valid JSON/Go field access statement, such as desiredState.manifest.containers[2].
 //
@@ -965,7 +965,7 @@ func (d *LocalObjectReferenceDie) DiePatch(patchType types.PatchType) ([]byte, e
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Name of the referent.
+// name of the referent.
 //
 // # This field is effectively required, but due to backwards compatibility is
 //
@@ -1228,7 +1228,7 @@ func (d *TypedLocalObjectReferenceDie) DiePatch(patchType types.PatchType) ([]by
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// APIGroup is the group for the resource being referenced.
+// apiGroup is the group for the resource being referenced.
 //
 // If APIGroup is not specified, the specified Kind must be in the core API group.
 //
@@ -1239,14 +1239,14 @@ func (d *TypedLocalObjectReferenceDie) APIGroup(v *string) *TypedLocalObjectRefe
 	})
 }
 
-// Kind is the type of resource being referenced
+// kind is the type of resource being referenced
 func (d *TypedLocalObjectReferenceDie) Kind(v string) *TypedLocalObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.TypedLocalObjectReference) {
 		r.Kind = v
 	})
 }
 
-// Name is the name of resource being referenced
+// name is the name of resource being referenced
 func (d *TypedLocalObjectReferenceDie) Name(v string) *TypedLocalObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.TypedLocalObjectReference) {
 		r.Name = v
@@ -1499,7 +1499,7 @@ func (d *TypedObjectReferenceDie) DiePatch(patchType types.PatchType) ([]byte, e
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// APIGroup is the group for the resource being referenced.
+// apiGroup is the group for the resource being referenced.
 //
 // If APIGroup is not specified, the specified Kind must be in the core API group.
 //
@@ -1510,21 +1510,21 @@ func (d *TypedObjectReferenceDie) APIGroup(v *string) *TypedObjectReferenceDie {
 	})
 }
 
-// Kind is the type of resource being referenced
+// kind is the type of resource being referenced
 func (d *TypedObjectReferenceDie) Kind(v string) *TypedObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.TypedObjectReference) {
 		r.Kind = v
 	})
 }
 
-// Name is the name of resource being referenced
+// name is the name of resource being referenced
 func (d *TypedObjectReferenceDie) Name(v string) *TypedObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.TypedObjectReference) {
 		r.Name = v
 	})
 }
 
-// Namespace is the namespace of resource being referenced
+// namespace is the namespace of resource being referenced
 //
 // Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
 //
@@ -2043,6 +2043,10 @@ func (d *TopologySelectorTermDie) DiePatch(patchType types.PatchType) ([]byte, e
 
 // MatchLabelExpressionsDie replaces MatchLabelExpressions by collecting the released value from each die passed.
 //
+// matchLabelExpressions is a list of topology selector requirements by labels.
+//
+// Usage: Fields of type []TopologySelectorTerm must be listType=atomic.
+//
 // A list of topology selector requirements by labels.
 func (d *TopologySelectorTermDie) MatchLabelExpressionsDie(v ...*TopologySelectorLabelRequirementDie) *TopologySelectorTermDie {
 	return d.DieStamp(func(r *corev1.TopologySelectorTerm) {
@@ -2053,6 +2057,10 @@ func (d *TopologySelectorTermDie) MatchLabelExpressionsDie(v ...*TopologySelecto
 	})
 }
 
+// matchLabelExpressions is a list of topology selector requirements by labels.
+//
+// Usage: Fields of type []TopologySelectorTerm must be listType=atomic.
+//
 // A list of topology selector requirements by labels.
 func (d *TopologySelectorTermDie) MatchLabelExpressions(v ...corev1.TopologySelectorLabelRequirement) *TopologySelectorTermDie {
 	return d.DieStamp(func(r *corev1.TopologySelectorTerm) {
@@ -2306,16 +2314,16 @@ func (d *TopologySelectorLabelRequirementDie) DiePatch(patchType types.PatchType
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// The label key that the selector applies to.
+// key is the label key that the selector applies to.
 func (d *TopologySelectorLabelRequirementDie) Key(v string) *TopologySelectorLabelRequirementDie {
 	return d.DieStamp(func(r *corev1.TopologySelectorLabelRequirement) {
 		r.Key = v
 	})
 }
 
-// An array of string values. One value must match the label to be selected.
+// values is an array of string values. One value must match the label to be selected.
 //
-// Each entry in Values is ORed.
+// Each entry in values is ORed.
 func (d *TopologySelectorLabelRequirementDie) Values(v ...string) *TopologySelectorLabelRequirementDie {
 	return d.DieStamp(func(r *corev1.TopologySelectorLabelRequirement) {
 		r.Values = v
@@ -3011,7 +3019,7 @@ func (d *ConfigMapDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *ConfigMapD
 	})
 }
 
-// Immutable, if set to true, ensures that data stored in the ConfigMap cannot
+// immutable if set to true, ensures that data stored in the ConfigMap cannot
 //
 // be updated (only object metadata can be modified).
 //
@@ -3272,7 +3280,7 @@ func (d *ContainerDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // ResourcesDie mutates Resources as a die.
 //
-// Compute Resources required by this container.
+// resources is the compute Resources required by this container.
 //
 // Cannot be updated.
 //
@@ -3287,7 +3295,7 @@ func (d *ContainerDie) ResourcesDie(fn func(d *ResourceRequirementsDie)) *Contai
 
 // LivenessProbeDie mutates LivenessProbe as a die.
 //
-// Periodic probe of container liveness.
+// livenessProbe is the periodic probe of container liveness.
 //
 // Container will be restarted if the probe fails.
 //
@@ -3304,7 +3312,7 @@ func (d *ContainerDie) LivenessProbeDie(fn func(d *ProbeDie)) *ContainerDie {
 
 // ReadinessProbeDie mutates ReadinessProbe as a die.
 //
-// Periodic probe of container service readiness.
+// readinessProbe is the periodic probe of container service readiness.
 //
 // Container will be removed from service endpoints if the probe fails.
 //
@@ -3321,7 +3329,7 @@ func (d *ContainerDie) ReadinessProbeDie(fn func(d *ProbeDie)) *ContainerDie {
 
 // StartupProbeDie mutates StartupProbe as a die.
 //
-// StartupProbe indicates that the Pod has successfully initialized.
+// startupProbe indicates that the Pod has successfully initialized.
 //
 // If specified, no other probes are executed until this completes successfully.
 //
@@ -3344,7 +3352,7 @@ func (d *ContainerDie) StartupProbeDie(fn func(d *ProbeDie)) *ContainerDie {
 
 // LifecycleDie mutates Lifecycle as a die.
 //
-// Actions that the management system should take in response to container lifecycle events.
+// lifecycle are the actions that the management system should take in response to container lifecycle events.
 //
 // Cannot be updated.
 func (d *ContainerDie) LifecycleDie(fn func(d *LifecycleDie)) *ContainerDie {
@@ -3357,7 +3365,7 @@ func (d *ContainerDie) LifecycleDie(fn func(d *LifecycleDie)) *ContainerDie {
 
 // SecurityContextDie mutates SecurityContext as a die.
 //
-// SecurityContext defines the security options the container should be run with.
+// securityContext defines the security options the container should be run with.
 //
 // If set, the fields of SecurityContext override the equivalent fields of PodSecurityContext.
 //
@@ -3372,7 +3380,7 @@ func (d *ContainerDie) SecurityContextDie(fn func(d *SecurityContextDie)) *Conta
 
 // PortsDie replaces Ports by collecting the released value from each die passed.
 //
-// List of ports to expose from the container. Not specifying a port here
+// ports is the list of ports to expose from the container. Not specifying a port here
 //
 // DOES NOT prevent that port from being exposed. Any port which is
 //
@@ -3396,7 +3404,7 @@ func (d *ContainerDie) PortsDie(v ...*ContainerPortDie) *ContainerDie {
 
 // EnvFromDie mutates a single item in EnvFrom matched by the nested field Prefix, appending a new item if no match is found.
 //
-// List of sources to populate environment variables in the container.
+// envFrom is the list of sources to populate environment variables in the container.
 //
 // The keys defined within a source may consist of any printable ASCII characters except '='.
 //
@@ -3426,7 +3434,7 @@ func (d *ContainerDie) EnvFromDie(v string, fn func(d *EnvFromSourceDie)) *Conta
 
 // EnvDie mutates a single item in Env matched by the nested field Name, appending a new item if no match is found.
 //
-// List of environment variables to set in the container.
+// env is the list of environment variables to set in the container.
 //
 // Cannot be updated.
 func (d *ContainerDie) EnvDie(v string, fn func(d *EnvVarDie)) *ContainerDie {
@@ -3448,7 +3456,7 @@ func (d *ContainerDie) EnvDie(v string, fn func(d *EnvVarDie)) *ContainerDie {
 
 // ResizePolicyDie mutates a single item in ResizePolicy matched by the nested field ResourceName, appending a new item if no match is found.
 //
-// Resources resize policy for the container.
+// resizePolicy is the resize policy for the container.
 //
 // This field cannot be set on ephemeral containers.
 func (d *ContainerDie) ResizePolicyDie(v corev1.ResourceName, fn func(d *ContainerResizePolicyDie)) *ContainerDie {
@@ -3470,7 +3478,7 @@ func (d *ContainerDie) ResizePolicyDie(v corev1.ResourceName, fn func(d *Contain
 
 // RestartPolicyRulesDie replaces RestartPolicyRules by collecting the released value from each die passed.
 //
-// # Represents a list of rules to be checked to determine if the
+// restartPolicyRules represents a list of rules to be checked to determine if the
 //
 // container should be restarted on exit. The rules are evaluated in
 //
@@ -3502,7 +3510,7 @@ func (d *ContainerDie) RestartPolicyRulesDie(v ...*ContainerRestartRuleDie) *Con
 
 // VolumeMountDie mutates a single item in VolumeMounts matched by the nested field Name, appending a new item if no match is found.
 //
-// Pod volumes to mount into the container's filesystem.
+// volumeMounts are the pod volumes to mount into the container's filesystem.
 //
 // Cannot be updated.
 func (d *ContainerDie) VolumeMountDie(v string, fn func(d *VolumeMountDie)) *ContainerDie {
@@ -3542,7 +3550,7 @@ func (d *ContainerDie) VolumeDeviceDie(v string, fn func(d *VolumeDeviceDie)) *C
 	})
 }
 
-// Name of the container specified as a DNS_LABEL.
+// name of the container specified as a DNS_LABEL.
 //
 // Each container in a pod must have a unique name (DNS_LABEL).
 //
@@ -3553,7 +3561,7 @@ func (d *ContainerDie) Name(v string) *ContainerDie {
 	})
 }
 
-// Container image name.
+// image is the container image name.
 //
 // More info: https://kubernetes.io/docs/concepts/containers/images
 //
@@ -3566,7 +3574,7 @@ func (d *ContainerDie) Image(v string) *ContainerDie {
 	})
 }
 
-// Entrypoint array. Not executed within a shell.
+// command is the entrypoint array. Not executed within a shell.
 //
 // The container image's ENTRYPOINT is used if this is not provided.
 //
@@ -3587,7 +3595,7 @@ func (d *ContainerDie) Command(v ...string) *ContainerDie {
 	})
 }
 
-// Arguments to the entrypoint.
+// args are the arguments to the entrypoint.
 //
 // The container image's CMD is used if this is not provided.
 //
@@ -3608,7 +3616,7 @@ func (d *ContainerDie) Args(v ...string) *ContainerDie {
 	})
 }
 
-// Container's working directory.
+// workingDir is the Container's working directory.
 //
 // # If not specified, the container runtime's default will be used, which
 //
@@ -3621,7 +3629,7 @@ func (d *ContainerDie) WorkingDir(v string) *ContainerDie {
 	})
 }
 
-// List of ports to expose from the container. Not specifying a port here
+// ports is the list of ports to expose from the container. Not specifying a port here
 //
 // DOES NOT prevent that port from being exposed. Any port which is
 //
@@ -3640,7 +3648,7 @@ func (d *ContainerDie) Ports(v ...corev1.ContainerPort) *ContainerDie {
 	})
 }
 
-// List of sources to populate environment variables in the container.
+// envFrom is the list of sources to populate environment variables in the container.
 //
 // The keys defined within a source may consist of any printable ASCII characters except '='.
 //
@@ -3657,7 +3665,7 @@ func (d *ContainerDie) EnvFrom(v ...corev1.EnvFromSource) *ContainerDie {
 	})
 }
 
-// List of environment variables to set in the container.
+// env is the list of environment variables to set in the container.
 //
 // Cannot be updated.
 func (d *ContainerDie) Env(v ...corev1.EnvVar) *ContainerDie {
@@ -3666,7 +3674,7 @@ func (d *ContainerDie) Env(v ...corev1.EnvVar) *ContainerDie {
 	})
 }
 
-// Compute Resources required by this container.
+// resources is the compute Resources required by this container.
 //
 // Cannot be updated.
 //
@@ -3677,7 +3685,7 @@ func (d *ContainerDie) Resources(v corev1.ResourceRequirements) *ContainerDie {
 	})
 }
 
-// Resources resize policy for the container.
+// resizePolicy is the resize policy for the container.
 //
 // This field cannot be set on ephemeral containers.
 func (d *ContainerDie) ResizePolicy(v ...corev1.ContainerResizePolicy) *ContainerDie {
@@ -3686,7 +3694,7 @@ func (d *ContainerDie) ResizePolicy(v ...corev1.ContainerResizePolicy) *Containe
 	})
 }
 
-// RestartPolicy defines the restart behavior of individual containers in a pod.
+// restartPolicy defines the restart behavior of individual containers in a pod.
 //
 // This overrides the pod-level restart policy. When this field is not specified,
 //
@@ -3721,7 +3729,7 @@ func (d *ContainerDie) RestartPolicy(v *corev1.ContainerRestartPolicy) *Containe
 	})
 }
 
-// Represents a list of rules to be checked to determine if the
+// restartPolicyRules represents a list of rules to be checked to determine if the
 //
 // container should be restarted on exit. The rules are evaluated in
 //
@@ -3748,7 +3756,7 @@ func (d *ContainerDie) RestartPolicyRules(v ...corev1.ContainerRestartRule) *Con
 	})
 }
 
-// Pod volumes to mount into the container's filesystem.
+// volumeMounts are the pod volumes to mount into the container's filesystem.
 //
 // Cannot be updated.
 func (d *ContainerDie) VolumeMounts(v ...corev1.VolumeMount) *ContainerDie {
@@ -3764,7 +3772,7 @@ func (d *ContainerDie) VolumeDevices(v ...corev1.VolumeDevice) *ContainerDie {
 	})
 }
 
-// Periodic probe of container liveness.
+// livenessProbe is the periodic probe of container liveness.
 //
 // Container will be restarted if the probe fails.
 //
@@ -3777,7 +3785,7 @@ func (d *ContainerDie) LivenessProbe(v *corev1.Probe) *ContainerDie {
 	})
 }
 
-// Periodic probe of container service readiness.
+// readinessProbe is the periodic probe of container service readiness.
 //
 // Container will be removed from service endpoints if the probe fails.
 //
@@ -3790,7 +3798,7 @@ func (d *ContainerDie) ReadinessProbe(v *corev1.Probe) *ContainerDie {
 	})
 }
 
-// StartupProbe indicates that the Pod has successfully initialized.
+// startupProbe indicates that the Pod has successfully initialized.
 //
 // If specified, no other probes are executed until this completes successfully.
 //
@@ -3809,7 +3817,7 @@ func (d *ContainerDie) StartupProbe(v *corev1.Probe) *ContainerDie {
 	})
 }
 
-// Actions that the management system should take in response to container lifecycle events.
+// lifecycle are the actions that the management system should take in response to container lifecycle events.
 //
 // Cannot be updated.
 func (d *ContainerDie) Lifecycle(v *corev1.Lifecycle) *ContainerDie {
@@ -3818,7 +3826,7 @@ func (d *ContainerDie) Lifecycle(v *corev1.Lifecycle) *ContainerDie {
 	})
 }
 
-// Optional: Path at which the file to which the container's termination message
+// terminationMessagePath is the optional path at which the file to which the container's termination message
 //
 // will be written is mounted into the container's filesystem.
 //
@@ -3837,7 +3845,7 @@ func (d *ContainerDie) TerminationMessagePath(v string) *ContainerDie {
 	})
 }
 
-// Indicate how the termination message should be populated. File will use the contents of
+// terminationMessagePolicy indicates how the termination message should be populated. File will use the contents of
 //
 // terminationMessagePath to populate the container status message on both success and failure.
 //
@@ -3856,7 +3864,7 @@ func (d *ContainerDie) TerminationMessagePolicy(v corev1.TerminationMessagePolic
 	})
 }
 
-// Image pull policy.
+// imagePullPolicy is the image pull policy.
 //
 // One of Always, Never, IfNotPresent.
 //
@@ -3871,7 +3879,7 @@ func (d *ContainerDie) ImagePullPolicy(v corev1.PullPolicy) *ContainerDie {
 	})
 }
 
-// SecurityContext defines the security options the container should be run with.
+// securityContext defines the security options the container should be run with.
 //
 // If set, the fields of SecurityContext override the equivalent fields of PodSecurityContext.
 //
@@ -3882,7 +3890,7 @@ func (d *ContainerDie) SecurityContext(v *corev1.SecurityContext) *ContainerDie 
 	})
 }
 
-// Whether this container should allocate a buffer for stdin in the container runtime. If this
+// stdin indicates whether this container should allocate a buffer for stdin in the container runtime. If this
 //
 // is not set, reads from stdin in the container will always result in EOF.
 //
@@ -3893,7 +3901,7 @@ func (d *ContainerDie) Stdin(v bool) *ContainerDie {
 	})
 }
 
-// Whether the container runtime should close the stdin channel after it has been opened by
+// stdinOnce indicates whether the container runtime should close the stdin channel after it has been opened by
 //
 // a single attach. When stdin is true the stdin stream will remain open across multiple attach
 //
@@ -3912,7 +3920,7 @@ func (d *ContainerDie) StdinOnce(v bool) *ContainerDie {
 	})
 }
 
-// Whether this container should allocate a TTY for itself, also requires 'stdin' to be true.
+// tty indicates whether this container should allocate a TTY for itself, also requires 'stdin' to be true.
 //
 // Default is false.
 func (d *ContainerDie) TTY(v bool) *ContainerDie {
@@ -4167,7 +4175,7 @@ func (d *ContainerPortDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// If specified, this must be an IANA_SVC_NAME and unique within the pod. Each
+// name is the name of the port. If specified, this must be an IANA_SVC_NAME and unique within the pod. Each
 //
 // named port in a pod must have a unique name. Name for the port that can be
 //
@@ -4178,7 +4186,7 @@ func (d *ContainerPortDie) Name(v string) *ContainerPortDie {
 	})
 }
 
-// Number of port to expose on the host.
+// hostPort is the number of port to expose on the host.
 //
 // If specified, this must be a valid port number, 0 < x < 65536.
 //
@@ -4191,7 +4199,7 @@ func (d *ContainerPortDie) HostPort(v int32) *ContainerPortDie {
 	})
 }
 
-// Number of port to expose on the pod's IP address.
+// containerPort is the number of port to expose on the pod's IP address.
 //
 // This must be a valid port number, 0 < x < 65536.
 func (d *ContainerPortDie) ContainerPort(v int32) *ContainerPortDie {
@@ -4200,7 +4208,7 @@ func (d *ContainerPortDie) ContainerPort(v int32) *ContainerPortDie {
 	})
 }
 
-// Protocol for port. Must be UDP, TCP, or SCTP.
+// protocol is the protocol for port. Must be UDP, TCP, or SCTP.
 //
 // Defaults to "TCP".
 func (d *ContainerPortDie) Protocol(v corev1.Protocol) *ContainerPortDie {
@@ -4209,7 +4217,7 @@ func (d *ContainerPortDie) Protocol(v corev1.Protocol) *ContainerPortDie {
 	})
 }
 
-// What host IP to bind the external port to.
+// hostIP is the host IP to bind the external port to.
 func (d *ContainerPortDie) HostIP(v string) *ContainerPortDie {
 	return d.DieStamp(func(r *corev1.ContainerPort) {
 		r.HostIP = v
@@ -4464,7 +4472,7 @@ func (d *EnvFromSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // ConfigMapRefDie mutates ConfigMapRef as a die.
 //
-// The ConfigMap to select from
+// configMapRef is the ConfigMap to select from
 func (d *EnvFromSourceDie) ConfigMapRefDie(fn func(d *ConfigMapEnvSourceDie)) *EnvFromSourceDie {
 	return d.DieStamp(func(r *corev1.EnvFromSource) {
 		d := ConfigMapEnvSourceBlank.DieImmutable(false).DieFeedPtr(r.ConfigMapRef)
@@ -4475,7 +4483,7 @@ func (d *EnvFromSourceDie) ConfigMapRefDie(fn func(d *ConfigMapEnvSourceDie)) *E
 
 // SecretRefDie mutates SecretRef as a die.
 //
-// The Secret to select from
+// secretRef is the Secret to select from
 func (d *EnvFromSourceDie) SecretRefDie(fn func(d *SecretEnvSourceDie)) *EnvFromSourceDie {
 	return d.DieStamp(func(r *corev1.EnvFromSource) {
 		d := SecretEnvSourceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
@@ -4484,7 +4492,7 @@ func (d *EnvFromSourceDie) SecretRefDie(fn func(d *SecretEnvSourceDie)) *EnvFrom
 	})
 }
 
-// Optional text to prepend to the name of each environment variable.
+// prefix is the text to prepend to the name of each environment variable.
 //
 // May consist of any printable ASCII characters except '='.
 func (d *EnvFromSourceDie) Prefix(v string) *EnvFromSourceDie {
@@ -4493,14 +4501,14 @@ func (d *EnvFromSourceDie) Prefix(v string) *EnvFromSourceDie {
 	})
 }
 
-// The ConfigMap to select from
+// configMapRef is the ConfigMap to select from
 func (d *EnvFromSourceDie) ConfigMapRef(v *corev1.ConfigMapEnvSource) *EnvFromSourceDie {
 	return d.DieStamp(func(r *corev1.EnvFromSource) {
 		r.ConfigMapRef = v
 	})
 }
 
-// The Secret to select from
+// secretRef is the Secret to select from
 func (d *EnvFromSourceDie) SecretRef(v *corev1.SecretEnvSource) *EnvFromSourceDie {
 	return d.DieStamp(func(r *corev1.EnvFromSource) {
 		r.SecretRef = v
@@ -4760,7 +4768,7 @@ func (d *ConfigMapEnvSourceDie) LocalObjectReference(v corev1.LocalObjectReferen
 	})
 }
 
-// Specify whether the ConfigMap must be defined
+// optional specifies whether the ConfigMap must be defined
 func (d *ConfigMapEnvSourceDie) Optional(v *bool) *ConfigMapEnvSourceDie {
 	return d.DieStamp(func(r *corev1.ConfigMapEnvSource) {
 		r.Optional = v
@@ -5020,7 +5028,7 @@ func (d *SecretEnvSourceDie) LocalObjectReference(v corev1.LocalObjectReference)
 	})
 }
 
-// Specify whether the Secret must be defined
+// optional specifies whether the Secret must be defined
 func (d *SecretEnvSourceDie) Optional(v *bool) *SecretEnvSourceDie {
 	return d.DieStamp(func(r *corev1.SecretEnvSource) {
 		r.Optional = v
@@ -5275,7 +5283,7 @@ func (d *EnvVarDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // ValueFromDie mutates ValueFrom as a die.
 //
-// Source for the environment variable's value. Cannot be used if value is not empty.
+// valueFrom is the source for the environment variable's value. Cannot be used if value is not empty.
 func (d *EnvVarDie) ValueFromDie(fn func(d *EnvVarSourceDie)) *EnvVarDie {
 	return d.DieStamp(func(r *corev1.EnvVar) {
 		d := EnvVarSourceBlank.DieImmutable(false).DieFeedPtr(r.ValueFrom)
@@ -5284,7 +5292,7 @@ func (d *EnvVarDie) ValueFromDie(fn func(d *EnvVarSourceDie)) *EnvVarDie {
 	})
 }
 
-// Name of the environment variable.
+// name is the name of the environment variable.
 //
 // May consist of any printable ASCII characters except '='.
 func (d *EnvVarDie) Name(v string) *EnvVarDie {
@@ -5293,7 +5301,7 @@ func (d *EnvVarDie) Name(v string) *EnvVarDie {
 	})
 }
 
-// Variable references $(VAR_NAME) are expanded
+// value is the value of the environment variable. Variable references $(VAR_NAME) are expanded
 //
 // using the previously defined environment variables in the container and
 //
@@ -5316,7 +5324,7 @@ func (d *EnvVarDie) Value(v string) *EnvVarDie {
 	})
 }
 
-// Source for the environment variable's value. Cannot be used if value is not empty.
+// valueFrom is the source for the environment variable's value. Cannot be used if value is not empty.
 func (d *EnvVarDie) ValueFrom(v *corev1.EnvVarSource) *EnvVarDie {
 	return d.DieStamp(func(r *corev1.EnvVar) {
 		r.ValueFrom = v
@@ -5571,7 +5579,7 @@ func (d *EnvVarSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // FieldRefDie mutates FieldRef as a die.
 //
-// Selects a field of the pod: supports metadata.name, metadata.namespace, `metadata.labels['<KEY>']`, `metadata.annotations['<KEY>']`,
+// fieldRef selects a field of the pod: supports metadata.name, metadata.namespace, `metadata.labels['<KEY>']`, `metadata.annotations['<KEY>']`,
 //
 // spec.nodeName, spec.serviceAccountName, status.hostIP, status.podIP, status.podIPs.
 func (d *EnvVarSourceDie) FieldRefDie(fn func(d *ObjectFieldSelectorDie)) *EnvVarSourceDie {
@@ -5584,7 +5592,7 @@ func (d *EnvVarSourceDie) FieldRefDie(fn func(d *ObjectFieldSelectorDie)) *EnvVa
 
 // ResourceFieldRefDie mutates ResourceFieldRef as a die.
 //
-// Selects a resource of the container: only resources limits and requests
+// resourceFieldRef selects a resource of the container: only resources limits and requests
 //
 // (limits.cpu, limits.memory, limits.ephemeral-storage, requests.cpu, requests.memory and requests.ephemeral-storage) are currently supported.
 func (d *EnvVarSourceDie) ResourceFieldRefDie(fn func(d *ResourceFieldSelectorDie)) *EnvVarSourceDie {
@@ -5597,7 +5605,7 @@ func (d *EnvVarSourceDie) ResourceFieldRefDie(fn func(d *ResourceFieldSelectorDi
 
 // ConfigMapKeyRefDie mutates ConfigMapKeyRef as a die.
 //
-// Selects a key of a ConfigMap.
+// configMapKeyRef selects a key of a ConfigMap.
 func (d *EnvVarSourceDie) ConfigMapKeyRefDie(fn func(d *ConfigMapKeySelectorDie)) *EnvVarSourceDie {
 	return d.DieStamp(func(r *corev1.EnvVarSource) {
 		d := ConfigMapKeySelectorBlank.DieImmutable(false).DieFeedPtr(r.ConfigMapKeyRef)
@@ -5608,7 +5616,7 @@ func (d *EnvVarSourceDie) ConfigMapKeyRefDie(fn func(d *ConfigMapKeySelectorDie)
 
 // SecretKeyRefDie mutates SecretKeyRef as a die.
 //
-// Selects a key of a secret in the pod's namespace
+// secretKeyRef selects a key of a secret in the pod's namespace
 func (d *EnvVarSourceDie) SecretKeyRefDie(fn func(d *SecretKeySelectorDie)) *EnvVarSourceDie {
 	return d.DieStamp(func(r *corev1.EnvVarSource) {
 		d := SecretKeySelectorBlank.DieImmutable(false).DieFeedPtr(r.SecretKeyRef)
@@ -5619,7 +5627,7 @@ func (d *EnvVarSourceDie) SecretKeyRefDie(fn func(d *SecretKeySelectorDie)) *Env
 
 // FileKeyRefDie mutates FileKeyRef as a die.
 //
-// FileKeyRef selects a key of the env file.
+// fileKeyRef selects a key of the env file.
 //
 // Requires the EnvFiles feature gate to be enabled.
 func (d *EnvVarSourceDie) FileKeyRefDie(fn func(d *FileKeySelectorDie)) *EnvVarSourceDie {
@@ -5630,7 +5638,7 @@ func (d *EnvVarSourceDie) FileKeyRefDie(fn func(d *FileKeySelectorDie)) *EnvVarS
 	})
 }
 
-// Selects a field of the pod: supports metadata.name, metadata.namespace, `metadata.labels['<KEY>']`, `metadata.annotations['<KEY>']`,
+// fieldRef selects a field of the pod: supports metadata.name, metadata.namespace, `metadata.labels['<KEY>']`, `metadata.annotations['<KEY>']`,
 //
 // spec.nodeName, spec.serviceAccountName, status.hostIP, status.podIP, status.podIPs.
 func (d *EnvVarSourceDie) FieldRef(v *corev1.ObjectFieldSelector) *EnvVarSourceDie {
@@ -5639,7 +5647,7 @@ func (d *EnvVarSourceDie) FieldRef(v *corev1.ObjectFieldSelector) *EnvVarSourceD
 	})
 }
 
-// Selects a resource of the container: only resources limits and requests
+// resourceFieldRef selects a resource of the container: only resources limits and requests
 //
 // (limits.cpu, limits.memory, limits.ephemeral-storage, requests.cpu, requests.memory and requests.ephemeral-storage) are currently supported.
 func (d *EnvVarSourceDie) ResourceFieldRef(v *corev1.ResourceFieldSelector) *EnvVarSourceDie {
@@ -5648,21 +5656,21 @@ func (d *EnvVarSourceDie) ResourceFieldRef(v *corev1.ResourceFieldSelector) *Env
 	})
 }
 
-// Selects a key of a ConfigMap.
+// configMapKeyRef selects a key of a ConfigMap.
 func (d *EnvVarSourceDie) ConfigMapKeyRef(v *corev1.ConfigMapKeySelector) *EnvVarSourceDie {
 	return d.DieStamp(func(r *corev1.EnvVarSource) {
 		r.ConfigMapKeyRef = v
 	})
 }
 
-// Selects a key of a secret in the pod's namespace
+// secretKeyRef selects a key of a secret in the pod's namespace
 func (d *EnvVarSourceDie) SecretKeyRef(v *corev1.SecretKeySelector) *EnvVarSourceDie {
 	return d.DieStamp(func(r *corev1.EnvVarSource) {
 		r.SecretKeyRef = v
 	})
 }
 
-// FileKeyRef selects a key of the env file.
+// fileKeyRef selects a key of the env file.
 //
 // Requires the EnvFiles feature gate to be enabled.
 func (d *EnvVarSourceDie) FileKeyRef(v *corev1.FileKeySelector) *EnvVarSourceDie {
@@ -5917,14 +5925,14 @@ func (d *ObjectFieldSelectorDie) DiePatch(patchType types.PatchType) ([]byte, er
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Version of the schema the FieldPath is written in terms of, defaults to "v1".
+// apiVersion is the version of the schema the FieldPath is written in terms of, defaults to "v1".
 func (d *ObjectFieldSelectorDie) APIVersion(v string) *ObjectFieldSelectorDie {
 	return d.DieStamp(func(r *corev1.ObjectFieldSelector) {
 		r.APIVersion = v
 	})
 }
 
-// Path of the field to select in the specified API version.
+// fieldPath is the path of the field to select in the specified API version.
 func (d *ObjectFieldSelectorDie) FieldPath(v string) *ObjectFieldSelectorDie {
 	return d.DieStamp(func(r *corev1.ObjectFieldSelector) {
 		r.FieldPath = v
@@ -6177,21 +6185,23 @@ func (d *ResourceFieldSelectorDie) DiePatch(patchType types.PatchType) ([]byte, 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Container name: required for volumes, optional for env vars
+// containerName is the name of the container: required for volumes, optional for env vars
 func (d *ResourceFieldSelectorDie) ContainerName(v string) *ResourceFieldSelectorDie {
 	return d.DieStamp(func(r *corev1.ResourceFieldSelector) {
 		r.ContainerName = v
 	})
 }
 
-// Required: resource to select
+// resource is the resource to select
 func (d *ResourceFieldSelectorDie) Resource(v string) *ResourceFieldSelectorDie {
 	return d.DieStamp(func(r *corev1.ResourceFieldSelector) {
 		r.Resource = v
 	})
 }
 
-// Specifies the output format of the exposed resources, defaults to "1"
+// divisor optionally indicates how the resource from the container should be scaled.
+//
+// If unset or 0, the resource is not scaled (divisor is treated as 1).
 func (d *ResourceFieldSelectorDie) Divisor(v resource.Quantity) *ResourceFieldSelectorDie {
 	return d.DieStamp(func(r *corev1.ResourceFieldSelector) {
 		r.Divisor = v
@@ -6200,7 +6210,9 @@ func (d *ResourceFieldSelectorDie) Divisor(v resource.Quantity) *ResourceFieldSe
 
 // DivisorString sets Divisor by parsing the string as a Quantity. Panics if the string is not parsable.
 //
-// Specifies the output format of the exposed resources, defaults to "1"
+// divisor optionally indicates how the resource from the container should be scaled.
+//
+// If unset or 0, the resource is not scaled (divisor is treated as 1).
 func (d *ResourceFieldSelectorDie) DivisorString(s string) *ResourceFieldSelectorDie {
 	q := resource.MustParse(s)
 	return d.Divisor(q)
@@ -6459,7 +6471,7 @@ func (d *ConfigMapKeySelectorDie) LocalObjectReference(v corev1.LocalObjectRefer
 	})
 }
 
-// The key to select from the ConfigMap's Data field.
+// key is the key to select from the ConfigMap's Data field.
 //
 // Keys in the BinaryData field are not currently propagated to container env vars.
 func (d *ConfigMapKeySelectorDie) Key(v string) *ConfigMapKeySelectorDie {
@@ -6468,7 +6480,7 @@ func (d *ConfigMapKeySelectorDie) Key(v string) *ConfigMapKeySelectorDie {
 	})
 }
 
-// Specify whether the ConfigMap or its key must be defined
+// optional specifies whether the ConfigMap or its key must be defined
 func (d *ConfigMapKeySelectorDie) Optional(v *bool) *ConfigMapKeySelectorDie {
 	return d.DieStamp(func(r *corev1.ConfigMapKeySelector) {
 		r.Optional = v
@@ -6728,14 +6740,14 @@ func (d *SecretKeySelectorDie) LocalObjectReference(v corev1.LocalObjectReferenc
 	})
 }
 
-// The key of the secret to select from.  Must be a valid secret key.
+// key is the key of the secret to select from.  Must be a valid secret key.
 func (d *SecretKeySelectorDie) Key(v string) *SecretKeySelectorDie {
 	return d.DieStamp(func(r *corev1.SecretKeySelector) {
 		r.Key = v
 	})
 }
 
-// Specify whether the Secret or its key must be defined
+// optional specifies whether the Secret or its key must be defined
 func (d *SecretKeySelectorDie) Optional(v *bool) *SecretKeySelectorDie {
 	return d.DieStamp(func(r *corev1.SecretKeySelector) {
 		r.Optional = v
@@ -6988,14 +7000,14 @@ func (d *FileKeySelectorDie) DiePatch(patchType types.PatchType) ([]byte, error)
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// The name of the volume mount containing the env file.
+// volumeName is the name of the volume mount containing the env file.
 func (d *FileKeySelectorDie) VolumeName(v string) *FileKeySelectorDie {
 	return d.DieStamp(func(r *corev1.FileKeySelector) {
 		r.VolumeName = v
 	})
 }
 
-// The path within the volume from which to select the file.
+// path is the path within the volume from which to select the file.
 //
 // Must be relative and may not contain the '..' path or start with '..'.
 func (d *FileKeySelectorDie) Path(v string) *FileKeySelectorDie {
@@ -7004,7 +7016,7 @@ func (d *FileKeySelectorDie) Path(v string) *FileKeySelectorDie {
 	})
 }
 
-// The key within the env file. An invalid key will prevent the pod from starting.
+// key is the key within the env file. An invalid key will prevent the pod from starting.
 //
 // The keys defined within a source may consist of any printable ASCII characters except '='.
 //
@@ -7015,7 +7027,7 @@ func (d *FileKeySelectorDie) Key(v string) *FileKeySelectorDie {
 	})
 }
 
-// Specify whether the file or its key must be defined. If the file or key
+// optional specifies whether the file or its key must be defined. If the file or key
 //
 // does not exist, then the env var is not published.
 //
@@ -7280,13 +7292,9 @@ func (d *ResourceRequirementsDie) DiePatch(patchType types.PatchType) ([]byte, e
 
 // ClaimsDie replaces Claims by collecting the released value from each die passed.
 //
-// Claims lists the names of resources, defined in spec.resourceClaims,
+// claims lists the names of resources, defined in spec.resourceClaims,
 //
 // that are used by this container.
-//
-// # This field depends on the
-//
-// DynamicResourceAllocation feature gate.
 //
 // This field is immutable. It can only be set for containers.
 func (d *ResourceRequirementsDie) ClaimsDie(v ...*ResourceClaimDie) *ResourceRequirementsDie {
@@ -7300,13 +7308,9 @@ func (d *ResourceRequirementsDie) ClaimsDie(v ...*ResourceClaimDie) *ResourceReq
 
 // ClaimDie mutates a single item in Claims matched by the nested field Name, appending a new item if no match is found.
 //
-// Claims lists the names of resources, defined in spec.resourceClaims,
+// claims lists the names of resources, defined in spec.resourceClaims,
 //
 // that are used by this container.
-//
-// # This field depends on the
-//
-// DynamicResourceAllocation feature gate.
 //
 // This field is immutable. It can only be set for containers.
 func (d *ResourceRequirementsDie) ClaimDie(v string, fn func(d *ResourceClaimDie)) *ResourceRequirementsDie {
@@ -7326,9 +7330,17 @@ func (d *ResourceRequirementsDie) ClaimDie(v string, fn func(d *ResourceClaimDie
 	})
 }
 
-// Limits describes the maximum amount of compute resources allowed.
+// limits describes the maximum amount of compute resources allowed.
 //
-// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+// For kubelet cgroup enforcement:
+//
+// - cpu and memory: a limit of 0 is treated the same as an unspecified limit. If
+//
+// neither the container nor the pod specifies a limit, the resource is not limited.
+//
+// - hugepages: an unspecified limit is treated the same as a limit of 0.
+//
+// More details: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 func (d *ResourceRequirementsDie) Limits(v corev1.ResourceList) *ResourceRequirementsDie {
 	return d.DieStamp(func(r *corev1.ResourceRequirements) {
 		r.Limits = v
@@ -7337,9 +7349,17 @@ func (d *ResourceRequirementsDie) Limits(v corev1.ResourceList) *ResourceRequire
 
 // AddLimit sets a single quantity on the Limits resource list.
 //
-// Limits describes the maximum amount of compute resources allowed.
+// limits describes the maximum amount of compute resources allowed.
 //
-// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+// For kubelet cgroup enforcement:
+//
+// - cpu and memory: a limit of 0 is treated the same as an unspecified limit. If
+//
+// neither the container nor the pod specifies a limit, the resource is not limited.
+//
+// - hugepages: an unspecified limit is treated the same as a limit of 0.
+//
+// More details: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 func (d *ResourceRequirementsDie) AddLimit(name corev1.ResourceName, quantity resource.Quantity) *ResourceRequirementsDie {
 	return d.DieStamp(func(r *corev1.ResourceRequirements) {
 		if r.Limits == nil {
@@ -7351,15 +7371,23 @@ func (d *ResourceRequirementsDie) AddLimit(name corev1.ResourceName, quantity re
 
 // AddLimitString parses the quantity setting a single value on the Limits resource list. Panics if the string is not parsable.
 //
-// Limits describes the maximum amount of compute resources allowed.
+// limits describes the maximum amount of compute resources allowed.
 //
-// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+// For kubelet cgroup enforcement:
+//
+// - cpu and memory: a limit of 0 is treated the same as an unspecified limit. If
+//
+// neither the container nor the pod specifies a limit, the resource is not limited.
+//
+// - hugepages: an unspecified limit is treated the same as a limit of 0.
+//
+// More details: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 func (d *ResourceRequirementsDie) AddLimitString(name corev1.ResourceName, quantity string) *ResourceRequirementsDie {
 	q := resource.MustParse(quantity)
 	return d.AddLimit(name, q)
 }
 
-// Requests describes the minimum amount of compute resources required.
+// requests describes the minimum amount of compute resources required.
 //
 // If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
 //
@@ -7374,7 +7402,7 @@ func (d *ResourceRequirementsDie) Requests(v corev1.ResourceList) *ResourceRequi
 
 // AddRequest sets a single quantity on the Requests resource list.
 //
-// Requests describes the minimum amount of compute resources required.
+// requests describes the minimum amount of compute resources required.
 //
 // If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
 //
@@ -7392,7 +7420,7 @@ func (d *ResourceRequirementsDie) AddRequest(name corev1.ResourceName, quantity 
 
 // AddRequestString parses the quantity setting a single value on the Requests resource list. Panics if the string is not parsable.
 //
-// Requests describes the minimum amount of compute resources required.
+// requests describes the minimum amount of compute resources required.
 //
 // If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
 //
@@ -7404,13 +7432,9 @@ func (d *ResourceRequirementsDie) AddRequestString(name corev1.ResourceName, qua
 	return d.AddRequest(name, q)
 }
 
-// Claims lists the names of resources, defined in spec.resourceClaims,
+// claims lists the names of resources, defined in spec.resourceClaims,
 //
 // that are used by this container.
-//
-// # This field depends on the
-//
-// DynamicResourceAllocation feature gate.
 //
 // This field is immutable. It can only be set for containers.
 func (d *ResourceRequirementsDie) Claims(v ...corev1.ResourceClaim) *ResourceRequirementsDie {
@@ -7665,7 +7689,7 @@ func (d *ResourceClaimDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Name must match the name of one entry in pod.spec.resourceClaims of
+// name must match the name of one entry in pod.spec.resourceClaims of
 //
 // the Pod where this field is used. It makes that resource available
 //
@@ -7676,7 +7700,7 @@ func (d *ResourceClaimDie) Name(v string) *ResourceClaimDie {
 	})
 }
 
-// Request is the name chosen for a request in the referenced claim.
+// request is the name chosen for a request in the referenced claim.
 //
 // # If empty, everything from the claim is made available, otherwise
 //
@@ -7933,7 +7957,7 @@ func (d *ContainerResizePolicyDie) DiePatch(patchType types.PatchType) ([]byte, 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Name of the resource to which this resource resize policy applies.
+// resourceName is the name of the resource to which this resource resize policy applies.
 //
 // Supported values: cpu, memory.
 func (d *ContainerResizePolicyDie) ResourceName(v corev1.ResourceName) *ContainerResizePolicyDie {
@@ -7942,7 +7966,7 @@ func (d *ContainerResizePolicyDie) ResourceName(v corev1.ResourceName) *Containe
 	})
 }
 
-// Restart policy to apply when specified resource is resized.
+// restartPolicy is the restart policy to apply when specified resource is resized.
 //
 // If not specified, it defaults to NotRequired.
 func (d *ContainerResizePolicyDie) RestartPolicy(v corev1.ResourceResizeRestartPolicy) *ContainerResizePolicyDie {
@@ -8199,7 +8223,7 @@ func (d *ContainerRestartRuleDie) DiePatch(patchType types.PatchType) ([]byte, e
 
 // ExitCodesDie mutates ExitCodes as a die.
 //
-// Represents the exit codes to check on container exits.
+// exitCodes represents the exit codes to check on container exits.
 func (d *ContainerRestartRuleDie) ExitCodesDie(fn func(d *ContainerRestartRuleOnExitCodesDie)) *ContainerRestartRuleDie {
 	return d.DieStamp(func(r *corev1.ContainerRestartRule) {
 		d := ContainerRestartRuleOnExitCodesBlank.DieImmutable(false).DieFeedPtr(r.ExitCodes)
@@ -8208,7 +8232,7 @@ func (d *ContainerRestartRuleDie) ExitCodesDie(fn func(d *ContainerRestartRuleOn
 	})
 }
 
-// Specifies the action taken on a container exit if the requirements
+// action specifies the action taken on a container exit if the requirements
 //
 // are satisfied. The only possible value is "Restart" to restart the
 //
@@ -8219,7 +8243,7 @@ func (d *ContainerRestartRuleDie) Action(v corev1.ContainerRestartRuleAction) *C
 	})
 }
 
-// Represents the exit codes to check on container exits.
+// exitCodes represents the exit codes to check on container exits.
 func (d *ContainerRestartRuleDie) ExitCodes(v *corev1.ContainerRestartRuleOnExitCodes) *ContainerRestartRuleDie {
 	return d.DieStamp(func(r *corev1.ContainerRestartRule) {
 		r.ExitCodes = v
@@ -8472,7 +8496,7 @@ func (d *ContainerRestartRuleOnExitCodesDie) DiePatch(patchType types.PatchType)
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Represents the relationship between the container exit code(s) and the
+// operator represents the relationship between the container exit code(s) and the
 //
 // specified values. Possible values are:
 //
@@ -8489,7 +8513,7 @@ func (d *ContainerRestartRuleOnExitCodesDie) Operator(v corev1.ContainerRestartR
 	})
 }
 
-// Specifies the set of values to check for container exit codes.
+// values specifies the set of values to check for container exit codes.
 //
 // At most 255 elements are allowed.
 func (d *ContainerRestartRuleOnExitCodesDie) Values(v ...int32) *ContainerRestartRuleOnExitCodesDie {
@@ -8744,14 +8768,14 @@ func (d *VolumeMountDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// This must match the Name of a Volume.
+// name must match the Name of a Volume.
 func (d *VolumeMountDie) Name(v string) *VolumeMountDie {
 	return d.DieStamp(func(r *corev1.VolumeMount) {
 		r.Name = v
 	})
 }
 
-// Mounted read-only if true, read-write otherwise (false or unspecified).
+// readOnly mounted read-only if true, read-write otherwise (false or unspecified).
 //
 // Defaults to false.
 func (d *VolumeMountDie) ReadOnly(v bool) *VolumeMountDie {
@@ -8760,7 +8784,7 @@ func (d *VolumeMountDie) ReadOnly(v bool) *VolumeMountDie {
 	})
 }
 
-// RecursiveReadOnly specifies whether read-only mounts should be handled
+// recursiveReadOnly specifies whether read-only mounts should be handled
 //
 // recursively.
 //
@@ -8789,14 +8813,14 @@ func (d *VolumeMountDie) RecursiveReadOnly(v *corev1.RecursiveReadOnlyMode) *Vol
 	})
 }
 
-// Path within the container at which the volume should be mounted.
+// mountPath is the path within the container at which the volume should be mounted.
 func (d *VolumeMountDie) MountPath(v string) *VolumeMountDie {
 	return d.DieStamp(func(r *corev1.VolumeMount) {
 		r.MountPath = v
 	})
 }
 
-// Path within the volume from which the container's volume should be mounted.
+// subPath is the path within the volume from which the container's volume should be mounted.
 //
 // Defaults to "" (volume's root).
 func (d *VolumeMountDie) SubPath(v string) *VolumeMountDie {
@@ -8822,7 +8846,7 @@ func (d *VolumeMountDie) MountPropagation(v *corev1.MountPropagationMode) *Volum
 	})
 }
 
-// Expanded path within the volume from which the container's volume should be mounted.
+// subPathExpr is the expanded path within the volume from which the container's volume should be mounted.
 //
 // Behaves similarly to SubPath but environment variable references $(VAR_NAME) are expanded using the container's environment.
 //
@@ -9376,7 +9400,7 @@ func (d *ProbeDie) ProbeHandler(v corev1.ProbeHandler) *ProbeDie {
 	})
 }
 
-// Number of seconds after the container has started before liveness probes are initiated.
+// initialDelaySeconds is the number of seconds after the container has started before liveness probes are initiated.
 //
 // More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
 func (d *ProbeDie) InitialDelaySeconds(v int32) *ProbeDie {
@@ -9385,7 +9409,7 @@ func (d *ProbeDie) InitialDelaySeconds(v int32) *ProbeDie {
 	})
 }
 
-// Number of seconds after which the probe times out.
+// timeoutSeconds is the number of seconds after which the probe times out.
 //
 // Defaults to 1 second. Minimum value is 1.
 //
@@ -9396,7 +9420,7 @@ func (d *ProbeDie) TimeoutSeconds(v int32) *ProbeDie {
 	})
 }
 
-// How often (in seconds) to perform the probe.
+// periodSeconds is how often (in seconds) to perform the probe.
 //
 // Default to 10 seconds. Minimum value is 1.
 func (d *ProbeDie) PeriodSeconds(v int32) *ProbeDie {
@@ -9405,7 +9429,7 @@ func (d *ProbeDie) PeriodSeconds(v int32) *ProbeDie {
 	})
 }
 
-// Minimum consecutive successes for the probe to be considered successful after having failed.
+// successThreshold is the minimum consecutive successes for the probe to be considered successful after having failed.
 //
 // Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
 func (d *ProbeDie) SuccessThreshold(v int32) *ProbeDie {
@@ -9414,7 +9438,7 @@ func (d *ProbeDie) SuccessThreshold(v int32) *ProbeDie {
 	})
 }
 
-// Minimum consecutive failures for the probe to be considered failed after having succeeded.
+// failureThreshold is the minimum consecutive failures for the probe to be considered failed after having succeeded.
 //
 // Defaults to 3. Minimum value is 1.
 func (d *ProbeDie) FailureThreshold(v int32) *ProbeDie {
@@ -9423,7 +9447,7 @@ func (d *ProbeDie) FailureThreshold(v int32) *ProbeDie {
 	})
 }
 
-// Optional duration in seconds the pod needs to terminate gracefully upon probe failure.
+// terminationGracePeriodSeconds is the optional duration in seconds the pod needs to terminate gracefully upon probe failure.
 //
 // # The grace period is the duration in seconds after the processes running in the pod are sent
 //
@@ -9696,7 +9720,7 @@ func (d *LifecycleDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // PostStartDie mutates PostStart as a die.
 //
-// PostStart is called immediately after a container is created. If the handler fails,
+// postStart is called immediately after a container is created. If the handler fails,
 //
 // the container is terminated and restarted according to its restart policy.
 //
@@ -9713,7 +9737,7 @@ func (d *LifecycleDie) PostStartDie(fn func(d *LifecycleHandlerDie)) *LifecycleD
 
 // PreStopDie mutates PreStop as a die.
 //
-// # PreStop is called immediately before a container is terminated due to an
+// preStop is called immediately before a container is terminated due to an
 //
 // API request or management event such as liveness/startup probe failure,
 //
@@ -9738,7 +9762,7 @@ func (d *LifecycleDie) PreStopDie(fn func(d *LifecycleHandlerDie)) *LifecycleDie
 	})
 }
 
-// PostStart is called immediately after a container is created. If the handler fails,
+// postStart is called immediately after a container is created. If the handler fails,
 //
 // the container is terminated and restarted according to its restart policy.
 //
@@ -9751,7 +9775,7 @@ func (d *LifecycleDie) PostStart(v *corev1.LifecycleHandler) *LifecycleDie {
 	})
 }
 
-// PreStop is called immediately before a container is terminated due to an
+// preStop is called immediately before a container is terminated due to an
 //
 // API request or management event such as liveness/startup probe failure,
 //
@@ -9774,7 +9798,7 @@ func (d *LifecycleDie) PreStop(v *corev1.LifecycleHandler) *LifecycleDie {
 	})
 }
 
-// StopSignal defines which signal will be sent to a container when it is being stopped.
+// stopSignal defines which signal will be sent to a container when it is being stopped.
 //
 // If not specified, the default is defined by the container runtime in use.
 //
@@ -10033,7 +10057,7 @@ func (d *LifecycleHandlerDie) DiePatch(patchType types.PatchType) ([]byte, error
 
 // ExecDie mutates Exec as a die.
 //
-// Exec specifies a command to execute in the container.
+// exec specifies a command to execute in the container.
 func (d *LifecycleHandlerDie) ExecDie(fn func(d *ExecActionDie)) *LifecycleHandlerDie {
 	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		d := ExecActionBlank.DieImmutable(false).DieFeedPtr(r.Exec)
@@ -10044,7 +10068,7 @@ func (d *LifecycleHandlerDie) ExecDie(fn func(d *ExecActionDie)) *LifecycleHandl
 
 // HTTPGetDie mutates HTTPGet as a die.
 //
-// HTTPGet specifies an HTTP GET request to perform.
+// httpGet specifies an HTTP GET request to perform.
 func (d *LifecycleHandlerDie) HTTPGetDie(fn func(d *HTTPGetActionDie)) *LifecycleHandlerDie {
 	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		d := HTTPGetActionBlank.DieImmutable(false).DieFeedPtr(r.HTTPGet)
@@ -10055,11 +10079,11 @@ func (d *LifecycleHandlerDie) HTTPGetDie(fn func(d *HTTPGetActionDie)) *Lifecycl
 
 // TCPSocketDie mutates TCPSocket as a die.
 //
-// Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept
+// tcpSocket is NOT supported as a LifecycleHandler and kept
 //
 // for backward compatibility. There is no validation of this field and
 //
-// lifecycle hooks will fail at runtime when it is specified.
+// lifecycle hooks will fail at runtime when it is specified. Deprecated.
 func (d *LifecycleHandlerDie) TCPSocketDie(fn func(d *TCPSocketActionDie)) *LifecycleHandlerDie {
 	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		d := TCPSocketActionBlank.DieImmutable(false).DieFeedPtr(r.TCPSocket)
@@ -10070,7 +10094,7 @@ func (d *LifecycleHandlerDie) TCPSocketDie(fn func(d *TCPSocketActionDie)) *Life
 
 // SleepDie mutates Sleep as a die.
 //
-// Sleep represents a duration that the container should sleep.
+// sleep represents a duration that the container should sleep.
 func (d *LifecycleHandlerDie) SleepDie(fn func(d *SleepActionDie)) *LifecycleHandlerDie {
 	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		d := SleepActionBlank.DieImmutable(false).DieFeedPtr(r.Sleep)
@@ -10079,32 +10103,32 @@ func (d *LifecycleHandlerDie) SleepDie(fn func(d *SleepActionDie)) *LifecycleHan
 	})
 }
 
-// Exec specifies a command to execute in the container.
+// exec specifies a command to execute in the container.
 func (d *LifecycleHandlerDie) Exec(v *corev1.ExecAction) *LifecycleHandlerDie {
 	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		r.Exec = v
 	})
 }
 
-// HTTPGet specifies an HTTP GET request to perform.
+// httpGet specifies an HTTP GET request to perform.
 func (d *LifecycleHandlerDie) HTTPGet(v *corev1.HTTPGetAction) *LifecycleHandlerDie {
 	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		r.HTTPGet = v
 	})
 }
 
-// Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept
+// tcpSocket is NOT supported as a LifecycleHandler and kept
 //
 // for backward compatibility. There is no validation of this field and
 //
-// lifecycle hooks will fail at runtime when it is specified.
+// lifecycle hooks will fail at runtime when it is specified. Deprecated.
 func (d *LifecycleHandlerDie) TCPSocket(v *corev1.TCPSocketAction) *LifecycleHandlerDie {
 	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		r.TCPSocket = v
 	})
 }
 
-// Sleep represents a duration that the container should sleep.
+// sleep represents a duration that the container should sleep.
 func (d *LifecycleHandlerDie) Sleep(v *corev1.SleepAction) *LifecycleHandlerDie {
 	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		r.Sleep = v
@@ -10359,7 +10383,7 @@ func (d *ProbeHandlerDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // ExecDie mutates Exec as a die.
 //
-// Exec specifies a command to execute in the container.
+// exec specifies a command to execute in the container.
 func (d *ProbeHandlerDie) ExecDie(fn func(d *ExecActionDie)) *ProbeHandlerDie {
 	return d.DieStamp(func(r *corev1.ProbeHandler) {
 		d := ExecActionBlank.DieImmutable(false).DieFeedPtr(r.Exec)
@@ -10370,7 +10394,7 @@ func (d *ProbeHandlerDie) ExecDie(fn func(d *ExecActionDie)) *ProbeHandlerDie {
 
 // HTTPGetDie mutates HTTPGet as a die.
 //
-// HTTPGet specifies an HTTP GET request to perform.
+// httpGet specifies an HTTP GET request to perform.
 func (d *ProbeHandlerDie) HTTPGetDie(fn func(d *HTTPGetActionDie)) *ProbeHandlerDie {
 	return d.DieStamp(func(r *corev1.ProbeHandler) {
 		d := HTTPGetActionBlank.DieImmutable(false).DieFeedPtr(r.HTTPGet)
@@ -10381,7 +10405,7 @@ func (d *ProbeHandlerDie) HTTPGetDie(fn func(d *HTTPGetActionDie)) *ProbeHandler
 
 // TCPSocketDie mutates TCPSocket as a die.
 //
-// TCPSocket specifies a connection to a TCP port.
+// tcpSocket specifies a connection to a TCP port.
 func (d *ProbeHandlerDie) TCPSocketDie(fn func(d *TCPSocketActionDie)) *ProbeHandlerDie {
 	return d.DieStamp(func(r *corev1.ProbeHandler) {
 		d := TCPSocketActionBlank.DieImmutable(false).DieFeedPtr(r.TCPSocket)
@@ -10392,7 +10416,7 @@ func (d *ProbeHandlerDie) TCPSocketDie(fn func(d *TCPSocketActionDie)) *ProbeHan
 
 // GRPCDie mutates GRPC as a die.
 //
-// GRPC specifies a GRPC HealthCheckRequest.
+// grpc specifies a GRPC HealthCheckRequest.
 func (d *ProbeHandlerDie) GRPCDie(fn func(d *GRPCActionDie)) *ProbeHandlerDie {
 	return d.DieStamp(func(r *corev1.ProbeHandler) {
 		d := GRPCActionBlank.DieImmutable(false).DieFeedPtr(r.GRPC)
@@ -10401,28 +10425,28 @@ func (d *ProbeHandlerDie) GRPCDie(fn func(d *GRPCActionDie)) *ProbeHandlerDie {
 	})
 }
 
-// Exec specifies a command to execute in the container.
+// exec specifies a command to execute in the container.
 func (d *ProbeHandlerDie) Exec(v *corev1.ExecAction) *ProbeHandlerDie {
 	return d.DieStamp(func(r *corev1.ProbeHandler) {
 		r.Exec = v
 	})
 }
 
-// HTTPGet specifies an HTTP GET request to perform.
+// httpGet specifies an HTTP GET request to perform.
 func (d *ProbeHandlerDie) HTTPGet(v *corev1.HTTPGetAction) *ProbeHandlerDie {
 	return d.DieStamp(func(r *corev1.ProbeHandler) {
 		r.HTTPGet = v
 	})
 }
 
-// TCPSocket specifies a connection to a TCP port.
+// tcpSocket specifies a connection to a TCP port.
 func (d *ProbeHandlerDie) TCPSocket(v *corev1.TCPSocketAction) *ProbeHandlerDie {
 	return d.DieStamp(func(r *corev1.ProbeHandler) {
 		r.TCPSocket = v
 	})
 }
 
-// GRPC specifies a GRPC HealthCheckRequest.
+// grpc specifies a GRPC HealthCheckRequest.
 func (d *ProbeHandlerDie) GRPC(v *corev1.GRPCAction) *ProbeHandlerDie {
 	return d.DieStamp(func(r *corev1.ProbeHandler) {
 		r.GRPC = v
@@ -10675,7 +10699,7 @@ func (d *ExecActionDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Command is the command line to execute inside the container, the working directory for the
+// command is the command line to execute inside the container, the working directory for the
 //
 // command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
 //
@@ -10938,7 +10962,7 @@ func (d *HTTPGetActionDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // HTTPHeadersDie replaces HTTPHeaders by collecting the released value from each die passed.
 //
-// Custom headers to set in the request. HTTP allows repeated headers.
+// httpHeaders are the custom headers to set in the request. HTTP allows repeated headers.
 func (d *HTTPGetActionDie) HTTPHeadersDie(v ...*HTTPHeaderDie) *HTTPGetActionDie {
 	return d.DieStamp(func(r *corev1.HTTPGetAction) {
 		r.HTTPHeaders = make([]corev1.HTTPHeader, len(v))
@@ -10948,14 +10972,14 @@ func (d *HTTPGetActionDie) HTTPHeadersDie(v ...*HTTPHeaderDie) *HTTPGetActionDie
 	})
 }
 
-// Path to access on the HTTP server.
+// path is the path to access on the HTTP server.
 func (d *HTTPGetActionDie) Path(v string) *HTTPGetActionDie {
 	return d.DieStamp(func(r *corev1.HTTPGetAction) {
 		r.Path = v
 	})
 }
 
-// Name or number of the port to access on the container.
+// port is the name or number of the port to access on the container.
 //
 // Number must be in the range 1 to 65535.
 //
@@ -10968,7 +10992,7 @@ func (d *HTTPGetActionDie) Port(v intstr.IntOrString) *HTTPGetActionDie {
 
 // PortInt sets Port with the int value.
 //
-// Name or number of the port to access on the container.
+// port is the name or number of the port to access on the container.
 //
 // Number must be in the range 1 to 65535.
 //
@@ -10982,7 +11006,7 @@ func (d *HTTPGetActionDie) PortInt(i int) *HTTPGetActionDie {
 
 // PortString sets Port with the string value.
 //
-// Name or number of the port to access on the container.
+// port is the name or number of the port to access on the container.
 //
 // Number must be in the range 1 to 65535.
 //
@@ -10994,7 +11018,7 @@ func (d *HTTPGetActionDie) PortString(s string) *HTTPGetActionDie {
 	})
 }
 
-// Host name to connect to, defaults to the pod IP. You probably want to set
+// host is the host name to connect to, defaults to the pod IP. You probably want to set
 //
 // "Host" in httpHeaders instead.
 func (d *HTTPGetActionDie) Host(v string) *HTTPGetActionDie {
@@ -11003,7 +11027,7 @@ func (d *HTTPGetActionDie) Host(v string) *HTTPGetActionDie {
 	})
 }
 
-// Scheme to use for connecting to the host.
+// scheme is the scheme to use for connecting to the host.
 //
 // Defaults to HTTP.
 func (d *HTTPGetActionDie) Scheme(v corev1.URIScheme) *HTTPGetActionDie {
@@ -11012,14 +11036,14 @@ func (d *HTTPGetActionDie) Scheme(v corev1.URIScheme) *HTTPGetActionDie {
 	})
 }
 
-// Custom headers to set in the request. HTTP allows repeated headers.
+// httpHeaders are the custom headers to set in the request. HTTP allows repeated headers.
 func (d *HTTPGetActionDie) HTTPHeaders(v ...corev1.HTTPHeader) *HTTPGetActionDie {
 	return d.DieStamp(func(r *corev1.HTTPGetAction) {
 		r.HTTPHeaders = v
 	})
 }
 
-// Protocol selects the wire protocol for the probe connection.
+// protocol selects the wire protocol for the probe connection.
 //
 // Nil defaults to HTTP/1.1.
 func (d *HTTPGetActionDie) Protocol(v *corev1.HTTPProtocol) *HTTPGetActionDie {
@@ -11274,7 +11298,7 @@ func (d *HTTPHeaderDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// The header field name.
+// name is the header field name.
 //
 // This will be canonicalized upon output, so case-variant names will be understood as the same header.
 func (d *HTTPHeaderDie) Name(v string) *HTTPHeaderDie {
@@ -11283,7 +11307,7 @@ func (d *HTTPHeaderDie) Name(v string) *HTTPHeaderDie {
 	})
 }
 
-// The header field value
+// value is the header field value
 func (d *HTTPHeaderDie) Value(v string) *HTTPHeaderDie {
 	return d.DieStamp(func(r *corev1.HTTPHeader) {
 		r.Value = v
@@ -11536,7 +11560,7 @@ func (d *TCPSocketActionDie) DiePatch(patchType types.PatchType) ([]byte, error)
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Number or name of the port to access on the container.
+// port is the number or name of the port to access on the container.
 //
 // Number must be in the range 1 to 65535.
 //
@@ -11549,7 +11573,7 @@ func (d *TCPSocketActionDie) Port(v intstr.IntOrString) *TCPSocketActionDie {
 
 // PortInt sets Port with the int value.
 //
-// Number or name of the port to access on the container.
+// port is the number or name of the port to access on the container.
 //
 // Number must be in the range 1 to 65535.
 //
@@ -11563,7 +11587,7 @@ func (d *TCPSocketActionDie) PortInt(i int) *TCPSocketActionDie {
 
 // PortString sets Port with the string value.
 //
-// Number or name of the port to access on the container.
+// port is the number or name of the port to access on the container.
 //
 // Number must be in the range 1 to 65535.
 //
@@ -11575,7 +11599,7 @@ func (d *TCPSocketActionDie) PortString(s string) *TCPSocketActionDie {
 	})
 }
 
-// Optional: Host name to connect to, defaults to the pod IP.
+// host is the optional host name to connect to, defaults to the pod IP.
 func (d *TCPSocketActionDie) Host(v string) *TCPSocketActionDie {
 	return d.DieStamp(func(r *corev1.TCPSocketAction) {
 		r.Host = v
@@ -11828,14 +11852,14 @@ func (d *GRPCActionDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Port number of the gRPC service. Number must be in the range 1 to 65535.
+// port is the number of the gRPC service. Number must be in the range 1 to 65535.
 func (d *GRPCActionDie) Port(v int32) *GRPCActionDie {
 	return d.DieStamp(func(r *corev1.GRPCAction) {
 		r.Port = v
 	})
 }
 
-// Service is the name of the service to place in the gRPC HealthCheckRequest
+// service is the name of the service to place in the gRPC HealthCheckRequest
 //
 // (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
 //
@@ -12105,7 +12129,7 @@ func (d *SleepActionDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Seconds is the number of seconds to sleep.
+// seconds is the number of seconds to sleep.
 func (d *SleepActionDie) Seconds(v int64) *SleepActionDie {
 	return d.DieStamp(func(r *corev1.SleepAction) {
 		r.Seconds = v
@@ -12360,7 +12384,7 @@ func (d *SecurityContextDie) DiePatch(patchType types.PatchType) ([]byte, error)
 
 // CapabilitiesDie mutates Capabilities as a die.
 //
-// The capabilities to add/drop when running containers.
+// capabilities is the capabilities to add/drop when running containers.
 //
 // Defaults to the default set of capabilities granted by the container runtime.
 //
@@ -12375,7 +12399,7 @@ func (d *SecurityContextDie) CapabilitiesDie(fn func(d *CapabilitiesDie)) *Secur
 
 // SELinuxOptionsDie mutates SELinuxOptions as a die.
 //
-// The SELinux context to be applied to the container.
+// seLinuxOptions is the SELinux context to be applied to the container.
 //
 // # If unspecified, the container runtime will allocate a random SELinux context for each
 //
@@ -12394,7 +12418,7 @@ func (d *SecurityContextDie) SELinuxOptionsDie(fn func(d *SELinuxOptionsDie)) *S
 
 // WindowsOptionsDie mutates WindowsOptions as a die.
 //
-// The Windows specific settings applied to all containers.
+// windowsOptions is the Windows specific settings applied to all containers.
 //
 // If unspecified, the options from the PodSecurityContext will be used.
 //
@@ -12411,7 +12435,7 @@ func (d *SecurityContextDie) WindowsOptionsDie(fn func(d *WindowsSecurityContext
 
 // SeccompProfileDie mutates SeccompProfile as a die.
 //
-// The seccomp options to use by this container. If seccomp options are
+// seccompProfile is the seccomp options to use by this container. If seccomp options are
 //
 // provided at both the pod & container level, the container options
 //
@@ -12441,7 +12465,7 @@ func (d *SecurityContextDie) AppArmorProfileDie(fn func(d *AppArmorProfileDie)) 
 	})
 }
 
-// The capabilities to add/drop when running containers.
+// capabilities is the capabilities to add/drop when running containers.
 //
 // Defaults to the default set of capabilities granted by the container runtime.
 //
@@ -12452,7 +12476,7 @@ func (d *SecurityContextDie) Capabilities(v *corev1.Capabilities) *SecurityConte
 	})
 }
 
-// Run container in privileged mode.
+// privileged indicates whether to run container in privileged mode.
 //
 // Processes in privileged containers are essentially equivalent to root on the host.
 //
@@ -12465,7 +12489,7 @@ func (d *SecurityContextDie) Privileged(v *bool) *SecurityContextDie {
 	})
 }
 
-// The SELinux context to be applied to the container.
+// seLinuxOptions is the SELinux context to be applied to the container.
 //
 // # If unspecified, the container runtime will allocate a random SELinux context for each
 //
@@ -12480,7 +12504,7 @@ func (d *SecurityContextDie) SELinuxOptions(v *corev1.SELinuxOptions) *SecurityC
 	})
 }
 
-// The Windows specific settings applied to all containers.
+// windowsOptions is the Windows specific settings applied to all containers.
 //
 // If unspecified, the options from the PodSecurityContext will be used.
 //
@@ -12493,7 +12517,7 @@ func (d *SecurityContextDie) WindowsOptions(v *corev1.WindowsSecurityContextOpti
 	})
 }
 
-// The UID to run the entrypoint of the container process.
+// runAsUser is the UID to run the entrypoint of the container process.
 //
 // Defaults to user specified in image metadata if unspecified.
 //
@@ -12508,7 +12532,7 @@ func (d *SecurityContextDie) RunAsUser(v *int64) *SecurityContextDie {
 	})
 }
 
-// The GID to run the entrypoint of the container process.
+// runAsGroup is the GID to run the entrypoint of the container process.
 //
 // Uses runtime default if unset.
 //
@@ -12523,7 +12547,7 @@ func (d *SecurityContextDie) RunAsGroup(v *int64) *SecurityContextDie {
 	})
 }
 
-// Indicates that the container must run as a non-root user.
+// runAsNonRoot indicates that the container must run as a non-root user.
 //
 // # If true, the Kubelet will validate the image at runtime to ensure that it
 //
@@ -12540,7 +12564,7 @@ func (d *SecurityContextDie) RunAsNonRoot(v *bool) *SecurityContextDie {
 	})
 }
 
-// Whether this container has a read-only root filesystem.
+// readOnlyRootFilesystem indicates whether this container has a read-only root filesystem.
 //
 // Default is false.
 //
@@ -12551,7 +12575,7 @@ func (d *SecurityContextDie) ReadOnlyRootFilesystem(v *bool) *SecurityContextDie
 	})
 }
 
-// AllowPrivilegeEscalation controls whether a process can gain more
+// allowPrivilegeEscalation controls whether a process can gain more
 //
 // privileges than its parent process. This bool directly controls if
 //
@@ -12583,7 +12607,7 @@ func (d *SecurityContextDie) ProcMount(v *corev1.ProcMountType) *SecurityContext
 	})
 }
 
-// The seccomp options to use by this container. If seccomp options are
+// seccompProfile is the seccomp options to use by this container. If seccomp options are
 //
 // provided at both the pod & container level, the container options
 //
@@ -12853,14 +12877,14 @@ func (d *CapabilitiesDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Added capabilities
+// add lists the capabilities to add to the container.
 func (d *CapabilitiesDie) Add(v ...corev1.Capability) *CapabilitiesDie {
 	return d.DieStamp(func(r *corev1.Capabilities) {
 		r.Add = v
 	})
 }
 
-// Removed capabilities
+// drop lists the capabilities to remove from the container.
 func (d *CapabilitiesDie) Drop(v ...corev1.Capability) *CapabilitiesDie {
 	return d.DieStamp(func(r *corev1.Capabilities) {
 		r.Drop = v
@@ -13113,28 +13137,28 @@ func (d *SELinuxOptionsDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// User is a SELinux user label that applies to the container.
+// user is a SELinux user label that applies to the container.
 func (d *SELinuxOptionsDie) User(v string) *SELinuxOptionsDie {
 	return d.DieStamp(func(r *corev1.SELinuxOptions) {
 		r.User = v
 	})
 }
 
-// Role is a SELinux role label that applies to the container.
+// role is a SELinux role label that applies to the container.
 func (d *SELinuxOptionsDie) Role(v string) *SELinuxOptionsDie {
 	return d.DieStamp(func(r *corev1.SELinuxOptions) {
 		r.Role = v
 	})
 }
 
-// Type is a SELinux type label that applies to the container.
+// type is a SELinux type label that applies to the container.
 func (d *SELinuxOptionsDie) Type(v string) *SELinuxOptionsDie {
 	return d.DieStamp(func(r *corev1.SELinuxOptions) {
 		r.Type = v
 	})
 }
 
-// Level is SELinux level label that applies to the container.
+// level is SELinux level label that applies to the container.
 func (d *SELinuxOptionsDie) Level(v string) *SELinuxOptionsDie {
 	return d.DieStamp(func(r *corev1.SELinuxOptions) {
 		r.Level = v
@@ -13387,14 +13411,14 @@ func (d *WindowsSecurityContextOptionsDie) DiePatch(patchType types.PatchType) (
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// GMSACredentialSpecName is the name of the GMSA credential spec to use.
+// gmsaCredentialSpecName is the name of the GMSA credential spec to use.
 func (d *WindowsSecurityContextOptionsDie) GMSACredentialSpecName(v *string) *WindowsSecurityContextOptionsDie {
 	return d.DieStamp(func(r *corev1.WindowsSecurityContextOptions) {
 		r.GMSACredentialSpecName = v
 	})
 }
 
-// GMSACredentialSpec is where the GMSA admission webhook
+// gmsaCredentialSpec is where the GMSA admission webhook
 //
 // (https://github.com/kubernetes-sigs/windows-gmsa) inlines the contents of the
 //
@@ -13405,7 +13429,7 @@ func (d *WindowsSecurityContextOptionsDie) GMSACredentialSpec(v *string) *Window
 	})
 }
 
-// The UserName in Windows to run the entrypoint of the container process.
+// runAsUserName is the UserName in Windows to run the entrypoint of the container process.
 //
 // Defaults to the user specified in image metadata if unspecified.
 //
@@ -13418,7 +13442,7 @@ func (d *WindowsSecurityContextOptionsDie) RunAsUserName(v *string) *WindowsSecu
 	})
 }
 
-// HostProcess determines if a container should be run as a 'Host Process' container.
+// hostProcess determines if a container should be run as a 'Host Process' container.
 //
 // # All of a Pod's containers must have the same effective HostProcess value
 //
@@ -13677,6 +13701,25 @@ func (d *SeccompProfileDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// OCIDie mutates OCI as a die.
+//
+// oci specifies a seccomp profile stored as an artifact in an OCI registry.
+//
+// # The container runtime merges the profile with a base profile, so the
+//
+// effective profile permits an operation only if both permit it.
+//
+// Must be set if type is "OCI". Must NOT be set for any other type.
+//
+// This is an alpha field and requires enabling the SecurityProfileOCI feature gate.
+func (d *SeccompProfileDie) OCIDie(fn func(d *SecurityProfileOCIDie)) *SeccompProfileDie {
+	return d.DieStamp(func(r *corev1.SeccompProfile) {
+		d := SecurityProfileOCIBlank.DieImmutable(false).DieFeedPtr(r.OCI)
+		fn(d)
+		r.OCI = d.DieReleasePtr()
+	})
+}
+
 // type indicates which kind of seccomp profile will be applied.
 //
 // Valid options are:
@@ -13686,6 +13729,14 @@ func (d *SeccompProfileDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 // RuntimeDefault - the container runtime default profile should be used.
 //
 // Unconfined - no profile should be applied.
+//
+// # OCI - a profile pulled from an OCI registry should be used, merged with a
+//
+// base profile (see oci.baseProfile). Privileged containers cannot use it,
+//
+// whether it is set on the container or inherited from the pod. This is an
+//
+// alpha value and requires enabling the SecurityProfileOCI feature gate.
 func (d *SeccompProfileDie) Type(v corev1.SeccompProfileType) *SeccompProfileDie {
 	return d.DieStamp(func(r *corev1.SeccompProfile) {
 		r.Type = v
@@ -13701,6 +13752,592 @@ func (d *SeccompProfileDie) Type(v corev1.SeccompProfileType) *SeccompProfileDie
 // Must be set if type is "Localhost". Must NOT be set for any other type.
 func (d *SeccompProfileDie) LocalhostProfile(v *string) *SeccompProfileDie {
 	return d.DieStamp(func(r *corev1.SeccompProfile) {
+		r.LocalhostProfile = v
+	})
+}
+
+// oci specifies a seccomp profile stored as an artifact in an OCI registry.
+//
+// # The container runtime merges the profile with a base profile, so the
+//
+// effective profile permits an operation only if both permit it.
+//
+// Must be set if type is "OCI". Must NOT be set for any other type.
+//
+// This is an alpha field and requires enabling the SecurityProfileOCI feature gate.
+func (d *SeccompProfileDie) OCI(v *corev1.SecurityProfileOCI) *SeccompProfileDie {
+	return d.DieStamp(func(r *corev1.SeccompProfile) {
+		r.OCI = v
+	})
+}
+
+var SecurityProfileOCIBlank = (&SecurityProfileOCIDie{}).DieFeed(corev1.SecurityProfileOCI{})
+
+type SecurityProfileOCIDie struct {
+	mutable bool
+	r       corev1.SecurityProfileOCI
+	seal    corev1.SecurityProfileOCI
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *SecurityProfileOCIDie) DieImmutable(immutable bool) *SecurityProfileOCIDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *SecurityProfileOCIDie) DieFeed(r corev1.SecurityProfileOCI) *SecurityProfileOCIDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &SecurityProfileOCIDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *SecurityProfileOCIDie) DieFeedPtr(r *corev1.SecurityProfileOCI) *SecurityProfileOCIDie {
+	if r == nil {
+		r = &corev1.SecurityProfileOCI{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *SecurityProfileOCIDie) DieFeedDuck(v any) *SecurityProfileOCIDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *SecurityProfileOCIDie) DieFeedJSON(j []byte) *SecurityProfileOCIDie {
+	r := corev1.SecurityProfileOCI{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *SecurityProfileOCIDie) DieFeedYAML(y []byte) *SecurityProfileOCIDie {
+	r := corev1.SecurityProfileOCI{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *SecurityProfileOCIDie) DieFeedYAMLFile(name string) *SecurityProfileOCIDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SecurityProfileOCIDie) DieFeedRawExtension(raw runtime.RawExtension) *SecurityProfileOCIDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *SecurityProfileOCIDie) DieRelease() corev1.SecurityProfileOCI {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *SecurityProfileOCIDie) DieReleasePtr() *corev1.SecurityProfileOCI {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *SecurityProfileOCIDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *SecurityProfileOCIDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *SecurityProfileOCIDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SecurityProfileOCIDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *SecurityProfileOCIDie) DieStamp(fn func(r *corev1.SecurityProfileOCI)) *SecurityProfileOCIDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *SecurityProfileOCIDie) DieStampAt(jp string, fn interface{}) *SecurityProfileOCIDie {
+	return d.DieStamp(func(r *corev1.SecurityProfileOCI) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SecurityProfileOCIDie) DieWith(fns ...func(d *SecurityProfileOCIDie)) *SecurityProfileOCIDie {
+	nd := SecurityProfileOCIBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *SecurityProfileOCIDie) DeepCopy() *SecurityProfileOCIDie {
+	r := *d.r.DeepCopy()
+	return &SecurityProfileOCIDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *SecurityProfileOCIDie) DieSeal() *SecurityProfileOCIDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *SecurityProfileOCIDie) DieSealFeed(r corev1.SecurityProfileOCI) *SecurityProfileOCIDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *SecurityProfileOCIDie) DieSealFeedPtr(r *corev1.SecurityProfileOCI) *SecurityProfileOCIDie {
+	if r == nil {
+		r = &corev1.SecurityProfileOCI{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *SecurityProfileOCIDie) DieSealRelease() corev1.SecurityProfileOCI {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *SecurityProfileOCIDie) DieSealReleasePtr() *corev1.SecurityProfileOCI {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *SecurityProfileOCIDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *SecurityProfileOCIDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// BaseProfileDie mutates BaseProfile as a die.
+//
+// baseProfile optionally specifies the base profile that the container
+//
+// runtime merges with the OCI profile. The effective profile permits an
+//
+// operation only if both permit it. When omitted, the container runtime
+//
+// default profile is the base; a Localhost base profile takes its place.
+func (d *SecurityProfileOCIDie) BaseProfileDie(fn func(d *SecurityProfileOCIBaseDie)) *SecurityProfileOCIDie {
+	return d.DieStamp(func(r *corev1.SecurityProfileOCI) {
+		d := SecurityProfileOCIBaseBlank.DieImmutable(false).DieFeedPtr(r.BaseProfile)
+		fn(d)
+		r.BaseProfile = d.DieReleasePtr()
+	})
+}
+
+// ref is the OCI reference of the profile.
+//
+// It must be a digest-pinned reference in canonical form,
+//
+// registry/repository@<algorithm>:<digest>, with the registry spelled out
+//
+// (for example docker.io/library/profile, not profile or docker.io/profile).
+//
+// Tags are rejected. The digest algorithm must be sha256, sha384, or sha512.
+//
+// The maximum length is 1024 characters.
+//
+// # Pull secrets are assembled in the same way as for the container image by
+//
+// looking up node credentials, service account image pull secrets, and pod spec image pull secrets.
+func (d *SecurityProfileOCIDie) Ref(v string) *SecurityProfileOCIDie {
+	return d.DieStamp(func(r *corev1.SecurityProfileOCI) {
+		r.Ref = v
+	})
+}
+
+// baseProfile optionally specifies the base profile that the container
+//
+// runtime merges with the OCI profile. The effective profile permits an
+//
+// operation only if both permit it. When omitted, the container runtime
+//
+// default profile is the base; a Localhost base profile takes its place.
+func (d *SecurityProfileOCIDie) BaseProfile(v *corev1.SecurityProfileOCIBase) *SecurityProfileOCIDie {
+	return d.DieStamp(func(r *corev1.SecurityProfileOCI) {
+		r.BaseProfile = v
+	})
+}
+
+var SecurityProfileOCIBaseBlank = (&SecurityProfileOCIBaseDie{}).DieFeed(corev1.SecurityProfileOCIBase{})
+
+type SecurityProfileOCIBaseDie struct {
+	mutable bool
+	r       corev1.SecurityProfileOCIBase
+	seal    corev1.SecurityProfileOCIBase
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *SecurityProfileOCIBaseDie) DieImmutable(immutable bool) *SecurityProfileOCIBaseDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *SecurityProfileOCIBaseDie) DieFeed(r corev1.SecurityProfileOCIBase) *SecurityProfileOCIBaseDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &SecurityProfileOCIBaseDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *SecurityProfileOCIBaseDie) DieFeedPtr(r *corev1.SecurityProfileOCIBase) *SecurityProfileOCIBaseDie {
+	if r == nil {
+		r = &corev1.SecurityProfileOCIBase{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *SecurityProfileOCIBaseDie) DieFeedDuck(v any) *SecurityProfileOCIBaseDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *SecurityProfileOCIBaseDie) DieFeedJSON(j []byte) *SecurityProfileOCIBaseDie {
+	r := corev1.SecurityProfileOCIBase{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *SecurityProfileOCIBaseDie) DieFeedYAML(y []byte) *SecurityProfileOCIBaseDie {
+	r := corev1.SecurityProfileOCIBase{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *SecurityProfileOCIBaseDie) DieFeedYAMLFile(name string) *SecurityProfileOCIBaseDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SecurityProfileOCIBaseDie) DieFeedRawExtension(raw runtime.RawExtension) *SecurityProfileOCIBaseDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *SecurityProfileOCIBaseDie) DieRelease() corev1.SecurityProfileOCIBase {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *SecurityProfileOCIBaseDie) DieReleasePtr() *corev1.SecurityProfileOCIBase {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *SecurityProfileOCIBaseDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *SecurityProfileOCIBaseDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *SecurityProfileOCIBaseDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SecurityProfileOCIBaseDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *SecurityProfileOCIBaseDie) DieStamp(fn func(r *corev1.SecurityProfileOCIBase)) *SecurityProfileOCIBaseDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *SecurityProfileOCIBaseDie) DieStampAt(jp string, fn interface{}) *SecurityProfileOCIBaseDie {
+	return d.DieStamp(func(r *corev1.SecurityProfileOCIBase) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SecurityProfileOCIBaseDie) DieWith(fns ...func(d *SecurityProfileOCIBaseDie)) *SecurityProfileOCIBaseDie {
+	nd := SecurityProfileOCIBaseBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *SecurityProfileOCIBaseDie) DeepCopy() *SecurityProfileOCIBaseDie {
+	r := *d.r.DeepCopy()
+	return &SecurityProfileOCIBaseDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *SecurityProfileOCIBaseDie) DieSeal() *SecurityProfileOCIBaseDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *SecurityProfileOCIBaseDie) DieSealFeed(r corev1.SecurityProfileOCIBase) *SecurityProfileOCIBaseDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *SecurityProfileOCIBaseDie) DieSealFeedPtr(r *corev1.SecurityProfileOCIBase) *SecurityProfileOCIBaseDie {
+	if r == nil {
+		r = &corev1.SecurityProfileOCIBase{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *SecurityProfileOCIBaseDie) DieSealRelease() corev1.SecurityProfileOCIBase {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *SecurityProfileOCIBaseDie) DieSealReleasePtr() *corev1.SecurityProfileOCIBase {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *SecurityProfileOCIBaseDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *SecurityProfileOCIBaseDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// type indicates which kind of base profile will be applied.
+//
+// Valid options are:
+//
+// Localhost - a profile defined in a file on the node should be used.
+//
+// RuntimeDefault - the container runtime default profile should be used.
+func (d *SecurityProfileOCIBaseDie) Type(v corev1.SecurityProfileOCIBaseType) *SecurityProfileOCIBaseDie {
+	return d.DieStamp(func(r *corev1.SecurityProfileOCIBase) {
+		r.Type = v
+	})
+}
+
+// localhostProfile indicates a base profile defined in a file on the node
+//
+// should be used. The profile must be preconfigured on the node to work.
+//
+// Must be a non-empty descending path, relative to the kubelet's configured seccomp profile location,
+//
+// of at most 4096 characters.
+//
+// Must be set if type is "Localhost". Must NOT be set for any other type.
+func (d *SecurityProfileOCIBaseDie) LocalhostProfile(v *string) *SecurityProfileOCIBaseDie {
+	return d.DieStamp(func(r *corev1.SecurityProfileOCIBase) {
 		r.LocalhostProfile = v
 	})
 }
@@ -14227,7 +14864,7 @@ func (d *ContainerStatusDie) DiePatch(patchType types.PatchType) ([]byte, error)
 
 // StateDie mutates State as a die.
 //
-// State holds details about the container's current condition.
+// state holds details about the container's current condition.
 func (d *ContainerStatusDie) StateDie(fn func(d *ContainerStateDie)) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		d := ContainerStateBlank.DieImmutable(false).DieFeed(r.State)
@@ -14238,7 +14875,7 @@ func (d *ContainerStatusDie) StateDie(fn func(d *ContainerStateDie)) *ContainerS
 
 // LastTerminationStateDie mutates LastTerminationState as a die.
 //
-// # LastTerminationState holds the last termination state of the container to
+// lastState holds the last termination state of the container to
 //
 // help debug container crashes and restarts. This field is not
 //
@@ -14253,7 +14890,7 @@ func (d *ContainerStatusDie) LastTerminationStateDie(fn func(d *ContainerStateDi
 
 // ResourcesDie mutates Resources as a die.
 //
-// # Resources represents the compute resource requests and limits that have been successfully
+// resources represents the compute resource requests and limits that have been successfully
 //
 // enacted on the running container after it has been started or has been successfully resized.
 func (d *ContainerStatusDie) ResourcesDie(fn func(d *ResourceRequirementsDie)) *ContainerStatusDie {
@@ -14266,7 +14903,7 @@ func (d *ContainerStatusDie) ResourcesDie(fn func(d *ResourceRequirementsDie)) *
 
 // VolumeMountDie mutates a single item in VolumeMounts matched by the nested field Name, appending a new item if no match is found.
 //
-// Status of volume mounts.
+// volumeMounts represents the status of volume mounts.
 func (d *ContainerStatusDie) VolumeMountDie(v string, fn func(d *VolumeMountStatusDie)) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		for i := range r.VolumeMounts {
@@ -14286,7 +14923,7 @@ func (d *ContainerStatusDie) VolumeMountDie(v string, fn func(d *VolumeMountStat
 
 // UserDie mutates User as a die.
 //
-// User represents user identity information initially attached to the first process of the container
+// user represents user identity information initially attached to the first process of the container
 func (d *ContainerStatusDie) UserDie(fn func(d *ContainerUserDie)) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		d := ContainerUserBlank.DieImmutable(false).DieFeedPtr(r.User)
@@ -14297,7 +14934,7 @@ func (d *ContainerStatusDie) UserDie(fn func(d *ContainerUserDie)) *ContainerSta
 
 // AllocatedResourcesStatuDie mutates a single item in AllocatedResourcesStatus matched by the nested field Name, appending a new item if no match is found.
 //
-// # AllocatedResourcesStatus represents the status of various resources
+// allocatedResourcesStatus represents the status of various resources
 //
 // allocated for this Pod.
 func (d *ContainerStatusDie) AllocatedResourcesStatuDie(v corev1.ResourceName, fn func(d *ResourceStatusDie)) *ContainerStatusDie {
@@ -14317,7 +14954,7 @@ func (d *ContainerStatusDie) AllocatedResourcesStatuDie(v corev1.ResourceName, f
 	})
 }
 
-// Name is a DNS_LABEL representing the unique name of the container.
+// name is a DNS_LABEL representing the unique name of the container.
 //
 // Each container in a pod must have a unique name across all container types.
 //
@@ -14328,14 +14965,14 @@ func (d *ContainerStatusDie) Name(v string) *ContainerStatusDie {
 	})
 }
 
-// State holds details about the container's current condition.
+// state holds details about the container's current condition.
 func (d *ContainerStatusDie) State(v corev1.ContainerState) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.State = v
 	})
 }
 
-// LastTerminationState holds the last termination state of the container to
+// lastState holds the last termination state of the container to
 //
 // help debug container crashes and restarts. This field is not
 //
@@ -14346,7 +14983,7 @@ func (d *ContainerStatusDie) LastTerminationState(v corev1.ContainerState) *Cont
 	})
 }
 
-// Ready specifies whether the container is currently passing its readiness check.
+// ready specifies whether the container is currently passing its readiness check.
 //
 // The value will change as readiness probes keep executing. If no readiness
 //
@@ -14363,7 +15000,7 @@ func (d *ContainerStatusDie) Ready(v bool) *ContainerStatusDie {
 	})
 }
 
-// RestartCount holds the number of times the container has been restarted.
+// restartCount holds the number of times the container has been restarted.
 //
 // # Kubelet makes an effort to always increment the value, but there
 //
@@ -14376,7 +15013,7 @@ func (d *ContainerStatusDie) RestartCount(v int32) *ContainerStatusDie {
 	})
 }
 
-// Image is the name of container image that the container is running.
+// image is the name of container image that the container is running.
 //
 // The container image may not match the image used in the PodSpec,
 //
@@ -14389,7 +15026,7 @@ func (d *ContainerStatusDie) Image(v string) *ContainerStatusDie {
 	})
 }
 
-// ImageID is the image ID of the container's image. The image ID may not
+// imageID is the image ID of the container's image. The image ID may not
 //
 // match the image ID of the image used in the PodSpec, as it may have been
 //
@@ -14400,7 +15037,7 @@ func (d *ContainerStatusDie) ImageID(v string) *ContainerStatusDie {
 	})
 }
 
-// ContainerID is the ID of the container in the format '<type>://<container_id>'.
+// containerID is the ID of the container in the format '<type>://<container_id>'.
 //
 // # Where type is a container runtime identifier, returned from Version call of CRI API
 //
@@ -14411,7 +15048,7 @@ func (d *ContainerStatusDie) ContainerID(v string) *ContainerStatusDie {
 	})
 }
 
-// Started indicates whether the container has finished its postStart lifecycle hook
+// started indicates whether the container has finished its postStart lifecycle hook
 //
 // and passed its startup probe.
 //
@@ -14432,7 +15069,7 @@ func (d *ContainerStatusDie) Started(v *bool) *ContainerStatusDie {
 	})
 }
 
-// AllocatedResources represents the compute resources allocated for this container by the
+// allocatedResources represents the compute resources allocated for this container by the
 //
 // node. Kubelet sets this value to Container.Resources.Requests upon successful pod admission
 //
@@ -14445,7 +15082,7 @@ func (d *ContainerStatusDie) AllocatedResources(v corev1.ResourceList) *Containe
 
 // AddAllocatedResource sets a single quantity on the AllocatedResources resource list.
 //
-// # AllocatedResources represents the compute resources allocated for this container by the
+// allocatedResources represents the compute resources allocated for this container by the
 //
 // node. Kubelet sets this value to Container.Resources.Requests upon successful pod admission
 //
@@ -14461,7 +15098,7 @@ func (d *ContainerStatusDie) AddAllocatedResource(name corev1.ResourceName, quan
 
 // AddAllocatedResourceString parses the quantity setting a single value on the AllocatedResources resource list. Panics if the string is not parsable.
 //
-// # AllocatedResources represents the compute resources allocated for this container by the
+// allocatedResources represents the compute resources allocated for this container by the
 //
 // node. Kubelet sets this value to Container.Resources.Requests upon successful pod admission
 //
@@ -14471,7 +15108,7 @@ func (d *ContainerStatusDie) AddAllocatedResourceString(name corev1.ResourceName
 	return d.AddAllocatedResource(name, q)
 }
 
-// Resources represents the compute resource requests and limits that have been successfully
+// resources represents the compute resource requests and limits that have been successfully
 //
 // enacted on the running container after it has been started or has been successfully resized.
 func (d *ContainerStatusDie) Resources(v *corev1.ResourceRequirements) *ContainerStatusDie {
@@ -14480,21 +15117,21 @@ func (d *ContainerStatusDie) Resources(v *corev1.ResourceRequirements) *Containe
 	})
 }
 
-// Status of volume mounts.
+// volumeMounts represents the status of volume mounts.
 func (d *ContainerStatusDie) VolumeMounts(v ...corev1.VolumeMountStatus) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.VolumeMounts = v
 	})
 }
 
-// User represents user identity information initially attached to the first process of the container
+// user represents user identity information initially attached to the first process of the container
 func (d *ContainerStatusDie) User(v *corev1.ContainerUser) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.User = v
 	})
 }
 
-// AllocatedResourcesStatus represents the status of various resources
+// allocatedResourcesStatus represents the status of various resources
 //
 // allocated for this Pod.
 func (d *ContainerStatusDie) AllocatedResourcesStatus(v ...corev1.ResourceStatus) *ContainerStatusDie {
@@ -14503,7 +15140,7 @@ func (d *ContainerStatusDie) AllocatedResourcesStatus(v ...corev1.ResourceStatus
 	})
 }
 
-// StopSignal reports the effective stop signal for this container
+// stopSignal reports the effective stop signal for this container
 func (d *ContainerStatusDie) StopSignal(v *corev1.Signal) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.StopSignal = v
@@ -14758,7 +15395,7 @@ func (d *ContainerUserDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // LinuxDie mutates Linux as a die.
 //
-// Linux holds user identity information initially attached to the first process of the containers in Linux.
+// linux holds user identity information initially attached to the first process of the containers in Linux.
 //
 // Note that the actual running identity can be changed if the process has enough privilege to do so.
 func (d *ContainerUserDie) LinuxDie(fn func(d *LinuxContainerUserDie)) *ContainerUserDie {
@@ -14769,7 +15406,7 @@ func (d *ContainerUserDie) LinuxDie(fn func(d *LinuxContainerUserDie)) *Containe
 	})
 }
 
-// Linux holds user identity information initially attached to the first process of the containers in Linux.
+// linux holds user identity information initially attached to the first process of the containers in Linux.
 //
 // Note that the actual running identity can be changed if the process has enough privilege to do so.
 func (d *ContainerUserDie) Linux(v *corev1.LinuxContainerUser) *ContainerUserDie {
@@ -15024,21 +15661,21 @@ func (d *LinuxContainerUserDie) DiePatch(patchType types.PatchType) ([]byte, err
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// UID is the primary uid initially attached to the first process in the container
+// uid is the primary uid initially attached to the first process in the container
 func (d *LinuxContainerUserDie) UID(v int64) *LinuxContainerUserDie {
 	return d.DieStamp(func(r *corev1.LinuxContainerUser) {
 		r.UID = v
 	})
 }
 
-// GID is the primary gid initially attached to the first process in the container
+// gid is the primary gid initially attached to the first process in the container
 func (d *LinuxContainerUserDie) GID(v int64) *LinuxContainerUserDie {
 	return d.DieStamp(func(r *corev1.LinuxContainerUser) {
 		r.GID = v
 	})
 }
 
-// SupplementalGroups are the supplemental groups initially attached to the first process in the container
+// supplementalGroups are the supplemental groups initially attached to the first process in the container
 func (d *LinuxContainerUserDie) SupplementalGroups(v ...int64) *LinuxContainerUserDie {
 	return d.DieStamp(func(r *corev1.LinuxContainerUser) {
 		r.SupplementalGroups = v
@@ -15293,7 +15930,7 @@ func (d *ResourceStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 
 // ResourceDie mutates a single item in Resources matched by the nested field ResourceID, appending a new item if no match is found.
 //
-// List of unique resources health. Each element in the list contains an unique resource ID and its health.
+// resources is the list of unique resources health. Each element in the list contains an unique resource ID and its health.
 //
 // At a minimum, for the lifetime of a Pod, resource ID must uniquely identify the resource allocated to the Pod on the Node.
 //
@@ -15317,7 +15954,7 @@ func (d *ResourceStatusDie) ResourceDie(v corev1.ResourceID, fn func(d *Resource
 	})
 }
 
-// Name of the resource. Must be unique within the pod and in case of non-DRA resource, match one of the resources from the pod spec.
+// name of the resource. Must be unique within the pod and in case of non-DRA resource, match one of the resources from the pod spec.
 //
 // For DRA resources, the value must be "claim:<claim_name>/<request>" when
 //
@@ -15338,7 +15975,7 @@ func (d *ResourceStatusDie) Name(v corev1.ResourceName) *ResourceStatusDie {
 	})
 }
 
-// List of unique resources health. Each element in the list contains an unique resource ID and its health.
+// resources is the list of unique resources health. Each element in the list contains an unique resource ID and its health.
 //
 // At a minimum, for the lifetime of a Pod, resource ID must uniquely identify the resource allocated to the Pod on the Node.
 //
@@ -15597,14 +16234,14 @@ func (d *ResourceHealthDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// ResourceID is the unique identifier of the resource. See the ResourceID type for more information.
+// resourceID is the unique identifier of the resource. See the ResourceID type for more information.
 func (d *ResourceHealthDie) ResourceID(v corev1.ResourceID) *ResourceHealthDie {
 	return d.DieStamp(func(r *corev1.ResourceHealth) {
 		r.ResourceID = v
 	})
 }
 
-// Health of the resource.
+// health of the resource.
 //
 // can be one of:
 //
@@ -15627,7 +16264,7 @@ func (d *ResourceHealthDie) Health(v corev1.ResourceHealthStatus) *ResourceHealt
 	})
 }
 
-// Message provides human-readable context for Health (e.g. "ECC error count exceeded threshold").
+// message provides human-readable context for Health (e.g. "ECC error count exceeded threshold").
 //
 // This field is populated by the kubelet when ResourceHealthStatusMessage is enabled if the DRA plugin returns a message, and is null otherwise.
 func (d *ResourceHealthDie) Message(v *string) *ResourceHealthDie {
@@ -15884,7 +16521,7 @@ func (d *ContainerStateDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 
 // WaitingDie mutates Waiting as a die.
 //
-// Details about a waiting container
+// waiting is details about a waiting container
 func (d *ContainerStateDie) WaitingDie(fn func(d *ContainerStateWaitingDie)) *ContainerStateDie {
 	return d.DieStamp(func(r *corev1.ContainerState) {
 		d := ContainerStateWaitingBlank.DieImmutable(false).DieFeedPtr(r.Waiting)
@@ -15895,7 +16532,7 @@ func (d *ContainerStateDie) WaitingDie(fn func(d *ContainerStateWaitingDie)) *Co
 
 // RunningDie mutates Running as a die.
 //
-// Details about a running container
+// running is details about a running container
 func (d *ContainerStateDie) RunningDie(fn func(d *ContainerStateRunningDie)) *ContainerStateDie {
 	return d.DieStamp(func(r *corev1.ContainerState) {
 		d := ContainerStateRunningBlank.DieImmutable(false).DieFeedPtr(r.Running)
@@ -15906,7 +16543,7 @@ func (d *ContainerStateDie) RunningDie(fn func(d *ContainerStateRunningDie)) *Co
 
 // TerminatedDie mutates Terminated as a die.
 //
-// Details about a terminated container
+// terminated is details about a terminated container
 func (d *ContainerStateDie) TerminatedDie(fn func(d *ContainerStateTerminatedDie)) *ContainerStateDie {
 	return d.DieStamp(func(r *corev1.ContainerState) {
 		d := ContainerStateTerminatedBlank.DieImmutable(false).DieFeedPtr(r.Terminated)
@@ -15915,21 +16552,21 @@ func (d *ContainerStateDie) TerminatedDie(fn func(d *ContainerStateTerminatedDie
 	})
 }
 
-// Details about a waiting container
+// waiting is details about a waiting container
 func (d *ContainerStateDie) Waiting(v *corev1.ContainerStateWaiting) *ContainerStateDie {
 	return d.DieStamp(func(r *corev1.ContainerState) {
 		r.Waiting = v
 	})
 }
 
-// Details about a running container
+// running is details about a running container
 func (d *ContainerStateDie) Running(v *corev1.ContainerStateRunning) *ContainerStateDie {
 	return d.DieStamp(func(r *corev1.ContainerState) {
 		r.Running = v
 	})
 }
 
-// Details about a terminated container
+// terminated is details about a terminated container
 func (d *ContainerStateDie) Terminated(v *corev1.ContainerStateTerminated) *ContainerStateDie {
 	return d.DieStamp(func(r *corev1.ContainerState) {
 		r.Terminated = v
@@ -16182,14 +16819,14 @@ func (d *ContainerStateWaitingDie) DiePatch(patchType types.PatchType) ([]byte, 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// (brief) reason the container is not yet running.
+// reason the container is not yet running.
 func (d *ContainerStateWaitingDie) Reason(v string) *ContainerStateWaitingDie {
 	return d.DieStamp(func(r *corev1.ContainerStateWaiting) {
 		r.Reason = v
 	})
 }
 
-// Message regarding why the container is not yet running.
+// message regarding why the container is not yet running.
 func (d *ContainerStateWaitingDie) Message(v string) *ContainerStateWaitingDie {
 	return d.DieStamp(func(r *corev1.ContainerStateWaiting) {
 		r.Message = v
@@ -16442,7 +17079,7 @@ func (d *ContainerStateRunningDie) DiePatch(patchType types.PatchType) ([]byte, 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Time at which the container was last (re-)started
+// startedAt is the time at which the container was last (re-)started
 func (d *ContainerStateRunningDie) StartedAt(v apismetav1.Time) *ContainerStateRunningDie {
 	return d.DieStamp(func(r *corev1.ContainerStateRunning) {
 		r.StartedAt = v
@@ -16695,49 +17332,49 @@ func (d *ContainerStateTerminatedDie) DiePatch(patchType types.PatchType) ([]byt
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Exit status from the last termination of the container
+// exitCode is the exit status from the last termination of the container
 func (d *ContainerStateTerminatedDie) ExitCode(v int32) *ContainerStateTerminatedDie {
 	return d.DieStamp(func(r *corev1.ContainerStateTerminated) {
 		r.ExitCode = v
 	})
 }
 
-// Signal from the last termination of the container
+// signal from the last termination of the container
 func (d *ContainerStateTerminatedDie) Signal(v int32) *ContainerStateTerminatedDie {
 	return d.DieStamp(func(r *corev1.ContainerStateTerminated) {
 		r.Signal = v
 	})
 }
 
-// (brief) reason from the last termination of the container
+// reason from the last termination of the container
 func (d *ContainerStateTerminatedDie) Reason(v string) *ContainerStateTerminatedDie {
 	return d.DieStamp(func(r *corev1.ContainerStateTerminated) {
 		r.Reason = v
 	})
 }
 
-// Message regarding the last termination of the container
+// message regarding the last termination of the container
 func (d *ContainerStateTerminatedDie) Message(v string) *ContainerStateTerminatedDie {
 	return d.DieStamp(func(r *corev1.ContainerStateTerminated) {
 		r.Message = v
 	})
 }
 
-// Time at which previous execution of the container started
+// startedAt is the time at which previous execution of the container started
 func (d *ContainerStateTerminatedDie) StartedAt(v apismetav1.Time) *ContainerStateTerminatedDie {
 	return d.DieStamp(func(r *corev1.ContainerStateTerminated) {
 		r.StartedAt = v
 	})
 }
 
-// Time at which the container last terminated
+// finishedAt is the time at which the container last terminated
 func (d *ContainerStateTerminatedDie) FinishedAt(v apismetav1.Time) *ContainerStateTerminatedDie {
 	return d.DieStamp(func(r *corev1.ContainerStateTerminated) {
 		r.FinishedAt = v
 	})
 }
 
-// Container's ID in the format '<type>://<container_id>'
+// containerID is the container's ID in the format '<type>://<container_id>'
 func (d *ContainerStateTerminatedDie) ContainerID(v string) *ContainerStateTerminatedDie {
 	return d.DieStamp(func(r *corev1.ContainerStateTerminated) {
 		r.ContainerID = v
@@ -17003,28 +17640,28 @@ func (d *VolumeMountStatusDie) VolumeStatusDie(fn func(d *VolumeStatusDie)) *Vol
 	})
 }
 
-// Name corresponds to the name of the original VolumeMount.
+// name corresponds to the name of the original VolumeMount.
 func (d *VolumeMountStatusDie) Name(v string) *VolumeMountStatusDie {
 	return d.DieStamp(func(r *corev1.VolumeMountStatus) {
 		r.Name = v
 	})
 }
 
-// MountPath corresponds to the original VolumeMount.
+// mountPath corresponds to the original VolumeMount.
 func (d *VolumeMountStatusDie) MountPath(v string) *VolumeMountStatusDie {
 	return d.DieStamp(func(r *corev1.VolumeMountStatus) {
 		r.MountPath = v
 	})
 }
 
-// ReadOnly corresponds to the original VolumeMount.
+// readOnly corresponds to the original VolumeMount.
 func (d *VolumeMountStatusDie) ReadOnly(v bool) *VolumeMountStatusDie {
 	return d.DieStamp(func(r *corev1.VolumeMountStatus) {
 		r.ReadOnly = v
 	})
 }
 
-// RecursiveReadOnly must be set to Disabled, Enabled, or unspecified (for non-readonly mounts).
+// recursiveReadOnly must be set to Disabled, Enabled, or unspecified (for non-readonly mounts).
 //
 // An IfPossible value in the original VolumeMount must be translated to Disabled or Enabled,
 //
@@ -17554,7 +18191,7 @@ func (d *ImageVolumeStatusDie) DiePatch(patchType types.PatchType) ([]byte, erro
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// ImageRef is the digest of the image used for this volume.
+// imageRef is the digest of the image used for this volume.
 //
 // It should have a value that's similar to the pod's status.containerStatuses[i].imageID.
 //
@@ -19202,7 +19839,7 @@ func (d *EventDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *EventDie {
 
 // InvolvedObjectDie mutates InvolvedObject as a die.
 //
-// The object that this event is about.
+// involvedObject is the object that this event is about.
 func (d *EventDie) InvolvedObjectDie(fn func(d *ObjectReferenceDie)) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		d := ObjectReferenceBlank.DieImmutable(false).DieFeed(r.InvolvedObject)
@@ -19213,7 +19850,7 @@ func (d *EventDie) InvolvedObjectDie(fn func(d *ObjectReferenceDie)) *EventDie {
 
 // SourceDie mutates Source as a die.
 //
-// The component reporting this event. Should be a short machine understandable string.
+// source is the component reporting this event. Should be a short machine understandable string.
 func (d *EventDie) SourceDie(fn func(d *EventSourceDie)) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		d := EventSourceBlank.DieImmutable(false).DieFeed(r.Source)
@@ -19224,7 +19861,7 @@ func (d *EventDie) SourceDie(fn func(d *EventSourceDie)) *EventDie {
 
 // SeriesDie mutates Series as a die.
 //
-// Data about the Event series this event represents or nil if it's a singleton Event.
+// series is data about the Event series this event represents or nil if it's a singleton Event.
 func (d *EventDie) SeriesDie(fn func(d *EventSeriesDie)) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		d := EventSeriesBlank.DieImmutable(false).DieFeedPtr(r.Series)
@@ -19235,7 +19872,7 @@ func (d *EventDie) SeriesDie(fn func(d *EventSeriesDie)) *EventDie {
 
 // RelatedDie mutates Related as a die.
 //
-// Optional secondary object for more complex actions.
+// related is an optional secondary object for more complex actions.
 func (d *EventDie) RelatedDie(fn func(d *ObjectReferenceDie)) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		d := ObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.Related)
@@ -19244,14 +19881,14 @@ func (d *EventDie) RelatedDie(fn func(d *ObjectReferenceDie)) *EventDie {
 	})
 }
 
-// The object that this event is about.
+// involvedObject is the object that this event is about.
 func (d *EventDie) InvolvedObject(v corev1.ObjectReference) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		r.InvolvedObject = v
 	})
 }
 
-// This should be a short, machine understandable string that gives the reason
+// reason is a short, machine understandable string that gives the reason
 //
 // for the transition into the object's current status.
 //
@@ -19262,7 +19899,7 @@ func (d *EventDie) Reason(v string) *EventDie {
 	})
 }
 
-// A human-readable description of the status of this operation.
+// message is a human-readable description of the status of this operation.
 //
 // TODO: decide on maximum length.
 func (d *EventDie) Message(v string) *EventDie {
@@ -19271,77 +19908,77 @@ func (d *EventDie) Message(v string) *EventDie {
 	})
 }
 
-// The component reporting this event. Should be a short machine understandable string.
+// source is the component reporting this event. Should be a short machine understandable string.
 func (d *EventDie) Source(v corev1.EventSource) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		r.Source = v
 	})
 }
 
-// The time at which the event was first recorded. (Time of server receipt is in TypeMeta.)
+// firstTimestamp is the time at which the event was first recorded. (Time of server receipt is in TypeMeta.)
 func (d *EventDie) FirstTimestamp(v apismetav1.Time) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		r.FirstTimestamp = v
 	})
 }
 
-// The time at which the most recent occurrence of this event was recorded.
+// lastTimestamp is the time at which the most recent occurrence of this event was recorded.
 func (d *EventDie) LastTimestamp(v apismetav1.Time) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		r.LastTimestamp = v
 	})
 }
 
-// The number of times this event has occurred.
+// count is the number of times this event has occurred.
 func (d *EventDie) Count(v int32) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		r.Count = v
 	})
 }
 
-// Type of this event (Normal, Warning), new types could be added in the future
+// type is the type of this event (Normal, Warning), new types could be added in the future
 func (d *EventDie) Type(v string) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		r.Type = v
 	})
 }
 
-// Time when this Event was first observed.
+// eventTime is the time when this Event was first observed.
 func (d *EventDie) EventTime(v apismetav1.MicroTime) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		r.EventTime = v
 	})
 }
 
-// Data about the Event series this event represents or nil if it's a singleton Event.
+// series is data about the Event series this event represents or nil if it's a singleton Event.
 func (d *EventDie) Series(v *corev1.EventSeries) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		r.Series = v
 	})
 }
 
-// What action was taken/failed regarding to the Regarding object.
+// action is what action was taken/failed regarding to the Regarding object.
 func (d *EventDie) Action(v string) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		r.Action = v
 	})
 }
 
-// Optional secondary object for more complex actions.
+// related is an optional secondary object for more complex actions.
 func (d *EventDie) Related(v *corev1.ObjectReference) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		r.Related = v
 	})
 }
 
-// Name of the controller that emitted this Event, e.g. `kubernetes.io/kubelet`.
+// reportingComponent is the name of the controller that emitted this Event, e.g. `kubernetes.io/kubelet`.
 func (d *EventDie) ReportingController(v string) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		r.ReportingController = v
 	})
 }
 
-// ID of the controller instance, e.g. `kubelet-xyzf`.
+// reportingInstance is the ID of the controller instance, e.g. `kubelet-xyzf`.
 func (d *EventDie) ReportingInstance(v string) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		r.ReportingInstance = v
@@ -19594,14 +20231,14 @@ func (d *EventSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Component from which the event is generated.
+// component from which the event is generated.
 func (d *EventSourceDie) Component(v string) *EventSourceDie {
 	return d.DieStamp(func(r *corev1.EventSource) {
 		r.Component = v
 	})
 }
 
-// Node name on which the event is generated.
+// host name on which the event is generated.
 func (d *EventSourceDie) Host(v string) *EventSourceDie {
 	return d.DieStamp(func(r *corev1.EventSource) {
 		r.Host = v
@@ -19854,14 +20491,14 @@ func (d *EventSeriesDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Number of occurrences in this series up to the last heartbeat time
+// count is the number of occurrences in this series up to the last heartbeat time
 func (d *EventSeriesDie) Count(v int32) *EventSeriesDie {
 	return d.DieStamp(func(r *corev1.EventSeries) {
 		r.Count = v
 	})
 }
 
-// Time of the last occurrence observed
+// lastObservedTime is the time of the last occurrence observed
 func (d *EventSeriesDie) LastObservedTime(v apismetav1.MicroTime) *EventSeriesDie {
 	return d.DieStamp(func(r *corev1.EventSeries) {
 		r.LastObservedTime = v
@@ -20218,7 +20855,7 @@ func (d *LimitRangeDie) SpecDie(fn func(d *LimitRangeSpecDie)) *LimitRangeDie {
 	})
 }
 
-// Spec defines the limits enforced.
+// spec defines the limits enforced.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *LimitRangeDie) Spec(v corev1.LimitRangeSpec) *LimitRangeDie {
@@ -20475,7 +21112,7 @@ func (d *LimitRangeSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 
 // LimitsDie replaces Limits by collecting the released value from each die passed.
 //
-// Limits is the list of LimitRangeItem objects that are enforced.
+// limits is the list of LimitRangeItem objects that are enforced.
 func (d *LimitRangeSpecDie) LimitsDie(v ...*LimitRangeItemDie) *LimitRangeSpecDie {
 	return d.DieStamp(func(r *corev1.LimitRangeSpec) {
 		r.Limits = make([]corev1.LimitRangeItem, len(v))
@@ -20485,7 +21122,7 @@ func (d *LimitRangeSpecDie) LimitsDie(v ...*LimitRangeItemDie) *LimitRangeSpecDi
 	})
 }
 
-// Limits is the list of LimitRangeItem objects that are enforced.
+// limits is the list of LimitRangeItem objects that are enforced.
 func (d *LimitRangeSpecDie) Limits(v ...corev1.LimitRangeItem) *LimitRangeSpecDie {
 	return d.DieStamp(func(r *corev1.LimitRangeSpec) {
 		r.Limits = v
@@ -20738,14 +21375,14 @@ func (d *LimitRangeItemDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Type of resource that this limit applies to.
+// type of resource that this limit applies to.
 func (d *LimitRangeItemDie) Type(v corev1.LimitType) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
 		r.Type = v
 	})
 }
 
-// Max usage constraints on this kind by resource name.
+// max usage constraints on this kind by resource name.
 func (d *LimitRangeItemDie) Max(v corev1.ResourceList) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
 		r.Max = v
@@ -20754,7 +21391,7 @@ func (d *LimitRangeItemDie) Max(v corev1.ResourceList) *LimitRangeItemDie {
 
 // AddMax sets a single quantity on the Max resource list.
 //
-// Max usage constraints on this kind by resource name.
+// max usage constraints on this kind by resource name.
 func (d *LimitRangeItemDie) AddMax(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
 		if r.Max == nil {
@@ -20766,13 +21403,13 @@ func (d *LimitRangeItemDie) AddMax(name corev1.ResourceName, quantity resource.Q
 
 // AddMaxString parses the quantity setting a single value on the Max resource list. Panics if the string is not parsable.
 //
-// Max usage constraints on this kind by resource name.
+// max usage constraints on this kind by resource name.
 func (d *LimitRangeItemDie) AddMaxString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
 	q := resource.MustParse(quantity)
 	return d.AddMax(name, q)
 }
 
-// Min usage constraints on this kind by resource name.
+// min usage constraints on this kind by resource name.
 func (d *LimitRangeItemDie) Min(v corev1.ResourceList) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
 		r.Min = v
@@ -20781,7 +21418,7 @@ func (d *LimitRangeItemDie) Min(v corev1.ResourceList) *LimitRangeItemDie {
 
 // AddMin sets a single quantity on the Min resource list.
 //
-// Min usage constraints on this kind by resource name.
+// min usage constraints on this kind by resource name.
 func (d *LimitRangeItemDie) AddMin(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
 		if r.Min == nil {
@@ -20793,13 +21430,13 @@ func (d *LimitRangeItemDie) AddMin(name corev1.ResourceName, quantity resource.Q
 
 // AddMinString parses the quantity setting a single value on the Min resource list. Panics if the string is not parsable.
 //
-// Min usage constraints on this kind by resource name.
+// min usage constraints on this kind by resource name.
 func (d *LimitRangeItemDie) AddMinString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
 	q := resource.MustParse(quantity)
 	return d.AddMin(name, q)
 }
 
-// Default resource requirement limit value by resource name if resource limit is omitted.
+// default specifies resource limit values by resource name. These are applied to containers which do not specify their own limits for those resources.
 func (d *LimitRangeItemDie) Default(v corev1.ResourceList) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
 		r.Default = v
@@ -20808,7 +21445,7 @@ func (d *LimitRangeItemDie) Default(v corev1.ResourceList) *LimitRangeItemDie {
 
 // AddDefault sets a single quantity on the Default resource list.
 //
-// Default resource requirement limit value by resource name if resource limit is omitted.
+// default specifies resource limit values by resource name. These are applied to containers which do not specify their own limits for those resources.
 func (d *LimitRangeItemDie) AddDefault(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
 		if r.Default == nil {
@@ -20820,13 +21457,13 @@ func (d *LimitRangeItemDie) AddDefault(name corev1.ResourceName, quantity resour
 
 // AddDefaultString parses the quantity setting a single value on the Default resource list. Panics if the string is not parsable.
 //
-// Default resource requirement limit value by resource name if resource limit is omitted.
+// default specifies resource limit values by resource name. These are applied to containers which do not specify their own limits for those resources.
 func (d *LimitRangeItemDie) AddDefaultString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
 	q := resource.MustParse(quantity)
 	return d.AddDefault(name, q)
 }
 
-// DefaultRequest is the default resource requirement request value by resource name if resource request is omitted.
+// defaultRequest specifies resource request values by resource name. These are applied to containers which do not specify their own requests for those resources.
 func (d *LimitRangeItemDie) DefaultRequest(v corev1.ResourceList) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
 		r.DefaultRequest = v
@@ -20835,7 +21472,7 @@ func (d *LimitRangeItemDie) DefaultRequest(v corev1.ResourceList) *LimitRangeIte
 
 // AddDefaultRequest sets a single quantity on the DefaultRequest resource list.
 //
-// DefaultRequest is the default resource requirement request value by resource name if resource request is omitted.
+// defaultRequest specifies resource request values by resource name. These are applied to containers which do not specify their own requests for those resources.
 func (d *LimitRangeItemDie) AddDefaultRequest(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
 		if r.DefaultRequest == nil {
@@ -20847,13 +21484,13 @@ func (d *LimitRangeItemDie) AddDefaultRequest(name corev1.ResourceName, quantity
 
 // AddDefaultRequestString parses the quantity setting a single value on the DefaultRequest resource list. Panics if the string is not parsable.
 //
-// DefaultRequest is the default resource requirement request value by resource name if resource request is omitted.
+// defaultRequest specifies resource request values by resource name. These are applied to containers which do not specify their own requests for those resources.
 func (d *LimitRangeItemDie) AddDefaultRequestString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
 	q := resource.MustParse(quantity)
 	return d.AddDefaultRequest(name, q)
 }
 
-// MaxLimitRequestRatio if specified, the named resource must have a request and limit that are both non-zero where limit divided by request is less than or equal to the enumerated value; this represents the max burst for the named resource.
+// maxLimitRequestRatio if specified, the named resource must have a request and limit that are both non-zero where limit divided by request is less than or equal to the enumerated value; this represents the max burst for the named resource.
 func (d *LimitRangeItemDie) MaxLimitRequestRatio(v corev1.ResourceList) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
 		r.MaxLimitRequestRatio = v
@@ -20862,7 +21499,7 @@ func (d *LimitRangeItemDie) MaxLimitRequestRatio(v corev1.ResourceList) *LimitRa
 
 // AddMaxLimitRequestRatio sets a single quantity on the MaxLimitRequestRatio resource list.
 //
-// MaxLimitRequestRatio if specified, the named resource must have a request and limit that are both non-zero where limit divided by request is less than or equal to the enumerated value; this represents the max burst for the named resource.
+// maxLimitRequestRatio if specified, the named resource must have a request and limit that are both non-zero where limit divided by request is less than or equal to the enumerated value; this represents the max burst for the named resource.
 func (d *LimitRangeItemDie) AddMaxLimitRequestRatio(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
 		if r.MaxLimitRequestRatio == nil {
@@ -20874,7 +21511,7 @@ func (d *LimitRangeItemDie) AddMaxLimitRequestRatio(name corev1.ResourceName, qu
 
 // AddMaxLimitRequestRatioString parses the quantity setting a single value on the MaxLimitRequestRatio resource list. Panics if the string is not parsable.
 //
-// MaxLimitRequestRatio if specified, the named resource must have a request and limit that are both non-zero where limit divided by request is less than or equal to the enumerated value; this represents the max burst for the named resource.
+// maxLimitRequestRatio if specified, the named resource must have a request and limit that are both non-zero where limit divided by request is less than or equal to the enumerated value; this represents the max burst for the named resource.
 func (d *LimitRangeItemDie) AddMaxLimitRequestRatioString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
 	q := resource.MustParse(quantity)
 	return d.AddMaxLimitRequestRatio(name, q)
@@ -21239,7 +21876,7 @@ func (d *NamespaceDie) StatusDie(fn func(d *NamespaceStatusDie)) *NamespaceDie {
 	})
 }
 
-// Spec defines the behavior of the Namespace.
+// spec defines the behavior of the Namespace.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *NamespaceDie) Spec(v corev1.NamespaceSpec) *NamespaceDie {
@@ -21248,7 +21885,7 @@ func (d *NamespaceDie) Spec(v corev1.NamespaceSpec) *NamespaceDie {
 	})
 }
 
-// Status describes the current status of a Namespace.
+// status describes the current status of a Namespace.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *NamespaceDie) Status(v corev1.NamespaceStatus) *NamespaceDie {
@@ -21503,7 +22140,7 @@ func (d *NamespaceSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Finalizers is an opaque list of values that must be empty to permanently remove object from storage.
+// finalizers is an opaque list of values that must be empty to permanently remove object from storage.
 //
 // More info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/
 func (d *NamespaceSpecDie) Finalizers(v ...corev1.FinalizerName) *NamespaceSpecDie {
@@ -22133,7 +22770,7 @@ func (d *NodeDie) StatusDie(fn func(d *NodeStatusDie)) *NodeDie {
 	})
 }
 
-// Spec defines the behavior of a node.
+// spec defines the behavior of a node.
 //
 // https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *NodeDie) Spec(v corev1.NodeSpec) *NodeDie {
@@ -22142,7 +22779,7 @@ func (d *NodeDie) Spec(v corev1.NodeSpec) *NodeDie {
 	})
 }
 
-// Most recently observed status of the node.
+// status is the most recently observed status of the node.
 //
 // Populated by the system.
 //
@@ -22403,7 +23040,7 @@ func (d *NodeSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // ConfigSourceDie mutates ConfigSource as a die.
 //
-// Deprecated: Previously used to specify the source of the node's configuration for the DynamicKubeletConfig feature. This feature is removed.
+// configSource previously used to specify the source of the node's configuration for the DynamicKubeletConfig feature. Deprecated. This feature is removed.
 func (d *NodeSpecDie) ConfigSourceDie(fn func(d *NodeConfigSourceDie)) *NodeSpecDie {
 	return d.DieStamp(func(r *corev1.NodeSpec) {
 		d := NodeConfigSourceBlank.DieImmutable(false).DieFeedPtr(r.ConfigSource)
@@ -22414,7 +23051,7 @@ func (d *NodeSpecDie) ConfigSourceDie(fn func(d *NodeConfigSourceDie)) *NodeSpec
 
 // TaintDie mutates a single item in Taints matched by the nested field Key, appending a new item if no match is found.
 //
-// If specified, the node's taints.
+// taints if specified, is the node's taints.
 func (d *NodeSpecDie) TaintDie(v string, fn func(d *TaintDie)) *NodeSpecDie {
 	return d.DieStamp(func(r *corev1.NodeSpec) {
 		for i := range r.Taints {
@@ -22434,7 +23071,7 @@ func (d *NodeSpecDie) TaintDie(v string, fn func(d *TaintDie)) *NodeSpecDie {
 
 // PodPreemptionPolicyDie mutates PodPreemptionPolicy as a die.
 //
-// PodPreemptionPolicy controls the node-level preemption behaviors for pods on this node.
+// podPreemptionPolicy controls the node-level preemption behaviors for pods on this node.
 //
 // This is an alpha field and requires enabling the InPlacePodVerticalScalingSchedulerPreemption feature gate.
 func (d *NodeSpecDie) PodPreemptionPolicyDie(fn func(d *NodePodPreemptionPolicyDie)) *NodeSpecDie {
@@ -22445,7 +23082,7 @@ func (d *NodeSpecDie) PodPreemptionPolicyDie(fn func(d *NodePodPreemptionPolicyD
 	})
 }
 
-// PodCIDR represents the pod IP range assigned to the node.
+// podCIDR represents the pod IP range assigned to the node.
 func (d *NodeSpecDie) PodCIDR(v string) *NodeSpecDie {
 	return d.DieStamp(func(r *corev1.NodeSpec) {
 		r.PodCIDR = v
@@ -22463,14 +23100,14 @@ func (d *NodeSpecDie) PodCIDRs(v ...string) *NodeSpecDie {
 	})
 }
 
-// ID of the node assigned by the cloud provider in the format: <ProviderName>://<ProviderSpecificNodeID>
+// providerID is the ID of the node assigned by the cloud provider in the format: <ProviderName>://<ProviderSpecificNodeID>
 func (d *NodeSpecDie) ProviderID(v string) *NodeSpecDie {
 	return d.DieStamp(func(r *corev1.NodeSpec) {
 		r.ProviderID = v
 	})
 }
 
-// Unschedulable controls node schedulability of new pods. By default, node is schedulable.
+// unschedulable controls node schedulability of new pods. By default, node is schedulable.
 //
 // More info: https://kubernetes.io/docs/concepts/nodes/node/#manual-node-administration
 func (d *NodeSpecDie) Unschedulable(v bool) *NodeSpecDie {
@@ -22479,21 +23116,21 @@ func (d *NodeSpecDie) Unschedulable(v bool) *NodeSpecDie {
 	})
 }
 
-// If specified, the node's taints.
+// taints if specified, is the node's taints.
 func (d *NodeSpecDie) Taints(v ...corev1.Taint) *NodeSpecDie {
 	return d.DieStamp(func(r *corev1.NodeSpec) {
 		r.Taints = v
 	})
 }
 
-// Deprecated: Previously used to specify the source of the node's configuration for the DynamicKubeletConfig feature. This feature is removed.
+// configSource previously used to specify the source of the node's configuration for the DynamicKubeletConfig feature. Deprecated. This feature is removed.
 func (d *NodeSpecDie) ConfigSource(v *corev1.NodeConfigSource) *NodeSpecDie {
 	return d.DieStamp(func(r *corev1.NodeSpec) {
 		r.ConfigSource = v
 	})
 }
 
-// Deprecated. Not all kubelets will set this field. Remove field after 1.13.
+// externalID is deprecated. Not all kubelets will set this field. Remove field after 1.13.
 //
 // see: https://issues.k8s.io/61966
 func (d *NodeSpecDie) DoNotUseExternalID(v string) *NodeSpecDie {
@@ -22502,7 +23139,7 @@ func (d *NodeSpecDie) DoNotUseExternalID(v string) *NodeSpecDie {
 	})
 }
 
-// PodPreemptionPolicy controls the node-level preemption behaviors for pods on this node.
+// podPreemptionPolicy controls the node-level preemption behaviors for pods on this node.
 //
 // This is an alpha field and requires enabling the InPlacePodVerticalScalingSchedulerPreemption feature gate.
 func (d *NodeSpecDie) PodPreemptionPolicy(v *corev1.NodePodPreemptionPolicy) *NodeSpecDie {
@@ -22757,23 +23394,25 @@ func (d *TaintDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Required. The taint key to be applied to a node.
+// key is the taint key to be applied to a node. Required.
+//
+// The taint key to be applied to a node.
 func (d *TaintDie) Key(v string) *TaintDie {
 	return d.DieStamp(func(r *corev1.Taint) {
 		r.Key = v
 	})
 }
 
-// The taint value corresponding to the taint key.
+// value is the taint value corresponding to the taint key.
 func (d *TaintDie) Value(v string) *TaintDie {
 	return d.DieStamp(func(r *corev1.Taint) {
 		r.Value = v
 	})
 }
 
-// Required. The effect of the taint on pods
+// effect is the effect of the taint on pods
 //
-// that do not tolerate the taint.
+// that do not tolerate the taint. Required.
 //
 // Valid effects are NoSchedule, PreferNoSchedule and NoExecute.
 func (d *TaintDie) Effect(v corev1.TaintEffect) *TaintDie {
@@ -22782,7 +23421,7 @@ func (d *TaintDie) Effect(v corev1.TaintEffect) *TaintDie {
 	})
 }
 
-// TimeAdded represents the time at which the taint was added.
+// timeAdded represents the time at which the taint was added.
 func (d *TaintDie) TimeAdded(v *apismetav1.Time) *TaintDie {
 	return d.DieStamp(func(r *corev1.Taint) {
 		r.TimeAdded = v
@@ -23035,7 +23674,7 @@ func (d *NodePodPreemptionPolicyDie) DiePatch(patchType types.PatchType) ([]byte
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// DisableResizePreemption lists the owners (e.g., autoscalers, operators, administrators)
+// disableResizePreemption lists the owners (e.g., autoscalers, operators, administrators)
 //
 // that have requested to disable scheduler and Kubelet preemption for in-place pod resize on this node.
 //
@@ -23296,7 +23935,7 @@ func (d *NodeConfigSourceDie) DiePatch(patchType types.PatchType) ([]byte, error
 
 // ConfigMapDie mutates ConfigMap as a die.
 //
-// ConfigMap is a reference to a Node's ConfigMap
+// configMap is a reference to a Node's ConfigMap
 func (d *NodeConfigSourceDie) ConfigMapDie(fn func(d *ConfigMapNodeConfigSourceDie)) *NodeConfigSourceDie {
 	return d.DieStamp(func(r *corev1.NodeConfigSource) {
 		d := ConfigMapNodeConfigSourceBlank.DieImmutable(false).DieFeedPtr(r.ConfigMap)
@@ -23305,7 +23944,7 @@ func (d *NodeConfigSourceDie) ConfigMapDie(fn func(d *ConfigMapNodeConfigSourceD
 	})
 }
 
-// ConfigMap is a reference to a Node's ConfigMap
+// configMap is a reference to a Node's ConfigMap
 func (d *NodeConfigSourceDie) ConfigMap(v *corev1.ConfigMapNodeConfigSource) *NodeConfigSourceDie {
 	return d.DieStamp(func(r *corev1.NodeConfigSource) {
 		r.ConfigMap = v
@@ -23558,7 +24197,7 @@ func (d *ConfigMapNodeConfigSourceDie) DiePatch(patchType types.PatchType) ([]by
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Namespace is the metadata.namespace of the referenced ConfigMap.
+// namespace is the metadata.namespace of the referenced ConfigMap.
 //
 // This field is required in all cases.
 func (d *ConfigMapNodeConfigSourceDie) Namespace(v string) *ConfigMapNodeConfigSourceDie {
@@ -23567,7 +24206,7 @@ func (d *ConfigMapNodeConfigSourceDie) Namespace(v string) *ConfigMapNodeConfigS
 	})
 }
 
-// Name is the metadata.name of the referenced ConfigMap.
+// name is the metadata.name of the referenced ConfigMap.
 //
 // This field is required in all cases.
 func (d *ConfigMapNodeConfigSourceDie) Name(v string) *ConfigMapNodeConfigSourceDie {
@@ -23576,7 +24215,7 @@ func (d *ConfigMapNodeConfigSourceDie) Name(v string) *ConfigMapNodeConfigSource
 	})
 }
 
-// UID is the metadata.UID of the referenced ConfigMap.
+// uid is the metadata.UID of the referenced ConfigMap.
 //
 // This field is forbidden in Node.Spec, and required in Node.Status.
 func (d *ConfigMapNodeConfigSourceDie) UID(v types.UID) *ConfigMapNodeConfigSourceDie {
@@ -23585,7 +24224,7 @@ func (d *ConfigMapNodeConfigSourceDie) UID(v types.UID) *ConfigMapNodeConfigSour
 	})
 }
 
-// ResourceVersion is the metadata.ResourceVersion of the referenced ConfigMap.
+// resourceVersion is the metadata.ResourceVersion of the referenced ConfigMap.
 //
 // This field is forbidden in Node.Spec, and required in Node.Status.
 func (d *ConfigMapNodeConfigSourceDie) ResourceVersion(v string) *ConfigMapNodeConfigSourceDie {
@@ -23594,7 +24233,7 @@ func (d *ConfigMapNodeConfigSourceDie) ResourceVersion(v string) *ConfigMapNodeC
 	})
 }
 
-// KubeletConfigKey declares which key of the referenced ConfigMap corresponds to the KubeletConfiguration structure
+// kubeletConfigKey declares which key of the referenced ConfigMap corresponds to the KubeletConfiguration structure
 //
 // This field is required in all cases.
 func (d *ConfigMapNodeConfigSourceDie) KubeletConfigKey(v string) *ConfigMapNodeConfigSourceDie {
@@ -24391,14 +25030,14 @@ func (d *NodeAddressDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Node address type, one of Hostname, ExternalIP or InternalIP.
+// type is the node address type, one of Hostname, ExternalIP or InternalIP.
 func (d *NodeAddressDie) Type(v corev1.NodeAddressType) *NodeAddressDie {
 	return d.DieStamp(func(r *corev1.NodeAddress) {
 		r.Type = v
 	})
 }
 
-// The node address.
+// address is the node address.
 func (d *NodeAddressDie) Address(v string) *NodeAddressDie {
 	return d.DieStamp(func(r *corev1.NodeAddress) {
 		r.Address = v
@@ -25170,7 +25809,7 @@ func (d *NodeSystemInfoDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 
 // SwapDie mutates Swap as a die.
 //
-// Swap Info reported by the node.
+// swap reported by the node.
 func (d *NodeSystemInfoDie) SwapDie(fn func(d *NodeSwapStatusDie)) *NodeSystemInfoDie {
 	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
 		d := NodeSwapStatusBlank.DieImmutable(false).DieFeedPtr(r.Swap)
@@ -25179,7 +25818,7 @@ func (d *NodeSystemInfoDie) SwapDie(fn func(d *NodeSwapStatusDie)) *NodeSystemIn
 	})
 }
 
-// MachineID reported by the node. For unique machine identification
+// machineID reported by the node. For unique machine identification
 //
 // in the cluster this field is preferred. Learn more from man(5)
 //
@@ -25190,7 +25829,7 @@ func (d *NodeSystemInfoDie) MachineID(v string) *NodeSystemInfoDie {
 	})
 }
 
-// SystemUUID reported by the node. For unique machine identification
+// systemUUID reported by the node. For unique machine identification
 //
 // MachineID is preferred. This field is specific to Red Hat hosts
 //
@@ -25201,70 +25840,70 @@ func (d *NodeSystemInfoDie) SystemUUID(v string) *NodeSystemInfoDie {
 	})
 }
 
-// Boot ID reported by the node.
+// bootID reported by the node.
 func (d *NodeSystemInfoDie) BootID(v string) *NodeSystemInfoDie {
 	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
 		r.BootID = v
 	})
 }
 
-// Kernel Version reported by the node from 'uname -r' (e.g. 3.16.0-0.bpo.4-amd64).
+// kernelVersion is kernel Version reported by the node from 'uname -r' (e.g. 3.16.0-0.bpo.4-amd64).
 func (d *NodeSystemInfoDie) KernelVersion(v string) *NodeSystemInfoDie {
 	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
 		r.KernelVersion = v
 	})
 }
 
-// OS Image reported by the node from /etc/os-release (e.g. Debian GNU/Linux 7 (wheezy)).
+// osImage reported by the node from /etc/os-release (e.g. Debian GNU/Linux 7 (wheezy)).
 func (d *NodeSystemInfoDie) OSImage(v string) *NodeSystemInfoDie {
 	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
 		r.OSImage = v
 	})
 }
 
-// ContainerRuntime Version reported by the node through runtime remote API (e.g. containerd://1.4.2).
+// containerRuntimeVersion reported by the node through runtime remote API (e.g. containerd://1.4.2).
 func (d *NodeSystemInfoDie) ContainerRuntimeVersion(v string) *NodeSystemInfoDie {
 	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
 		r.ContainerRuntimeVersion = v
 	})
 }
 
-// Kubelet Version reported by the node.
+// kubeletVersion reported by the node.
 func (d *NodeSystemInfoDie) KubeletVersion(v string) *NodeSystemInfoDie {
 	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
 		r.KubeletVersion = v
 	})
 }
 
-// Deprecated: KubeProxy Version reported by the node.
+// kubeProxyVersion reported by the node, deprecated.
 func (d *NodeSystemInfoDie) KubeProxyVersion(v string) *NodeSystemInfoDie {
 	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
 		r.KubeProxyVersion = v
 	})
 }
 
-// The Operating System reported by the node
+// operatingSystem reported by the node.
 func (d *NodeSystemInfoDie) OperatingSystem(v string) *NodeSystemInfoDie {
 	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
 		r.OperatingSystem = v
 	})
 }
 
-// The Architecture reported by the node
+// architecture reported by the node.
 func (d *NodeSystemInfoDie) Architecture(v string) *NodeSystemInfoDie {
 	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
 		r.Architecture = v
 	})
 }
 
-// Swap Info reported by the node.
+// swap reported by the node.
 func (d *NodeSystemInfoDie) Swap(v *corev1.NodeSwapStatus) *NodeSystemInfoDie {
 	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
 		r.Swap = v
 	})
 }
 
-// Whether the node is running in a user namespace.
+// runningInUserNamespace indicates whether the node is running in a user namespace.
 func (d *NodeSystemInfoDie) RunningInUserNamespace(v *bool) *NodeSystemInfoDie {
 	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
 		r.RunningInUserNamespace = v
@@ -25517,7 +26156,7 @@ func (d *NodeSwapStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Total amount of swap memory in bytes.
+// capacity is the total amount of swap memory in bytes.
 func (d *NodeSwapStatusDie) Capacity(v *int64) *NodeSwapStatusDie {
 	return d.DieStamp(func(r *corev1.NodeSwapStatus) {
 		r.Capacity = v
@@ -25770,7 +26409,7 @@ func (d *ContainerImageDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Names by which this image is known.
+// names by which this image is known.
 //
 // e.g. ["kubernetes.example/hyperkube:v1.0.7", "cloud-vendor.registry.example/cloud-vendor/hyperkube:v1.0.7"]
 func (d *ContainerImageDie) Names(v ...string) *ContainerImageDie {
@@ -25779,7 +26418,7 @@ func (d *ContainerImageDie) Names(v ...string) *ContainerImageDie {
 	})
 }
 
-// The size of the image in bytes.
+// sizeBytes is the size of the image in bytes.
 func (d *ContainerImageDie) SizeBytes(v int64) *ContainerImageDie {
 	return d.DieStamp(func(r *corev1.ContainerImage) {
 		r.SizeBytes = v
@@ -26032,14 +26671,22 @@ func (d *AttachedVolumeDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Name of the attached volume
+// name of the attached volume
 func (d *AttachedVolumeDie) Name(v corev1.UniqueVolumeName) *AttachedVolumeDie {
 	return d.DieStamp(func(r *corev1.AttachedVolume) {
 		r.Name = v
 	})
 }
 
-// DevicePath represents the device path where the volume should be available
+// devicePath represents the path where the attached volume is available on
+//
+// the node. On Linux nodes, this is the host block-device node (e.g. /dev/xvdX)
+//
+// that the kubelet uses to mount and format the volume. On Windows nodes there
+//
+// is no /dev device tree, so this carries the CSI VolumeID (the attach identity
+//
+// reported by the CSI driver) instead of a device path.
 func (d *AttachedVolumeDie) DevicePath(v string) *AttachedVolumeDie {
 	return d.DieStamp(func(r *corev1.AttachedVolume) {
 		r.DevicePath = v
@@ -26294,7 +26941,7 @@ func (d *NodeConfigStatusDie) DiePatch(patchType types.PatchType) ([]byte, error
 
 // AssignedDie mutates Assigned as a die.
 //
-// Assigned reports the checkpointed config the node will try to use.
+// assigned reports the checkpointed config the node will try to use.
 //
 // # When Node.Spec.ConfigSource is updated, the node checkpoints the associated
 //
@@ -26319,7 +26966,7 @@ func (d *NodeConfigStatusDie) AssignedDie(fn func(d *NodeConfigSourceDie)) *Node
 
 // ActiveDie mutates Active as a die.
 //
-// Active reports the checkpointed config the node is actively using.
+// active reports the checkpointed config the node is actively using.
 //
 // Active will represent either the current version of the Assigned config,
 //
@@ -26336,7 +26983,7 @@ func (d *NodeConfigStatusDie) ActiveDie(fn func(d *NodeConfigSourceDie)) *NodeCo
 
 // LastKnownGoodDie mutates LastKnownGood as a die.
 //
-// # LastKnownGood reports the checkpointed config the node will fall back to
+// lastKnownGood reports the checkpointed config the node will fall back to
 //
 // when it encounters an error attempting to use the Assigned config.
 //
@@ -26365,7 +27012,7 @@ func (d *NodeConfigStatusDie) LastKnownGoodDie(fn func(d *NodeConfigSourceDie)) 
 	})
 }
 
-// Assigned reports the checkpointed config the node will try to use.
+// assigned reports the checkpointed config the node will try to use.
 //
 // # When Node.Spec.ConfigSource is updated, the node checkpoints the associated
 //
@@ -26386,7 +27033,7 @@ func (d *NodeConfigStatusDie) Assigned(v *corev1.NodeConfigSource) *NodeConfigSt
 	})
 }
 
-// Active reports the checkpointed config the node is actively using.
+// active reports the checkpointed config the node is actively using.
 //
 // Active will represent either the current version of the Assigned config,
 //
@@ -26399,7 +27046,7 @@ func (d *NodeConfigStatusDie) Active(v *corev1.NodeConfigSource) *NodeConfigStat
 	})
 }
 
-// LastKnownGood reports the checkpointed config the node will fall back to
+// lastKnownGood reports the checkpointed config the node will fall back to
 //
 // when it encounters an error attempting to use the Assigned config.
 //
@@ -26426,7 +27073,7 @@ func (d *NodeConfigStatusDie) LastKnownGood(v *corev1.NodeConfigSource) *NodeCon
 	})
 }
 
-// Error describes any problems reconciling the Spec.ConfigSource to the Active config.
+// error describes any problems reconciling the Spec.ConfigSource to the Active config.
 //
 // # Errors may occur, for example, attempting to checkpoint Spec.ConfigSource to the local Assigned
 //
@@ -26703,7 +27350,7 @@ func (d *NodeRuntimeHandlerDie) DiePatch(patchType types.PatchType) ([]byte, err
 
 // FeaturesDie mutates Features as a die.
 //
-// Supported features.
+// features is the set of supported features.
 func (d *NodeRuntimeHandlerDie) FeaturesDie(fn func(d *NodeRuntimeHandlerFeaturesDie)) *NodeRuntimeHandlerDie {
 	return d.DieStamp(func(r *corev1.NodeRuntimeHandler) {
 		d := NodeRuntimeHandlerFeaturesBlank.DieImmutable(false).DieFeedPtr(r.Features)
@@ -26712,7 +27359,7 @@ func (d *NodeRuntimeHandlerDie) FeaturesDie(fn func(d *NodeRuntimeHandlerFeature
 	})
 }
 
-// Runtime handler name.
+// name is the runtime handler name.
 //
 // Empty for the default runtime handler.
 func (d *NodeRuntimeHandlerDie) Name(v string) *NodeRuntimeHandlerDie {
@@ -26721,7 +27368,7 @@ func (d *NodeRuntimeHandlerDie) Name(v string) *NodeRuntimeHandlerDie {
 	})
 }
 
-// Supported features.
+// features is the set of supported features.
 func (d *NodeRuntimeHandlerDie) Features(v *corev1.NodeRuntimeHandlerFeatures) *NodeRuntimeHandlerDie {
 	return d.DieStamp(func(r *corev1.NodeRuntimeHandler) {
 		r.Features = v
@@ -26974,14 +27621,14 @@ func (d *NodeRuntimeHandlerFeaturesDie) DiePatch(patchType types.PatchType) ([]b
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// RecursiveReadOnlyMounts is set to true if the runtime handler supports RecursiveReadOnlyMounts.
+// recursiveReadOnlyMounts is set to true if the runtime handler supports RecursiveReadOnlyMounts.
 func (d *NodeRuntimeHandlerFeaturesDie) RecursiveReadOnlyMounts(v *bool) *NodeRuntimeHandlerFeaturesDie {
 	return d.DieStamp(func(r *corev1.NodeRuntimeHandlerFeatures) {
 		r.RecursiveReadOnlyMounts = v
 	})
 }
 
-// UserNamespaces is set to true if the runtime handler supports UserNamespaces, including for volumes.
+// userNamespaces is set to true if the runtime handler supports UserNamespaces, including for volumes.
 func (d *NodeRuntimeHandlerFeaturesDie) UserNamespaces(v *bool) *NodeRuntimeHandlerFeaturesDie {
 	return d.DieStamp(func(r *corev1.NodeRuntimeHandlerFeatures) {
 		r.UserNamespaces = v
@@ -27234,7 +27881,7 @@ func (d *NodeFeaturesDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// SupplementalGroupsPolicy is set to true if the runtime supports SupplementalGroupsPolicy and ContainerUser.
+// supplementalGroupsPolicy is set to true if the runtime supports SupplementalGroupsPolicy and ContainerUser.
 func (d *NodeFeaturesDie) SupplementalGroupsPolicy(v *bool) *NodeFeaturesDie {
 	return d.DieStamp(func(r *corev1.NodeFeatures) {
 		r.SupplementalGroupsPolicy = v
@@ -28002,7 +28649,7 @@ func (d *PersistentVolumeSpecDie) NodeAffinity(v *corev1.VolumeNodeAffinity) *Pe
 	})
 }
 
-// Name of VolumeAttributesClass to which this persistent volume belongs. Empty value
+// volumeAttributesClassName is the name of VolumeAttributesClass to which this persistent volume belongs. Empty value
 //
 // is not allowed. When this field is not set, it indicates that this volume does not belong to any
 //
@@ -32396,6 +33043,8 @@ func (d *NodeSelectorDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // NodeSelectorTermsDie replaces NodeSelectorTerms by collecting the released value from each die passed.
 //
+// nodeSelectorTerms is a list of node selector terms. The terms are ORed.
+//
 // Required. A list of node selector terms. The terms are ORed.
 func (d *NodeSelectorDie) NodeSelectorTermsDie(v ...*NodeSelectorTermDie) *NodeSelectorDie {
 	return d.DieStamp(func(r *corev1.NodeSelector) {
@@ -32406,6 +33055,8 @@ func (d *NodeSelectorDie) NodeSelectorTermsDie(v ...*NodeSelectorTermDie) *NodeS
 	})
 }
 
+// nodeSelectorTerms is a list of node selector terms. The terms are ORed.
+//
 // Required. A list of node selector terms. The terms are ORed.
 func (d *NodeSelectorDie) NodeSelectorTerms(v ...corev1.NodeSelectorTerm) *NodeSelectorDie {
 	return d.DieStamp(func(r *corev1.NodeSelector) {
@@ -32661,7 +33312,7 @@ func (d *NodeSelectorTermDie) DiePatch(patchType types.PatchType) ([]byte, error
 
 // MatchExpressionDie mutates a single item in MatchExpressions matched by the nested field Key, appending a new item if no match is found.
 //
-// A list of node selector requirements by node's labels.
+// matchExpressions is a list of node selector requirements by node's labels.
 func (d *NodeSelectorTermDie) MatchExpressionDie(v string, fn func(d *NodeSelectorRequirementDie)) *NodeSelectorTermDie {
 	return d.DieStamp(func(r *corev1.NodeSelectorTerm) {
 		for i := range r.MatchExpressions {
@@ -32681,7 +33332,7 @@ func (d *NodeSelectorTermDie) MatchExpressionDie(v string, fn func(d *NodeSelect
 
 // MatchFieldDie mutates a single item in MatchFields matched by the nested field Key, appending a new item if no match is found.
 //
-// A list of node selector requirements by node's fields.
+// matchFields is a list of node selector requirements by node's fields.
 func (d *NodeSelectorTermDie) MatchFieldDie(v string, fn func(d *NodeSelectorRequirementDie)) *NodeSelectorTermDie {
 	return d.DieStamp(func(r *corev1.NodeSelectorTerm) {
 		for i := range r.MatchFields {
@@ -32699,14 +33350,14 @@ func (d *NodeSelectorTermDie) MatchFieldDie(v string, fn func(d *NodeSelectorReq
 	})
 }
 
-// A list of node selector requirements by node's labels.
+// matchExpressions is a list of node selector requirements by node's labels.
 func (d *NodeSelectorTermDie) MatchExpressions(v ...corev1.NodeSelectorRequirement) *NodeSelectorTermDie {
 	return d.DieStamp(func(r *corev1.NodeSelectorTerm) {
 		r.MatchExpressions = v
 	})
 }
 
-// A list of node selector requirements by node's fields.
+// matchFields is a list of node selector requirements by node's fields.
 func (d *NodeSelectorTermDie) MatchFields(v ...corev1.NodeSelectorRequirement) *NodeSelectorTermDie {
 	return d.DieStamp(func(r *corev1.NodeSelectorTerm) {
 		r.MatchFields = v
@@ -32959,14 +33610,14 @@ func (d *NodeSelectorRequirementDie) DiePatch(patchType types.PatchType) ([]byte
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// The label key that the selector applies to.
+// key is the label key that the selector applies to.
 func (d *NodeSelectorRequirementDie) Key(v string) *NodeSelectorRequirementDie {
 	return d.DieStamp(func(r *corev1.NodeSelectorRequirement) {
 		r.Key = v
 	})
 }
 
-// Represents a key's relationship to a set of values.
+// operator represents a key's relationship to a set of values.
 //
 // Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
 func (d *NodeSelectorRequirementDie) Operator(v corev1.NodeSelectorOperator) *NodeSelectorRequirementDie {
@@ -32975,7 +33626,7 @@ func (d *NodeSelectorRequirementDie) Operator(v corev1.NodeSelectorOperator) *No
 	})
 }
 
-// An array of string values. If the operator is In or NotIn,
+// values is an array of string values. If the operator is In or NotIn,
 //
 // the values array must be non-empty. If the operator is Exists or DoesNotExist,
 //
@@ -34120,7 +34771,7 @@ func (d *VolumeResourceRequirementsDie) DiePatch(patchType types.PatchType) ([]b
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Limits describes the maximum amount of compute resources allowed.
+// limits describes the maximum amount of compute resources allowed.
 //
 // More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 func (d *VolumeResourceRequirementsDie) Limits(v corev1.ResourceList) *VolumeResourceRequirementsDie {
@@ -34131,7 +34782,7 @@ func (d *VolumeResourceRequirementsDie) Limits(v corev1.ResourceList) *VolumeRes
 
 // AddLimit sets a single quantity on the Limits resource list.
 //
-// Limits describes the maximum amount of compute resources allowed.
+// limits describes the maximum amount of compute resources allowed.
 //
 // More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 func (d *VolumeResourceRequirementsDie) AddLimit(name corev1.ResourceName, quantity resource.Quantity) *VolumeResourceRequirementsDie {
@@ -34145,7 +34796,7 @@ func (d *VolumeResourceRequirementsDie) AddLimit(name corev1.ResourceName, quant
 
 // AddLimitString parses the quantity setting a single value on the Limits resource list. Panics if the string is not parsable.
 //
-// Limits describes the maximum amount of compute resources allowed.
+// limits describes the maximum amount of compute resources allowed.
 //
 // More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 func (d *VolumeResourceRequirementsDie) AddLimitString(name corev1.ResourceName, quantity string) *VolumeResourceRequirementsDie {
@@ -34153,7 +34804,7 @@ func (d *VolumeResourceRequirementsDie) AddLimitString(name corev1.ResourceName,
 	return d.AddLimit(name, q)
 }
 
-// Requests describes the minimum amount of compute resources required.
+// requests describes the minimum amount of compute resources required.
 //
 // If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
 //
@@ -34168,7 +34819,7 @@ func (d *VolumeResourceRequirementsDie) Requests(v corev1.ResourceList) *VolumeR
 
 // AddRequest sets a single quantity on the Requests resource list.
 //
-// Requests describes the minimum amount of compute resources required.
+// requests describes the minimum amount of compute resources required.
 //
 // If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
 //
@@ -34186,7 +34837,7 @@ func (d *VolumeResourceRequirementsDie) AddRequest(name corev1.ResourceName, qua
 
 // AddRequestString parses the quantity setting a single value on the Requests resource list. Panics if the string is not parsable.
 //
-// Requests describes the minimum amount of compute resources required.
+// requests describes the minimum amount of compute resources required.
 //
 // If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
 //
@@ -35204,7 +35855,7 @@ func (d *VolumeHealthStatusDie) DiePatch(patchType types.PatchType) ([]byte, err
 
 // HealthConditionDie mutates a single item in HealthConditions matched by the nested field Reason, appending a new item if no match is found.
 //
-// conditions is the set of adverse conditions reported by
+// healthConditions is the set of adverse conditions reported by
 //
 // the CSI controller plugin. An empty list means no adverse condition.
 //
@@ -35226,7 +35877,7 @@ func (d *VolumeHealthStatusDie) HealthConditionDie(v string, fn func(d *VolumeHe
 	})
 }
 
-// conditions is the set of adverse conditions reported by
+// healthConditions is the set of adverse conditions reported by
 //
 // the CSI controller plugin. An empty list means no adverse condition.
 //
@@ -35773,7 +36424,7 @@ func (d *PersistentVolumeClaimTemplateDie) DiePatch(patchType types.PatchType) (
 
 // ObjectMetaDie mutates ObjectMeta as a die.
 //
-// # May contain labels and annotations that will be copied into the PVC
+// metadata may contain labels and annotations that will be copied into the PVC
 //
 // when creating it. No other fields are allowed and will be rejected during
 //
@@ -35788,7 +36439,7 @@ func (d *PersistentVolumeClaimTemplateDie) ObjectMetaDie(fn func(d *metav1.Objec
 
 // SpecDie mutates Spec as a die.
 //
-// The specification for the PersistentVolumeClaim. The entire content is
+// spec is the specification for the PersistentVolumeClaim. The entire content is
 //
 // copied unchanged into the PVC that gets created from this
 //
@@ -35803,7 +36454,7 @@ func (d *PersistentVolumeClaimTemplateDie) SpecDie(fn func(d *PersistentVolumeCl
 	})
 }
 
-// May contain labels and annotations that will be copied into the PVC
+// metadata may contain labels and annotations that will be copied into the PVC
 //
 // when creating it. No other fields are allowed and will be rejected during
 //
@@ -35814,7 +36465,7 @@ func (d *PersistentVolumeClaimTemplateDie) ObjectMeta(v apismetav1.ObjectMeta) *
 	})
 }
 
-// The specification for the PersistentVolumeClaim. The entire content is
+// spec is the specification for the PersistentVolumeClaim. The entire content is
 //
 // copied unchanged into the PVC that gets created from this
 //
@@ -36186,7 +36837,7 @@ func (d *PodDie) StatusDie(fn func(d *PodStatusDie)) *PodDie {
 	})
 }
 
-// Specification of the desired behavior of the pod.
+// spec is the specification of the desired behavior of the pod.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *PodDie) Spec(v corev1.PodSpec) *PodDie {
@@ -36195,7 +36846,7 @@ func (d *PodDie) Spec(v corev1.PodSpec) *PodDie {
 	})
 }
 
-// Most recently observed status of the pod.
+// status is the most recently observed status of the pod.
 //
 // This data may not be up to date.
 //
@@ -36458,7 +37109,7 @@ func (d *PodSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // SecurityContextDie mutates SecurityContext as a die.
 //
-// SecurityContext holds pod-level security attributes and common container settings.
+// securityContext holds pod-level security attributes and common container settings.
 //
 // Optional: Defaults to empty.  See type description for default values of each field.
 func (d *PodSpecDie) SecurityContextDie(fn func(d *PodSecurityContextDie)) *PodSpecDie {
@@ -36471,7 +37122,7 @@ func (d *PodSpecDie) SecurityContextDie(fn func(d *PodSecurityContextDie)) *PodS
 
 // DNSConfigDie mutates DNSConfig as a die.
 //
-// Specifies the DNS parameters of a pod.
+// dnsConfig specifies the DNS parameters of a pod.
 //
 // # Parameters specified here will be merged to the generated DNS
 //
@@ -36486,7 +37137,7 @@ func (d *PodSpecDie) DNSConfigDie(fn func(d *PodDNSConfigDie)) *PodSpecDie {
 
 // OSDie mutates OS as a die.
 //
-// Specifies the OS of the containers in the pod.
+// os specifies the OS of the containers in the pod.
 //
 // Some pod and container fields are restricted if this is set.
 //
@@ -36555,7 +37206,7 @@ func (d *PodSpecDie) OSDie(fn func(d *PodOSDie)) *PodSpecDie {
 
 // VolumeDie mutates a single item in Volumes matched by the nested field Name, appending a new item if no match is found.
 //
-// List of volumes that can be mounted by containers belonging to the pod.
+// volumes is the list of volumes that can be mounted by containers belonging to the pod.
 //
 // More info: https://kubernetes.io/docs/concepts/storage/volumes
 func (d *PodSpecDie) VolumeDie(v string, fn func(d *VolumeDie)) *PodSpecDie {
@@ -36577,7 +37228,7 @@ func (d *PodSpecDie) VolumeDie(v string, fn func(d *VolumeDie)) *PodSpecDie {
 
 // InitContainerDie mutates a single item in InitContainers matched by the nested field Name, appending a new item if no match is found.
 //
-// List of initialization containers belonging to the pod.
+// initContainers is the list of initialization containers belonging to the pod.
 //
 // Init containers are executed in order prior to containers being started. If any
 //
@@ -36621,7 +37272,7 @@ func (d *PodSpecDie) InitContainerDie(v string, fn func(d *ContainerDie)) *PodSp
 
 // ContainerDie mutates a single item in Containers matched by the nested field Name, appending a new item if no match is found.
 //
-// List of containers belonging to the pod.
+// containers is the list of containers belonging to the pod.
 //
 // Containers cannot currently be added or removed.
 //
@@ -36647,7 +37298,7 @@ func (d *PodSpecDie) ContainerDie(v string, fn func(d *ContainerDie)) *PodSpecDi
 
 // TolerationDie mutates a single item in Tolerations matched by the nested field Key, appending a new item if no match is found.
 //
-// If specified, the pod's tolerations.
+// tolerations specifies the pod's tolerations.
 func (d *PodSpecDie) TolerationDie(v string, fn func(d *TolerationDie)) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		for i := range r.Tolerations {
@@ -36667,7 +37318,7 @@ func (d *PodSpecDie) TolerationDie(v string, fn func(d *TolerationDie)) *PodSpec
 
 // HostAliasesDie replaces HostAliases by collecting the released value from each die passed.
 //
-// # HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts
+// hostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts
 //
 // file if specified.
 func (d *PodSpecDie) HostAliasesDie(v ...*HostAliasDie) *PodSpecDie {
@@ -36681,7 +37332,7 @@ func (d *PodSpecDie) HostAliasesDie(v ...*HostAliasDie) *PodSpecDie {
 
 // ReadinessGatesDie replaces ReadinessGates by collecting the released value from each die passed.
 //
-// If specified, all readiness gates will be evaluated for pod readiness.
+// readinessGates if specified, all readiness gates will be evaluated for pod readiness.
 //
 // # A pod is ready when all its containers are ready AND
 //
@@ -36699,7 +37350,7 @@ func (d *PodSpecDie) ReadinessGatesDie(v ...*PodReadinessGateDie) *PodSpecDie {
 
 // TopologySpreadConstraintDie mutates a single item in TopologySpreadConstraints matched by the nested field TopologyKey, appending a new item if no match is found.
 //
-// # TopologySpreadConstraints describes how a group of pods ought to spread across topology
+// topologySpreadConstraints describes how a group of pods ought to spread across topology
 //
 // domains. Scheduler will schedule pods in a way which abides by the constraints.
 //
@@ -36723,7 +37374,7 @@ func (d *PodSpecDie) TopologySpreadConstraintDie(v string, fn func(d *TopologySp
 
 // SchedulingGatesDie replaces SchedulingGates by collecting the released value from each die passed.
 //
-// SchedulingGates is an opaque list of values that if specified will block scheduling the pod.
+// schedulingGates is an opaque list of values that if specified will block scheduling the pod.
 //
 // # If schedulingGates is not empty, the pod will stay in the SchedulingGated state and the
 //
@@ -36741,17 +37392,13 @@ func (d *PodSpecDie) SchedulingGatesDie(v ...*PodSchedulingGateDie) *PodSpecDie 
 
 // ResourceClaimsDie replaces ResourceClaims by collecting the released value from each die passed.
 //
-// # ResourceClaims defines which ResourceClaims must be allocated
+// resourceClaims defines which ResourceClaims must be allocated
 //
 // and reserved before the Pod is allowed to start. The resources
 //
 // will be made available to those containers which consume them
 //
 // by name.
-//
-// # This is a stable field but requires that the
-//
-// DynamicResourceAllocation feature gate is enabled.
 //
 // This field is immutable.
 func (d *PodSpecDie) ResourceClaimsDie(v ...*PodResourceClaimDie) *PodSpecDie {
@@ -36765,7 +37412,7 @@ func (d *PodSpecDie) ResourceClaimsDie(v ...*PodResourceClaimDie) *PodSpecDie {
 
 // ResourcesDie mutates Resources as a die.
 //
-// # Resources is the total amount of CPU and Memory resources required by all
+// resources is the total amount of CPU and Memory resources required by all
 //
 // containers in the pod. It supports specifying Requests and Limits for
 //
@@ -36775,11 +37422,17 @@ func (d *PodSpecDie) ResourceClaimsDie(v ...*PodResourceClaimDie) *PodSpecDie {
 //
 // entire pod, allowing resource sharing among containers in a pod.
 //
-// TODO: For beta graduation, expand this comment with a detailed explanation.
+// # If a limit is not specified at the pod level, the pod is limited by the aggregate of
 //
-// # This is an alpha field and requires enabling the PodLevelResources feature
+// its container limits:
 //
-// gate.
+// - For cpu and memory, the aggregate is used only if every init and regular container
+//
+// specifies a limit; otherwise the pod is not limited for that resource.
+//
+// - For hugepages, the container limits are summed and unspecified values are treated as 0.
+//
+// More details: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 func (d *PodSpecDie) ResourcesDie(fn func(d *ResourceRequirementsDie)) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		d := ResourceRequirementsBlank.DieImmutable(false).DieFeedPtr(r.Resources)
@@ -36790,7 +37443,7 @@ func (d *PodSpecDie) ResourcesDie(fn func(d *ResourceRequirementsDie)) *PodSpecD
 
 // SchedulingGroupDie mutates SchedulingGroup as a die.
 //
-// # SchedulingGroup provides a reference to the immediate scheduling runtime
+// schedulingGroup provides a reference to the immediate scheduling runtime
 //
 // grouping object that this Pod belongs to.
 //
@@ -36808,11 +37461,15 @@ func (d *PodSpecDie) ResourcesDie(fn func(d *ResourceRequirementsDie)) *PodSpecD
 //
 // Pod is created.
 //
-// # This field is immutable, but a group object with the same name may be
+// This field is immutable. The scheduler cannot distinguish PodGroup runtime
 //
-// recreated with different policies. Doing this during pod scheduling
+// instances that reuse the same namespace and name. Controllers should use a
 //
-// may result in the placement not conforming to the expected policies.
+// new PodGroup name for each runtime instance. Reusing a name for a PodGroup
+//
+// with different policies may result in Pod placement not conforming to the
+//
+// expected policies.
 func (d *PodSpecDie) SchedulingGroupDie(fn func(d *PodSchedulingGroupDie)) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		d := PodSchedulingGroupBlank.DieImmutable(false).DieFeedPtr(r.SchedulingGroup)
@@ -36821,7 +37478,51 @@ func (d *PodSpecDie) SchedulingGroupDie(fn func(d *PodSchedulingGroupDie)) *PodS
 	})
 }
 
-// List of volumes that can be mounted by containers belonging to the pod.
+// EvictionResponderDie mutates a single item in EvictionResponders matched by the nested field Name, appending a new item if no match is found.
+//
+// evictionResponders reference responders that react to Evictions based on EvictionRequests.
+//
+// # Responders should observe and communicate through the Eviction Resource API to help with
+//
+// the graceful termination of a pod. The responders are selected sequentially, according to
+//
+// their specified priority.
+//
+// # Responders should periodically report on an eviction progress by updating the
+//
+// .status.responders[].heartbeatTime field of the Eviction object. If this field is not updated
+//
+// within the heartbeat deadline defined by the Eviction API (currently 20 minutes), the eviction
+//
+// is passed over to the next responder with a lower priority. If there is no other responder,
+//
+// the last default imperative-eviction.k8s.io/evictor responder with a priority of 100 will
+//
+// evict the pod using the imperative Eviction API (pods/<name>/eviction subresource).
+//
+// The maximum length of the responders list is 10.
+//
+// Responders are not supported when the pod is part of a PodGroup (.spec.schedulingGroup is set).
+//
+// This field can only be set on creation and is immutable afterwards.
+func (d *PodSpecDie) EvictionResponderDie(v string, fn func(d *EvictionResponderDie)) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		for i := range r.EvictionResponders {
+			if v == r.EvictionResponders[i].Name {
+				d := EvictionResponderBlank.DieImmutable(false).DieFeed(r.EvictionResponders[i])
+				fn(d)
+				r.EvictionResponders[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := EvictionResponderBlank.DieImmutable(false).DieFeed(corev1.EvictionResponder{Name: v})
+		fn(d)
+		r.EvictionResponders = append(r.EvictionResponders, d.DieRelease())
+	})
+}
+
+// volumes is the list of volumes that can be mounted by containers belonging to the pod.
 //
 // More info: https://kubernetes.io/docs/concepts/storage/volumes
 func (d *PodSpecDie) Volumes(v ...corev1.Volume) *PodSpecDie {
@@ -36830,7 +37531,7 @@ func (d *PodSpecDie) Volumes(v ...corev1.Volume) *PodSpecDie {
 	})
 }
 
-// List of initialization containers belonging to the pod.
+// initContainers is the list of initialization containers belonging to the pod.
 //
 // Init containers are executed in order prior to containers being started. If any
 //
@@ -36861,7 +37562,7 @@ func (d *PodSpecDie) InitContainers(v ...corev1.Container) *PodSpecDie {
 	})
 }
 
-// List of containers belonging to the pod.
+// containers is the list of containers belonging to the pod.
 //
 // Containers cannot currently be added or removed.
 //
@@ -36874,7 +37575,7 @@ func (d *PodSpecDie) Containers(v ...corev1.Container) *PodSpecDie {
 	})
 }
 
-// List of ephemeral containers run in this pod. Ephemeral containers may be run in an existing
+// ephemeralContainers is the list of ephemeral containers run in this pod. Ephemeral containers may be run in an existing
 //
 // pod to perform user-initiated actions such as debugging. This list cannot be specified when
 //
@@ -36887,7 +37588,7 @@ func (d *PodSpecDie) EphemeralContainers(v ...corev1.EphemeralContainer) *PodSpe
 	})
 }
 
-// Restart policy for all containers within the pod.
+// restartPolicy is the restart policy for all containers within the pod.
 //
 // One of Always, OnFailure, Never. In some contexts, only a subset of those values may be permitted.
 //
@@ -36900,7 +37601,7 @@ func (d *PodSpecDie) RestartPolicy(v corev1.RestartPolicy) *PodSpecDie {
 	})
 }
 
-// Optional duration in seconds the pod needs to terminate gracefully. May be decreased in delete request.
+// terminationGracePeriodSeconds is the optional duration in seconds the pod needs to terminate gracefully. May be decreased in delete request.
 //
 // Value must be non-negative integer. The value zero indicates stop immediately via
 //
@@ -36921,7 +37622,7 @@ func (d *PodSpecDie) TerminationGracePeriodSeconds(v *int64) *PodSpecDie {
 	})
 }
 
-// Optional duration in seconds the pod may be active on the node relative to
+// activeDeadlineSeconds is the optional duration in seconds the pod may be active on the node relative to
 //
 // StartTime before the system will actively try to mark it failed and kill associated containers.
 //
@@ -36932,7 +37633,7 @@ func (d *PodSpecDie) ActiveDeadlineSeconds(v *int64) *PodSpecDie {
 	})
 }
 
-// Set DNS policy for the pod.
+// dnsPolicy sets the DNS policy for the pod.
 //
 // Defaults to "ClusterFirst".
 //
@@ -36949,7 +37650,7 @@ func (d *PodSpecDie) DNSPolicy(v corev1.DNSPolicy) *PodSpecDie {
 	})
 }
 
-// NodeSelector is a selector which must be true for the pod to fit on a node.
+// nodeSelector is a selector which must be true for the pod to fit on a node.
 //
 // Selector which must match a node's labels for the pod to be scheduled on that node.
 //
@@ -36960,7 +37661,7 @@ func (d *PodSpecDie) NodeSelector(v map[string]string) *PodSpecDie {
 	})
 }
 
-// ServiceAccountName is the name of the ServiceAccount to use to run this pod.
+// serviceAccountName is the name of the ServiceAccount to use to run this pod.
 //
 // More info: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
 func (d *PodSpecDie) ServiceAccountName(v string) *PodSpecDie {
@@ -36969,7 +37670,7 @@ func (d *PodSpecDie) ServiceAccountName(v string) *PodSpecDie {
 	})
 }
 
-// DeprecatedServiceAccount is a deprecated alias for ServiceAccountName.
+// serviceAccount is a deprecated alias for ServiceAccountName.
 //
 // Deprecated: Use serviceAccountName instead.
 func (d *PodSpecDie) DeprecatedServiceAccount(v string) *PodSpecDie {
@@ -36978,14 +37679,14 @@ func (d *PodSpecDie) DeprecatedServiceAccount(v string) *PodSpecDie {
 	})
 }
 
-// AutomountServiceAccountToken indicates whether a service account token should be automatically mounted.
+// automountServiceAccountToken indicates whether a service account token should be automatically mounted.
 func (d *PodSpecDie) AutomountServiceAccountToken(v *bool) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.AutomountServiceAccountToken = v
 	})
 }
 
-// NodeName indicates in which node this pod is scheduled.
+// nodeName indicates in which node this pod is scheduled.
 //
 // If empty, this pod is a candidate for scheduling by the scheduler defined in schedulerName.
 //
@@ -37000,9 +37701,9 @@ func (d *PodSpecDie) NodeName(v string) *PodSpecDie {
 	})
 }
 
-// Host networking requested for this pod. Use the host's network namespace.
+// hostNetwork indicates that the pod should use the host's network namespace.
 //
-// When using HostNetwork you should specify ports so the scheduler is aware.
+// When using hostNetwork you should specify ports so the scheduler is aware.
 //
 // When `hostNetwork` is true, specified `hostPort` fields in port definitions must match `containerPort`,
 //
@@ -37015,7 +37716,7 @@ func (d *PodSpecDie) HostNetwork(v bool) *PodSpecDie {
 	})
 }
 
-// Use the host's pid namespace.
+// hostPID uses the host's pid namespace.
 //
 // Optional: Default to false.
 func (d *PodSpecDie) HostPID(v bool) *PodSpecDie {
@@ -37024,7 +37725,7 @@ func (d *PodSpecDie) HostPID(v bool) *PodSpecDie {
 	})
 }
 
-// Use the host's ipc namespace.
+// hostIPC uses the host's ipc namespace.
 //
 // Optional: Default to false.
 func (d *PodSpecDie) HostIPC(v bool) *PodSpecDie {
@@ -37033,7 +37734,7 @@ func (d *PodSpecDie) HostIPC(v bool) *PodSpecDie {
 	})
 }
 
-// Share a single process namespace between all of the containers in a pod.
+// shareProcessNamespace indicates whether to share a single process namespace between all of the containers in a pod.
 //
 // # When this is set containers will be able to view and signal processes from other containers
 //
@@ -37048,7 +37749,7 @@ func (d *PodSpecDie) ShareProcessNamespace(v *bool) *PodSpecDie {
 	})
 }
 
-// SecurityContext holds pod-level security attributes and common container settings.
+// securityContext holds pod-level security attributes and common container settings.
 //
 // Optional: Defaults to empty.  See type description for default values of each field.
 func (d *PodSpecDie) SecurityContext(v *corev1.PodSecurityContext) *PodSpecDie {
@@ -37057,7 +37758,7 @@ func (d *PodSpecDie) SecurityContext(v *corev1.PodSecurityContext) *PodSpecDie {
 	})
 }
 
-// ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec.
+// imagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec.
 //
 // If specified, these secrets will be passed to individual puller implementations for them to use.
 //
@@ -37068,7 +37769,7 @@ func (d *PodSpecDie) ImagePullSecrets(v ...corev1.LocalObjectReference) *PodSpec
 	})
 }
 
-// Specifies the hostname of the Pod
+// hostname specifies the hostname of the Pod
 //
 // If not specified, the pod's hostname will be set to a system-defined value.
 func (d *PodSpecDie) Hostname(v string) *PodSpecDie {
@@ -37077,6 +37778,8 @@ func (d *PodSpecDie) Hostname(v string) *PodSpecDie {
 	})
 }
 
+// subdomain specifies the subdomain of the Pod.
+//
 // If specified, the fully qualified Pod hostname will be "<hostname>.<subdomain>.<pod namespace>.svc.<cluster domain>".
 //
 // If not specified, the pod will not have a domainname at all.
@@ -37086,14 +37789,14 @@ func (d *PodSpecDie) Subdomain(v string) *PodSpecDie {
 	})
 }
 
-// If specified, the pod's scheduling constraints
+// affinity specifies the pod's scheduling constraints
 func (d *PodSpecDie) Affinity(v *corev1.Affinity) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.Affinity = v
 	})
 }
 
-// If specified, the pod will be dispatched by specified scheduler.
+// schedulerName specifies the scheduler to dispatch the pod.
 //
 // If not specified, the pod will be dispatched by default scheduler.
 func (d *PodSpecDie) SchedulerName(v string) *PodSpecDie {
@@ -37102,14 +37805,14 @@ func (d *PodSpecDie) SchedulerName(v string) *PodSpecDie {
 	})
 }
 
-// If specified, the pod's tolerations.
+// tolerations specifies the pod's tolerations.
 func (d *PodSpecDie) Tolerations(v ...corev1.Toleration) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.Tolerations = v
 	})
 }
 
-// HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts
+// hostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts
 //
 // file if specified.
 func (d *PodSpecDie) HostAliases(v ...corev1.HostAlias) *PodSpecDie {
@@ -37118,7 +37821,7 @@ func (d *PodSpecDie) HostAliases(v ...corev1.HostAlias) *PodSpecDie {
 	})
 }
 
-// If specified, indicates the pod's priority. "system-node-critical" and
+// priorityClassName if specified, indicates the pod's priority. "system-node-critical" and
 //
 // "system-cluster-critical" are two special keywords which indicate the
 //
@@ -37135,7 +37838,7 @@ func (d *PodSpecDie) PriorityClassName(v string) *PodSpecDie {
 	})
 }
 
-// The priority value. Various system components use this field to find the
+// priority specifies the priority value. Various system components use this field to find the
 //
 // priority of the pod. When Priority Admission Controller is enabled, it
 //
@@ -37150,7 +37853,7 @@ func (d *PodSpecDie) Priority(v *int32) *PodSpecDie {
 	})
 }
 
-// Specifies the DNS parameters of a pod.
+// dnsConfig specifies the DNS parameters of a pod.
 //
 // # Parameters specified here will be merged to the generated DNS
 //
@@ -37161,7 +37864,7 @@ func (d *PodSpecDie) DNSConfig(v *corev1.PodDNSConfig) *PodSpecDie {
 	})
 }
 
-// If specified, all readiness gates will be evaluated for pod readiness.
+// readinessGates if specified, all readiness gates will be evaluated for pod readiness.
 //
 // # A pod is ready when all its containers are ready AND
 //
@@ -37174,7 +37877,7 @@ func (d *PodSpecDie) ReadinessGates(v ...corev1.PodReadinessGate) *PodSpecDie {
 	})
 }
 
-// RuntimeClassName refers to a RuntimeClass object in the node.k8s.io group, which should be used
+// runtimeClassName refers to a RuntimeClass object in the node.k8s.io group, which should be used
 //
 // to run this pod.  If no RuntimeClass resource matches the named class, the pod will not be run.
 //
@@ -37189,7 +37892,7 @@ func (d *PodSpecDie) RuntimeClassName(v *string) *PodSpecDie {
 	})
 }
 
-// EnableServiceLinks indicates whether information about services should be injected into pod's
+// enableServiceLinks indicates whether information about services should be injected into pod's
 //
 // environment variables, matching the syntax of Docker links.
 //
@@ -37200,7 +37903,7 @@ func (d *PodSpecDie) EnableServiceLinks(v *bool) *PodSpecDie {
 	})
 }
 
-// PreemptionPolicy is the Policy for preempting pods with lower priority.
+// preemptionPolicy is the Policy for preempting pods with lower priority.
 //
 // One of Never, PreemptLowerPriority.
 //
@@ -37215,7 +37918,7 @@ func (d *PodSpecDie) PreemptionPolicy(v *corev1.PreemptionPolicy) *PodSpecDie {
 	})
 }
 
-// Overhead represents the resource overhead associated with running a pod for a given RuntimeClass.
+// overhead represents the resource overhead associated with running a pod for a given RuntimeClass.
 //
 // This field will be autopopulated at admission time by the RuntimeClass admission controller. If
 //
@@ -37236,7 +37939,7 @@ func (d *PodSpecDie) Overhead(v corev1.ResourceList) *PodSpecDie {
 
 // AddOverhead sets a single quantity on the Overhead resource list.
 //
-// Overhead represents the resource overhead associated with running a pod for a given RuntimeClass.
+// overhead represents the resource overhead associated with running a pod for a given RuntimeClass.
 //
 // This field will be autopopulated at admission time by the RuntimeClass admission controller. If
 //
@@ -37260,7 +37963,7 @@ func (d *PodSpecDie) AddOverhead(name corev1.ResourceName, quantity resource.Qua
 
 // AddOverheadString parses the quantity setting a single value on the Overhead resource list. Panics if the string is not parsable.
 //
-// Overhead represents the resource overhead associated with running a pod for a given RuntimeClass.
+// overhead represents the resource overhead associated with running a pod for a given RuntimeClass.
 //
 // This field will be autopopulated at admission time by the RuntimeClass admission controller. If
 //
@@ -37278,7 +37981,7 @@ func (d *PodSpecDie) AddOverheadString(name corev1.ResourceName, quantity string
 	return d.AddOverhead(name, q)
 }
 
-// TopologySpreadConstraints describes how a group of pods ought to spread across topology
+// topologySpreadConstraints describes how a group of pods ought to spread across topology
 //
 // domains. Scheduler will schedule pods in a way which abides by the constraints.
 //
@@ -37289,7 +37992,7 @@ func (d *PodSpecDie) TopologySpreadConstraints(v ...corev1.TopologySpreadConstra
 	})
 }
 
-// If true the pod's hostname will be configured as the pod's FQDN, rather than the leaf name (the default).
+// setHostnameAsFQDN if true the pod's hostname will be configured as the pod's FQDN, rather than the leaf name (the default).
 //
 // In Linux containers, this means setting the FQDN in the hostname field of the kernel (the nodename field of struct utsname).
 //
@@ -37304,7 +38007,7 @@ func (d *PodSpecDie) SetHostnameAsFQDN(v *bool) *PodSpecDie {
 	})
 }
 
-// Specifies the OS of the containers in the pod.
+// os specifies the OS of the containers in the pod.
 //
 // Some pod and container fields are restricted if this is set.
 //
@@ -37369,7 +38072,7 @@ func (d *PodSpecDie) OS(v *corev1.PodOS) *PodSpecDie {
 	})
 }
 
-// Use the host's user namespace.
+// hostUsers specifies whether to use the host's user namespace.
 //
 // Optional: Default to true.
 //
@@ -37390,7 +38093,7 @@ func (d *PodSpecDie) HostUsers(v *bool) *PodSpecDie {
 	})
 }
 
-// SchedulingGates is an opaque list of values that if specified will block scheduling the pod.
+// schedulingGates is an opaque list of values that if specified will block scheduling the pod.
 //
 // # If schedulingGates is not empty, the pod will stay in the SchedulingGated state and the
 //
@@ -37403,17 +38106,13 @@ func (d *PodSpecDie) SchedulingGates(v ...corev1.PodSchedulingGate) *PodSpecDie 
 	})
 }
 
-// ResourceClaims defines which ResourceClaims must be allocated
+// resourceClaims defines which ResourceClaims must be allocated
 //
 // and reserved before the Pod is allowed to start. The resources
 //
 // will be made available to those containers which consume them
 //
 // by name.
-//
-// # This is a stable field but requires that the
-//
-// DynamicResourceAllocation feature gate is enabled.
 //
 // This field is immutable.
 func (d *PodSpecDie) ResourceClaims(v ...corev1.PodResourceClaim) *PodSpecDie {
@@ -37422,7 +38121,7 @@ func (d *PodSpecDie) ResourceClaims(v ...corev1.PodResourceClaim) *PodSpecDie {
 	})
 }
 
-// Resources is the total amount of CPU and Memory resources required by all
+// resources is the total amount of CPU and Memory resources required by all
 //
 // containers in the pod. It supports specifying Requests and Limits for
 //
@@ -37432,18 +38131,24 @@ func (d *PodSpecDie) ResourceClaims(v ...corev1.PodResourceClaim) *PodSpecDie {
 //
 // entire pod, allowing resource sharing among containers in a pod.
 //
-// TODO: For beta graduation, expand this comment with a detailed explanation.
+// # If a limit is not specified at the pod level, the pod is limited by the aggregate of
 //
-// # This is an alpha field and requires enabling the PodLevelResources feature
+// its container limits:
 //
-// gate.
+// - For cpu and memory, the aggregate is used only if every init and regular container
+//
+// specifies a limit; otherwise the pod is not limited for that resource.
+//
+// - For hugepages, the container limits are summed and unspecified values are treated as 0.
+//
+// More details: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 func (d *PodSpecDie) Resources(v *corev1.ResourceRequirements) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.Resources = v
 	})
 }
 
-// HostnameOverride specifies an explicit override for the pod's hostname as perceived by the pod.
+// hostnameOverride specifies an explicit override for the pod's hostname as perceived by the pod.
 //
 // This field only specifies the pod's hostname and does not affect its DNS records.
 //
@@ -37464,7 +38169,7 @@ func (d *PodSpecDie) HostnameOverride(v *string) *PodSpecDie {
 	})
 }
 
-// SchedulingGroup provides a reference to the immediate scheduling runtime
+// schedulingGroup provides a reference to the immediate scheduling runtime
 //
 // grouping object that this Pod belongs to.
 //
@@ -37482,11 +38187,15 @@ func (d *PodSpecDie) HostnameOverride(v *string) *PodSpecDie {
 //
 // Pod is created.
 //
-// # This field is immutable, but a group object with the same name may be
+// This field is immutable. The scheduler cannot distinguish PodGroup runtime
 //
-// recreated with different policies. Doing this during pod scheduling
+// instances that reuse the same namespace and name. Controllers should use a
 //
-// may result in the placement not conforming to the expected policies.
+// new PodGroup name for each runtime instance. Reusing a name for a PodGroup
+//
+// with different policies may result in Pod placement not conforming to the
+//
+// expected policies.
 func (d *PodSpecDie) SchedulingGroup(v *corev1.PodSchedulingGroup) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.SchedulingGroup = v
@@ -37770,7 +38479,7 @@ func (d *PodSchedulingGateDie) DiePatch(patchType types.PatchType) ([]byte, erro
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Name of the scheduling gate.
+// name of the scheduling gate.
 //
 // Each scheduling gate must have a unique name field.
 func (d *PodSchedulingGateDie) Name(v string) *PodSchedulingGateDie {
@@ -38025,7 +38734,7 @@ func (d *PodResourceClaimDie) DiePatch(patchType types.PatchType) ([]byte, error
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Name uniquely identifies this resource claim inside the pod.
+// name uniquely identifies this resource claim inside the pod.
 //
 // This must be a DNS_LABEL.
 func (d *PodResourceClaimDie) Name(v string) *PodResourceClaimDie {
@@ -38034,7 +38743,7 @@ func (d *PodResourceClaimDie) Name(v string) *PodResourceClaimDie {
 	})
 }
 
-// ResourceClaimName is the name of a ResourceClaim object in the same
+// resourceClaimName is the name of a ResourceClaim object in the same
 //
 // namespace as this pod.
 //
@@ -38047,7 +38756,7 @@ func (d *PodResourceClaimDie) ResourceClaimName(v *string) *PodResourceClaimDie 
 	})
 }
 
-// ResourceClaimTemplateName is the name of a ResourceClaimTemplate
+// resourceClaimTemplateName is the name of a ResourceClaimTemplate
 //
 // object in the same namespace as this pod.
 //
@@ -38342,7 +39051,7 @@ func (d *PodSecurityContextDie) DiePatch(patchType types.PatchType) ([]byte, err
 
 // SELinuxOptionsDie mutates SELinuxOptions as a die.
 //
-// The SELinux context to be applied to all containers.
+// seLinuxOptions is the SELinux context to be applied to all containers.
 //
 // # If unspecified, the container runtime will allocate a random SELinux context for each
 //
@@ -38363,7 +39072,7 @@ func (d *PodSecurityContextDie) SELinuxOptionsDie(fn func(d *SELinuxOptionsDie))
 
 // WindowsOptionsDie mutates WindowsOptions as a die.
 //
-// The Windows specific settings applied to all containers.
+// windowsOptions is the Windows specific settings applied to all containers.
 //
 // If unspecified, the options within a container's SecurityContext will be used.
 //
@@ -38393,7 +39102,7 @@ func (d *PodSecurityContextDie) AppArmorProfileDie(fn func(d *AppArmorProfileDie
 
 // SysctlsDie replaces Sysctls by collecting the released value from each die passed.
 //
-// Sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported
+// sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported
 //
 // sysctls (by the container runtime) might fail to launch.
 //
@@ -38409,7 +39118,7 @@ func (d *PodSecurityContextDie) SysctlsDie(v ...*SysctlDie) *PodSecurityContextD
 
 // SeccompProfileDie mutates SeccompProfile as a die.
 //
-// The seccomp options to use by the containers in this pod.
+// seccompProfile is the seccomp options to use by the containers in this pod.
 //
 // Note that this field cannot be set when spec.os.name is windows.
 func (d *PodSecurityContextDie) SeccompProfileDie(fn func(d *SeccompProfileDie)) *PodSecurityContextDie {
@@ -38420,7 +39129,7 @@ func (d *PodSecurityContextDie) SeccompProfileDie(fn func(d *SeccompProfileDie))
 	})
 }
 
-// The SELinux context to be applied to all containers.
+// seLinuxOptions is the SELinux context to be applied to all containers.
 //
 // # If unspecified, the container runtime will allocate a random SELinux context for each
 //
@@ -38437,7 +39146,7 @@ func (d *PodSecurityContextDie) SELinuxOptions(v *corev1.SELinuxOptions) *PodSec
 	})
 }
 
-// The Windows specific settings applied to all containers.
+// windowsOptions is the Windows specific settings applied to all containers.
 //
 // If unspecified, the options within a container's SecurityContext will be used.
 //
@@ -38450,7 +39159,7 @@ func (d *PodSecurityContextDie) WindowsOptions(v *corev1.WindowsSecurityContextO
 	})
 }
 
-// The UID to run the entrypoint of the container process.
+// runAsUser is the UID to run the entrypoint of the container process.
 //
 // Defaults to user specified in image metadata if unspecified.
 //
@@ -38467,7 +39176,7 @@ func (d *PodSecurityContextDie) RunAsUser(v *int64) *PodSecurityContextDie {
 	})
 }
 
-// The GID to run the entrypoint of the container process.
+// runAsGroup is the GID to run the entrypoint of the container process.
 //
 // Uses runtime default if unset.
 //
@@ -38484,7 +39193,7 @@ func (d *PodSecurityContextDie) RunAsGroup(v *int64) *PodSecurityContextDie {
 	})
 }
 
-// Indicates that the container must run as a non-root user.
+// runAsNonRoot indicates that the container must run as a non-root user.
 //
 // # If true, the Kubelet will validate the image at runtime to ensure that it
 //
@@ -38501,7 +39210,7 @@ func (d *PodSecurityContextDie) RunAsNonRoot(v *bool) *PodSecurityContextDie {
 	})
 }
 
-// A list of groups applied to the first process run in each container, in
+// supplementalGroups is a list of groups applied to the first process run in each container, in
 //
 // addition to the container's primary GID and fsGroup (if specified).  If
 //
@@ -38524,24 +39233,20 @@ func (d *PodSecurityContextDie) SupplementalGroups(v ...int64) *PodSecurityConte
 	})
 }
 
-// Defines how supplemental groups of the first container processes are calculated.
+// supplementalGroupsPolicy defines how supplemental groups of the first container processes are calculated.
 //
 // Valid values are "Merge" and "Strict". If not specified, "Merge" is used.
 //
-// (Alpha) Using the field requires the SupplementalGroupsPolicy feature gate to be enabled
-//
-// and the container runtime must implement support for this feature.
+// The container runtime must implement support for this feature.
 //
 // Note that this field cannot be set when spec.os.name is windows.
-//
-// TODO: update the default value to "Merge" when spec.os.name is not windows in v1.34
 func (d *PodSecurityContextDie) SupplementalGroupsPolicy(v *corev1.SupplementalGroupsPolicy) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.SupplementalGroupsPolicy = v
 	})
 }
 
-// A special supplemental group that applies to all containers in a pod.
+// fsGroup is a special supplemental group that applies to all containers in a pod.
 //
 // # Some volume types allow the Kubelet to change the ownership of that volume
 //
@@ -38562,7 +39267,7 @@ func (d *PodSecurityContextDie) FSGroup(v *int64) *PodSecurityContextDie {
 	})
 }
 
-// Sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported
+// sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported
 //
 // sysctls (by the container runtime) might fail to launch.
 //
@@ -38592,7 +39297,7 @@ func (d *PodSecurityContextDie) FSGroupChangePolicy(v *corev1.PodFSGroupChangePo
 	})
 }
 
-// The seccomp options to use by the containers in this pod.
+// seccompProfile is the seccomp options to use by the containers in this pod.
 //
 // Note that this field cannot be set when spec.os.name is windows.
 func (d *PodSecurityContextDie) SeccompProfile(v *corev1.SeccompProfile) *PodSecurityContextDie {
@@ -38891,14 +39596,14 @@ func (d *SysctlDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Name of a property to set
+// name of a property to set
 func (d *SysctlDie) Name(v string) *SysctlDie {
 	return d.DieStamp(func(r *corev1.Sysctl) {
 		r.Name = v
 	})
 }
 
-// Value of a property to set
+// value of a property to set
 func (d *SysctlDie) Value(v string) *SysctlDie {
 	return d.DieStamp(func(r *corev1.Sysctl) {
 		r.Value = v
@@ -39151,7 +39856,7 @@ func (d *TolerationDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Key is the taint key that the toleration applies to. Empty means match all taint keys.
+// key is the taint key that the toleration applies to. Empty means match all taint keys.
 //
 // If the key is empty, operator must be Exists; this combination means to match all values and all keys.
 func (d *TolerationDie) Key(v string) *TolerationDie {
@@ -39160,7 +39865,7 @@ func (d *TolerationDie) Key(v string) *TolerationDie {
 	})
 }
 
-// Operator represents a key's relationship to the value.
+// operator represents a key's relationship to the value.
 //
 // Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
 //
@@ -39175,7 +39880,7 @@ func (d *TolerationDie) Operator(v corev1.TolerationOperator) *TolerationDie {
 	})
 }
 
-// Value is the taint value the toleration matches to.
+// value is the taint value the toleration matches to.
 //
 // If the operator is Exists, the value should be empty, otherwise just a regular string.
 func (d *TolerationDie) Value(v string) *TolerationDie {
@@ -39184,7 +39889,7 @@ func (d *TolerationDie) Value(v string) *TolerationDie {
 	})
 }
 
-// Effect indicates the taint effect to match. Empty means match all taint effects.
+// effect indicates the taint effect to match. Empty means match all taint effects.
 //
 // When specified, allowed values are NoSchedule, PreferNoSchedule and NoExecute.
 func (d *TolerationDie) Effect(v corev1.TaintEffect) *TolerationDie {
@@ -39193,7 +39898,7 @@ func (d *TolerationDie) Effect(v corev1.TaintEffect) *TolerationDie {
 	})
 }
 
-// TolerationSeconds represents the period of time the toleration (which must be
+// tolerationSeconds represents the period of time the toleration (which must be
 //
 // of effect NoExecute, otherwise this field is ignored) tolerates the taint. By default,
 //
@@ -39452,14 +40157,14 @@ func (d *HostAliasDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// IP address of the host file entry.
+// ip address of the host file entry.
 func (d *HostAliasDie) IP(v string) *HostAliasDie {
 	return d.DieStamp(func(r *corev1.HostAlias) {
 		r.IP = v
 	})
 }
 
-// Hostnames for the above IP address.
+// hostnames for the above IP address.
 func (d *HostAliasDie) Hostnames(v ...string) *HostAliasDie {
 	return d.DieStamp(func(r *corev1.HostAlias) {
 		r.Hostnames = v
@@ -39714,7 +40419,7 @@ func (d *PodDNSConfigDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // OptionsDie replaces Options by collecting the released value from each die passed.
 //
-// A list of DNS resolver options.
+// options is a list of DNS resolver options.
 //
 // This will be merged with the base options generated from DNSPolicy.
 //
@@ -39730,7 +40435,7 @@ func (d *PodDNSConfigDie) OptionsDie(v ...*PodDNSConfigOptionDie) *PodDNSConfigD
 	})
 }
 
-// A list of DNS name server IP addresses.
+// nameservers is a list of DNS name server IP addresses.
 //
 // This will be appended to the base nameservers generated from DNSPolicy.
 //
@@ -39741,7 +40446,7 @@ func (d *PodDNSConfigDie) Nameservers(v ...string) *PodDNSConfigDie {
 	})
 }
 
-// A list of DNS search domains for host-name lookup.
+// searches is a list of DNS search domains for host-name lookup.
 //
 // This will be appended to the base search paths generated from DNSPolicy.
 //
@@ -39752,7 +40457,7 @@ func (d *PodDNSConfigDie) Searches(v ...string) *PodDNSConfigDie {
 	})
 }
 
-// A list of DNS resolver options.
+// options is a list of DNS resolver options.
 //
 // This will be merged with the base options generated from DNSPolicy.
 //
@@ -40011,7 +40716,7 @@ func (d *PodDNSConfigOptionDie) DiePatch(patchType types.PatchType) ([]byte, err
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Name is this DNS resolver option's name.
+// name is this DNS resolver option's name.
 //
 // Required.
 func (d *PodDNSConfigOptionDie) Name(v string) *PodDNSConfigOptionDie {
@@ -40020,7 +40725,7 @@ func (d *PodDNSConfigOptionDie) Name(v string) *PodDNSConfigOptionDie {
 	})
 }
 
-// Value is this DNS resolver option's value.
+// value is this DNS resolver option's value.
 func (d *PodDNSConfigOptionDie) Value(v *string) *PodDNSConfigOptionDie {
 	return d.DieStamp(func(r *corev1.PodDNSConfigOption) {
 		r.Value = v
@@ -40273,7 +40978,7 @@ func (d *PodReadinessGateDie) DiePatch(patchType types.PatchType) ([]byte, error
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// ConditionType refers to a condition in the pod's condition list with matching type.
+// conditionType refers to a condition in the pod's condition list with matching type.
 func (d *PodReadinessGateDie) ConditionType(v corev1.PodConditionType) *PodReadinessGateDie {
 	return d.DieStamp(func(r *corev1.PodReadinessGate) {
 		r.ConditionType = v
@@ -40528,7 +41233,7 @@ func (d *TopologySpreadConstraintDie) DiePatch(patchType types.PatchType) ([]byt
 
 // LabelSelectorDie mutates LabelSelector as a die.
 //
-// LabelSelector is used to find matching pods.
+// labelSelector is used to find matching pods.
 //
 // # Pods that match this label selector are counted to determine the number of pods
 //
@@ -40541,7 +41246,7 @@ func (d *TopologySpreadConstraintDie) LabelSelectorDie(fn func(d *metav1.LabelSe
 	})
 }
 
-// MaxSkew describes the degree to which pods may be unevenly distributed.
+// maxSkew describes the degree to which pods may be unevenly distributed.
 //
 // When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference
 //
@@ -40580,7 +41285,7 @@ func (d *TopologySpreadConstraintDie) MaxSkew(v int32) *TopologySpreadConstraint
 	})
 }
 
-// TopologyKey is the key of node labels. Nodes that have a label with this key
+// topologyKey is the key of node labels. Nodes that have a label with this key
 //
 // and identical values are considered to be in the same topology.
 //
@@ -40605,7 +41310,7 @@ func (d *TopologySpreadConstraintDie) TopologyKey(v string) *TopologySpreadConst
 	})
 }
 
-// WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy
+// whenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy
 //
 // the spread constraint.
 //
@@ -40646,7 +41351,7 @@ func (d *TopologySpreadConstraintDie) WhenUnsatisfiable(v corev1.UnsatisfiableCo
 	})
 }
 
-// LabelSelector is used to find matching pods.
+// labelSelector is used to find matching pods.
 //
 // # Pods that match this label selector are counted to determine the number of pods
 //
@@ -40657,7 +41362,7 @@ func (d *TopologySpreadConstraintDie) LabelSelector(v *apismetav1.LabelSelector)
 	})
 }
 
-// MinDomains indicates a minimum number of eligible domains.
+// minDomains indicates a minimum number of eligible domains.
 //
 // When the number of eligible domains with matching topology keys is less than minDomains,
 //
@@ -40698,7 +41403,7 @@ func (d *TopologySpreadConstraintDie) MinDomains(v *int32) *TopologySpreadConstr
 	})
 }
 
-// NodeAffinityPolicy indicates how we will treat Pod's nodeAffinity/nodeSelector
+// nodeAffinityPolicy indicates how we will treat Pod's nodeAffinity/nodeSelector
 //
 // when calculating pod topology spread skew. Options are:
 //
@@ -40713,7 +41418,7 @@ func (d *TopologySpreadConstraintDie) NodeAffinityPolicy(v *corev1.NodeInclusion
 	})
 }
 
-// NodeTaintsPolicy indicates how we will treat node taints when calculating
+// nodeTaintsPolicy indicates how we will treat node taints when calculating
 //
 // pod topology spread skew. Options are:
 //
@@ -40730,7 +41435,7 @@ func (d *TopologySpreadConstraintDie) NodeTaintsPolicy(v *corev1.NodeInclusionPo
 	})
 }
 
-// MatchLabelKeys is a set of pod label keys to select the pods over which
+// matchLabelKeys is a set of pod label keys to select the pods over which
 //
 // spreading will be calculated. The keys are used to lookup values from the
 //
@@ -40999,7 +41704,7 @@ func (d *PodOSDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Name is the name of the operating system. The currently supported values are linux and windows.
+// name is the name of the operating system. The currently supported values are linux and windows.
 //
 // Additional value may be defined in future and can be one of:
 //
@@ -41258,7 +41963,7 @@ func (d *PodSchedulingGroupDie) DiePatch(patchType types.PatchType) ([]byte, err
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// PodGroupName specifies the name of the standalone PodGroup object
+// podGroupName specifies the name of the standalone PodGroup object
 //
 // that represents the runtime instance of this group.
 //
@@ -41266,6 +41971,292 @@ func (d *PodSchedulingGroupDie) DiePatch(patchType types.PatchType) ([]byte, err
 func (d *PodSchedulingGroupDie) PodGroupName(v *string) *PodSchedulingGroupDie {
 	return d.DieStamp(func(r *corev1.PodSchedulingGroup) {
 		r.PodGroupName = v
+	})
+}
+
+var EvictionResponderBlank = (&EvictionResponderDie{}).DieFeed(corev1.EvictionResponder{})
+
+type EvictionResponderDie struct {
+	mutable bool
+	r       corev1.EvictionResponder
+	seal    corev1.EvictionResponder
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *EvictionResponderDie) DieImmutable(immutable bool) *EvictionResponderDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *EvictionResponderDie) DieFeed(r corev1.EvictionResponder) *EvictionResponderDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &EvictionResponderDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *EvictionResponderDie) DieFeedPtr(r *corev1.EvictionResponder) *EvictionResponderDie {
+	if r == nil {
+		r = &corev1.EvictionResponder{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *EvictionResponderDie) DieFeedDuck(v any) *EvictionResponderDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *EvictionResponderDie) DieFeedJSON(j []byte) *EvictionResponderDie {
+	r := corev1.EvictionResponder{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *EvictionResponderDie) DieFeedYAML(y []byte) *EvictionResponderDie {
+	r := corev1.EvictionResponder{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *EvictionResponderDie) DieFeedYAMLFile(name string) *EvictionResponderDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *EvictionResponderDie) DieFeedRawExtension(raw runtime.RawExtension) *EvictionResponderDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *EvictionResponderDie) DieRelease() corev1.EvictionResponder {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *EvictionResponderDie) DieReleasePtr() *corev1.EvictionResponder {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *EvictionResponderDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *EvictionResponderDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *EvictionResponderDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *EvictionResponderDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *EvictionResponderDie) DieStamp(fn func(r *corev1.EvictionResponder)) *EvictionResponderDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *EvictionResponderDie) DieStampAt(jp string, fn interface{}) *EvictionResponderDie {
+	return d.DieStamp(func(r *corev1.EvictionResponder) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *EvictionResponderDie) DieWith(fns ...func(d *EvictionResponderDie)) *EvictionResponderDie {
+	nd := EvictionResponderBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *EvictionResponderDie) DeepCopy() *EvictionResponderDie {
+	r := *d.r.DeepCopy()
+	return &EvictionResponderDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *EvictionResponderDie) DieSeal() *EvictionResponderDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *EvictionResponderDie) DieSealFeed(r corev1.EvictionResponder) *EvictionResponderDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *EvictionResponderDie) DieSealFeedPtr(r *corev1.EvictionResponder) *EvictionResponderDie {
+	if r == nil {
+		r = &corev1.EvictionResponder{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *EvictionResponderDie) DieSealRelease() corev1.EvictionResponder {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *EvictionResponderDie) DieSealReleasePtr() *corev1.EvictionResponder {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *EvictionResponderDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *EvictionResponderDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// name allows you to identify the responder responding to the Eviction.
+//
+// It must be a valid domain-prefixed key (such as "acme.io/foo").
+//
+// Domain names *.k8s.io and *.kubernetes.io are reserved.
+//
+// This field must be unique for each responder.
+//
+// This field is required.
+func (d *EvictionResponderDie) Name(v string) *EvictionResponderDie {
+	return d.DieStamp(func(r *corev1.EvictionResponder) {
+		r.Name = v
+	})
+}
+
+// priority for this responder. Higher priorities are selected first by the evictionrequest-controller.
+//
+// # If there are responders with the same priority, the responder whose domain name comes first in the
+//
+// alphabetical higher domain order, will be picked. This means that the top domain labels are compared
+//
+// alphabetically first, followed by the lower domain labels. The key is compared last.
+//
+// # The responder that is the managing controller of the pod should set the value of
+//
+// this field to 10000 to allow both for preemption or fallback registration by other
+//
+// responders.
+//
+// The minimum value is 0 and the maximum value is 100000.
+//
+// The interval 0-999 is reserved for responders with *.k8s.io suffix.
+//
+// This field is required.
+func (d *EvictionResponderDie) Priority(v *int32) *EvictionResponderDie {
+	return d.DieStamp(func(r *corev1.EvictionResponder) {
+		r.Priority = v
 	})
 }
 
@@ -41664,6 +42655,28 @@ func (d *PodStatusDie) NodeAllocatableResourceClaimStatusesDie(v ...*NodeAllocat
 		for i := range v {
 			r.NodeAllocatableResourceClaimStatuses[i] = v[i].DieRelease()
 		}
+	})
+}
+
+// VolumeHealthDie mutates a single item in VolumeHealth matched by the nested field Name, appending a new item if no match is found.
+//
+// volumeHealth contains node-reported health for each volume the pod is using.
+//
+// Populated by the kubelet on the pod's node.
+func (d *PodStatusDie) VolumeHealthDie(v string, fn func(d *PodVolumeHealthDie)) *PodStatusDie {
+	return d.DieStamp(func(r *corev1.PodStatus) {
+		for i := range r.VolumeHealth {
+			if v == r.VolumeHealth[i].Name {
+				d := PodVolumeHealthBlank.DieImmutable(false).DieFeed(r.VolumeHealth[i])
+				fn(d)
+				r.VolumeHealth[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := PodVolumeHealthBlank.DieImmutable(false).DieFeed(corev1.PodVolumeHealth{Name: v})
+		fn(d)
+		r.VolumeHealth = append(r.VolumeHealth, d.DieRelease())
 	})
 }
 
@@ -42241,7 +43254,7 @@ func (d *PodExtendedResourceClaimStatusDie) DiePatch(patchType types.PatchType) 
 
 // RequestMappingsDie replaces RequestMappings by collecting the released value from each die passed.
 //
-// RequestMappings identifies the mapping of <container, extended resource backed by DRA> to  device request
+// requestMappings identifies the mapping of <container, extended resource backed by DRA> to  device request
 //
 // in the generated ResourceClaim.
 func (d *PodExtendedResourceClaimStatusDie) RequestMappingsDie(v ...*ContainerExtendedResourceRequestDie) *PodExtendedResourceClaimStatusDie {
@@ -42253,7 +43266,7 @@ func (d *PodExtendedResourceClaimStatusDie) RequestMappingsDie(v ...*ContainerEx
 	})
 }
 
-// RequestMappings identifies the mapping of <container, extended resource backed by DRA> to  device request
+// requestMappings identifies the mapping of <container, extended resource backed by DRA> to  device request
 //
 // in the generated ResourceClaim.
 func (d *PodExtendedResourceClaimStatusDie) RequestMappings(v ...corev1.ContainerExtendedResourceRequest) *PodExtendedResourceClaimStatusDie {
@@ -42262,7 +43275,7 @@ func (d *PodExtendedResourceClaimStatusDie) RequestMappings(v ...corev1.Containe
 	})
 }
 
-// ResourceClaimName is the name of the ResourceClaim that was
+// resourceClaimName is the name of the ResourceClaim that was
 //
 // generated for the Pod in the namespace of the Pod.
 func (d *PodExtendedResourceClaimStatusDie) ResourceClaimName(v string) *PodExtendedResourceClaimStatusDie {
@@ -42517,21 +43530,21 @@ func (d *ContainerExtendedResourceRequestDie) DiePatch(patchType types.PatchType
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// The name of the container requesting resources.
+// containerName is the name of the container requesting resources.
 func (d *ContainerExtendedResourceRequestDie) ContainerName(v string) *ContainerExtendedResourceRequestDie {
 	return d.DieStamp(func(r *corev1.ContainerExtendedResourceRequest) {
 		r.ContainerName = v
 	})
 }
 
-// The name of the extended resource in that container which gets backed by DRA.
+// resourceName is the name of the extended resource in that container which gets backed by DRA.
 func (d *ContainerExtendedResourceRequestDie) ResourceName(v string) *ContainerExtendedResourceRequestDie {
 	return d.DieStamp(func(r *corev1.ContainerExtendedResourceRequest) {
 		r.ResourceName = v
 	})
 }
 
-// The name of the request in the special ResourceClaim which corresponds to the extended resource.
+// requestName is the name of the request in the special ResourceClaim which corresponds to the extended resource.
 func (d *ContainerExtendedResourceRequestDie) RequestName(v string) *ContainerExtendedResourceRequestDie {
 	return d.DieStamp(func(r *corev1.ContainerExtendedResourceRequest) {
 		r.RequestName = v
@@ -42786,7 +43799,7 @@ func (d *NodeAllocatableResourceClaimStatusDie) DiePatch(patchType types.PatchTy
 
 // MappingDie mutates a single item in Mapping matched by the nested field Name, appending a new item if no match is found.
 //
-// Mapping contains allocations through devices mapped in the device spec's `nodeAllocatableResources[...].mapping` field.
+// mapping contains allocations through devices mapped in the device spec's `nodeAllocatableResources[...].mapping` field.
 //
 // This is used by kubelet for pod level and container-level cgroup enforcement.
 func (d *NodeAllocatableResourceClaimStatusDie) MappingDie(v corev1.ResourceName, fn func(d *NodeAllocatableMappedResourcesDie)) *NodeAllocatableResourceClaimStatusDie {
@@ -42808,7 +43821,7 @@ func (d *NodeAllocatableResourceClaimStatusDie) MappingDie(v corev1.ResourceName
 
 // OverheadDie mutates a single item in Overhead matched by the nested field Name, appending a new item if no match is found.
 //
-// Overhead contains allocations through devices mapped in the device spec's `nodeAllocatableResources[...].overhead` field.
+// overhead contains allocations through devices mapped in the device spec's `nodeAllocatableResources[...].overhead` field.
 //
 // This is used by kubelet for pod level and container-level cgroup enforcement.
 func (d *NodeAllocatableResourceClaimStatusDie) OverheadDie(v corev1.ResourceName, fn func(d *NodeAllocatableOverheadResourcesDie)) *NodeAllocatableResourceClaimStatusDie {
@@ -42828,21 +43841,21 @@ func (d *NodeAllocatableResourceClaimStatusDie) OverheadDie(v corev1.ResourceNam
 	})
 }
 
-// ResourceClaimName is the resource claim referenced by the pod that resulted in this node allocatable resource allocation.
+// resourceClaimName is the resource claim referenced by the pod that resulted in this node allocatable resource allocation.
 func (d *NodeAllocatableResourceClaimStatusDie) ResourceClaimName(v string) *NodeAllocatableResourceClaimStatusDie {
 	return d.DieStamp(func(r *corev1.NodeAllocatableResourceClaimStatus) {
 		r.ResourceClaimName = v
 	})
 }
 
-// Containers lists the names of all containers in this pod that reference the claim.
+// containers lists the names of all containers in this pod that reference the claim.
 func (d *NodeAllocatableResourceClaimStatusDie) Containers(v ...string) *NodeAllocatableResourceClaimStatusDie {
 	return d.DieStamp(func(r *corev1.NodeAllocatableResourceClaimStatus) {
 		r.Containers = v
 	})
 }
 
-// Mapping contains allocations through devices mapped in the device spec's `nodeAllocatableResources[...].mapping` field.
+// mapping contains allocations through devices mapped in the device spec's `nodeAllocatableResources[...].mapping` field.
 //
 // This is used by kubelet for pod level and container-level cgroup enforcement.
 func (d *NodeAllocatableResourceClaimStatusDie) Mapping(v ...corev1.NodeAllocatableMappedResources) *NodeAllocatableResourceClaimStatusDie {
@@ -42851,7 +43864,7 @@ func (d *NodeAllocatableResourceClaimStatusDie) Mapping(v ...corev1.NodeAllocata
 	})
 }
 
-// Overhead contains allocations through devices mapped in the device spec's `nodeAllocatableResources[...].overhead` field.
+// overhead contains allocations through devices mapped in the device spec's `nodeAllocatableResources[...].overhead` field.
 //
 // This is used by kubelet for pod level and container-level cgroup enforcement.
 func (d *NodeAllocatableResourceClaimStatusDie) Overhead(v ...corev1.NodeAllocatableOverheadResources) *NodeAllocatableResourceClaimStatusDie {
@@ -43106,14 +44119,14 @@ func (d *NodeAllocatableMappedResourcesDie) DiePatch(patchType types.PatchType) 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Name is the name of the resource (e.g., cpu, memory).
+// name is the name of the resource (e.g., cpu, memory).
 func (d *NodeAllocatableMappedResourcesDie) Name(v corev1.ResourceName) *NodeAllocatableMappedResourcesDie {
 	return d.DieStamp(func(r *corev1.NodeAllocatableMappedResources) {
 		r.Name = v
 	})
 }
 
-// Quantity is the total node allocatable resource capacity allocated for the claim.
+// quantity is the total node allocatable resource capacity allocated for the claim.
 //
 // This claim's allocated devices is shared by all the containers referencing the claim.
 //
@@ -43126,7 +44139,7 @@ func (d *NodeAllocatableMappedResourcesDie) Quantity(v *resource.Quantity) *Node
 
 // QuantityString sets Quantity by parsing the string as a Quantity. Panics if the string is not parsable.
 //
-// Quantity is the total node allocatable resource capacity allocated for the claim.
+// quantity is the total node allocatable resource capacity allocated for the claim.
 //
 // This claim's allocated devices is shared by all the containers referencing the claim.
 //
@@ -43382,14 +44395,14 @@ func (d *NodeAllocatableOverheadResourcesDie) DiePatch(patchType types.PatchType
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Name is the name of the resource (e.g., cpu, memory).
+// name is the name of the resource (e.g., cpu, memory).
 func (d *NodeAllocatableOverheadResourcesDie) Name(v corev1.ResourceName) *NodeAllocatableOverheadResourcesDie {
 	return d.DieStamp(func(r *corev1.NodeAllocatableOverheadResources) {
 		r.Name = v
 	})
 }
 
-// PerPod is the flat overhead quantity allocated per pod.
+// perPod is the flat overhead quantity allocated per pod.
 //
 // Adding to each container limit allows individual containers to utilize the overhead, while the parent pod-level cgroup limit caps the total usage at the pod boundary where the overhead is accounted for exactly once.
 //
@@ -43402,7 +44415,7 @@ func (d *NodeAllocatableOverheadResourcesDie) PerPod(v *resource.Quantity) *Node
 
 // PerPodString sets PerPod by parsing the string as a Quantity. Panics if the string is not parsable.
 //
-// PerPod is the flat overhead quantity allocated per pod.
+// perPod is the flat overhead quantity allocated per pod.
 //
 // Adding to each container limit allows individual containers to utilize the overhead, while the parent pod-level cgroup limit caps the total usage at the pod boundary where the overhead is accounted for exactly once.
 //
@@ -43412,7 +44425,7 @@ func (d *NodeAllocatableOverheadResourcesDie) PerPodString(s string) *NodeAlloca
 	return d.PerPod(&q)
 }
 
-// PerContainer is the variable overhead quantity applied for each container referencing the claim.
+// perContainer is the variable overhead quantity applied for each container referencing the claim.
 //
 // The container references are recorded in `nodeAllocatableResourceClaimStatuses.containers`.
 //
@@ -43429,6 +44442,10 @@ func (d *NodeAllocatableOverheadResourcesDie) PerPodString(s string) *NodeAlloca
 // This allows any single container to access the pod-level overhead, while the parent cgroup caps the total usage to account for PerPod exactly once.
 //
 // At least one of PerPod or PerContainer must be specified. Specifying neither is an invalid configuration.
+//
+// # PerContainer overhead of a claim referenced by a non-restartable init container is counted towards
+//
+// the pod's peak resource calculation (see Pod `spec.initContainers`), not for the pod's entire duration.
 func (d *NodeAllocatableOverheadResourcesDie) PerContainer(v *resource.Quantity) *NodeAllocatableOverheadResourcesDie {
 	return d.DieStamp(func(r *corev1.NodeAllocatableOverheadResources) {
 		r.PerContainer = v
@@ -43437,7 +44454,7 @@ func (d *NodeAllocatableOverheadResourcesDie) PerContainer(v *resource.Quantity)
 
 // PerContainerString sets PerContainer by parsing the string as a Quantity. Panics if the string is not parsable.
 //
-// PerContainer is the variable overhead quantity applied for each container referencing the claim.
+// perContainer is the variable overhead quantity applied for each container referencing the claim.
 //
 // The container references are recorded in `nodeAllocatableResourceClaimStatuses.containers`.
 //
@@ -43454,9 +44471,300 @@ func (d *NodeAllocatableOverheadResourcesDie) PerContainer(v *resource.Quantity)
 // This allows any single container to access the pod-level overhead, while the parent cgroup caps the total usage to account for PerPod exactly once.
 //
 // At least one of PerPod or PerContainer must be specified. Specifying neither is an invalid configuration.
+//
+// # PerContainer overhead of a claim referenced by a non-restartable init container is counted towards
+//
+// the pod's peak resource calculation (see Pod `spec.initContainers`), not for the pod's entire duration.
 func (d *NodeAllocatableOverheadResourcesDie) PerContainerString(s string) *NodeAllocatableOverheadResourcesDie {
 	q := resource.MustParse(s)
 	return d.PerContainer(&q)
+}
+
+var PodVolumeHealthBlank = (&PodVolumeHealthDie{}).DieFeed(corev1.PodVolumeHealth{})
+
+type PodVolumeHealthDie struct {
+	mutable bool
+	r       corev1.PodVolumeHealth
+	seal    corev1.PodVolumeHealth
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *PodVolumeHealthDie) DieImmutable(immutable bool) *PodVolumeHealthDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *PodVolumeHealthDie) DieFeed(r corev1.PodVolumeHealth) *PodVolumeHealthDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &PodVolumeHealthDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *PodVolumeHealthDie) DieFeedPtr(r *corev1.PodVolumeHealth) *PodVolumeHealthDie {
+	if r == nil {
+		r = &corev1.PodVolumeHealth{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *PodVolumeHealthDie) DieFeedDuck(v any) *PodVolumeHealthDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *PodVolumeHealthDie) DieFeedJSON(j []byte) *PodVolumeHealthDie {
+	r := corev1.PodVolumeHealth{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *PodVolumeHealthDie) DieFeedYAML(y []byte) *PodVolumeHealthDie {
+	r := corev1.PodVolumeHealth{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *PodVolumeHealthDie) DieFeedYAMLFile(name string) *PodVolumeHealthDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *PodVolumeHealthDie) DieFeedRawExtension(raw runtime.RawExtension) *PodVolumeHealthDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *PodVolumeHealthDie) DieRelease() corev1.PodVolumeHealth {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *PodVolumeHealthDie) DieReleasePtr() *corev1.PodVolumeHealth {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *PodVolumeHealthDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *PodVolumeHealthDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *PodVolumeHealthDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *PodVolumeHealthDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *PodVolumeHealthDie) DieStamp(fn func(r *corev1.PodVolumeHealth)) *PodVolumeHealthDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *PodVolumeHealthDie) DieStampAt(jp string, fn interface{}) *PodVolumeHealthDie {
+	return d.DieStamp(func(r *corev1.PodVolumeHealth) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PodVolumeHealthDie) DieWith(fns ...func(d *PodVolumeHealthDie)) *PodVolumeHealthDie {
+	nd := PodVolumeHealthBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *PodVolumeHealthDie) DeepCopy() *PodVolumeHealthDie {
+	r := *d.r.DeepCopy()
+	return &PodVolumeHealthDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *PodVolumeHealthDie) DieSeal() *PodVolumeHealthDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *PodVolumeHealthDie) DieSealFeed(r corev1.PodVolumeHealth) *PodVolumeHealthDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *PodVolumeHealthDie) DieSealFeedPtr(r *corev1.PodVolumeHealth) *PodVolumeHealthDie {
+	if r == nil {
+		r = &corev1.PodVolumeHealth{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *PodVolumeHealthDie) DieSealRelease() corev1.PodVolumeHealth {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *PodVolumeHealthDie) DieSealReleasePtr() *corev1.PodVolumeHealth {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *PodVolumeHealthDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *PodVolumeHealthDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// HealthConditionsDie replaces HealthConditions by collecting the released value from each die passed.
+//
+// healthConditions is the set of adverse conditions reported by
+//
+// the CSI node plugin for this volume on this node.
+//
+// At most 16 conditions may be reported.
+func (d *PodVolumeHealthDie) HealthConditionsDie(v ...*VolumeHealthConditionDie) *PodVolumeHealthDie {
+	return d.DieStamp(func(r *corev1.PodVolumeHealth) {
+		r.HealthConditions = make([]corev1.VolumeHealthCondition, len(v))
+		for i := range v {
+			r.HealthConditions[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// name matches an entry in pod.spec.volumes.
+func (d *PodVolumeHealthDie) Name(v string) *PodVolumeHealthDie {
+	return d.DieStamp(func(r *corev1.PodVolumeHealth) {
+		r.Name = v
+	})
+}
+
+// healthConditions is the set of adverse conditions reported by
+//
+// the CSI node plugin for this volume on this node.
+//
+// At most 16 conditions may be reported.
+func (d *PodVolumeHealthDie) HealthConditions(v ...corev1.VolumeHealthCondition) *PodVolumeHealthDie {
+	return d.DieStamp(func(r *corev1.PodVolumeHealth) {
+		r.HealthConditions = v
+	})
+}
+
+// lastTransitionTime is when the current set of conditions first appeared.
+func (d *PodVolumeHealthDie) LastTransitionTime(v apismetav1.Time) *PodVolumeHealthDie {
+	return d.DieStamp(func(r *corev1.PodVolumeHealth) {
+		r.LastTransitionTime = v
+	})
 }
 
 var PodTemplateBlank = (&PodTemplateDie{}).DieFeed(corev1.PodTemplate{})
@@ -43794,7 +45102,7 @@ func (d *PodTemplateDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *PodTempl
 
 // TemplateDie mutates Template as a die.
 //
-// Template defines the pods that will be created from this pod template.
+// template defines the pods that will be created from this pod template.
 //
 // https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *PodTemplateDie) TemplateDie(fn func(d *PodTemplateSpecDie)) *PodTemplateDie {
@@ -43805,7 +45113,7 @@ func (d *PodTemplateDie) TemplateDie(fn func(d *PodTemplateSpecDie)) *PodTemplat
 	})
 }
 
-// Template defines the pods that will be created from this pod template.
+// template defines the pods that will be created from this pod template.
 //
 // https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *PodTemplateDie) Template(v corev1.PodTemplateSpec) *PodTemplateDie {
@@ -44062,7 +45370,7 @@ func (d *PodTemplateSpecDie) DiePatch(patchType types.PatchType) ([]byte, error)
 
 // MetadataDie mutates ObjectMeta as a die.
 //
-// Standard object's metadata.
+// metadata is the standard object's metadata.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
 func (d *PodTemplateSpecDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *PodTemplateSpecDie {
@@ -44075,7 +45383,7 @@ func (d *PodTemplateSpecDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *PodT
 
 // SpecDie mutates Spec as a die.
 //
-// Specification of the desired behavior of the pod.
+// spec is the specification of the desired behavior of the pod.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *PodTemplateSpecDie) SpecDie(fn func(d *PodSpecDie)) *PodTemplateSpecDie {
@@ -44086,7 +45394,7 @@ func (d *PodTemplateSpecDie) SpecDie(fn func(d *PodSpecDie)) *PodTemplateSpecDie
 	})
 }
 
-// Standard object's metadata.
+// metadata is the standard object's metadata.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
 func (d *PodTemplateSpecDie) ObjectMeta(v apismetav1.ObjectMeta) *PodTemplateSpecDie {
@@ -44095,7 +45403,7 @@ func (d *PodTemplateSpecDie) ObjectMeta(v apismetav1.ObjectMeta) *PodTemplateSpe
 	})
 }
 
-// Specification of the desired behavior of the pod.
+// spec is the specification of the desired behavior of the pod.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *PodTemplateSpecDie) Spec(v corev1.PodSpec) *PodTemplateSpecDie {
@@ -44463,7 +45771,7 @@ func (d *ReplicationControllerDie) StatusDie(fn func(d *ReplicationControllerSta
 	})
 }
 
-// Spec defines the specification of the desired behavior of the replication controller.
+// spec defines the specification of the desired behavior of the replication controller.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *ReplicationControllerDie) Spec(v corev1.ReplicationControllerSpec) *ReplicationControllerDie {
@@ -44472,7 +45780,7 @@ func (d *ReplicationControllerDie) Spec(v corev1.ReplicationControllerSpec) *Rep
 	})
 }
 
-// Status is the most recently observed status of the replication controller.
+// status is the most recently observed status of the replication controller.
 //
 // This data may be out of date by some window of time.
 //
@@ -44735,7 +46043,7 @@ func (d *ReplicationControllerSpecDie) DiePatch(patchType types.PatchType) ([]by
 
 // TemplateDie mutates Template as a die.
 //
-// # Template is the object that describes the pod that will be created if
+// template is the object that describes the pod that will be created if
 //
 // insufficient replicas are detected. This takes precedence over a TemplateRef.
 //
@@ -44750,7 +46058,7 @@ func (d *ReplicationControllerSpecDie) TemplateDie(fn func(d *PodTemplateSpecDie
 	})
 }
 
-// Replicas is the number of desired replicas.
+// replicas is the number of desired replicas.
 //
 // This is a pointer to distinguish between explicit zero and unspecified.
 //
@@ -44763,7 +46071,7 @@ func (d *ReplicationControllerSpecDie) Replicas(v *int32) *ReplicationController
 	})
 }
 
-// Minimum number of seconds for which a newly created pod should be ready
+// minReadySeconds is the minimum number of seconds for which a newly created pod should be ready
 //
 // without any of its container crashing, for it to be considered available.
 //
@@ -44774,7 +46082,7 @@ func (d *ReplicationControllerSpecDie) MinReadySeconds(v int32) *ReplicationCont
 	})
 }
 
-// Selector is a label query over pods that should match the Replicas count.
+// selector is a label query over pods that should match the Replicas count.
 //
 // If Selector is empty, it is defaulted to the labels present on the Pod template.
 //
@@ -44789,7 +46097,7 @@ func (d *ReplicationControllerSpecDie) Selector(v map[string]string) *Replicatio
 	})
 }
 
-// Template is the object that describes the pod that will be created if
+// template is the object that describes the pod that will be created if
 //
 // insufficient replicas are detected. This takes precedence over a TemplateRef.
 //
@@ -45451,7 +46759,7 @@ func (d *ResourceQuotaDie) StatusDie(fn func(d *ResourceQuotaStatusDie)) *Resour
 	})
 }
 
-// Spec defines the desired quota.
+// spec defines the desired quota.
 //
 // https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *ResourceQuotaDie) Spec(v corev1.ResourceQuotaSpec) *ResourceQuotaDie {
@@ -45460,7 +46768,7 @@ func (d *ResourceQuotaDie) Spec(v corev1.ResourceQuotaSpec) *ResourceQuotaDie {
 	})
 }
 
-// Status defines the actual enforced quota and its current usage.
+// status defines the actual enforced quota and its current usage.
 //
 // https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *ResourceQuotaDie) Status(v corev1.ResourceQuotaStatus) *ResourceQuotaDie {
@@ -45763,7 +47071,7 @@ func (d *ResourceQuotaSpecDie) AddHardString(name corev1.ResourceName, quantity 
 	return d.AddHard(name, q)
 }
 
-// A collection of filters that must match each object tracked by a quota.
+// scopes is a collection of filters that must match each object tracked by a quota.
 //
 // If not specified, the quota matches all objects.
 func (d *ResourceQuotaSpecDie) Scopes(v ...corev1.ResourceQuotaScope) *ResourceQuotaSpecDie {
@@ -46031,7 +47339,7 @@ func (d *ScopeSelectorDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // MatchExpressionDie mutates a single item in MatchExpressions matched by the nested field ScopeName, appending a new item if no match is found.
 //
-// A list of scope selector requirements by scope of the resources.
+// matchExpressions is a list of scope selector requirements by scope of the resources.
 func (d *ScopeSelectorDie) MatchExpressionDie(v corev1.ResourceQuotaScope, fn func(d *ScopedResourceSelectorRequirementDie)) *ScopeSelectorDie {
 	return d.DieStamp(func(r *corev1.ScopeSelector) {
 		for i := range r.MatchExpressions {
@@ -46049,7 +47357,7 @@ func (d *ScopeSelectorDie) MatchExpressionDie(v corev1.ResourceQuotaScope, fn fu
 	})
 }
 
-// A list of scope selector requirements by scope of the resources.
+// matchExpressions is a list of scope selector requirements by scope of the resources.
 func (d *ScopeSelectorDie) MatchExpressions(v ...corev1.ScopedResourceSelectorRequirement) *ScopeSelectorDie {
 	return d.DieStamp(func(r *corev1.ScopeSelector) {
 		r.MatchExpressions = v
@@ -46302,14 +47610,14 @@ func (d *ScopedResourceSelectorRequirementDie) DiePatch(patchType types.PatchTyp
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// The name of the scope that the selector applies to.
+// scopeName is the name of the scope that the selector applies to.
 func (d *ScopedResourceSelectorRequirementDie) ScopeName(v corev1.ResourceQuotaScope) *ScopedResourceSelectorRequirementDie {
 	return d.DieStamp(func(r *corev1.ScopedResourceSelectorRequirement) {
 		r.ScopeName = v
 	})
 }
 
-// Represents a scope's relationship to a set of values.
+// operator represents a scope's relationship to a set of values.
 //
 // Valid operators are In, NotIn, Exists, DoesNotExist.
 func (d *ScopedResourceSelectorRequirementDie) Operator(v corev1.ScopeSelectorOperator) *ScopedResourceSelectorRequirementDie {
@@ -46318,7 +47626,7 @@ func (d *ScopedResourceSelectorRequirementDie) Operator(v corev1.ScopeSelectorOp
 	})
 }
 
-// An array of string values. If the operator is In or NotIn,
+// values is an array of string values. If the operator is In or NotIn,
 //
 // the values array must be non-empty. If the operator is Exists or DoesNotExist,
 //
@@ -46577,7 +47885,7 @@ func (d *ResourceQuotaStatusDie) DiePatch(patchType types.PatchType) ([]byte, er
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Hard is the set of enforced hard limits for each named resource.
+// hard is the set of enforced hard limits for each named resource.
 //
 // More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
 func (d *ResourceQuotaStatusDie) Hard(v corev1.ResourceList) *ResourceQuotaStatusDie {
@@ -46588,7 +47896,7 @@ func (d *ResourceQuotaStatusDie) Hard(v corev1.ResourceList) *ResourceQuotaStatu
 
 // AddHard sets a single quantity on the Hard resource list.
 //
-// Hard is the set of enforced hard limits for each named resource.
+// hard is the set of enforced hard limits for each named resource.
 //
 // More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
 func (d *ResourceQuotaStatusDie) AddHard(name corev1.ResourceName, quantity resource.Quantity) *ResourceQuotaStatusDie {
@@ -46602,7 +47910,7 @@ func (d *ResourceQuotaStatusDie) AddHard(name corev1.ResourceName, quantity reso
 
 // AddHardString parses the quantity setting a single value on the Hard resource list. Panics if the string is not parsable.
 //
-// Hard is the set of enforced hard limits for each named resource.
+// hard is the set of enforced hard limits for each named resource.
 //
 // More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
 func (d *ResourceQuotaStatusDie) AddHardString(name corev1.ResourceName, quantity string) *ResourceQuotaStatusDie {
@@ -46610,7 +47918,7 @@ func (d *ResourceQuotaStatusDie) AddHardString(name corev1.ResourceName, quantit
 	return d.AddHard(name, q)
 }
 
-// Used is the current observed total usage of the resource in the namespace.
+// used is the current observed total usage of the resource in the namespace.
 func (d *ResourceQuotaStatusDie) Used(v corev1.ResourceList) *ResourceQuotaStatusDie {
 	return d.DieStamp(func(r *corev1.ResourceQuotaStatus) {
 		r.Used = v
@@ -46619,7 +47927,7 @@ func (d *ResourceQuotaStatusDie) Used(v corev1.ResourceList) *ResourceQuotaStatu
 
 // AddUsed sets a single quantity on the Used resource list.
 //
-// Used is the current observed total usage of the resource in the namespace.
+// used is the current observed total usage of the resource in the namespace.
 func (d *ResourceQuotaStatusDie) AddUsed(name corev1.ResourceName, quantity resource.Quantity) *ResourceQuotaStatusDie {
 	return d.DieStamp(func(r *corev1.ResourceQuotaStatus) {
 		if r.Used == nil {
@@ -46631,7 +47939,7 @@ func (d *ResourceQuotaStatusDie) AddUsed(name corev1.ResourceName, quantity reso
 
 // AddUsedString parses the quantity setting a single value on the Used resource list. Panics if the string is not parsable.
 //
-// Used is the current observed total usage of the resource in the namespace.
+// used is the current observed total usage of the resource in the namespace.
 func (d *ResourceQuotaStatusDie) AddUsedString(name corev1.ResourceName, quantity string) *ResourceQuotaStatusDie {
 	q := resource.MustParse(quantity)
 	return d.AddUsed(name, q)
@@ -46978,7 +48286,7 @@ func (d *SecretDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *SecretDie {
 	})
 }
 
-// Immutable, if set to true, ensures that data stored in the Secret cannot
+// immutable if set to true, ensures that data stored in the Secret cannot
 //
 // be updated (only object metadata can be modified).
 //
@@ -46991,7 +48299,7 @@ func (d *SecretDie) Immutable(v *bool) *SecretDie {
 	})
 }
 
-// Used to facilitate programmatic handling of secret data.
+// type is used to facilitate programmatic handling of secret data.
 //
 // More info: https://kubernetes.io/docs/concepts/configuration/secret/#secret-types
 func (d *SecretDie) Type(v corev1.SecretType) *SecretDie {
@@ -47359,7 +48667,7 @@ func (d *ServiceDie) StatusDie(fn func(d *ServiceStatusDie)) *ServiceDie {
 	})
 }
 
-// Spec defines the behavior of a service.
+// spec defines the behavior of a service.
 //
 // https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *ServiceDie) Spec(v corev1.ServiceSpec) *ServiceDie {
@@ -47368,7 +48676,7 @@ func (d *ServiceDie) Spec(v corev1.ServiceSpec) *ServiceDie {
 	})
 }
 
-// Most recently observed status of the service.
+// status is the most recently observed status of the service.
 //
 // Populated by the system.
 //
@@ -47638,7 +48946,7 @@ func (d *ServiceSpecDie) SessionAffinityConfigDie(fn func(d *SessionAffinityConf
 	})
 }
 
-// The list of ports that are exposed by this service.
+// ports is the list of ports that are exposed by this service.
 //
 // More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
 func (d *ServiceSpecDie) Ports(v ...corev1.ServicePort) *ServiceSpecDie {
@@ -47647,7 +48955,7 @@ func (d *ServiceSpecDie) Ports(v ...corev1.ServicePort) *ServiceSpecDie {
 	})
 }
 
-// Route service traffic to pods with label keys and values matching this
+// selector routes service traffic to pods with label keys and values matching this
 //
 // selector. If empty or not present, the service is assumed to have an
 //
@@ -47699,7 +49007,7 @@ func (d *ServiceSpecDie) ClusterIP(v string) *ServiceSpecDie {
 	})
 }
 
-// ClusterIPs is a list of IP addresses assigned to this service, and are
+// clusterIPs is a list of IP addresses assigned to this service, and are
 //
 // usually assigned randomly.  If an address is specified manually, is
 //
@@ -47800,7 +49108,7 @@ func (d *ServiceSpecDie) ExternalIPs(v ...string) *ServiceSpecDie {
 	})
 }
 
-// Supports "ClientIP" and "None". Used to maintain session affinity.
+// sessionAffinity supports "ClientIP" and "None". Used to maintain session affinity.
 //
 // Enable client IP based session affinity.
 //
@@ -47815,7 +49123,7 @@ func (d *ServiceSpecDie) SessionAffinity(v corev1.ServiceAffinity) *ServiceSpecD
 	})
 }
 
-// Only applies to Service Type: LoadBalancer.
+// loadBalancerIP only applies to Service Type: LoadBalancer.
 //
 // # This feature depends on whether the underlying cloud-provider supports specifying
 //
@@ -47834,7 +49142,7 @@ func (d *ServiceSpecDie) LoadBalancerIP(v string) *ServiceSpecDie {
 	})
 }
 
-// If specified and supported by the platform, this will restrict traffic through the cloud-provider
+// loadBalancerSourceRanges If specified and supported by the platform, this will restrict traffic through the cloud-provider
 //
 // load-balancer will be restricted to the specified client IPs. This field will be ignored if the
 //
@@ -47944,7 +49252,7 @@ func (d *ServiceSpecDie) SessionAffinityConfig(v *corev1.SessionAffinityConfig) 
 	})
 }
 
-// IPFamilies is a list of IP families (e.g. IPv4, IPv6) assigned to this
+// ipFamilies is a list of IP families (e.g. IPv4, IPv6) assigned to this
 //
 // service. This field is usually assigned automatically based on cluster
 //
@@ -47979,7 +49287,7 @@ func (d *ServiceSpecDie) IPFamilies(v ...corev1.IPFamily) *ServiceSpecDie {
 	})
 }
 
-// IPFamilyPolicy represents the dual-stack-ness requested or required by
+// ipFamilyPolicy represents the dual-stack-ness requested or required by
 //
 // this Service. If there is no value provided, then this field will be set
 //
@@ -48044,7 +49352,7 @@ func (d *ServiceSpecDie) LoadBalancerClass(v *string) *ServiceSpecDie {
 	})
 }
 
-// InternalTrafficPolicy describes how nodes distribute service traffic they
+// internalTrafficPolicy describes how nodes distribute service traffic they
 //
 // receive on the ClusterIP. If set to "Local", the proxy will assume that pods
 //
@@ -48061,7 +49369,7 @@ func (d *ServiceSpecDie) InternalTrafficPolicy(v *corev1.ServiceInternalTrafficP
 	})
 }
 
-// TrafficDistribution offers a way to express preferences for how traffic
+// trafficDistribution offers a way to express preferences for how traffic
 //
 // is distributed to Service endpoints. Implementations can use this field
 //
@@ -48324,7 +49632,7 @@ func (d *ServicePortDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// The name of this port within the service. This must be a DNS_LABEL.
+// name is the name of this port within the service. This must be a DNS_LABEL.
 //
 // All ports within a ServiceSpec must have unique names. When considering
 //
@@ -48339,7 +49647,7 @@ func (d *ServicePortDie) Name(v string) *ServicePortDie {
 	})
 }
 
-// The IP protocol for this port. Supports "TCP", "UDP", and "SCTP".
+// protocol is the IP protocol for this port. Supports "TCP", "UDP", and "SCTP".
 //
 // Default is TCP.
 func (d *ServicePortDie) Protocol(v corev1.Protocol) *ServicePortDie {
@@ -48348,7 +49656,7 @@ func (d *ServicePortDie) Protocol(v corev1.Protocol) *ServicePortDie {
 	})
 }
 
-// The application protocol for this port.
+// appProtocol is the application protocol for this port.
 //
 // This is used as a hint for implementations to offer richer behavior for protocols that they understand.
 //
@@ -48377,14 +49685,14 @@ func (d *ServicePortDie) AppProtocol(v *string) *ServicePortDie {
 	})
 }
 
-// The port that will be exposed by this service.
+// port is the port that will be exposed by this service.
 func (d *ServicePortDie) Port(v int32) *ServicePortDie {
 	return d.DieStamp(func(r *corev1.ServicePort) {
 		r.Port = v
 	})
 }
 
-// Number or name of the port to access on the pods targeted by the service.
+// targetPort is the number or name of the port to access on the pods targeted by the service.
 //
 // Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
 //
@@ -48407,7 +49715,7 @@ func (d *ServicePortDie) TargetPort(v intstr.IntOrString) *ServicePortDie {
 
 // TargetPortInt sets TargetPort with the int value.
 //
-// Number or name of the port to access on the pods targeted by the service.
+// targetPort is the number or name of the port to access on the pods targeted by the service.
 //
 // Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
 //
@@ -48431,7 +49739,7 @@ func (d *ServicePortDie) TargetPortInt(i int) *ServicePortDie {
 
 // TargetPortString sets TargetPort with the string value.
 //
-// Number or name of the port to access on the pods targeted by the service.
+// targetPort is the number or name of the port to access on the pods targeted by the service.
 //
 // Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
 //
@@ -48453,7 +49761,7 @@ func (d *ServicePortDie) TargetPortString(s string) *ServicePortDie {
 	})
 }
 
-// The port on each node on which this service is exposed when type is
+// nodePort is the port on each node on which this service is exposed when type is
 //
 // NodePort or LoadBalancer.  Usually assigned by the system. If a value is
 //
@@ -49520,7 +50828,7 @@ func (d *LoadBalancerStatusDie) DiePatch(patchType types.PatchType) ([]byte, err
 
 // IngressDie replaces Ingress by collecting the released value from each die passed.
 //
-// Ingress is a list containing ingress points for the load-balancer.
+// ingress is a list containing ingress points for the load-balancer.
 //
 // Traffic intended for the service should be sent to these ingress points.
 func (d *LoadBalancerStatusDie) IngressDie(v ...*LoadBalancerIngressDie) *LoadBalancerStatusDie {
@@ -49532,7 +50840,7 @@ func (d *LoadBalancerStatusDie) IngressDie(v ...*LoadBalancerIngressDie) *LoadBa
 	})
 }
 
-// Ingress is a list containing ingress points for the load-balancer.
+// ingress is a list containing ingress points for the load-balancer.
 //
 // Traffic intended for the service should be sent to these ingress points.
 func (d *LoadBalancerStatusDie) Ingress(v ...corev1.LoadBalancerIngress) *LoadBalancerStatusDie {
@@ -49789,7 +51097,7 @@ func (d *LoadBalancerIngressDie) DiePatch(patchType types.PatchType) ([]byte, er
 
 // PortsDie replaces Ports by collecting the released value from each die passed.
 //
-// # Ports is a list of records of service ports
+// ports is a list of records of service ports
 //
 // If used, every port defined in the service should have an entry in it
 func (d *LoadBalancerIngressDie) PortsDie(v ...*PortStatusDie) *LoadBalancerIngressDie {
@@ -49801,7 +51109,7 @@ func (d *LoadBalancerIngressDie) PortsDie(v ...*PortStatusDie) *LoadBalancerIngr
 	})
 }
 
-// IP is set for load-balancer ingress points that are IP based
+// ip is set for load-balancer ingress points that are IP based
 //
 // (typically GCE or OpenStack load-balancers)
 func (d *LoadBalancerIngressDie) IP(v string) *LoadBalancerIngressDie {
@@ -49810,7 +51118,7 @@ func (d *LoadBalancerIngressDie) IP(v string) *LoadBalancerIngressDie {
 	})
 }
 
-// Hostname is set for load-balancer ingress points that are DNS based
+// hostname is set for load-balancer ingress points that are DNS based
 //
 // (typically AWS load-balancers)
 func (d *LoadBalancerIngressDie) Hostname(v string) *LoadBalancerIngressDie {
@@ -49819,7 +51127,7 @@ func (d *LoadBalancerIngressDie) Hostname(v string) *LoadBalancerIngressDie {
 	})
 }
 
-// IPMode specifies how the load-balancer IP behaves, and may only be specified when the ip field is specified.
+// ipMode specifies how the load-balancer IP behaves, and may only be specified when the ip field is specified.
 //
 // Setting this to "VIP" indicates that traffic is delivered to the node with
 //
@@ -49836,7 +51144,7 @@ func (d *LoadBalancerIngressDie) IPMode(v *corev1.LoadBalancerIPMode) *LoadBalan
 	})
 }
 
-// Ports is a list of records of service ports
+// ports is a list of records of service ports
 //
 // If used, every port defined in the service should have an entry in it
 func (d *LoadBalancerIngressDie) Ports(v ...corev1.PortStatus) *LoadBalancerIngressDie {
@@ -50091,14 +51399,14 @@ func (d *PortStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Port is the port number of the service port of which status is recorded here
+// port is the port number of the service port of which status is recorded here
 func (d *PortStatusDie) Port(v int32) *PortStatusDie {
 	return d.DieStamp(func(r *corev1.PortStatus) {
 		r.Port = v
 	})
 }
 
-// Protocol is the protocol of the service port of which status is recorded here
+// protocol is the protocol of the service port of which status is recorded here
 //
 // The supported values are: "TCP", "UDP", "SCTP"
 func (d *PortStatusDie) Protocol(v corev1.Protocol) *PortStatusDie {
@@ -50107,7 +51415,7 @@ func (d *PortStatusDie) Protocol(v corev1.Protocol) *PortStatusDie {
 	})
 }
 
-// Error is to record the problem with the service port
+// error is to record the problem with the service port
 //
 // The format of the error shall comply with the following rules:
 //
@@ -50471,7 +51779,7 @@ func (d *ServiceAccountDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Servi
 
 // SecretsDie replaces Secrets by collecting the released value from each die passed.
 //
-// Secrets is a list of the secrets in the same namespace that pods running using this ServiceAccount are allowed to use.
+// secrets is a list of the secrets in the same namespace that pods running using this ServiceAccount are allowed to use.
 //
 // Pods are only limited to this list if this service account has a "kubernetes.io/enforce-mountable-secrets" annotation set to "true".
 //
@@ -50495,7 +51803,7 @@ func (d *ServiceAccountDie) SecretsDie(v ...*ObjectReferenceDie) *ServiceAccount
 
 // ImagePullSecretsDie replaces ImagePullSecrets by collecting the released value from each die passed.
 //
-// # ImagePullSecrets is a list of references to secrets in the same namespace to use for pulling any images
+// imagePullSecrets is a list of references to secrets in the same namespace to use for pulling any images
 //
 // in pods that reference this ServiceAccount. ImagePullSecrets are distinct from Secrets because Secrets
 //
@@ -50511,7 +51819,7 @@ func (d *ServiceAccountDie) ImagePullSecretsDie(v ...*LocalObjectReferenceDie) *
 	})
 }
 
-// Secrets is a list of the secrets in the same namespace that pods running using this ServiceAccount are allowed to use.
+// secrets is a list of the secrets in the same namespace that pods running using this ServiceAccount are allowed to use.
 //
 // Pods are only limited to this list if this service account has a "kubernetes.io/enforce-mountable-secrets" annotation set to "true".
 //
@@ -50530,7 +51838,7 @@ func (d *ServiceAccountDie) Secrets(v ...corev1.ObjectReference) *ServiceAccount
 	})
 }
 
-// ImagePullSecrets is a list of references to secrets in the same namespace to use for pulling any images
+// imagePullSecrets is a list of references to secrets in the same namespace to use for pulling any images
 //
 // in pods that reference this ServiceAccount. ImagePullSecrets are distinct from Secrets because Secrets
 //
@@ -50543,7 +51851,7 @@ func (d *ServiceAccountDie) ImagePullSecrets(v ...corev1.LocalObjectReference) *
 	})
 }
 
-// AutomountServiceAccountToken indicates whether pods running as this service account should have an API token automatically mounted.
+// automountServiceAccountToken indicates whether pods running as this service account should have an API token automatically mounted.
 //
 // Can be overridden at the pod level.
 func (d *ServiceAccountDie) AutomountServiceAccountToken(v *bool) *ServiceAccountDie {
@@ -52600,7 +53908,7 @@ func (d *SecretVolumeSourceDie) Optional(v *bool) *SecretVolumeSourceDie {
 //
 // The defaultUser field is only used as a fallback when the item-level user field is unset.
 //
-// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+// (Beta) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
 func (d *SecretVolumeSourceDie) DefaultUser(v *int64) *SecretVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.SecretVolumeSource) {
 		r.DefaultUser = v
@@ -55564,7 +56872,7 @@ func (d *DownwardAPIVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte
 
 // ItemDie mutates a single item in Items matched by the nested field Path, appending a new item if no match is found.
 //
-// Items is a list of downward API volume file
+// items is a list of downward API volume file
 func (d *DownwardAPIVolumeSourceDie) ItemDie(v string, fn func(d *DownwardAPIVolumeFileDie)) *DownwardAPIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeSource) {
 		for i := range r.Items {
@@ -55582,14 +56890,14 @@ func (d *DownwardAPIVolumeSourceDie) ItemDie(v string, fn func(d *DownwardAPIVol
 	})
 }
 
-// Items is a list of downward API volume file
+// items is a list of downward API volume file
 func (d *DownwardAPIVolumeSourceDie) Items(v ...corev1.DownwardAPIVolumeFile) *DownwardAPIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeSource) {
 		r.Items = v
 	})
 }
 
-// Optional: mode bits to use on created files by default. Must be a
+// defaultMode is mode bits to use on created files by default. Must be a
 //
 // Optional: mode bits used to set permissions on created files by default.
 //
@@ -55614,7 +56922,7 @@ func (d *DownwardAPIVolumeSourceDie) DefaultMode(v *int32) *DownwardAPIVolumeSou
 //
 // The defaultUser field is only used as a fallback when the item-level user field is unset.
 //
-// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+// (Beta) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
 func (d *DownwardAPIVolumeSourceDie) DefaultUser(v *int64) *DownwardAPIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeSource) {
 		r.DefaultUser = v
@@ -55869,7 +57177,7 @@ func (d *DownwardAPIVolumeFileDie) DiePatch(patchType types.PatchType) ([]byte, 
 
 // FieldRefDie mutates FieldRef as a die.
 //
-// Required: Selects a field of the pod: only annotations, labels, name, namespace and uid are supported.
+// fieldRef selects a field of the pod: only annotations, labels, name, namespace and uid are supported. Required.
 func (d *DownwardAPIVolumeFileDie) FieldRefDie(fn func(d *ObjectFieldSelectorDie)) *DownwardAPIVolumeFileDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeFile) {
 		d := ObjectFieldSelectorBlank.DieImmutable(false).DieFeedPtr(r.FieldRef)
@@ -55880,7 +57188,7 @@ func (d *DownwardAPIVolumeFileDie) FieldRefDie(fn func(d *ObjectFieldSelectorDie
 
 // ResourceFieldRefDie mutates ResourceFieldRef as a die.
 //
-// Selects a resource of the container: only resources limits and requests
+// resourceFieldRef selects a resource of the container: only resources limits and requests
 //
 // (limits.cpu, limits.memory, requests.cpu and requests.memory) are currently supported.
 func (d *DownwardAPIVolumeFileDie) ResourceFieldRefDie(fn func(d *ResourceFieldSelectorDie)) *DownwardAPIVolumeFileDie {
@@ -55891,21 +57199,21 @@ func (d *DownwardAPIVolumeFileDie) ResourceFieldRefDie(fn func(d *ResourceFieldS
 	})
 }
 
-// Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'
+// path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'
 func (d *DownwardAPIVolumeFileDie) Path(v string) *DownwardAPIVolumeFileDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeFile) {
 		r.Path = v
 	})
 }
 
-// Required: Selects a field of the pod: only annotations, labels, name, namespace and uid are supported.
+// fieldRef selects a field of the pod: only annotations, labels, name, namespace and uid are supported. Required.
 func (d *DownwardAPIVolumeFileDie) FieldRef(v *corev1.ObjectFieldSelector) *DownwardAPIVolumeFileDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeFile) {
 		r.FieldRef = v
 	})
 }
 
-// Selects a resource of the container: only resources limits and requests
+// resourceFieldRef selects a resource of the container: only resources limits and requests
 //
 // (limits.cpu, limits.memory, requests.cpu and requests.memory) are currently supported.
 func (d *DownwardAPIVolumeFileDie) ResourceFieldRef(v *corev1.ResourceFieldSelector) *DownwardAPIVolumeFileDie {
@@ -55914,7 +57222,7 @@ func (d *DownwardAPIVolumeFileDie) ResourceFieldRef(v *corev1.ResourceFieldSelec
 	})
 }
 
-// Optional: mode bits used to set permissions on this file, must be an octal value
+// mode is optional: mode bits used to set permissions on this file, must be an octal value
 //
 // between 0000 and 0777 or a decimal value between 0 and 511.
 //
@@ -55935,7 +57243,7 @@ func (d *DownwardAPIVolumeFileDie) Mode(v *int32) *DownwardAPIVolumeFileDie {
 //
 // If specified, the item-level user field takes precedence over defaultUser.
 //
-// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+// (Beta) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
 func (d *DownwardAPIVolumeFileDie) User(v *int64) *DownwardAPIVolumeFileDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeFile) {
 		r.User = v
@@ -56835,7 +58143,7 @@ func (d *ConfigMapVolumeSourceDie) Optional(v *bool) *ConfigMapVolumeSourceDie {
 //
 // The defaultUser field is only used as a fallback when the item-level user field is unset.
 //
-// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+// (Beta) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
 func (d *ConfigMapVolumeSourceDie) DefaultUser(v *int64) *ConfigMapVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ConfigMapVolumeSource) {
 		r.DefaultUser = v
@@ -58268,7 +59576,7 @@ func (d *ProjectedVolumeSourceDie) DefaultMode(v *int32) *ProjectedVolumeSourceD
 //
 // The defaultUser field is only used as a fallback when the item-level user field is unset.
 //
-// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+// (Beta) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
 func (d *ProjectedVolumeSourceDie) DefaultUser(v *int64) *ProjectedVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ProjectedVolumeSource) {
 		r.DefaultUser = v
@@ -58567,7 +59875,7 @@ func (d *VolumeProjectionDie) ServiceAccountTokenDie(fn func(d *ServiceAccountTo
 
 // ClusterTrustBundleDie mutates ClusterTrustBundle as a die.
 //
-// # ClusterTrustBundle allows a pod to access the `.spec.trustBundle` field
+// clusterTrustBundle allows a pod to access the `.spec.trustBundle` field
 //
 // of ClusterTrustBundle objects in an auto-updating file.
 //
@@ -58596,7 +59904,7 @@ func (d *VolumeProjectionDie) ClusterTrustBundleDie(fn func(d *ClusterTrustBundl
 
 // PodCertificateDie mutates PodCertificate as a die.
 //
-// # Projects an auto-rotating credential bundle (private key and certificate
+// podCertificate projects an auto-rotating credential bundle (private key and certificate
 //
 // chain) that the pod can use either as a TLS client or server.
 //
@@ -58687,7 +59995,7 @@ func (d *VolumeProjectionDie) ServiceAccountToken(v *corev1.ServiceAccountTokenP
 	})
 }
 
-// ClusterTrustBundle allows a pod to access the `.spec.trustBundle` field
+// clusterTrustBundle allows a pod to access the `.spec.trustBundle` field
 //
 // of ClusterTrustBundle objects in an auto-updating file.
 //
@@ -58712,7 +60020,7 @@ func (d *VolumeProjectionDie) ClusterTrustBundle(v *corev1.ClusterTrustBundlePro
 	})
 }
 
-// Projects an auto-rotating credential bundle (private key and certificate
+// podCertificate projects an auto-rotating credential bundle (private key and certificate
 //
 // chain) that the pod can use either as a TLS client or server.
 //
@@ -59331,7 +60639,7 @@ func (d *DownwardAPIProjectionDie) DiePatch(patchType types.PatchType) ([]byte, 
 
 // ItemDie mutates a single item in Items matched by the nested field Path, appending a new item if no match is found.
 //
-// Items is a list of DownwardAPIVolume file
+// items is a list of DownwardAPIVolume file
 func (d *DownwardAPIProjectionDie) ItemDie(v string, fn func(d *DownwardAPIVolumeFileDie)) *DownwardAPIProjectionDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIProjection) {
 		for i := range r.Items {
@@ -59349,7 +60657,7 @@ func (d *DownwardAPIProjectionDie) ItemDie(v string, fn func(d *DownwardAPIVolum
 	})
 }
 
-// Items is a list of DownwardAPIVolume file
+// items is a list of DownwardAPIVolume file
 func (d *DownwardAPIProjectionDie) Items(v ...corev1.DownwardAPIVolumeFile) *DownwardAPIProjectionDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIProjection) {
 		r.Items = v
@@ -59955,7 +61263,7 @@ func (d *ServiceAccountTokenProjectionDie) Path(v string) *ServiceAccountTokenPr
 //
 // If specified, the item-level user field takes precedence over defaultUser.
 //
-// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+// (Beta) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
 func (d *ServiceAccountTokenProjectionDie) User(v *int64) *ServiceAccountTokenProjectionDie {
 	return d.DieStamp(func(r *corev1.ServiceAccountTokenProjection) {
 		r.User = v
@@ -60210,7 +61518,7 @@ func (d *ClusterTrustBundleProjectionDie) DiePatch(patchType types.PatchType) ([
 
 // LabelSelectorDie mutates LabelSelector as a die.
 //
-// Select all ClusterTrustBundles that match this label selector.  Only has
+// labelSelector selects all ClusterTrustBundles that match this label selector.  Only has
 //
 // effect if signerName is set.  Mutually-exclusive with name.  If unset,
 //
@@ -60225,7 +61533,7 @@ func (d *ClusterTrustBundleProjectionDie) LabelSelectorDie(fn func(d *metav1.Lab
 	})
 }
 
-// Select a single ClusterTrustBundle by object name.  Mutually-exclusive
+// name selects a single ClusterTrustBundle by object name.  Mutually-exclusive
 //
 // with signerName and labelSelector.
 func (d *ClusterTrustBundleProjectionDie) Name(v *string) *ClusterTrustBundleProjectionDie {
@@ -60234,7 +61542,7 @@ func (d *ClusterTrustBundleProjectionDie) Name(v *string) *ClusterTrustBundlePro
 	})
 }
 
-// Select all ClusterTrustBundles that match this signer name.
+// signerName selects all ClusterTrustBundles that match this signer name.
 //
 // Mutually-exclusive with name.  The contents of all selected
 //
@@ -60245,7 +61553,7 @@ func (d *ClusterTrustBundleProjectionDie) SignerName(v *string) *ClusterTrustBun
 	})
 }
 
-// Select all ClusterTrustBundles that match this label selector.  Only has
+// labelSelector selects all ClusterTrustBundles that match this label selector.  Only has
 //
 // effect if signerName is set.  Mutually-exclusive with name.  If unset,
 //
@@ -60258,7 +61566,7 @@ func (d *ClusterTrustBundleProjectionDie) LabelSelector(v *apismetav1.LabelSelec
 	})
 }
 
-// If true, don't block pod startup if the referenced ClusterTrustBundle(s)
+// optional indicates that if true, don't block pod startup if the referenced ClusterTrustBundle(s)
 //
 // aren't available.  If using name, then the named ClusterTrustBundle is
 //
@@ -60273,7 +61581,7 @@ func (d *ClusterTrustBundleProjectionDie) Optional(v *bool) *ClusterTrustBundleP
 	})
 }
 
-// Relative path from the volume root to write the bundle.
+// path is the relative path from the volume root to write the bundle.
 func (d *ClusterTrustBundleProjectionDie) Path(v string) *ClusterTrustBundleProjectionDie {
 	return d.DieStamp(func(r *corev1.ClusterTrustBundleProjection) {
 		r.Path = v
@@ -60284,7 +61592,7 @@ func (d *ClusterTrustBundleProjectionDie) Path(v string) *ClusterTrustBundleProj
 //
 // If specified, the item-level user field takes precedence over defaultUser.
 //
-// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+// (Beta) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
 func (d *ClusterTrustBundleProjectionDie) User(v *int64) *ClusterTrustBundleProjectionDie {
 	return d.DieStamp(func(r *corev1.ClusterTrustBundleProjection) {
 		r.User = v
@@ -60537,18 +61845,20 @@ func (d *PodCertificateProjectionDie) DiePatch(patchType types.PatchType) ([]byt
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Kubelet's generated CSRs will be addressed to this signer.
+// signerName is the name of the signer. Kubelet's generated CSRs will be addressed to this signer.
 func (d *PodCertificateProjectionDie) SignerName(v string) *PodCertificateProjectionDie {
 	return d.DieStamp(func(r *corev1.PodCertificateProjection) {
 		r.SignerName = v
 	})
 }
 
-// The type of keypair Kubelet will generate for the pod.
+// keyType is the type of keypair Kubelet will generate for the pod.
 //
 // Valid values are "RSA3072", "RSA4096", "ECDSAP256", "ECDSAP384",
 //
-// "ECDSAP521", and "ED25519".
+// "ECDSAP521", "ED25519", "MLDSA44", "MLDSA65", and "MLDSA87".
+//
+// MLDSA key types are only allowed when the PodCertificateMLDSA feature gate is enabled.
 func (d *PodCertificateProjectionDie) KeyType(v string) *PodCertificateProjectionDie {
 	return d.DieStamp(func(r *corev1.PodCertificateProjection) {
 		r.KeyType = v
@@ -60584,7 +61894,7 @@ func (d *PodCertificateProjectionDie) MaxExpirationSeconds(v *int32) *PodCertifi
 	})
 }
 
-// Write the credential bundle at this path in the projected volume.
+// credentialBundlePath is the path to write the credential bundle at in the projected volume.
 //
 // The credential bundle is a single file that contains multiple PEM blocks.
 //
@@ -60609,7 +61919,7 @@ func (d *PodCertificateProjectionDie) CredentialBundlePath(v string) *PodCertifi
 	})
 }
 
-// Write the key at this path in the projected volume.
+// keyPath is the path to write the key at in the projected volume.
 //
 // Most applications should use credentialBundlePath.  When using keyPath
 //
@@ -60624,7 +61934,7 @@ func (d *PodCertificateProjectionDie) KeyPath(v string) *PodCertificateProjectio
 	})
 }
 
-// Write the certificate chain at this path in the projected volume.
+// certificateChainPath is the path to write the certificate chain at this path in the projected volume.
 //
 // Most applications should use credentialBundlePath.  When using keyPath
 //
@@ -60668,7 +61978,7 @@ func (d *PodCertificateProjectionDie) UserAnnotations(v map[string]string) *PodC
 //
 // If specified, the item-level user field takes precedence over defaultUser.
 //
-// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+// (Beta) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
 func (d *PodCertificateProjectionDie) User(v *int64) *PodCertificateProjectionDie {
 	return d.DieStamp(func(r *corev1.PodCertificateProjection) {
 		r.User = v
@@ -60928,7 +62238,7 @@ func (d *PortworxVolumeSourceDie) VolumeID(v string) *PortworxVolumeSourceDie {
 	})
 }
 
-// fSType represents the filesystem type to mount
+// fsType represents the filesystem type to mount
 //
 // Must be a filesystem type supported by the host operating system.
 //
@@ -62171,7 +63481,7 @@ func (d *EphemeralVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte, 
 
 // VolumeClaimTemplateDie mutates VolumeClaimTemplate as a die.
 //
-// Will be used to create a stand-alone PVC to provision the volume.
+// volumeClaimTemplate will be used to create a stand-alone PVC to provision the volume.
 //
 // # The pod in which this EphemeralVolumeSource is embedded will be the
 //
@@ -62214,7 +63524,7 @@ func (d *EphemeralVolumeSourceDie) VolumeClaimTemplateDie(fn func(d *PersistentV
 	})
 }
 
-// Will be used to create a stand-alone PVC to provision the volume.
+// volumeClaimTemplate will be used to create a stand-alone PVC to provision the volume.
 //
 // # The pod in which this EphemeralVolumeSource is embedded will be the
 //
@@ -62501,7 +63811,7 @@ func (d *ImageVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte, erro
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Required: Image or artifact reference to be used.
+// reference is required: Image or artifact reference to be used.
 //
 // Behaves in the same way as pod.spec.containers[*].image.
 //
@@ -62518,7 +63828,7 @@ func (d *ImageVolumeSourceDie) Reference(v string) *ImageVolumeSourceDie {
 	})
 }
 
-// Policy for pulling OCI objects. Possible values are:
+// pullPolicy is the policy for pulling OCI objects. Possible values are:
 //
 // Always: the kubelet always attempts to pull the reference. Container creation will fail If the pull fails.
 //
@@ -62820,7 +64130,7 @@ func (d *KeyToPathDie) Mode(v *int32) *KeyToPathDie {
 //
 // If specified, the item-level user field takes precedence over defaultUser.
 //
-// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+// (Beta) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
 func (d *KeyToPathDie) User(v *int64) *KeyToPathDie {
 	return d.DieStamp(func(r *corev1.KeyToPath) {
 		r.User = v

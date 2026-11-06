@@ -383,14 +383,14 @@ func (d *ControllerRevisionDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *C
 	})
 }
 
-// Data is the serialized representation of the state.
+// data is the serialized representation of the state.
 func (d *ControllerRevisionDie) Data(v runtime.RawExtension) *ControllerRevisionDie {
 	return d.DieStamp(func(r *appsv1.ControllerRevision) {
 		r.Data = v
 	})
 }
 
-// Revision indicates the revision of the state represented by Data.
+// revision indicates the revision of the state represented by Data.
 func (d *ControllerRevisionDie) Revision(v int64) *ControllerRevisionDie {
 	return d.DieStamp(func(r *appsv1.ControllerRevision) {
 		r.Revision = v
@@ -756,7 +756,7 @@ func (d *DaemonSetDie) StatusDie(fn func(d *DaemonSetStatusDie)) *DaemonSetDie {
 	})
 }
 
-// The desired behavior of this daemon set.
+// spec defines the desired behavior of this daemon set.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *DaemonSetDie) Spec(v appsv1.DaemonSetSpec) *DaemonSetDie {
@@ -765,9 +765,9 @@ func (d *DaemonSetDie) Spec(v appsv1.DaemonSetSpec) *DaemonSetDie {
 	})
 }
 
-// The current status of this daemon set. This data may be
+// status is the current status of this daemon set.
 //
-// out of date by some window of time.
+// This data may be out of date by some window of time.
 //
 // Populated by the system.
 //
@@ -1028,7 +1028,7 @@ func (d *DaemonSetSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // SelectorDie mutates Selector as a die.
 //
-// A label query over pods that are managed by the daemon set.
+// selector is the label query to identify pods that are managed by the daemon set.
 //
 // Must match in order to be controlled.
 //
@@ -1045,7 +1045,7 @@ func (d *DaemonSetSpecDie) SelectorDie(fn func(d *metav1.LabelSelectorDie)) *Dae
 
 // TemplateDie mutates Template as a die.
 //
-// An object that describes the pod that will be created.
+// template describes the pod that will be created.
 //
 // # The DaemonSet will create exactly one copy of this pod on every node
 //
@@ -1066,7 +1066,7 @@ func (d *DaemonSetSpecDie) TemplateDie(fn func(d *corev1.PodTemplateSpecDie)) *D
 
 // UpdateStrategyDie mutates UpdateStrategy as a die.
 //
-// An update strategy to replace existing DaemonSet pods with new pods.
+// updateStrategy to replace existing DaemonSet pods with new pods.
 func (d *DaemonSetSpecDie) UpdateStrategyDie(fn func(d *DaemonSetUpdateStrategyDie)) *DaemonSetSpecDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
 		d := DaemonSetUpdateStrategyBlank.DieImmutable(false).DieFeed(r.UpdateStrategy)
@@ -1075,7 +1075,7 @@ func (d *DaemonSetSpecDie) UpdateStrategyDie(fn func(d *DaemonSetUpdateStrategyD
 	})
 }
 
-// A label query over pods that are managed by the daemon set.
+// selector is the label query to identify pods that are managed by the daemon set.
 //
 // Must match in order to be controlled.
 //
@@ -1088,7 +1088,7 @@ func (d *DaemonSetSpecDie) Selector(v *apismetav1.LabelSelector) *DaemonSetSpecD
 	})
 }
 
-// An object that describes the pod that will be created.
+// template describes the pod that will be created.
 //
 // # The DaemonSet will create exactly one copy of this pod on every node
 //
@@ -1105,27 +1105,25 @@ func (d *DaemonSetSpecDie) Template(v apicorev1.PodTemplateSpec) *DaemonSetSpecD
 	})
 }
 
-// An update strategy to replace existing DaemonSet pods with new pods.
+// updateStrategy to replace existing DaemonSet pods with new pods.
 func (d *DaemonSetSpecDie) UpdateStrategy(v appsv1.DaemonSetUpdateStrategy) *DaemonSetSpecDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
 		r.UpdateStrategy = v
 	})
 }
 
-// The minimum number of seconds for which a newly created DaemonSet pod should
+// minReadySeconds is the minimum number of seconds for which a newly created DaemonSet
 //
-// be ready without any of its container crashing, for it to be considered
+// pod should be ready without any of its container crashing, for it to be considered
 //
-// available. Defaults to 0 (pod will be considered available as soon as it
-//
-// is ready).
+// available. Defaults to 0 (pod will be considered available as soon as it is ready).
 func (d *DaemonSetSpecDie) MinReadySeconds(v int32) *DaemonSetSpecDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
 		r.MinReadySeconds = v
 	})
 }
 
-// The number of old history to retain to allow rollback.
+// revisionHistoryLimit is the maximum number of old revisions to retain to allow rollback.
 //
 // This is a pointer to distinguish between explicit zero and not specified.
 //
@@ -1382,20 +1380,20 @@ func (d *DaemonSetUpdateStrategyDie) DiePatch(patchType types.PatchType) ([]byte
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Type of daemon set update. Can be "RollingUpdate" or "OnDelete". Default is RollingUpdate.
+// type of daemon set update. Can be "RollingUpdate" or "OnDelete". Default is RollingUpdate.
 func (d *DaemonSetUpdateStrategyDie) Type(v appsv1.DaemonSetUpdateStrategyType) *DaemonSetUpdateStrategyDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetUpdateStrategy) {
 		r.Type = v
 	})
 }
 
-// Rolling update config params. Present only if type = "RollingUpdate".
+// rollingUpdate config params. Present only if type = "RollingUpdate".
 //
 // ---
 //
-// TODO: Update this to follow our convention for oneOf, whatever we decide it
+// TODO: Update this to follow our convention for oneOf, whatever we decide it to be.
 //
-// to be. Same as Deployment `strategy.rollingUpdate`.
+// Same as Deployment `strategy.rollingUpdate`.
 //
 // See https://github.com/kubernetes/kubernetes/issues/35345
 func (d *DaemonSetUpdateStrategyDie) RollingUpdate(v *appsv1.RollingUpdateDaemonSet) *DaemonSetUpdateStrategyDie {
@@ -1650,11 +1648,11 @@ func (d *RollingUpdateDaemonSetDie) DiePatch(patchType types.PatchType) ([]byte,
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// The maximum number of DaemonSet pods that can be unavailable during the
+// maxUnavailable is the maximum number of DaemonSet pods that can be unavailable
 //
-// update. Value can be an absolute number (ex: 5) or a percentage of total
+// during the update. Value can be an absolute number (ex: 5) or a percentage of
 //
-// number of DaemonSet pods at the start of the update (ex: 10%). Absolute
+// total number of DaemonSet pods at the start of the update (ex: 10%). Absolute
 //
 // number is calculated from percentage by rounding up.
 //
@@ -1685,11 +1683,11 @@ func (d *RollingUpdateDaemonSetDie) MaxUnavailable(v *intstr.IntOrString) *Rolli
 
 // MaxUnavailableInt sets MaxUnavailable with the int value.
 //
-// # The maximum number of DaemonSet pods that can be unavailable during the
+// maxUnavailable is the maximum number of DaemonSet pods that can be unavailable
 //
-// update. Value can be an absolute number (ex: 5) or a percentage of total
+// during the update. Value can be an absolute number (ex: 5) or a percentage of
 //
-// number of DaemonSet pods at the start of the update (ex: 10%). Absolute
+// total number of DaemonSet pods at the start of the update (ex: 10%). Absolute
 //
 // number is calculated from percentage by rounding up.
 //
@@ -1721,11 +1719,11 @@ func (d *RollingUpdateDaemonSetDie) MaxUnavailableInt(i int) *RollingUpdateDaemo
 
 // MaxUnavailableString sets MaxUnavailable with the string value.
 //
-// # The maximum number of DaemonSet pods that can be unavailable during the
+// maxUnavailable is the maximum number of DaemonSet pods that can be unavailable
 //
-// update. Value can be an absolute number (ex: 5) or a percentage of total
+// during the update. Value can be an absolute number (ex: 5) or a percentage of
 //
-// number of DaemonSet pods at the start of the update (ex: 10%). Absolute
+// total number of DaemonSet pods at the start of the update (ex: 10%). Absolute
 //
 // number is calculated from percentage by rounding up.
 //
@@ -1755,9 +1753,9 @@ func (d *RollingUpdateDaemonSetDie) MaxUnavailableString(s string) *RollingUpdat
 	})
 }
 
-// The maximum number of nodes with an existing available DaemonSet pod that
+// maxSurge is the maximum number of nodes with an existing available DaemonSet pod that
 //
-// can have an updated DaemonSet pod during during an update.
+// can have an updated DaemonSet pod during an update.
 //
 // Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
 //
@@ -1798,9 +1796,9 @@ func (d *RollingUpdateDaemonSetDie) MaxSurge(v *intstr.IntOrString) *RollingUpda
 
 // MaxSurgeInt sets MaxSurge with the int value.
 //
-// # The maximum number of nodes with an existing available DaemonSet pod that
+// maxSurge is the maximum number of nodes with an existing available DaemonSet pod that
 //
-// can have an updated DaemonSet pod during during an update.
+// can have an updated DaemonSet pod during an update.
 //
 // Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
 //
@@ -1842,9 +1840,9 @@ func (d *RollingUpdateDaemonSetDie) MaxSurgeInt(i int) *RollingUpdateDaemonSetDi
 
 // MaxSurgeString sets MaxSurge with the string value.
 //
-// # The maximum number of nodes with an existing available DaemonSet pod that
+// maxSurge is the maximum number of nodes with an existing available DaemonSet pod that
 //
-// can have an updated DaemonSet pod during during an update.
+// can have an updated DaemonSet pod during an update.
 //
 // Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
 //
@@ -2130,9 +2128,9 @@ func (d *DaemonSetStatusDie) DiePatch(patchType types.PatchType) ([]byte, error)
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// The number of nodes that are running at least 1
+// currentNumberScheduled is the number of nodes that are running
 //
-// daemon pod and are supposed to run the daemon pod.
+// at least 1 daemon pod and are supposed to run the daemon pod.
 //
 // More info: https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
 func (d *DaemonSetStatusDie) CurrentNumberScheduled(v int32) *DaemonSetStatusDie {
@@ -2141,9 +2139,9 @@ func (d *DaemonSetStatusDie) CurrentNumberScheduled(v int32) *DaemonSetStatusDie
 	})
 }
 
-// The number of nodes that are running the daemon pod, but are
+// numberMisscheduled is the number of nodes that are running
 //
-// not supposed to run the daemon pod.
+// the daemon pod, but are not supposed to run the daemon pod.
 //
 // More info: https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
 func (d *DaemonSetStatusDie) NumberMisscheduled(v int32) *DaemonSetStatusDie {
@@ -2152,9 +2150,9 @@ func (d *DaemonSetStatusDie) NumberMisscheduled(v int32) *DaemonSetStatusDie {
 	})
 }
 
-// The total number of nodes that should be running the daemon
+// desiredNumberScheduled is the total number of nodes that should be running
 //
-// pod (including nodes correctly running the daemon pod).
+// the daemon pod (including nodes correctly running the daemon pod).
 //
 // More info: https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
 func (d *DaemonSetStatusDie) DesiredNumberScheduled(v int32) *DaemonSetStatusDie {
@@ -2172,54 +2170,54 @@ func (d *DaemonSetStatusDie) NumberReady(v int32) *DaemonSetStatusDie {
 	})
 }
 
-// The most recent generation observed by the daemon set controller.
+// observedGeneration is the most recent generation observed by the daemon set controller.
 func (d *DaemonSetStatusDie) ObservedGeneration(v int64) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.ObservedGeneration = v
 	})
 }
 
-// The total number of nodes that are running updated daemon pod
+// updatedNumberScheduled is the total number of nodes that are running updated daemon pod.
 func (d *DaemonSetStatusDie) UpdatedNumberScheduled(v int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.UpdatedNumberScheduled = v
 	})
 }
 
-// The number of nodes that should be running the
+// numberAvailable is the number of nodes that should be running
 //
-// daemon pod and have one or more of the daemon pod running and
+// the daemon pod and have one or more of the daemon pod running
 //
-// available (ready for at least spec.minReadySeconds)
+// and available (ready for at least spec.minReadySeconds).
 func (d *DaemonSetStatusDie) NumberAvailable(v int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.NumberAvailable = v
 	})
 }
 
-// The number of nodes that should be running the
+// numberUnavailable is the number of nodes that should be running the
 //
 // daemon pod and have none of the daemon pod running and available
 //
-// (ready for at least spec.minReadySeconds)
+// (ready for at least spec.minReadySeconds).
 func (d *DaemonSetStatusDie) NumberUnavailable(v int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.NumberUnavailable = v
 	})
 }
 
-// Count of hash collisions for the DaemonSet. The DaemonSet controller
+// collisionCount is the number of hash collisions for the DaemonSet. The DaemonSet controller
 //
-// uses this field as a collision avoidance mechanism when it needs to
+// uses this field as a collision avoidance mechanism when it needs to create the name for
 //
-// create the name for the newest ControllerRevision.
+// the newest ControllerRevision.
 func (d *DaemonSetStatusDie) CollisionCount(v *int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.CollisionCount = v
 	})
 }
 
-// Represents the latest available observations of a DaemonSet's current state.
+// conditions lists the latest available observations of a DaemonSet's current state.
 func (d *DaemonSetStatusDie) Conditions(v ...appsv1.DaemonSetCondition) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.Conditions = v
@@ -2585,14 +2583,14 @@ func (d *DeploymentDie) StatusDie(fn func(d *DeploymentStatusDie)) *DeploymentDi
 	})
 }
 
-// Specification of the desired behavior of the Deployment.
+// spec defines the desired behavior of the Deployment.
 func (d *DeploymentDie) Spec(v appsv1.DeploymentSpec) *DeploymentDie {
 	return d.DieStamp(func(r *appsv1.Deployment) {
 		r.Spec = v
 	})
 }
 
-// Most recently observed status of the Deployment.
+// status is the most recently observed status of the Deployment.
 func (d *DeploymentDie) Status(v appsv1.DeploymentStatus) *DeploymentDie {
 	return d.DieStamp(func(r *appsv1.Deployment) {
 		r.Status = v
@@ -2847,7 +2845,7 @@ func (d *DeploymentSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 
 // SelectorDie mutates Selector as a die.
 //
-// Label selector for pods. Existing ReplicaSets whose pods are
+// selector is a label selector for pods. Existing ReplicaSets whose pods are
 //
 // selected by this will be the ones affected by this deployment.
 //
@@ -2862,7 +2860,7 @@ func (d *DeploymentSpecDie) SelectorDie(fn func(d *metav1.LabelSelectorDie)) *De
 
 // TemplateDie mutates Template as a die.
 //
-// Template describes the pods that will be created.
+// template describes the pods that will be created.
 //
 // The only allowed template.spec.restartPolicy value is "Always".
 func (d *DeploymentSpecDie) TemplateDie(fn func(d *corev1.PodTemplateSpecDie)) *DeploymentSpecDie {
@@ -2875,7 +2873,7 @@ func (d *DeploymentSpecDie) TemplateDie(fn func(d *corev1.PodTemplateSpecDie)) *
 
 // StrategyDie mutates Strategy as a die.
 //
-// The deployment strategy to use to replace existing pods with new ones.
+// strategy to use to replace existing Deployment pods with new ones.
 func (d *DeploymentSpecDie) StrategyDie(fn func(d *DeploymentStrategyDie)) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		d := DeploymentStrategyBlank.DieImmutable(false).DieFeed(r.Strategy)
@@ -2884,16 +2882,16 @@ func (d *DeploymentSpecDie) StrategyDie(fn func(d *DeploymentStrategyDie)) *Depl
 	})
 }
 
-// Number of desired pods. This is a pointer to distinguish between explicit
+// replicas is the desired number of pods. This is a pointer to distinguish
 //
-// zero and not specified. Defaults to 1.
+// between explicit zero and not specified. Defaults to 1.
 func (d *DeploymentSpecDie) Replicas(v *int32) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.Replicas = v
 	})
 }
 
-// Label selector for pods. Existing ReplicaSets whose pods are
+// selector is a label selector for pods. Existing ReplicaSets whose pods are
 //
 // selected by this will be the ones affected by this deployment.
 //
@@ -2904,7 +2902,7 @@ func (d *DeploymentSpecDie) Selector(v *apismetav1.LabelSelector) *DeploymentSpe
 	})
 }
 
-// Template describes the pods that will be created.
+// template describes the pods that will be created.
 //
 // The only allowed template.spec.restartPolicy value is "Always".
 func (d *DeploymentSpecDie) Template(v apicorev1.PodTemplateSpec) *DeploymentSpecDie {
@@ -2913,25 +2911,25 @@ func (d *DeploymentSpecDie) Template(v apicorev1.PodTemplateSpec) *DeploymentSpe
 	})
 }
 
-// The deployment strategy to use to replace existing pods with new ones.
+// strategy to use to replace existing Deployment pods with new ones.
 func (d *DeploymentSpecDie) Strategy(v appsv1.DeploymentStrategy) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.Strategy = v
 	})
 }
 
-// Minimum number of seconds for which a newly created pod should be ready
+// minReadySeconds is the minimum number of seconds for which a newly created pod should
 //
-// without any of its container crashing, for it to be considered available.
+// be ready without any of its container crashing, for it to be considered available.
 //
-// Defaults to 0 (pod will be considered available as soon as it is ready)
+// Defaults to 0 (pod will be considered available as soon as it is ready).
 func (d *DeploymentSpecDie) MinReadySeconds(v int32) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.MinReadySeconds = v
 	})
 }
 
-// The number of old ReplicaSets to retain to allow rollback.
+// revisionHistoryLimit is the maximum number of old ReplicaSets to retain to allow rollback.
 //
 // This is a pointer to distinguish between explicit zero and not specified.
 //
@@ -2942,22 +2940,24 @@ func (d *DeploymentSpecDie) RevisionHistoryLimit(v *int32) *DeploymentSpecDie {
 	})
 }
 
-// Indicates that the deployment is paused.
+// paused indicates that the deployment is paused.
 func (d *DeploymentSpecDie) Paused(v bool) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.Paused = v
 	})
 }
 
-// The maximum time in seconds for a deployment to make progress before it
+// progressDeadlineSeconds is the maximum time in seconds for a deployment to
 //
-// is considered to be failed. The deployment controller will continue to
+// make progress before it is considered to be failed. The deployment controller
 //
-// process failed deployments and a condition with a ProgressDeadlineExceeded
+// will continue to process failed deployments and a condition with a
 //
-// reason will be surfaced in the deployment status. Note that progress will
+// ProgressDeadlineExceeded reason will be surfaced in the deployment status.
 //
-// not be estimated during the time a deployment is paused. Defaults to 600s.
+// Note that progress will not be estimated during the time a deployment is paused.
+//
+// Defaults to 600s.
 func (d *DeploymentSpecDie) ProgressDeadlineSeconds(v *int32) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.ProgressDeadlineSeconds = v
@@ -3210,22 +3210,18 @@ func (d *DeploymentStrategyDie) DiePatch(patchType types.PatchType) ([]byte, err
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+// type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
 func (d *DeploymentStrategyDie) Type(v appsv1.DeploymentStrategyType) *DeploymentStrategyDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStrategy) {
 		r.Type = v
 	})
 }
 
-// Rolling update config params. Present only if DeploymentStrategyType =
-//
-// RollingUpdate.
+// rollingUpdate config params. Present only if type = RollingUpdate.
 //
 // ---
 //
-// TODO: Update this to follow our convention for oneOf, whatever we decide it
-//
-// to be.
+// TODO: Update this to follow our convention for oneOf, whatever we decide it to be.
 func (d *DeploymentStrategyDie) RollingUpdate(v *appsv1.RollingUpdateDeployment) *DeploymentStrategyDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStrategy) {
 		r.RollingUpdate = v
@@ -3478,7 +3474,7 @@ func (d *RollingUpdateDeploymentDie) DiePatch(patchType types.PatchType) ([]byte
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// The maximum number of pods that can be unavailable during the update.
+// maxUnavailable is the maximum number of pods that can be unavailable during the update.
 //
 // Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
 //
@@ -3505,7 +3501,7 @@ func (d *RollingUpdateDeploymentDie) MaxUnavailable(v *intstr.IntOrString) *Roll
 
 // MaxUnavailableInt sets MaxUnavailable with the int value.
 //
-// The maximum number of pods that can be unavailable during the update.
+// maxUnavailable is the maximum number of pods that can be unavailable during the update.
 //
 // Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
 //
@@ -3533,7 +3529,7 @@ func (d *RollingUpdateDeploymentDie) MaxUnavailableInt(i int) *RollingUpdateDepl
 
 // MaxUnavailableString sets MaxUnavailable with the string value.
 //
-// The maximum number of pods that can be unavailable during the update.
+// maxUnavailable is the maximum number of pods that can be unavailable during the update.
 //
 // Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
 //
@@ -3559,9 +3555,7 @@ func (d *RollingUpdateDeploymentDie) MaxUnavailableString(s string) *RollingUpda
 	})
 }
 
-// The maximum number of pods that can be scheduled above the desired number of
-//
-// pods.
+// maxSurge is the maximum number of pods that can be scheduled above the desired number of pods.
 //
 // Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
 //
@@ -3588,9 +3582,7 @@ func (d *RollingUpdateDeploymentDie) MaxSurge(v *intstr.IntOrString) *RollingUpd
 
 // MaxSurgeInt sets MaxSurge with the int value.
 //
-// # The maximum number of pods that can be scheduled above the desired number of
-//
-// pods.
+// maxSurge is the maximum number of pods that can be scheduled above the desired number of pods.
 //
 // Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
 //
@@ -3618,9 +3610,7 @@ func (d *RollingUpdateDeploymentDie) MaxSurgeInt(i int) *RollingUpdateDeployment
 
 // MaxSurgeString sets MaxSurge with the string value.
 //
-// # The maximum number of pods that can be scheduled above the desired number of
-//
-// pods.
+// maxSurge is the maximum number of pods that can be scheduled above the desired number of pods.
 //
 // Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
 //
@@ -3892,55 +3882,65 @@ func (d *DeploymentStatusDie) DiePatch(patchType types.PatchType) ([]byte, error
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// The generation observed by the deployment controller.
+// observedGeneration is the generation observed by the deployment controller.
 func (d *DeploymentStatusDie) ObservedGeneration(v int64) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.ObservedGeneration = v
 	})
 }
 
-// Total number of non-terminating pods targeted by this deployment (their labels match the selector).
+// replicas is the total number of non-terminating pods targeted
+//
+// by this deployment (their labels match the selector).
 func (d *DeploymentStatusDie) Replicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.Replicas = v
 	})
 }
 
-// Total number of non-terminating pods targeted by this deployment that have the desired template spec.
+// updatedReplicas is total number of non-terminating pods targeted
+//
+// by this deployment that have the desired template spec.
 func (d *DeploymentStatusDie) UpdatedReplicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.UpdatedReplicas = v
 	})
 }
 
-// Total number of non-terminating pods targeted by this Deployment with a Ready Condition.
+// readyReplicas is the total number of non-terminating pods targeted by this Deployment with a Ready Condition.
 func (d *DeploymentStatusDie) ReadyReplicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.ReadyReplicas = v
 	})
 }
 
-// Total number of available non-terminating pods (ready for at least minReadySeconds) targeted by this deployment.
+// availableReplicas is the total number of available non-terminating pods
+//
+// (ready for at least minReadySeconds) targeted by this deployment.
 func (d *DeploymentStatusDie) AvailableReplicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.AvailableReplicas = v
 	})
 }
 
-// Total number of unavailable pods targeted by this deployment. This is the total number of
+// unavailableReplicas is the total number of unavailable pods targeted by this deployment.
 //
-// pods that are still required for the deployment to have 100% available capacity. They may
+// This is the total number of pods that are still required for the deployment to have 100%
 //
-// either be pods that are running but not yet available or pods that still have not been created.
+// available capacity. They may either be pods that are running but not yet available or
+//
+// pods that still have not been created.
 func (d *DeploymentStatusDie) UnavailableReplicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.UnavailableReplicas = v
 	})
 }
 
-// Total number of terminating pods targeted by this deployment. Terminating pods have a non-null
+// terminatingReplicas is the number of terminating pods targeted by this deployment.
 //
-// .metadata.deletionTimestamp and have not yet reached the Failed or Succeeded .status.phase.
+// # Terminating pods have a non-null .metadata.deletionTimestamp and have not yet
+//
+// reached the Failed or Succeeded .status.phase.
 //
 // This is a beta field and requires enabling DeploymentReplicaSetTerminatingReplicas feature (enabled by default).
 func (d *DeploymentStatusDie) TerminatingReplicas(v *int32) *DeploymentStatusDie {
@@ -3949,18 +3949,16 @@ func (d *DeploymentStatusDie) TerminatingReplicas(v *int32) *DeploymentStatusDie
 	})
 }
 
-// Represents the latest available observations of a deployment's current state.
+// conditions lists the latest available observations of a deployment's current state.
 func (d *DeploymentStatusDie) Conditions(v ...appsv1.DeploymentCondition) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.Conditions = v
 	})
 }
 
-// Count of hash collisions for the Deployment. The Deployment controller uses this
+// collisionCount is the number of hash collisions for the Deployment. The Deployment controller uses this
 //
-// field as a collision avoidance mechanism when it needs to create the name for the
-//
-// newest ReplicaSet.
+// field as a collision avoidance mechanism when it needs to create the name for the newest ReplicaSet.
 func (d *DeploymentStatusDie) CollisionCount(v *int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.CollisionCount = v
@@ -4326,7 +4324,7 @@ func (d *ReplicaSetDie) StatusDie(fn func(d *ReplicaSetStatusDie)) *ReplicaSetDi
 	})
 }
 
-// Spec defines the specification of the desired behavior of the ReplicaSet.
+// spec defines the specification of the desired behavior of the ReplicaSet.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *ReplicaSetDie) Spec(v appsv1.ReplicaSetSpec) *ReplicaSetDie {
@@ -4335,7 +4333,7 @@ func (d *ReplicaSetDie) Spec(v appsv1.ReplicaSetSpec) *ReplicaSetDie {
 	})
 }
 
-// Status is the most recently observed status of the ReplicaSet.
+// status is the most recently observed status of the ReplicaSet.
 //
 // This data may be out of date by some window of time.
 //
@@ -4598,7 +4596,7 @@ func (d *ReplicaSetSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 
 // SelectorDie mutates Selector as a die.
 //
-// Selector is a label query over pods that should match the replica count.
+// selector is a label query over pods that should match the replica count.
 //
 // Label keys and values that must match in order to be controlled by this replica set.
 //
@@ -4615,7 +4613,7 @@ func (d *ReplicaSetSpecDie) SelectorDie(fn func(d *metav1.LabelSelectorDie)) *Re
 
 // TemplateDie mutates Template as a die.
 //
-// # Template is the object that describes the pod that will be created if
+// template is the object that describes the pod that will be created if
 //
 // insufficient replicas are detected.
 //
@@ -4628,7 +4626,7 @@ func (d *ReplicaSetSpecDie) TemplateDie(fn func(d *corev1.PodTemplateSpecDie)) *
 	})
 }
 
-// Replicas is the number of desired pods.
+// replicas is the number of desired pods.
 //
 // This is a pointer to distinguish between explicit zero and unspecified.
 //
@@ -4641,9 +4639,9 @@ func (d *ReplicaSetSpecDie) Replicas(v *int32) *ReplicaSetSpecDie {
 	})
 }
 
-// Minimum number of seconds for which a newly created pod should be ready
+// minReadySeconds is the minimum number of seconds for which a newly created pod should
 //
-// without any of its container crashing, for it to be considered available.
+// be ready without any of its container crashing, for it to be considered available.
 //
 // Defaults to 0 (pod will be considered available as soon as it is ready)
 func (d *ReplicaSetSpecDie) MinReadySeconds(v int32) *ReplicaSetSpecDie {
@@ -4652,7 +4650,7 @@ func (d *ReplicaSetSpecDie) MinReadySeconds(v int32) *ReplicaSetSpecDie {
 	})
 }
 
-// Selector is a label query over pods that should match the replica count.
+// selector is a label query over pods that should match the replica count.
 //
 // Label keys and values that must match in order to be controlled by this replica set.
 //
@@ -4665,7 +4663,7 @@ func (d *ReplicaSetSpecDie) Selector(v *apismetav1.LabelSelector) *ReplicaSetSpe
 	})
 }
 
-// Template is the object that describes the pod that will be created if
+// template is the object that describes the pod that will be created if
 //
 // insufficient replicas are detected.
 //
@@ -4922,7 +4920,7 @@ func (d *ReplicaSetStatusDie) DiePatch(patchType types.PatchType) ([]byte, error
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Replicas is the most recently observed number of non-terminating pods.
+// replicas is the most recently observed number of non-terminating pods.
 //
 // More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset
 func (d *ReplicaSetStatusDie) Replicas(v int32) *ReplicaSetStatusDie {
@@ -4931,30 +4929,34 @@ func (d *ReplicaSetStatusDie) Replicas(v int32) *ReplicaSetStatusDie {
 	})
 }
 
-// The number of non-terminating pods that have labels matching the labels of the pod template of the replicaset.
+// fullyLabeledReplicas is the number of non-terminating pods that have labels matching
+//
+// the labels of the pod template of the ReplicaSet.
 func (d *ReplicaSetStatusDie) FullyLabeledReplicas(v int32) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.FullyLabeledReplicas = v
 	})
 }
 
-// The number of non-terminating pods targeted by this ReplicaSet with a Ready Condition.
+// readyReplicas is the number of non-terminating pods targeted by this ReplicaSet with a Ready Condition.
 func (d *ReplicaSetStatusDie) ReadyReplicas(v int32) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.ReadyReplicas = v
 	})
 }
 
-// The number of available non-terminating pods (ready for at least minReadySeconds) for this replica set.
+// availableReplicas is the number of available non-terminating pods
+//
+// (ready for at least minReadySeconds) for this ReplicaSet.
 func (d *ReplicaSetStatusDie) AvailableReplicas(v int32) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.AvailableReplicas = v
 	})
 }
 
-// The number of terminating pods for this replica set. Terminating pods have a non-null .metadata.deletionTimestamp
+// terminatingReplicas is the number of terminating pods for this ReplicaSet. Terminating pods have a
 //
-// and have not yet reached the Failed or Succeeded .status.phase.
+// non-null .metadata.deletionTimestamp and have not yet reached the Failed or Succeeded .status.phase.
 //
 // This is a beta field and requires enabling DeploymentReplicaSetTerminatingReplicas feature (enabled by default).
 func (d *ReplicaSetStatusDie) TerminatingReplicas(v *int32) *ReplicaSetStatusDie {
@@ -4963,14 +4965,14 @@ func (d *ReplicaSetStatusDie) TerminatingReplicas(v *int32) *ReplicaSetStatusDie
 	})
 }
 
-// ObservedGeneration reflects the generation of the most recently observed ReplicaSet.
+// observedGeneration reflects the generation of the most recently observed ReplicaSet.
 func (d *ReplicaSetStatusDie) ObservedGeneration(v int64) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.ObservedGeneration = v
 	})
 }
 
-// Represents the latest available observations of a replica set's current state.
+// conditions lists the latest available observations of a ReplicaSet's current state.
 func (d *ReplicaSetStatusDie) Conditions(v ...appsv1.ReplicaSetCondition) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.Conditions = v
@@ -5336,14 +5338,14 @@ func (d *StatefulSetDie) StatusDie(fn func(d *StatefulSetStatusDie)) *StatefulSe
 	})
 }
 
-// Spec defines the desired identities of pods in this set.
+// spec defines the desired identities of pods in this set.
 func (d *StatefulSetDie) Spec(v appsv1.StatefulSetSpec) *StatefulSetDie {
 	return d.DieStamp(func(r *appsv1.StatefulSet) {
 		r.Spec = v
 	})
 }
 
-// Status is the current status of Pods in this StatefulSet. This data
+// status is the current status of Pods in this StatefulSet. This data
 //
 // may be out of date by some window of time.
 func (d *StatefulSetDie) Status(v appsv1.StatefulSetStatus) *StatefulSetDie {
@@ -5835,9 +5837,9 @@ func (d *StatefulSetSpecDie) RevisionHistoryLimit(v *int32) *StatefulSetSpecDie 
 	})
 }
 
-// Minimum number of seconds for which a newly created pod should be ready
+// minReadySeconds is the minimum number of seconds for which a newly created pod should
 //
-// without any of its container crashing for it to be considered available.
+// be ready without any of its container crashing for it to be considered available.
 //
 // Defaults to 0 (pod will be considered available as soon as it is ready)
 func (d *StatefulSetSpecDie) MinReadySeconds(v int32) *StatefulSetSpecDie {
@@ -6120,7 +6122,7 @@ func (d *StatefulSetUpdateStrategyDie) DiePatch(patchType types.PatchType) ([]by
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Type indicates the type of the StatefulSetUpdateStrategy.
+// type indicates the type of the StatefulSetUpdateStrategy.
 //
 // Default is RollingUpdate.
 func (d *StatefulSetUpdateStrategyDie) Type(v appsv1.StatefulSetUpdateStrategyType) *StatefulSetUpdateStrategyDie {
@@ -6129,7 +6131,7 @@ func (d *StatefulSetUpdateStrategyDie) Type(v appsv1.StatefulSetUpdateStrategyTy
 	})
 }
 
-// RollingUpdate is used to communicate parameters when Type is RollingUpdateStatefulSetStrategyType.
+// rollingUpdate is used to communicate parameters when Type is RollingUpdateStatefulSetStrategyType.
 func (d *StatefulSetUpdateStrategyDie) RollingUpdate(v *appsv1.RollingUpdateStatefulSetStrategy) *StatefulSetUpdateStrategyDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetUpdateStrategy) {
 		r.RollingUpdate = v
@@ -6382,7 +6384,7 @@ func (d *RollingUpdateStatefulSetStrategyDie) DiePatch(patchType types.PatchType
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Partition indicates the ordinal at which the StatefulSet should be partitioned
+// partition indicates the ordinal at which the StatefulSet should be partitioned
 //
 // for updates. During a rolling update, all pods from ordinal Replicas-1 to
 //
@@ -6395,17 +6397,21 @@ func (d *RollingUpdateStatefulSetStrategyDie) Partition(v *int32) *RollingUpdate
 	})
 }
 
-// The maximum number of pods that can be unavailable during the update.
+// maxUnavailable is the maximum number of pods that can be unavailable during the update.
 //
-// Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
+// Value can be an absolute number (ex: 5) or a percentage of pods in the update range (ex: 10%).
 //
-// Absolute number is calculated from percentage by rounding up. This can not be 0.
+// Absolute number is calculated from percentage by rounding down. This can not be 0.
 //
-// Defaults to 1. This field is beta-level and is enabled by default. The field applies to all pods in the range 0 to
+// Defaults to 1. This field is beta-level and is enabled by default.
 //
-// Replicas-1. That means if there is any unavailable pod in the range 0 to Replicas-1, it
+// # The field applies only to pods in the update range (ordinals greater than or equal to
 //
-// will be counted towards MaxUnavailable.
+// Partition, up to Replicas-1). Unavailable pods below Partition are not counted towards
+//
+// MaxUnavailable. When MaxUnavailable is a percentage, it is calculated from the number of
+//
+// pods in that update range (Replicas - Partition), not from all replicas.
 //
 // This setting might not be effective for the OrderedReady podManagementPolicy. That policy ensures pods are created and become ready one at a time.
 func (d *RollingUpdateStatefulSetStrategyDie) MaxUnavailable(v *intstr.IntOrString) *RollingUpdateStatefulSetStrategyDie {
@@ -6416,17 +6422,21 @@ func (d *RollingUpdateStatefulSetStrategyDie) MaxUnavailable(v *intstr.IntOrStri
 
 // MaxUnavailableInt sets MaxUnavailable with the int value.
 //
-// The maximum number of pods that can be unavailable during the update.
+// maxUnavailable is the maximum number of pods that can be unavailable during the update.
 //
-// Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
+// Value can be an absolute number (ex: 5) or a percentage of pods in the update range (ex: 10%).
 //
-// Absolute number is calculated from percentage by rounding up. This can not be 0.
+// Absolute number is calculated from percentage by rounding down. This can not be 0.
 //
-// Defaults to 1. This field is beta-level and is enabled by default. The field applies to all pods in the range 0 to
+// Defaults to 1. This field is beta-level and is enabled by default.
 //
-// Replicas-1. That means if there is any unavailable pod in the range 0 to Replicas-1, it
+// # The field applies only to pods in the update range (ordinals greater than or equal to
 //
-// will be counted towards MaxUnavailable.
+// Partition, up to Replicas-1). Unavailable pods below Partition are not counted towards
+//
+// MaxUnavailable. When MaxUnavailable is a percentage, it is calculated from the number of
+//
+// pods in that update range (Replicas - Partition), not from all replicas.
 //
 // This setting might not be effective for the OrderedReady podManagementPolicy. That policy ensures pods are created and become ready one at a time.
 func (d *RollingUpdateStatefulSetStrategyDie) MaxUnavailableInt(i int) *RollingUpdateStatefulSetStrategyDie {
@@ -6438,17 +6448,21 @@ func (d *RollingUpdateStatefulSetStrategyDie) MaxUnavailableInt(i int) *RollingU
 
 // MaxUnavailableString sets MaxUnavailable with the string value.
 //
-// The maximum number of pods that can be unavailable during the update.
+// maxUnavailable is the maximum number of pods that can be unavailable during the update.
 //
-// Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
+// Value can be an absolute number (ex: 5) or a percentage of pods in the update range (ex: 10%).
 //
-// Absolute number is calculated from percentage by rounding up. This can not be 0.
+// Absolute number is calculated from percentage by rounding down. This can not be 0.
 //
-// Defaults to 1. This field is beta-level and is enabled by default. The field applies to all pods in the range 0 to
+// Defaults to 1. This field is beta-level and is enabled by default.
 //
-// Replicas-1. That means if there is any unavailable pod in the range 0 to Replicas-1, it
+// # The field applies only to pods in the update range (ordinals greater than or equal to
 //
-// will be counted towards MaxUnavailable.
+// Partition, up to Replicas-1). Unavailable pods below Partition are not counted towards
+//
+// MaxUnavailable. When MaxUnavailable is a percentage, it is calculated from the number of
+//
+// pods in that update range (Replicas - Partition), not from all replicas.
 //
 // This setting might not be effective for the OrderedReady podManagementPolicy. That policy ensures pods are created and become ready one at a time.
 func (d *RollingUpdateStatefulSetStrategyDie) MaxUnavailableString(s string) *RollingUpdateStatefulSetStrategyDie {
@@ -6704,7 +6718,7 @@ func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DiePatch(patchType 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// WhenDeleted specifies what happens to PVCs created from StatefulSet
+// whenDeleted specifies what happens to PVCs created from StatefulSet
 //
 // VolumeClaimTemplates when the StatefulSet is deleted. The default policy
 //
@@ -6717,7 +6731,7 @@ func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) WhenDeleted(v appsv
 	})
 }
 
-// WhenScaled specifies what happens to PVCs created from StatefulSet
+// whenScaled specifies what happens to PVCs created from StatefulSet
 //
 // VolumeClaimTemplates when the StatefulSet is scaled down. The default
 //
@@ -7295,7 +7309,7 @@ func (d *StatefulSetStatusDie) CurrentRevision(v string) *StatefulSetStatusDie {
 	})
 }
 
-// updateRevision, if not empty, indicates the version of the StatefulSet used to generate Pods in the sequence
+// updateRevision indicates the version of the StatefulSet used to generate Pods in the sequence
 //
 // [replicas-updatedReplicas,replicas)
 func (d *StatefulSetStatusDie) UpdateRevision(v string) *StatefulSetStatusDie {
@@ -7315,14 +7329,16 @@ func (d *StatefulSetStatusDie) CollisionCount(v *int32) *StatefulSetStatusDie {
 	})
 }
 
-// Represents the latest available observations of a statefulset's current state.
+// conditions lists the latest available observations of a StatefulSet's current state.
 func (d *StatefulSetStatusDie) Conditions(v ...appsv1.StatefulSetCondition) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.Conditions = v
 	})
 }
 
-// Total number of available pods (ready for at least minReadySeconds) targeted by this statefulset.
+// availableReplicas is the number of available non-terminating pods (ready for at
+//
+// least minReadySeconds) targeted by this StatefulSet.
 func (d *StatefulSetStatusDie) AvailableReplicas(v int32) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.AvailableReplicas = v

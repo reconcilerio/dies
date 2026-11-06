@@ -151,6 +151,7 @@ type _ = resourcev1.DeviceDerivedAttribute
 // +die
 // +die:field:name=Selectors,die=DeviceSelectorDie,listType=atomic
 // +die:field:name=Tolerations,die=DeviceTolerationDie,listType=atomic
+// +die:field:name=DerivedAttributes,die=DeviceDerivedAttributeDie,listType=atomic
 type _ = resourcev1.ExactDeviceRequest
 
 // +die

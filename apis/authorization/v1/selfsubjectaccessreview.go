@@ -26,4 +26,5 @@ type _ = authorizationv1.SelfSubjectAccessReview
 // +die
 // +die:field:name=ResourceAttributes,die=ResourceAttributesDie,pointer=true
 // +die:field:name=NonResourceAttributes,die=NonResourceAttributesDie,pointer=true
+// +die:field:name=AuthorizationOptions,die=AuthorizationOptionsDie,pointer=true
 type _ = authorizationv1.SelfSubjectAccessReviewSpec

@@ -134,12 +134,66 @@ func TestNonResourceAttributesDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestAuthorizationOptionsDie_MissingMethods(t *testingx.T) {
+	die := AuthorizationOptionsBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for AuthorizationOptionsDie: %s", diff.List())
+	}
+}
+
 func TestSubjectAccessReviewStatusDie_MissingMethods(t *testingx.T) {
 	die := SubjectAccessReviewStatusBlank
 	ignore := []string{}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for SubjectAccessReviewStatusDie: %s", diff.List())
+	}
+}
+
+func TestConditionsAwareDecisionDie_MissingMethods(t *testingx.T) {
+	die := ConditionsAwareDecisionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ConditionsAwareDecisionDie: %s", diff.List())
+	}
+}
+
+func TestUnconditionalDecisionDie_MissingMethods(t *testingx.T) {
+	die := UnconditionalDecisionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for UnconditionalDecisionDie: %s", diff.List())
+	}
+}
+
+func TestConditionsMapDie_MissingMethods(t *testingx.T) {
+	die := ConditionsMapBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ConditionsMapDie: %s", diff.List())
+	}
+}
+
+func TestConditionDie_MissingMethods(t *testingx.T) {
+	die := ConditionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ConditionDie: %s", diff.List())
+	}
+}
+
+func TestNamedConditionsAwareDecisionDie_MissingMethods(t *testingx.T) {
+	die := NamedConditionsAwareDecisionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NamedConditionsAwareDecisionDie: %s", diff.List())
 	}
 }
 

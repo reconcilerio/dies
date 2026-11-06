@@ -17,34 +17,105 @@ limitations under the License.
 package v1alpha3
 
 import (
-	schedulingv1alpha3 "k8s.io/api/scheduling/v1alpha3"
+	dieschedulingv1 "reconciler.io/dies/apis/scheduling/v1"
 )
 
-// +die
-// +die:field:name=Basic,die=WorkloadPodGroupBasicSchedulingPolicyDie,pointer=true
-// +die:field:name=Gang,die=WorkloadPodGroupGangSchedulingPolicyDie,pointer=true
-type _ = schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy
+// The workload-aware scheduling types graduated to scheduling.k8s.io/v1 and
+// remain in k8s.io/api/scheduling/v1alpha3 as type aliases. The dies below
+// mirror those aliases.
 
-// +die
-type _ = schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy
+// Deprecated WorkloadTopologyConstraintDie, moved to package reconciler.io/dies/apis/scheduling/v1
+type WorkloadTopologyConstraintDie = dieschedulingv1.WorkloadTopologyConstraintDie
 
-// +die
-type _ = schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy
+// Deprecated WorkloadTopologyConstraintBlank, moved to package reconciler.io/dies/apis/scheduling/v1
+var WorkloadTopologyConstraintBlank = dieschedulingv1.WorkloadTopologyConstraintBlank
 
-// +die
-// +die:field:name=Topology,die=TopologyConstraintDie,listType=atomic
-type _ = schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints
+// Deprecated WorkloadPodGroupSchedulingPolicyDie, moved to package reconciler.io/dies/apis/scheduling/v1
+type WorkloadPodGroupSchedulingPolicyDie = dieschedulingv1.WorkloadPodGroupSchedulingPolicyDie
 
-// +die
-// +die:field:name=Single,die=WorkloadPodGroupSingleDisruptionModeDie,pointer=true
-// +die:field:name=All,die=WorkloadPodGroupAllDisruptionModeDie,pointer=true
-type _ = schedulingv1alpha3.WorkloadPodGroupDisruptionMode
+// Deprecated WorkloadPodGroupSchedulingPolicyBlank, moved to package reconciler.io/dies/apis/scheduling/v1
+var WorkloadPodGroupSchedulingPolicyBlank = dieschedulingv1.WorkloadPodGroupSchedulingPolicyBlank
 
-// +die
-type _ = schedulingv1alpha3.WorkloadPodGroupSingleDisruptionMode
+// Deprecated WorkloadPodGroupBasicSchedulingPolicyDie, moved to package reconciler.io/dies/apis/scheduling/v1
+type WorkloadPodGroupBasicSchedulingPolicyDie = dieschedulingv1.WorkloadPodGroupBasicSchedulingPolicyDie
 
-// +die
-type _ = schedulingv1alpha3.WorkloadPodGroupAllDisruptionMode
+// Deprecated WorkloadPodGroupBasicSchedulingPolicyBlank, moved to package reconciler.io/dies/apis/scheduling/v1
+var WorkloadPodGroupBasicSchedulingPolicyBlank = dieschedulingv1.WorkloadPodGroupBasicSchedulingPolicyBlank
 
-// +die
-type _ = schedulingv1alpha3.WorkloadPodGroupResourceClaim
+// Deprecated WorkloadPodGroupGangSchedulingPolicyDie, moved to package reconciler.io/dies/apis/scheduling/v1
+type WorkloadPodGroupGangSchedulingPolicyDie = dieschedulingv1.WorkloadPodGroupGangSchedulingPolicyDie
+
+// Deprecated WorkloadPodGroupGangSchedulingPolicyBlank, moved to package reconciler.io/dies/apis/scheduling/v1
+var WorkloadPodGroupGangSchedulingPolicyBlank = dieschedulingv1.WorkloadPodGroupGangSchedulingPolicyBlank
+
+// Deprecated WorkloadPodGroupSchedulingConstraintsDie, moved to package reconciler.io/dies/apis/scheduling/v1
+type WorkloadPodGroupSchedulingConstraintsDie = dieschedulingv1.WorkloadPodGroupSchedulingConstraintsDie
+
+// Deprecated WorkloadPodGroupSchedulingConstraintsBlank, moved to package reconciler.io/dies/apis/scheduling/v1
+var WorkloadPodGroupSchedulingConstraintsBlank = dieschedulingv1.WorkloadPodGroupSchedulingConstraintsBlank
+
+// Deprecated WorkloadPodGroupResourceClaimDie, moved to package reconciler.io/dies/apis/scheduling/v1
+type WorkloadPodGroupResourceClaimDie = dieschedulingv1.WorkloadPodGroupResourceClaimDie
+
+// Deprecated WorkloadPodGroupResourceClaimBlank, moved to package reconciler.io/dies/apis/scheduling/v1
+var WorkloadPodGroupResourceClaimBlank = dieschedulingv1.WorkloadPodGroupResourceClaimBlank
+
+// Deprecated WorkloadPodGroupDisruptionModeDie, moved to package reconciler.io/dies/apis/scheduling/v1
+type WorkloadPodGroupDisruptionModeDie = dieschedulingv1.WorkloadPodGroupDisruptionModeDie
+
+// Deprecated WorkloadPodGroupDisruptionModeBlank, moved to package reconciler.io/dies/apis/scheduling/v1
+var WorkloadPodGroupDisruptionModeBlank = dieschedulingv1.WorkloadPodGroupDisruptionModeBlank
+
+// Deprecated WorkloadPodGroupSingleDisruptionModeDie, moved to package reconciler.io/dies/apis/scheduling/v1
+type WorkloadPodGroupSingleDisruptionModeDie = dieschedulingv1.WorkloadPodGroupSingleDisruptionModeDie
+
+// Deprecated WorkloadPodGroupSingleDisruptionModeBlank, moved to package reconciler.io/dies/apis/scheduling/v1
+var WorkloadPodGroupSingleDisruptionModeBlank = dieschedulingv1.WorkloadPodGroupSingleDisruptionModeBlank
+
+// Deprecated WorkloadPodGroupAllDisruptionModeDie, moved to package reconciler.io/dies/apis/scheduling/v1
+type WorkloadPodGroupAllDisruptionModeDie = dieschedulingv1.WorkloadPodGroupAllDisruptionModeDie
+
+// Deprecated WorkloadPodGroupAllDisruptionModeBlank, moved to package reconciler.io/dies/apis/scheduling/v1
+var WorkloadPodGroupAllDisruptionModeBlank = dieschedulingv1.WorkloadPodGroupAllDisruptionModeBlank
+
+// Deprecated WorkloadCompositePodGroupSchedulingPolicyDie, moved to package reconciler.io/dies/apis/scheduling/v1
+type WorkloadCompositePodGroupSchedulingPolicyDie = dieschedulingv1.WorkloadCompositePodGroupSchedulingPolicyDie
+
+// Deprecated WorkloadCompositePodGroupSchedulingPolicyBlank, moved to package reconciler.io/dies/apis/scheduling/v1
+var WorkloadCompositePodGroupSchedulingPolicyBlank = dieschedulingv1.WorkloadCompositePodGroupSchedulingPolicyBlank
+
+// Deprecated WorkloadCompositePodGroupBasicSchedulingPolicyDie, moved to package reconciler.io/dies/apis/scheduling/v1
+type WorkloadCompositePodGroupBasicSchedulingPolicyDie = dieschedulingv1.WorkloadCompositePodGroupBasicSchedulingPolicyDie
+
+// Deprecated WorkloadCompositePodGroupBasicSchedulingPolicyBlank, moved to package reconciler.io/dies/apis/scheduling/v1
+var WorkloadCompositePodGroupBasicSchedulingPolicyBlank = dieschedulingv1.WorkloadCompositePodGroupBasicSchedulingPolicyBlank
+
+// Deprecated WorkloadCompositePodGroupGangSchedulingPolicyDie, moved to package reconciler.io/dies/apis/scheduling/v1
+type WorkloadCompositePodGroupGangSchedulingPolicyDie = dieschedulingv1.WorkloadCompositePodGroupGangSchedulingPolicyDie
+
+// Deprecated WorkloadCompositePodGroupGangSchedulingPolicyBlank, moved to package reconciler.io/dies/apis/scheduling/v1
+var WorkloadCompositePodGroupGangSchedulingPolicyBlank = dieschedulingv1.WorkloadCompositePodGroupGangSchedulingPolicyBlank
+
+// Deprecated WorkloadCompositePodGroupSchedulingConstraintsDie, moved to package reconciler.io/dies/apis/scheduling/v1
+type WorkloadCompositePodGroupSchedulingConstraintsDie = dieschedulingv1.WorkloadCompositePodGroupSchedulingConstraintsDie
+
+// Deprecated WorkloadCompositePodGroupSchedulingConstraintsBlank, moved to package reconciler.io/dies/apis/scheduling/v1
+var WorkloadCompositePodGroupSchedulingConstraintsBlank = dieschedulingv1.WorkloadCompositePodGroupSchedulingConstraintsBlank
+
+// Deprecated WorkloadCompositePodGroupDisruptionModeDie, moved to package reconciler.io/dies/apis/scheduling/v1
+type WorkloadCompositePodGroupDisruptionModeDie = dieschedulingv1.WorkloadCompositePodGroupDisruptionModeDie
+
+// Deprecated WorkloadCompositePodGroupDisruptionModeBlank, moved to package reconciler.io/dies/apis/scheduling/v1
+var WorkloadCompositePodGroupDisruptionModeBlank = dieschedulingv1.WorkloadCompositePodGroupDisruptionModeBlank
+
+// Deprecated WorkloadCompositePodGroupSingleDisruptionModeDie, moved to package reconciler.io/dies/apis/scheduling/v1
+type WorkloadCompositePodGroupSingleDisruptionModeDie = dieschedulingv1.WorkloadCompositePodGroupSingleDisruptionModeDie
+
+// Deprecated WorkloadCompositePodGroupSingleDisruptionModeBlank, moved to package reconciler.io/dies/apis/scheduling/v1
+var WorkloadCompositePodGroupSingleDisruptionModeBlank = dieschedulingv1.WorkloadCompositePodGroupSingleDisruptionModeBlank
+
+// Deprecated WorkloadCompositePodGroupAllDisruptionModeDie, moved to package reconciler.io/dies/apis/scheduling/v1
+type WorkloadCompositePodGroupAllDisruptionModeDie = dieschedulingv1.WorkloadCompositePodGroupAllDisruptionModeDie
+
+// Deprecated WorkloadCompositePodGroupAllDisruptionModeBlank, moved to package reconciler.io/dies/apis/scheduling/v1
+var WorkloadCompositePodGroupAllDisruptionModeBlank = dieschedulingv1.WorkloadCompositePodGroupAllDisruptionModeBlank
