@@ -55,4 +55,4 @@ kubectl --context "${context}" wait apiservice/v1alpha1.wardle.example.com --for
 
 cd v2/conformance
 # never cached: the result is the cluster's
-DIES_CLUSTER_CONTEXT="${context}" go test -count=1 ./cluster/... "$@"
+DIES_CLUSTER_CONTEXT="${context}" go test -count=1 -coverpkg=reconciler.io/dies/v2/apis/...,reconciler.io/dies/v2/die/...,reconciler.io/dies/v2/examples/... -coverprofile cover.out ./cluster/... "$@"
