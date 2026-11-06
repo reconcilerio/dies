@@ -13701,6 +13701,25 @@ func (d *SeccompProfileDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// OCIDie mutates OCI as a die.
+//
+// oci specifies a seccomp profile stored as an artifact in an OCI registry.
+//
+// # The container runtime merges the profile with a base profile, so the
+//
+// effective profile permits an operation only if both permit it.
+//
+// Must be set if type is "OCI". Must NOT be set for any other type.
+//
+// This is an alpha field and requires enabling the SecurityProfileOCI feature gate.
+func (d *SeccompProfileDie) OCIDie(fn func(d *SecurityProfileOCIDie)) *SeccompProfileDie {
+	return d.DieStamp(func(r *corev1.SeccompProfile) {
+		d := SecurityProfileOCIBlank.DieImmutable(false).DieFeedPtr(r.OCI)
+		fn(d)
+		r.OCI = d.DieReleasePtr()
+	})
+}
+
 // type indicates which kind of seccomp profile will be applied.
 //
 // Valid options are:
@@ -13710,6 +13729,14 @@ func (d *SeccompProfileDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 // RuntimeDefault - the container runtime default profile should be used.
 //
 // Unconfined - no profile should be applied.
+//
+// # OCI - a profile pulled from an OCI registry should be used, merged with a
+//
+// base profile (see oci.baseProfile). Privileged containers cannot use it,
+//
+// whether it is set on the container or inherited from the pod. This is an
+//
+// alpha value and requires enabling the SecurityProfileOCI feature gate.
 func (d *SeccompProfileDie) Type(v corev1.SeccompProfileType) *SeccompProfileDie {
 	return d.DieStamp(func(r *corev1.SeccompProfile) {
 		r.Type = v
@@ -13725,6 +13752,592 @@ func (d *SeccompProfileDie) Type(v corev1.SeccompProfileType) *SeccompProfileDie
 // Must be set if type is "Localhost". Must NOT be set for any other type.
 func (d *SeccompProfileDie) LocalhostProfile(v *string) *SeccompProfileDie {
 	return d.DieStamp(func(r *corev1.SeccompProfile) {
+		r.LocalhostProfile = v
+	})
+}
+
+// oci specifies a seccomp profile stored as an artifact in an OCI registry.
+//
+// # The container runtime merges the profile with a base profile, so the
+//
+// effective profile permits an operation only if both permit it.
+//
+// Must be set if type is "OCI". Must NOT be set for any other type.
+//
+// This is an alpha field and requires enabling the SecurityProfileOCI feature gate.
+func (d *SeccompProfileDie) OCI(v *corev1.SecurityProfileOCI) *SeccompProfileDie {
+	return d.DieStamp(func(r *corev1.SeccompProfile) {
+		r.OCI = v
+	})
+}
+
+var SecurityProfileOCIBlank = (&SecurityProfileOCIDie{}).DieFeed(corev1.SecurityProfileOCI{})
+
+type SecurityProfileOCIDie struct {
+	mutable bool
+	r       corev1.SecurityProfileOCI
+	seal    corev1.SecurityProfileOCI
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *SecurityProfileOCIDie) DieImmutable(immutable bool) *SecurityProfileOCIDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *SecurityProfileOCIDie) DieFeed(r corev1.SecurityProfileOCI) *SecurityProfileOCIDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &SecurityProfileOCIDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *SecurityProfileOCIDie) DieFeedPtr(r *corev1.SecurityProfileOCI) *SecurityProfileOCIDie {
+	if r == nil {
+		r = &corev1.SecurityProfileOCI{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *SecurityProfileOCIDie) DieFeedDuck(v any) *SecurityProfileOCIDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *SecurityProfileOCIDie) DieFeedJSON(j []byte) *SecurityProfileOCIDie {
+	r := corev1.SecurityProfileOCI{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *SecurityProfileOCIDie) DieFeedYAML(y []byte) *SecurityProfileOCIDie {
+	r := corev1.SecurityProfileOCI{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *SecurityProfileOCIDie) DieFeedYAMLFile(name string) *SecurityProfileOCIDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SecurityProfileOCIDie) DieFeedRawExtension(raw runtime.RawExtension) *SecurityProfileOCIDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *SecurityProfileOCIDie) DieRelease() corev1.SecurityProfileOCI {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *SecurityProfileOCIDie) DieReleasePtr() *corev1.SecurityProfileOCI {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *SecurityProfileOCIDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *SecurityProfileOCIDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *SecurityProfileOCIDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SecurityProfileOCIDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *SecurityProfileOCIDie) DieStamp(fn func(r *corev1.SecurityProfileOCI)) *SecurityProfileOCIDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *SecurityProfileOCIDie) DieStampAt(jp string, fn interface{}) *SecurityProfileOCIDie {
+	return d.DieStamp(func(r *corev1.SecurityProfileOCI) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SecurityProfileOCIDie) DieWith(fns ...func(d *SecurityProfileOCIDie)) *SecurityProfileOCIDie {
+	nd := SecurityProfileOCIBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *SecurityProfileOCIDie) DeepCopy() *SecurityProfileOCIDie {
+	r := *d.r.DeepCopy()
+	return &SecurityProfileOCIDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *SecurityProfileOCIDie) DieSeal() *SecurityProfileOCIDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *SecurityProfileOCIDie) DieSealFeed(r corev1.SecurityProfileOCI) *SecurityProfileOCIDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *SecurityProfileOCIDie) DieSealFeedPtr(r *corev1.SecurityProfileOCI) *SecurityProfileOCIDie {
+	if r == nil {
+		r = &corev1.SecurityProfileOCI{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *SecurityProfileOCIDie) DieSealRelease() corev1.SecurityProfileOCI {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *SecurityProfileOCIDie) DieSealReleasePtr() *corev1.SecurityProfileOCI {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *SecurityProfileOCIDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *SecurityProfileOCIDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// BaseProfileDie mutates BaseProfile as a die.
+//
+// baseProfile optionally specifies the base profile that the container
+//
+// runtime merges with the OCI profile. The effective profile permits an
+//
+// operation only if both permit it. When omitted, the container runtime
+//
+// default profile is the base; a Localhost base profile takes its place.
+func (d *SecurityProfileOCIDie) BaseProfileDie(fn func(d *SecurityProfileOCIBaseDie)) *SecurityProfileOCIDie {
+	return d.DieStamp(func(r *corev1.SecurityProfileOCI) {
+		d := SecurityProfileOCIBaseBlank.DieImmutable(false).DieFeedPtr(r.BaseProfile)
+		fn(d)
+		r.BaseProfile = d.DieReleasePtr()
+	})
+}
+
+// ref is the OCI reference of the profile.
+//
+// It must be a digest-pinned reference in canonical form,
+//
+// registry/repository@<algorithm>:<digest>, with the registry spelled out
+//
+// (for example docker.io/library/profile, not profile or docker.io/profile).
+//
+// Tags are rejected. The digest algorithm must be sha256, sha384, or sha512.
+//
+// The maximum length is 1024 characters.
+//
+// # Pull secrets are assembled in the same way as for the container image by
+//
+// looking up node credentials, service account image pull secrets, and pod spec image pull secrets.
+func (d *SecurityProfileOCIDie) Ref(v string) *SecurityProfileOCIDie {
+	return d.DieStamp(func(r *corev1.SecurityProfileOCI) {
+		r.Ref = v
+	})
+}
+
+// baseProfile optionally specifies the base profile that the container
+//
+// runtime merges with the OCI profile. The effective profile permits an
+//
+// operation only if both permit it. When omitted, the container runtime
+//
+// default profile is the base; a Localhost base profile takes its place.
+func (d *SecurityProfileOCIDie) BaseProfile(v *corev1.SecurityProfileOCIBase) *SecurityProfileOCIDie {
+	return d.DieStamp(func(r *corev1.SecurityProfileOCI) {
+		r.BaseProfile = v
+	})
+}
+
+var SecurityProfileOCIBaseBlank = (&SecurityProfileOCIBaseDie{}).DieFeed(corev1.SecurityProfileOCIBase{})
+
+type SecurityProfileOCIBaseDie struct {
+	mutable bool
+	r       corev1.SecurityProfileOCIBase
+	seal    corev1.SecurityProfileOCIBase
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *SecurityProfileOCIBaseDie) DieImmutable(immutable bool) *SecurityProfileOCIBaseDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *SecurityProfileOCIBaseDie) DieFeed(r corev1.SecurityProfileOCIBase) *SecurityProfileOCIBaseDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &SecurityProfileOCIBaseDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *SecurityProfileOCIBaseDie) DieFeedPtr(r *corev1.SecurityProfileOCIBase) *SecurityProfileOCIBaseDie {
+	if r == nil {
+		r = &corev1.SecurityProfileOCIBase{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *SecurityProfileOCIBaseDie) DieFeedDuck(v any) *SecurityProfileOCIBaseDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *SecurityProfileOCIBaseDie) DieFeedJSON(j []byte) *SecurityProfileOCIBaseDie {
+	r := corev1.SecurityProfileOCIBase{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *SecurityProfileOCIBaseDie) DieFeedYAML(y []byte) *SecurityProfileOCIBaseDie {
+	r := corev1.SecurityProfileOCIBase{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *SecurityProfileOCIBaseDie) DieFeedYAMLFile(name string) *SecurityProfileOCIBaseDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SecurityProfileOCIBaseDie) DieFeedRawExtension(raw runtime.RawExtension) *SecurityProfileOCIBaseDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *SecurityProfileOCIBaseDie) DieRelease() corev1.SecurityProfileOCIBase {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *SecurityProfileOCIBaseDie) DieReleasePtr() *corev1.SecurityProfileOCIBase {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *SecurityProfileOCIBaseDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *SecurityProfileOCIBaseDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *SecurityProfileOCIBaseDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SecurityProfileOCIBaseDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *SecurityProfileOCIBaseDie) DieStamp(fn func(r *corev1.SecurityProfileOCIBase)) *SecurityProfileOCIBaseDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *SecurityProfileOCIBaseDie) DieStampAt(jp string, fn interface{}) *SecurityProfileOCIBaseDie {
+	return d.DieStamp(func(r *corev1.SecurityProfileOCIBase) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SecurityProfileOCIBaseDie) DieWith(fns ...func(d *SecurityProfileOCIBaseDie)) *SecurityProfileOCIBaseDie {
+	nd := SecurityProfileOCIBaseBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *SecurityProfileOCIBaseDie) DeepCopy() *SecurityProfileOCIBaseDie {
+	r := *d.r.DeepCopy()
+	return &SecurityProfileOCIBaseDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *SecurityProfileOCIBaseDie) DieSeal() *SecurityProfileOCIBaseDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *SecurityProfileOCIBaseDie) DieSealFeed(r corev1.SecurityProfileOCIBase) *SecurityProfileOCIBaseDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *SecurityProfileOCIBaseDie) DieSealFeedPtr(r *corev1.SecurityProfileOCIBase) *SecurityProfileOCIBaseDie {
+	if r == nil {
+		r = &corev1.SecurityProfileOCIBase{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *SecurityProfileOCIBaseDie) DieSealRelease() corev1.SecurityProfileOCIBase {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *SecurityProfileOCIBaseDie) DieSealReleasePtr() *corev1.SecurityProfileOCIBase {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *SecurityProfileOCIBaseDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *SecurityProfileOCIBaseDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// type indicates which kind of base profile will be applied.
+//
+// Valid options are:
+//
+// Localhost - a profile defined in a file on the node should be used.
+//
+// RuntimeDefault - the container runtime default profile should be used.
+func (d *SecurityProfileOCIBaseDie) Type(v corev1.SecurityProfileOCIBaseType) *SecurityProfileOCIBaseDie {
+	return d.DieStamp(func(r *corev1.SecurityProfileOCIBase) {
+		r.Type = v
+	})
+}
+
+// localhostProfile indicates a base profile defined in a file on the node
+//
+// should be used. The profile must be preconfigured on the node to work.
+//
+// Must be a non-empty descending path, relative to the kubelet's configured seccomp profile location,
+//
+// of at most 4096 characters.
+//
+// Must be set if type is "Localhost". Must NOT be set for any other type.
+func (d *SecurityProfileOCIBaseDie) LocalhostProfile(v *string) *SecurityProfileOCIBaseDie {
+	return d.DieStamp(func(r *corev1.SecurityProfileOCIBase) {
 		r.LocalhostProfile = v
 	})
 }
@@ -38624,13 +39237,9 @@ func (d *PodSecurityContextDie) SupplementalGroups(v ...int64) *PodSecurityConte
 //
 // Valid values are "Merge" and "Strict". If not specified, "Merge" is used.
 //
-// (Alpha) Using the field requires the SupplementalGroupsPolicy feature gate to be enabled
-//
-// and the container runtime must implement support for this feature.
+// The container runtime must implement support for this feature.
 //
 // Note that this field cannot be set when spec.os.name is windows.
-//
-// TODO: update the default value to "Merge" when spec.os.name is not windows in v1.34
 func (d *PodSecurityContextDie) SupplementalGroupsPolicy(v *corev1.SupplementalGroupsPolicy) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.SupplementalGroupsPolicy = v
@@ -43833,6 +44442,10 @@ func (d *NodeAllocatableOverheadResourcesDie) PerPodString(s string) *NodeAlloca
 // This allows any single container to access the pod-level overhead, while the parent cgroup caps the total usage to account for PerPod exactly once.
 //
 // At least one of PerPod or PerContainer must be specified. Specifying neither is an invalid configuration.
+//
+// # PerContainer overhead of a claim referenced by a non-restartable init container is counted towards
+//
+// the pod's peak resource calculation (see Pod `spec.initContainers`), not for the pod's entire duration.
 func (d *NodeAllocatableOverheadResourcesDie) PerContainer(v *resource.Quantity) *NodeAllocatableOverheadResourcesDie {
 	return d.DieStamp(func(r *corev1.NodeAllocatableOverheadResources) {
 		r.PerContainer = v
@@ -43858,6 +44471,10 @@ func (d *NodeAllocatableOverheadResourcesDie) PerContainer(v *resource.Quantity)
 // This allows any single container to access the pod-level overhead, while the parent cgroup caps the total usage to account for PerPod exactly once.
 //
 // At least one of PerPod or PerContainer must be specified. Specifying neither is an invalid configuration.
+//
+// # PerContainer overhead of a claim referenced by a non-restartable init container is counted towards
+//
+// the pod's peak resource calculation (see Pod `spec.initContainers`), not for the pod's entire duration.
 func (d *NodeAllocatableOverheadResourcesDie) PerContainerString(s string) *NodeAllocatableOverheadResourcesDie {
 	q := resource.MustParse(s)
 	return d.PerContainer(&q)
@@ -53291,7 +53908,7 @@ func (d *SecretVolumeSourceDie) Optional(v *bool) *SecretVolumeSourceDie {
 //
 // The defaultUser field is only used as a fallback when the item-level user field is unset.
 //
-// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+// (Beta) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
 func (d *SecretVolumeSourceDie) DefaultUser(v *int64) *SecretVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.SecretVolumeSource) {
 		r.DefaultUser = v
@@ -56305,7 +56922,7 @@ func (d *DownwardAPIVolumeSourceDie) DefaultMode(v *int32) *DownwardAPIVolumeSou
 //
 // The defaultUser field is only used as a fallback when the item-level user field is unset.
 //
-// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+// (Beta) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
 func (d *DownwardAPIVolumeSourceDie) DefaultUser(v *int64) *DownwardAPIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeSource) {
 		r.DefaultUser = v
@@ -56626,7 +57243,7 @@ func (d *DownwardAPIVolumeFileDie) Mode(v *int32) *DownwardAPIVolumeFileDie {
 //
 // If specified, the item-level user field takes precedence over defaultUser.
 //
-// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+// (Beta) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
 func (d *DownwardAPIVolumeFileDie) User(v *int64) *DownwardAPIVolumeFileDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeFile) {
 		r.User = v
@@ -57526,7 +58143,7 @@ func (d *ConfigMapVolumeSourceDie) Optional(v *bool) *ConfigMapVolumeSourceDie {
 //
 // The defaultUser field is only used as a fallback when the item-level user field is unset.
 //
-// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+// (Beta) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
 func (d *ConfigMapVolumeSourceDie) DefaultUser(v *int64) *ConfigMapVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ConfigMapVolumeSource) {
 		r.DefaultUser = v
@@ -58959,7 +59576,7 @@ func (d *ProjectedVolumeSourceDie) DefaultMode(v *int32) *ProjectedVolumeSourceD
 //
 // The defaultUser field is only used as a fallback when the item-level user field is unset.
 //
-// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+// (Beta) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
 func (d *ProjectedVolumeSourceDie) DefaultUser(v *int64) *ProjectedVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ProjectedVolumeSource) {
 		r.DefaultUser = v
@@ -60646,7 +61263,7 @@ func (d *ServiceAccountTokenProjectionDie) Path(v string) *ServiceAccountTokenPr
 //
 // If specified, the item-level user field takes precedence over defaultUser.
 //
-// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+// (Beta) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
 func (d *ServiceAccountTokenProjectionDie) User(v *int64) *ServiceAccountTokenProjectionDie {
 	return d.DieStamp(func(r *corev1.ServiceAccountTokenProjection) {
 		r.User = v
@@ -60975,7 +61592,7 @@ func (d *ClusterTrustBundleProjectionDie) Path(v string) *ClusterTrustBundleProj
 //
 // If specified, the item-level user field takes precedence over defaultUser.
 //
-// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+// (Beta) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
 func (d *ClusterTrustBundleProjectionDie) User(v *int64) *ClusterTrustBundleProjectionDie {
 	return d.DieStamp(func(r *corev1.ClusterTrustBundleProjection) {
 		r.User = v
@@ -61361,7 +61978,7 @@ func (d *PodCertificateProjectionDie) UserAnnotations(v map[string]string) *PodC
 //
 // If specified, the item-level user field takes precedence over defaultUser.
 //
-// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+// (Beta) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
 func (d *PodCertificateProjectionDie) User(v *int64) *PodCertificateProjectionDie {
 	return d.DieStamp(func(r *corev1.PodCertificateProjection) {
 		r.User = v
@@ -63513,7 +64130,7 @@ func (d *KeyToPathDie) Mode(v *int32) *KeyToPathDie {
 //
 // If specified, the item-level user field takes precedence over defaultUser.
 //
-// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+// (Beta) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
 func (d *KeyToPathDie) User(v *int64) *KeyToPathDie {
 	return d.DieStamp(func(r *corev1.KeyToPath) {
 		r.User = v

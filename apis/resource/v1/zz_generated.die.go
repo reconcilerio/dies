@@ -7314,10 +7314,6 @@ func (d *AllocationResultDie) NodeSelector(v *apicorev1.NodeSelector) *Allocatio
 // allocationTimestamp stores the time when the resources were allocated.
 //
 // This field is not guaranteed to be set, in which case that time is unknown.
-//
-// # This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
-//
-// feature gate.
 func (d *AllocationResultDie) AllocationTimestamp(v *apismetav1.Time) *AllocationResultDie {
 	return d.DieStamp(func(r *resourcev1.AllocationResult) {
 		r.AllocationTimestamp = v
@@ -7981,10 +7977,6 @@ func (d *DeviceRequestAllocationResultDie) Tolerations(v ...resourcev1.DeviceTol
 // bindingConditions contains a copy of the BindingConditions
 //
 // from the corresponding ResourceSlice at the time of allocation.
-//
-// # This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
-//
-// feature gates.
 func (d *DeviceRequestAllocationResultDie) BindingConditions(v ...string) *DeviceRequestAllocationResultDie {
 	return d.DieStamp(func(r *resourcev1.DeviceRequestAllocationResult) {
 		r.BindingConditions = v
@@ -7994,10 +7986,6 @@ func (d *DeviceRequestAllocationResultDie) BindingConditions(v ...string) *Devic
 // bindingFailureConditions contains a copy of the BindingFailureConditions
 //
 // from the corresponding ResourceSlice at the time of allocation.
-//
-// # This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
-//
-// feature gates.
 func (d *DeviceRequestAllocationResultDie) BindingFailureConditions(v ...string) *DeviceRequestAllocationResultDie {
 	return d.DieStamp(func(r *resourcev1.DeviceRequestAllocationResult) {
 		r.BindingFailureConditions = v
@@ -10753,10 +10741,6 @@ func (d *DeviceDie) Taints(v ...resourcev1.DeviceTaint) *DeviceDie {
 // # If set to true, the scheduler will set the ResourceClaim.Status.Allocation.NodeSelector
 //
 // to match the node where the allocation was made.
-//
-// # This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
-//
-// feature gates.
 func (d *DeviceDie) BindsToNode(v *bool) *DeviceDie {
 	return d.DieStamp(func(r *resourcev1.Device) {
 		r.BindsToNode = v
@@ -10774,10 +10758,6 @@ func (d *DeviceDie) BindsToNode(v *bool) *DeviceDie {
 // The maximum number of binding conditions is 4.
 //
 // The conditions must be a valid condition type string.
-//
-// # This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
-//
-// feature gates.
 func (d *DeviceDie) BindingConditions(v ...string) *DeviceDie {
 	return d.DieStamp(func(r *resourcev1.Device) {
 		r.BindingConditions = v
@@ -10793,10 +10773,6 @@ func (d *DeviceDie) BindingConditions(v ...string) *DeviceDie {
 // The maximum number of binding failure conditions is 4.
 //
 // The conditions must be a valid condition type string.
-//
-// # This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
-//
-// feature gates.
 func (d *DeviceDie) BindingFailureConditions(v ...string) *DeviceDie {
 	return d.DieStamp(func(r *resourcev1.Device) {
 		r.BindingFailureConditions = v
@@ -12406,6 +12382,10 @@ func (d *NodeAllocatableOverheadDie) PerPodString(s string) *NodeAllocatableOver
 // - Container-level cgroup (limits only): Kubelet adds PerPod + PerContainer for each referencing container.
 //
 // This allows any single container to access the pod-level overhead, while the parent cgroup caps the total usage to account for PerPod exactly once.
+//
+// # PerContainer overhead of a claim referenced by a non-restartable init container is counted towards
+//
+// the pod's peak resource calculation (see Pod `spec.initContainers`), not for the pod's entire duration.
 func (d *NodeAllocatableOverheadDie) PerContainer(v *resource.Quantity) *NodeAllocatableOverheadDie {
 	return d.DieStamp(func(r *resourcev1.NodeAllocatableOverhead) {
 		r.PerContainer = v
@@ -12431,6 +12411,10 @@ func (d *NodeAllocatableOverheadDie) PerContainer(v *resource.Quantity) *NodeAll
 // - Container-level cgroup (limits only): Kubelet adds PerPod + PerContainer for each referencing container.
 //
 // This allows any single container to access the pod-level overhead, while the parent cgroup caps the total usage to account for PerPod exactly once.
+//
+// # PerContainer overhead of a claim referenced by a non-restartable init container is counted towards
+//
+// the pod's peak resource calculation (see Pod `spec.initContainers`), not for the pod's entire duration.
 func (d *NodeAllocatableOverheadDie) PerContainerString(s string) *NodeAllocatableOverheadDie {
 	q := resource.MustParse(s)
 	return d.PerContainer(&q)

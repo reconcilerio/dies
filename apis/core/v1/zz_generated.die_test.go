@@ -422,6 +422,24 @@ func TestSeccompProfileDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestSecurityProfileOCIDie_MissingMethods(t *testingx.T) {
+	die := SecurityProfileOCIBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SecurityProfileOCIDie: %s", diff.List())
+	}
+}
+
+func TestSecurityProfileOCIBaseDie_MissingMethods(t *testingx.T) {
+	die := SecurityProfileOCIBaseBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SecurityProfileOCIBaseDie: %s", diff.List())
+	}
+}
+
 func TestAppArmorProfileDie_MissingMethods(t *testingx.T) {
 	die := AppArmorProfileBlank
 	ignore := []string{}

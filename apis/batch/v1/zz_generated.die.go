@@ -26,7 +26,7 @@ import (
 	cmp "github.com/google/go-cmp/cmp"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
-	schedulingv1alpha3 "k8s.io/api/scheduling/v1alpha3"
+	apischedulingv1 "k8s.io/api/scheduling/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -37,7 +37,7 @@ import (
 	osx "os"
 	apiscorev1 "reconciler.io/dies/apis/core/v1"
 	metav1 "reconciler.io/dies/apis/meta/v1"
-	v1alpha3 "reconciler.io/dies/apis/scheduling/v1alpha3"
+	schedulingv1 "reconciler.io/dies/apis/scheduling/v1"
 	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
@@ -1726,9 +1726,9 @@ func (d *JobSpecDie) TemplateDie(fn func(d *apiscorev1.PodTemplateSpecDie)) *Job
 //
 // # When omitted, the Job defaults to the basic scheduling policy, which behaves
 //
-// as standard pod-by-pod scheduling.
+// as standard pod-by-pod scheduling. This field is gated by the WorkloadWithJob
 //
-// This field is alpha-level and requires the WorkloadWithJob feature gate.
+// feature gate.
 //
 // # This field is immutable, including whether it is set at all, only
 //
@@ -2051,9 +2051,9 @@ func (d *JobSpecDie) ManagedBy(v *string) *JobSpecDie {
 //
 // # When omitted, the Job defaults to the basic scheduling policy, which behaves
 //
-// as standard pod-by-pod scheduling.
+// as standard pod-by-pod scheduling. This field is gated by the WorkloadWithJob
 //
-// This field is alpha-level and requires the WorkloadWithJob feature gate.
+// feature gate.
 //
 // # This field is immutable, including whether it is set at all, only
 //
@@ -4072,9 +4072,9 @@ func (d *JobSchedulingConfigurationDie) DiePatch(patchType types.PatchType) ([]b
 // removed. The policy variant (basic/gang) is frozen by hand-written
 //
 // validation; only schedulingPolicy.gang.minCount may be changed.
-func (d *JobSchedulingConfigurationDie) SchedulingPolicyDie(fn func(d *v1alpha3.WorkloadPodGroupSchedulingPolicyDie)) *JobSchedulingConfigurationDie {
+func (d *JobSchedulingConfigurationDie) SchedulingPolicyDie(fn func(d *schedulingv1.WorkloadPodGroupSchedulingPolicyDie)) *JobSchedulingConfigurationDie {
 	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
-		d := v1alpha3.WorkloadPodGroupSchedulingPolicyBlank.DieImmutable(false).DieFeedPtr(r.SchedulingPolicy)
+		d := schedulingv1.WorkloadPodGroupSchedulingPolicyBlank.DieImmutable(false).DieFeedPtr(r.SchedulingPolicy)
 		fn(d)
 		r.SchedulingPolicy = d.DieReleasePtr()
 	})
@@ -4087,9 +4087,9 @@ func (d *JobSchedulingConfigurationDie) SchedulingPolicyDie(fn func(d *v1alpha3.
 // for the Job's pods.
 //
 // This field is immutable after creation.
-func (d *JobSchedulingConfigurationDie) SchedulingConstraintsDie(fn func(d *v1alpha3.WorkloadPodGroupSchedulingConstraintsDie)) *JobSchedulingConfigurationDie {
+func (d *JobSchedulingConfigurationDie) SchedulingConstraintsDie(fn func(d *schedulingv1.WorkloadPodGroupSchedulingConstraintsDie)) *JobSchedulingConfigurationDie {
 	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
-		d := v1alpha3.WorkloadPodGroupSchedulingConstraintsBlank.DieImmutable(false).DieFeedPtr(r.SchedulingConstraints)
+		d := schedulingv1.WorkloadPodGroupSchedulingConstraintsBlank.DieImmutable(false).DieFeedPtr(r.SchedulingConstraints)
 		fn(d)
 		r.SchedulingConstraints = d.DieReleasePtr()
 	})
@@ -4104,9 +4104,9 @@ func (d *JobSchedulingConfigurationDie) SchedulingConstraintsDie(fn func(d *v1al
 // This field is immutable after creation: it may not be added or removed,
 //
 // and the selected mode may not be changed.
-func (d *JobSchedulingConfigurationDie) DisruptionModeDie(fn func(d *v1alpha3.WorkloadPodGroupDisruptionModeDie)) *JobSchedulingConfigurationDie {
+func (d *JobSchedulingConfigurationDie) DisruptionModeDie(fn func(d *schedulingv1.WorkloadPodGroupDisruptionModeDie)) *JobSchedulingConfigurationDie {
 	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
-		d := v1alpha3.WorkloadPodGroupDisruptionModeBlank.DieImmutable(false).DieFeedPtr(r.DisruptionMode)
+		d := schedulingv1.WorkloadPodGroupDisruptionModeBlank.DieImmutable(false).DieFeedPtr(r.DisruptionMode)
 		fn(d)
 		r.DisruptionMode = d.DieReleasePtr()
 	})
@@ -4129,18 +4129,18 @@ func (d *JobSchedulingConfigurationDie) DisruptionModeDie(fn func(d *v1alpha3.Wo
 // This list is immutable after creation: entries may neither be added,
 //
 // removed, nor modified.
-func (d *JobSchedulingConfigurationDie) ResourceClaimDie(v string, fn func(d *v1alpha3.WorkloadPodGroupResourceClaimDie)) *JobSchedulingConfigurationDie {
+func (d *JobSchedulingConfigurationDie) ResourceClaimDie(v string, fn func(d *schedulingv1.WorkloadPodGroupResourceClaimDie)) *JobSchedulingConfigurationDie {
 	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
 		for i := range r.ResourceClaims {
 			if v == r.ResourceClaims[i].Name {
-				d := v1alpha3.WorkloadPodGroupResourceClaimBlank.DieImmutable(false).DieFeed(r.ResourceClaims[i])
+				d := schedulingv1.WorkloadPodGroupResourceClaimBlank.DieImmutable(false).DieFeed(r.ResourceClaims[i])
 				fn(d)
 				r.ResourceClaims[i] = d.DieRelease()
 				return
 			}
 		}
 
-		d := v1alpha3.WorkloadPodGroupResourceClaimBlank.DieImmutable(false).DieFeed(schedulingv1alpha3.WorkloadPodGroupResourceClaim{Name: v})
+		d := schedulingv1.WorkloadPodGroupResourceClaimBlank.DieImmutable(false).DieFeed(apischedulingv1.WorkloadPodGroupResourceClaim{Name: v})
 		fn(d)
 		r.ResourceClaims = append(r.ResourceClaims, d.DieRelease())
 	})
@@ -4155,7 +4155,7 @@ func (d *JobSchedulingConfigurationDie) ResourceClaimDie(v string, fn func(d *v1
 // removed. The policy variant (basic/gang) is frozen by hand-written
 //
 // validation; only schedulingPolicy.gang.minCount may be changed.
-func (d *JobSchedulingConfigurationDie) SchedulingPolicy(v *schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy) *JobSchedulingConfigurationDie {
+func (d *JobSchedulingConfigurationDie) SchedulingPolicy(v *apischedulingv1.WorkloadPodGroupSchedulingPolicy) *JobSchedulingConfigurationDie {
 	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
 		r.SchedulingPolicy = v
 	})
@@ -4166,7 +4166,7 @@ func (d *JobSchedulingConfigurationDie) SchedulingPolicy(v *schedulingv1alpha3.W
 // for the Job's pods.
 //
 // This field is immutable after creation.
-func (d *JobSchedulingConfigurationDie) SchedulingConstraints(v *schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints) *JobSchedulingConfigurationDie {
+func (d *JobSchedulingConfigurationDie) SchedulingConstraints(v *apischedulingv1.WorkloadPodGroupSchedulingConstraints) *JobSchedulingConfigurationDie {
 	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
 		r.SchedulingConstraints = v
 	})
@@ -4179,7 +4179,7 @@ func (d *JobSchedulingConfigurationDie) SchedulingConstraints(v *schedulingv1alp
 // This field is immutable after creation: it may not be added or removed,
 //
 // and the selected mode may not be changed.
-func (d *JobSchedulingConfigurationDie) DisruptionMode(v *schedulingv1alpha3.WorkloadPodGroupDisruptionMode) *JobSchedulingConfigurationDie {
+func (d *JobSchedulingConfigurationDie) DisruptionMode(v *apischedulingv1.WorkloadPodGroupDisruptionMode) *JobSchedulingConfigurationDie {
 	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
 		r.DisruptionMode = v
 	})
@@ -4200,7 +4200,7 @@ func (d *JobSchedulingConfigurationDie) DisruptionMode(v *schedulingv1alpha3.Wor
 // This list is immutable after creation: entries may neither be added,
 //
 // removed, nor modified.
-func (d *JobSchedulingConfigurationDie) ResourceClaims(v ...schedulingv1alpha3.WorkloadPodGroupResourceClaim) *JobSchedulingConfigurationDie {
+func (d *JobSchedulingConfigurationDie) ResourceClaims(v ...apischedulingv1.WorkloadPodGroupResourceClaim) *JobSchedulingConfigurationDie {
 	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
 		r.ResourceClaims = v
 	})

@@ -34,3 +34,147 @@ func TestPriorityClassDie_MissingMethods(t *testingx.T) {
 		t.Errorf("found missing fields for PriorityClassDie: %s", diff.List())
 	}
 }
+
+func TestWorkloadTopologyConstraintDie_MissingMethods(t *testingx.T) {
+	die := WorkloadTopologyConstraintBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadTopologyConstraintDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadPodGroupSchedulingPolicyDie_MissingMethods(t *testingx.T) {
+	die := WorkloadPodGroupSchedulingPolicyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadPodGroupSchedulingPolicyDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadPodGroupBasicSchedulingPolicyDie_MissingMethods(t *testingx.T) {
+	die := WorkloadPodGroupBasicSchedulingPolicyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadPodGroupBasicSchedulingPolicyDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadPodGroupGangSchedulingPolicyDie_MissingMethods(t *testingx.T) {
+	die := WorkloadPodGroupGangSchedulingPolicyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadPodGroupGangSchedulingPolicyDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadPodGroupSchedulingConstraintsDie_MissingMethods(t *testingx.T) {
+	die := WorkloadPodGroupSchedulingConstraintsBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadPodGroupSchedulingConstraintsDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadPodGroupResourceClaimDie_MissingMethods(t *testingx.T) {
+	die := WorkloadPodGroupResourceClaimBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadPodGroupResourceClaimDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadPodGroupDisruptionModeDie_MissingMethods(t *testingx.T) {
+	die := WorkloadPodGroupDisruptionModeBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadPodGroupDisruptionModeDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadPodGroupSingleDisruptionModeDie_MissingMethods(t *testingx.T) {
+	die := WorkloadPodGroupSingleDisruptionModeBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadPodGroupSingleDisruptionModeDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadPodGroupAllDisruptionModeDie_MissingMethods(t *testingx.T) {
+	die := WorkloadPodGroupAllDisruptionModeBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadPodGroupAllDisruptionModeDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadCompositePodGroupSchedulingPolicyDie_MissingMethods(t *testingx.T) {
+	die := WorkloadCompositePodGroupSchedulingPolicyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadCompositePodGroupSchedulingPolicyDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadCompositePodGroupBasicSchedulingPolicyDie_MissingMethods(t *testingx.T) {
+	die := WorkloadCompositePodGroupBasicSchedulingPolicyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadCompositePodGroupBasicSchedulingPolicyDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadCompositePodGroupGangSchedulingPolicyDie_MissingMethods(t *testingx.T) {
+	die := WorkloadCompositePodGroupGangSchedulingPolicyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadCompositePodGroupGangSchedulingPolicyDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadCompositePodGroupSchedulingConstraintsDie_MissingMethods(t *testingx.T) {
+	die := WorkloadCompositePodGroupSchedulingConstraintsBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadCompositePodGroupSchedulingConstraintsDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadCompositePodGroupDisruptionModeDie_MissingMethods(t *testingx.T) {
+	die := WorkloadCompositePodGroupDisruptionModeBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadCompositePodGroupDisruptionModeDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadCompositePodGroupSingleDisruptionModeDie_MissingMethods(t *testingx.T) {
+	die := WorkloadCompositePodGroupSingleDisruptionModeBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadCompositePodGroupSingleDisruptionModeDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadCompositePodGroupAllDisruptionModeDie_MissingMethods(t *testingx.T) {
+	die := WorkloadCompositePodGroupAllDisruptionModeBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadCompositePodGroupAllDisruptionModeDie: %s", diff.List())
+	}
+}

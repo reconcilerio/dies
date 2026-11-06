@@ -215,7 +215,15 @@ type _ = corev1.SELinuxOptions
 type _ = corev1.WindowsSecurityContextOptions
 
 // +die
+// +die:field:name=OCI,die=SecurityProfileOCIDie,pointer=true
 type _ = corev1.SeccompProfile
+
+// +die
+// +die:field:name=BaseProfile,die=SecurityProfileOCIBaseDie,pointer=true
+type _ = corev1.SecurityProfileOCI
+
+// +die
+type _ = corev1.SecurityProfileOCIBase
 
 // +die
 type _ = corev1.AppArmorProfile
