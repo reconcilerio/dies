@@ -115,3 +115,78 @@ properties:
 	}
 	return crd.DieRelease(), nil
 }
+
+// SprocketCRD is the CRD for examples/sprocket, with v1 and v2, the storage
+// version, converted by a webhook at url, whose serving certificate caBundle
+// signs. It's not in [CRDs], as only a suite that serves the webhook can
+// install it.
+func SprocketCRD(url string, caBundle []byte) (*apiextensionsv1.CustomResourceDefinition, error) {
+	version := func(name string, storage bool, spec string) (*dieapiextensionsv1.CustomResourceDefinitionVersionDie, error) {
+		schema, err := dieapiextensionsv1.JSONSchemaPropsBlank.DieStampE(func(d *dieapiextensionsv1.JSONSchemaPropsDieMut) error {
+			return die.FeedYAML(d, []byte(`
+type: object
+properties:
+  spec:
+    type: object
+    properties:
+`+spec+`
+  status:
+    type: object
+    properties:
+      observedGeneration: {type: integer, format: int64}
+`))
+		})
+		if err != nil {
+			return nil, err
+		}
+		return dieapiextensionsv1.CustomResourceDefinitionVersionBlank.DieStampE(func(d *dieapiextensionsv1.CustomResourceDefinitionVersionDieMut) error {
+			return errors.Join(
+				d.Name().Set(name),
+				d.Served().Set(true),
+				d.Storage().Set(storage),
+				d.Schema().OpenAPIV3Schema().DieFeed(schema.DieRelease()),
+				d.Subresources().Status().DieFeed(&apiextensionsv1.CustomResourceSubresourceStatus{}),
+			)
+		})
+	}
+	v1, err := version("v1", false, `
+      size: {type: integer, format: int32}
+      image: {type: string}
+      lubricant: {type: string}`)
+	if err != nil {
+		return nil, err
+	}
+	v2, err := version("v2", true, `
+      teeth: {type: integer, format: int32}
+      image:
+        type: object
+        properties:
+          repository: {type: string}
+          tag: {type: string}
+      paused: {type: boolean}`)
+	if err != nil {
+		return nil, err
+	}
+	crd, err := dieapiextensionsv1.CustomResourceDefinitionBlank.DieStampE(func(d *dieapiextensionsv1.CustomResourceDefinitionDieMut) error {
+		names := d.Spec().Names()
+		webhook := d.Spec().Conversion().Webhook()
+		return errors.Join(
+			d.Metadata().Name().Set("sprockets.example.dev"),
+			d.Spec().Group().Set("example.dev"),
+			d.Spec().Scope().Set(dieapiextensionsv1.NamespaceScoped),
+			names.Kind().Set("Sprocket"),
+			names.ListKind().Set("SprocketList"),
+			names.Plural().Set("sprockets"),
+			names.Singular().Set("sprocket"),
+			d.Spec().Versions().Set([]apiextensionsv1.CustomResourceDefinitionVersion{*v1.DieRelease(), *v2.DieRelease()}),
+			d.Spec().Conversion().Strategy().Set(dieapiextensionsv1.WebhookConverter),
+			webhook.ClientConfig().URL().Set(url),
+			webhook.ClientConfig().CABundle().Set(caBundle),
+			webhook.ConversionReviewVersions().Set([]string{"v1"}),
+		)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return crd.DieRelease(), nil
+}

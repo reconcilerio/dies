@@ -59,7 +59,9 @@ type controlPlane struct {
 	network    *testcontainers.DockerNetwork
 }
 
-func startControlPlane(ctx context.Context) (cp *controlPlane, err error) {
+// startControlPlane starts the control plane, with the API server able to
+// reach the ports of the host given, at testcontainers.HostInternal.
+func startControlPlane(ctx context.Context, hostPorts ...int) (cp *controlPlane, err error) {
 	if err := dockerHealthy(ctx); err != nil {
 		return nil, fmt.Errorf("%w: %v", errNoDocker, err)
 	}
@@ -134,6 +136,7 @@ func startControlPlane(ctx context.Context) (cp *controlPlane, err error) {
 			testcontainers.ContainerFile{Reader: strings.NewReader(tokens), ContainerFilePath: "/etc/kubernetes/tokens.csv", FileMode: 0o600},
 		),
 		testcontainers.WithExposedPorts("6443/tcp"),
+		testcontainers.WithHostPortAccess(hostPorts...),
 		testcontainers.WithWaitStrategy(wait.ForHTTP("/readyz").WithPort("6443/tcp").
 			WithTLS(true, &tls.Config{InsecureSkipVerify: true}).
 			WithHeaders(map[string]string{"Authorization": "Bearer " + token}).

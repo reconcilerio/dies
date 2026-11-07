@@ -35,6 +35,7 @@ import (
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
 	dietesting "reconciler.io/dies/v2/die/testing"
 	dieunstructured "reconciler.io/dies/v2/die/unstructured"
+	"reconciler.io/dies/v2/examples/sprocket"
 	widgetv1 "reconciler.io/dies/v2/examples/widget/v1"
 )
 
@@ -43,7 +44,7 @@ import (
 // types, to see what the server has without dies in the way.
 func Clients(config *rest.Config) (dies, upstream client.Client, err error) {
 	scheme := runtime.NewScheme()
-	for _, add := range []func(*runtime.Scheme) error{apis.AddToScheme, widgetv1.AddToScheme} {
+	for _, add := range []func(*runtime.Scheme) error{apis.AddToScheme, widgetv1.AddToScheme, sprocket.AddToScheme} {
 		if err := add(scheme); err != nil {
 			return nil, nil, err
 		}

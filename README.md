@@ -36,6 +36,7 @@ v2 is a rewrite, and its API is not compatible with v0. The v0 API is documented
 - [Unstructured dies](#unstructured-dies)
 	- [Molds: unstructured dies with the server's schema](#molds-unstructured-dies-with-the-servers-schema)
 - [Jigs](#jigs)
+- [Conversion](#conversion)
 - [Observers](#observers)
 - [JSONPath](#jsonpath)
 - [Validation and defaulting](#validation-and-defaulting)
@@ -195,7 +196,7 @@ updated, err := current.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
 
 In a test, `dietesting.NoError(t, errs...)` fails the test with the first error, so fixtures check their writes inline: `dietesting.NoError(t, d.Spec().Replicas().Set(3))`.
 
-Functions that can fail for other reasons return an error too: the release functions, such as `die.ReleaseJSON`, for a value JSON can't encode, and functions that take an expression or content from elsewhere, such as `jsonpath.Find`, `dieunstructured.GetAs`, molds' `Blank` and `Cast`, and a jig's `Clamp`, `Hold`, `HoldMut` and `HoldUnstructured`. Each has a `Must` form that panics with the error instead, for content you know, as Go's `regexp.MustCompile` does: `die.MustReleaseJSON`, `jsonpath.MustFind`, `jig.MustHold`. A die's method is `DieMust…`, such as `DieMustReleaseApplyConfiguration`. Defining a jig, usually in a package variable, uses `MustClamp`, as a mistake in a definition is a mistake in the code.
+Functions that can fail for other reasons return an error too: the release functions, such as `die.ReleaseJSON`, for a value JSON can't encode, and functions that take an expression or content from elsewhere, such as `jsonpath.Find`, `dieunstructured.GetAs`, molds' `Blank` and `Cast`, and a jig's `Clamp`, `Hold`, `HoldMut` and `HoldUnstructured`. Each has a `Must` form that panics with the error instead, for content you know, as Go's `regexp.MustCompile` does: `die.MustReleaseJSON`, `jsonpath.MustFind`, `jig.MustHold`. A die's method is `DieMust…`, such as `DieMustReleaseApplyConfiguration`. Defining a jig, usually in a package variable, uses `MustClamp`, as a mistake in a definition is a mistake in the code. Defining a [conversion](#conversion) has only forms that panic, for the same reason.
 
 Mistakes in the code panic, as Go's own APIs do. They don't depend on the data, so a test catches them the first time it runs:
 - **A root's operation on a die within another, or on a jig,** such as releasing or feeding a patch.
@@ -448,6 +449,39 @@ if ok {
 ```
 
 A jig holds nothing of its own. Its writes go to the source, and the source's patches carry them. `Hold` takes a `die.ImmutableDie` and returns an immutable die of the jig's type, which reads; `HoldMut` takes a `die.MutableDie` and returns a mutable one, which also writes. A read-only jig of a mutable die would see its writes, so `Hold` doesn't take one. Either takes unstructured dies too, and `HoldUnstructured` takes an `*unstructured.Unstructured`, which the jig changes in place. `jigs.BindVia` converts between shapes that differ. See [`v2/examples/jigs/v1`](v2/examples/jigs/v1) for a complete example.
+
+## Conversion
+
+A custom resource with more than one version needs a conversion webhook, which the API server calls to convert objects between versions. With dies, a conversion between two types is a jig: it binds the locations of one version to those of the other. `reconciler.io/dies/v2/die/conversion` builds the conversion from those bindings.
+
+One version is the hub, usually the storage version, and each other version is a spoke. A spoke is converted to and from the hub, so a conversion between two spokes goes through the hub. You define a converter from the hub's blank, with a spoke for each other version:
+
+```go
+var Conversion = conversion.New(sprocketv2.SprocketBlank).
+	AddSpoke(sprocketv1.SprocketBlank,
+		jigs.Bind(sprocketv1.SprocketBlank.Spec().Size(), sprocketv2.SprocketBlank.Spec().Teeth()),
+		jigs.BindVia(sprocketv1.SprocketBlank.Spec().Image(), sprocketv2.SprocketBlank.Spec().Image(), ImageReference),
+		jigs.Bind(sprocketv1.SprocketBlank.Status().ObservedGeneration(), sprocketv2.SprocketBlank.Status().ObservedGeneration()),
+	)
+```
+
+One set of bindings converts both ways. `jigs.Bind` binds a value that's the same in both versions, even if it's renamed. `jigs.BindVia` binds a value whose shape changes, through a transform that must be lossless, as a jig's are. The conversion copies a binding only where the source has a value, so a field left unset stays unset, and a field set to its zero value stays set. The metadata is bound as it is, because the API server lets a conversion change only labels and annotations.
+
+A conversion needs every version of the resource, so define it in a central location, like the API group's package. A version's package then needn't load the other versions, and different kinds in the group can have different hub versions without an import cycle.
+
+The bindings needn't cover every field, as a field of one version may have no place in the other. What a conversion drops, it stashes in an annotation of the converted object, named for the version it came from: `conversion.dies.reconciler.io/v1` holds what a conversion from v1 dropped. Converting back restores the stash and removes the annotation, so a round trip changes nothing. A restore fills only fields the conversion left unset, so a stale stash can't overwrite a value changed in the other version. `WithStashAnnotation` sets another prefix for the annotations. The prefix becomes part of the stored data: a stash under an old prefix isn't restored after you change it.
+
+A stash keeps whole values. If a list's elements lose a field in the other version, the whole list is stashed. The stash isn't restored over the list the conversion back writes, so that field is lost. See [`v2/examples/sprocket`](v2/examples/sprocket) for a complete example, with a renamed field, a field whose shape changes, and a field in each version that the other doesn't have.
+
+Each version's group, version and kind are those its die package records from the type's `+die:object` marker, so only object dies can be versions. A definition that can't convert panics: a spoke of another kind, a second conversion of the same version, or a binding to another type. Each of these is a mistake in the code. `AddSpoke` and `WithStashAnnotation` return a new converter, leaving the one they're called on unchanged. `Convert` returns an error for problems at run time: an object of another kind, a version the converter doesn't know, or a value a transform can't represent.
+
+`reconciler.io/dies/v2/die/conversion/webhook` serves a converter as the webhook:
+
+```go
+mux.Handle("/convert/sprockets", webhook.Handler(sprocket.Conversion))
+```
+
+Register it in the CRD with the `Webhook` conversion strategy, `conversionReviewVersions: [v1]`, and the CA that signs the webhook's serving certificate.
 
 ## Observers
 
@@ -746,6 +780,7 @@ The generated `zz_generated.dies_test.go` checks that each die still matches its
 - merge patches carry only intent
 - objects round-trip through dies exactly as the server has them
 - unstructured dies in the server's molds apply as typed dies do
+- a conversion webhook built from dies converts objects the server stores in one version and serves in another, through create, update and server-side apply. The test process serves the webhook, and the API server's container reaches it through a port testcontainers forwards from the host, over TLS with a CA made for the run
 
 It needs only Docker, and is skipped without it, unless `CI` is set:
 

@@ -23,6 +23,7 @@ import (
 	"os"
 	"testing"
 
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/client-go/rest"
 	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -48,7 +49,13 @@ func TestMain(m *testing.M) {
 
 func run(m *testing.M) int {
 	ctx := context.Background()
-	cp, err := startControlPlane(ctx)
+	hooks, err := startWebhooks()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "conformance: %v\n", err)
+		return 1
+	}
+	defer hooks.stop()
+	cp, err := startControlPlane(ctx, hooks.port)
 	if err != nil {
 		// without Docker the suite is skipped, except in CI, where it must run
 		if errors.Is(err, errNoDocker) && os.Getenv("CI") == "" {
@@ -78,6 +85,20 @@ func run(m *testing.M) int {
 		return 1
 	}
 	defer func() { _ = env.Stop() }()
+
+	// the API server calls the test process to convert sprockets. The CRD is
+	// installed apart from the others, without webhook options, as envtest
+	// removes the conversion of a CRD whose kind isn't convertible in its
+	// scheme when it has them, and an environment always does.
+	sprockets, err := harness.SprocketCRD(hooks.url("/convert/sprockets"), hooks.caBundle)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "conformance: %v\n", err)
+		return 1
+	}
+	if _, err := envtest.InstallCRDs(config, envtest.CRDInstallOptions{CRDs: []*apiextensionsv1.CustomResourceDefinition{sprockets}}); err != nil {
+		fmt.Fprintf(os.Stderr, "conformance: %v\n", err)
+		return 1
+	}
 
 	if dies, upstream, err = harness.Clients(config); err != nil {
 		fmt.Fprintf(os.Stderr, "conformance: %v\n", err)

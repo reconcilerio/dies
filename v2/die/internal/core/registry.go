@@ -20,6 +20,8 @@ import (
 	"reflect"
 	"slices"
 	"sync"
+
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 var (
@@ -91,6 +93,20 @@ func identityOf(t reflect.Type) (identity, bool) {
 		return identity{}, false
 	}
 	return id.(identity), true
+}
+
+// IdentityOf returns an object type's group, version and kind, if its die
+// package recorded them.
+func IdentityOf(t reflect.Type) (schema.GroupVersionKind, bool, error) {
+	id, ok := identityOf(t)
+	if !ok {
+		return schema.GroupVersionKind{}, false, nil
+	}
+	gv, err := schema.ParseGroupVersion(id.apiVersion)
+	if err != nil {
+		return schema.GroupVersionKind{}, true, Errorf("die: the identity of %s: %w", t, err)
+	}
+	return gv.WithKind(id.kind), true, nil
 }
 
 func Manage(t reflect.Type, fd *FieldDesc) {
