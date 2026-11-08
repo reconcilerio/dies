@@ -16,6 +16,11 @@ limitations under the License.
 
 package v1
 
+import (
+	"errors"
+	"fmt"
+)
+
 // A resource lists its conditions by type, so the list maps of conditions are
 // named: ConditionListMap and ConditionListMapMut.
 //
@@ -64,4 +69,39 @@ func (d *ConditionDie) IsFalse() bool {
 // +die:shared
 func (d *ConditionDie) IsUnknown() bool {
 	return !d.IsTrue() && !d.IsFalse()
+}
+
+// MarkTrue sets the status for the condition to [ConditionTrue] along
+// with the provided reason and message.
+//
+// +die:shared
+func (d *ConditionDieMut) MarkTrue(reason string, messageFormat string, messageA ...any) (*ConditionDieMut, error) {
+	return d.mark(ConditionTrue, reason, messageFormat, messageA...)
+}
+
+// MarkFalse sets the status for the condition to [ConditionFalse] along
+// with the provided reason and message.
+//
+// +die:shared
+func (d *ConditionDieMut) MarkFalse(reason string, messageFormat string, messageA ...any) (*ConditionDieMut, error) {
+	return d.mark(ConditionFalse, reason, messageFormat, messageA...)
+}
+
+// MarkUnknown sets the status for the condition to [ConditionUnknown] along
+// with the provided reason and message.
+//
+// +die:shared
+func (d *ConditionDieMut) MarkUnknown(reason string, messageFormat string, messageA ...any) (*ConditionDieMut, error) {
+	return d.mark(ConditionUnknown, reason, messageFormat, messageA...)
+}
+
+// +die:shared
+func (d *ConditionDieMut) mark(status ConditionStatus, reason string, messageFormat string, messageA ...any) (*ConditionDieMut, error) {
+	return d.DieStampAtomic(func(m *ConditionDieMut) error {
+		return errors.Join(
+			m.Status().Set(status),
+			m.Reason().Set(reason),
+			m.Message().Set(fmt.Sprintf(messageFormat, messageA...)),
+		)
+	})
 }

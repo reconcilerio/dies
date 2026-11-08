@@ -16,6 +16,6 @@ limitations under the License.
 
 // +die:types:package=k8s.io/api/resource/v1alpha3
 
-// Package v1alpha3 has dies for [k8s.io/api/resource/v1alpha3], whose types and constants it
-// also aliases.
+// Package v1alpha3 has dies for [k8s.io/api/resource/v1alpha3], whose types,
+// constants, functions and variables it also re-exports.
 package v1alpha3

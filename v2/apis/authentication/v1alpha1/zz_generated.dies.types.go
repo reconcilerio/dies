@@ -20,14 +20,31 @@ package v1alpha1
 
 import (
 	authenticationv1alpha1 "k8s.io/api/authentication/v1alpha1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/authentication/v1alpha1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/authentication/v1alpha1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
+// ErrIntOverflowGenerated is [authenticationv1alpha1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = authenticationv1alpha1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [authenticationv1alpha1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = authenticationv1alpha1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [authenticationv1alpha1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = authenticationv1alpha1.ErrUnexpectedEndOfGroupGenerated
+
 const GroupName = authenticationv1alpha1.GroupName
+
+// Resource calls [authenticationv1alpha1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return authenticationv1alpha1.Resource(resource)
+}
 
 // +die:object:apiVersion=authentication.k8s.io/v1alpha1,kind=SelfSubjectReview
 // +die:subresource:name=status

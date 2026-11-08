@@ -20,12 +20,24 @@ package v1
 
 import (
 	eventsv1 "k8s.io/api/events/v1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/events/v1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/events/v1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
+
+// ErrIntOverflowGenerated is [eventsv1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = eventsv1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [eventsv1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = eventsv1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [eventsv1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = eventsv1.ErrUnexpectedEndOfGroupGenerated
 
 // +die:object:apiVersion=events.k8s.io/v1,kind=Event
 // +die:field:name=regarding,structType=atomic
@@ -39,3 +51,8 @@ type EventList = eventsv1.EventList
 type EventSeries = eventsv1.EventSeries
 
 const GroupName = eventsv1.GroupName
+
+// Resource calls [eventsv1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return eventsv1.Resource(resource)
+}

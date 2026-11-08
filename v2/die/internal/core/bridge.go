@@ -31,4 +31,8 @@ var (
 	ValueTypeOf func(d any) reflect.Type
 	// IsMutable reports whether a die is a mutable die.
 	IsMutable func(d any) bool
+	// HandleStateOf returns a handle's holder and its location within it,
+	// or false for a value that isn't a handle. The package of handles
+	// installs it.
+	HandleStateOf func(l any) (*Holder, Path, bool)
 )

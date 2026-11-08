@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"go/ast"
+	"go/token"
 	"go/types"
 	"path/filepath"
 	"strings"
@@ -28,8 +29,8 @@ import (
 )
 
 // aliases is the first phase: for each die package with a +die:types marker,
-// alias the upstream package's types and constants, marking the types that
-// need dies.
+// alias the upstream package's types and constants, and re-export its
+// functions and variables, marking the types that need dies.
 func (g *generator) aliases(patterns []string) error {
 	// only the die packages' docs are needed; their generated files may be
 	// stale or missing, so they are not type checked
@@ -114,6 +115,9 @@ func declaredByHand(p *packages.Package) map[string]bool {
 			continue
 		}
 		for _, decl := range f.Decls {
+			if fd, ok := decl.(*ast.FuncDecl); ok && fd.Recv == nil {
+				names[fd.Name.Name] = true
+			}
 			gd, ok := decl.(*ast.GenDecl)
 			if !ok {
 				continue
@@ -168,9 +172,12 @@ func (g *generator) emitAliases(p, up *packages.Package) error {
 		}
 	}
 
-	f.p("// The types and constants of [%s], so that importing this package provides", up.PkgPath)
-	f.p("// both the types and their dies. Each type is followed by its values.")
-	f.p("// Functions and variables are deliberately not re-exported: this package's")
+	docs := valueDocs(up)
+	f.p("// The types, constants, functions and variables of [%s], so that", up.PkgPath)
+	f.p("// importing this package provides both the types and their dies. Each type is")
+	f.p("// followed by its values. A function is called through one of the same")
+	f.p("// signature, and a variable is copied as it is when this package is")
+	f.p("// initialized. The scheme registration isn't re-exported: this package's")
 	f.p("// [AddToScheme] registers its dies, not the upstream types.")
 	f.p("")
 	for _, name := range scope.Names() {
@@ -215,9 +222,258 @@ func (g *generator) emitAliases(p, up *packages.Package) error {
 				f.p("const %s = %s.%s", name, pkg, name)
 				f.p("")
 			}
+		case *types.Var:
+			if !obj.Exported() || schemeRegistration[name] {
+				continue
+			}
+			f.p("// %s is [%s.%s].", name, pkg, name)
+			f.value("var %s = %s.%s", []any{name, pkg, name}, deprecation(docs[obj]))
+			f.p("")
+		case *types.Func:
+			if !obj.Exported() || schemeRegistration[name] {
+				continue
+			}
+			if f.forward(obj, pkg, deprecation(docs[obj])) {
+				f.p("")
+			}
 		}
 	}
 	return f.write(filepath.Dir(p.GoFiles[0]), typesFile)
+}
+
+// schemeRegistration is the names of an API package's scheme registration,
+// which a die package declares for its dies, in place of the upstream
+// package's.
+var schemeRegistration = map[string]bool{"SchemeGroupVersion": true, "SchemeBuilder": true, "AddToScheme": true}
+
+// valueDocs returns the doc lines of a package's functions and variables.
+func valueDocs(p *packages.Package) map[types.Object][]string {
+	docs := map[types.Object][]string{}
+	for _, f := range p.Syntax {
+		for _, decl := range f.Decls {
+			switch decl := decl.(type) {
+			case *ast.FuncDecl:
+				if decl.Recv == nil {
+					docs[p.TypesInfo.Defs[decl.Name]] = commentLines(decl.Doc)
+				}
+			case *ast.GenDecl:
+				if decl.Tok != token.VAR {
+					continue
+				}
+				for _, spec := range decl.Specs {
+					vs := spec.(*ast.ValueSpec)
+					doc := vs.Doc
+					if doc == nil && len(decl.Specs) == 1 {
+						doc = decl.Doc
+					}
+					for _, n := range vs.Names {
+						docs[p.TypesInfo.Defs[n]] = commentLines(doc)
+					}
+				}
+			}
+		}
+	}
+	return docs
+}
+
+// forward emits a function that calls an upstream function of the same
+// signature, as Go has no alias of a function, and reports whether it could:
+// one whose signature names what can't be named here, such as an unexported
+// type, isn't re-exported.
+func (f *file) forward(fn *types.Func, pkg string, deprecated []string) bool {
+	sig := fn.Signature()
+	if !nameable(sig, map[types.Type]bool{}) {
+		return false
+	}
+	qualify := func(p *types.Package) string { return f.use(p.Path()) }
+	typeString := func(t types.Type) string { return types.TypeString(t, qualify) }
+	var tparams, targs []string
+	for i := range sig.TypeParams().Len() {
+		tp := sig.TypeParams().At(i)
+		tparams = append(tparams, tp.Obj().Name()+" "+typeString(tp.Constraint()))
+		targs = append(targs, tp.Obj().Name())
+	}
+	var params, results []string
+	for i := range sig.Params().Len() {
+		t := sig.Params().At(i).Type()
+		if sig.Variadic() && i == sig.Params().Len()-1 {
+			params = append(params, "..."+typeString(t.(*types.Slice).Elem()))
+		} else {
+			params = append(params, typeString(t))
+		}
+	}
+	for i := range sig.Results().Len() {
+		results = append(results, typeString(sig.Results().At(i).Type()))
+	}
+	// parameters keep their upstream names, unless one would hide a package
+	// or type parameter the function names
+	taken := map[string]bool{}
+	for a := range f.aliases {
+		taken[a] = true
+	}
+	for _, n := range targs {
+		taken[n] = true
+	}
+	var args []string
+	for i := range sig.Params().Len() {
+		n := sig.Params().At(i).Name()
+		if n == "" || n == "_" || taken[n] {
+			n = fmt.Sprintf("p%d", i)
+		}
+		for taken[n] {
+			n += "_"
+		}
+		taken[n] = true
+		params[i] = n + " " + params[i]
+		args = append(args, n)
+	}
+	if sig.Variadic() {
+		args[len(args)-1] += "..."
+	}
+	decl := fn.Name()
+	call := pkg + "." + fn.Name()
+	if len(tparams) > 0 {
+		decl += "[" + strings.Join(tparams, ", ") + "]"
+		call += "[" + strings.Join(targs, ", ") + "]"
+	}
+	decl += "(" + strings.Join(params, ", ") + ")"
+	switch len(results) {
+	case 0:
+	case 1:
+		decl += " " + results[0]
+	default:
+		decl += " (" + strings.Join(results, ", ") + ")"
+	}
+	call += "(" + strings.Join(args, ", ") + ")"
+	if len(results) > 0 {
+		call = "return " + call
+	}
+	f.p("// %s calls [%s.%s].", fn.Name(), pkg, fn.Name())
+	if deprecated != nil {
+		f.p("//")
+		for _, l := range deprecated {
+			f.p("// %s", l)
+		}
+	}
+	f.p("func %s {", decl)
+	if deprecated != nil {
+		f.p("	//lint:ignore SA1019 a function is called through, deprecated or not")
+		f.p("	%s //nolint:staticcheck // a function is called through, deprecated or not", call)
+	} else {
+		f.p("	%s", call)
+	}
+	f.p("}")
+	return true
+}
+
+// value emits a declaration of a value, below the doc lines already emitted
+// for it, deprecated as what it is of is, and exempt from the linters that
+// would report its use, as an alias is.
+func (f *file) value(format string, args []any, deprecated []string) {
+	if deprecated == nil {
+		f.p(format, args...)
+		return
+	}
+	f.p("//")
+	for _, l := range deprecated {
+		f.p("// %s", l)
+	}
+	f.p("//")
+	f.p("//lint:ignore SA1019 a variable is of its upstream variable, deprecated or not")
+	f.p(format+" //nolint:staticcheck // a variable is of its upstream variable, deprecated or not", args...)
+}
+
+// nameable reports whether a type can be written in another package: every
+// type it names is exported, and not from an internal package.
+func nameable(t types.Type, seen map[types.Type]bool) bool {
+	if seen[t] {
+		return true
+	}
+	seen[t] = true
+	named := func(obj *types.TypeName) bool {
+		if obj.Pkg() == nil {
+			return true
+		}
+		p := obj.Pkg().Path()
+		internal := p == "internal" || strings.HasPrefix(p, "internal/") || strings.HasSuffix(p, "/internal") || strings.Contains(p, "/internal/")
+		return obj.Exported() && !internal
+	}
+	tuple := func(tu *types.Tuple) bool {
+		for i := range tu.Len() {
+			if !nameable(tu.At(i).Type(), seen) {
+				return false
+			}
+		}
+		return true
+	}
+	switch t := t.(type) {
+	case *types.Basic, *types.TypeParam:
+		return true
+	case *types.Alias:
+		if !named(t.Obj()) {
+			return false
+		}
+		for i := range t.TypeArgs().Len() {
+			if !nameable(t.TypeArgs().At(i), seen) {
+				return false
+			}
+		}
+		return true
+	case *types.Named:
+		if !named(t.Obj()) {
+			return false
+		}
+		for i := range t.TypeArgs().Len() {
+			if !nameable(t.TypeArgs().At(i), seen) {
+				return false
+			}
+		}
+		return true
+	case *types.Pointer:
+		return nameable(t.Elem(), seen)
+	case *types.Slice:
+		return nameable(t.Elem(), seen)
+	case *types.Array:
+		return nameable(t.Elem(), seen)
+	case *types.Chan:
+		return nameable(t.Elem(), seen)
+	case *types.Map:
+		return nameable(t.Key(), seen) && nameable(t.Elem(), seen)
+	case *types.Signature:
+		for i := range t.TypeParams().Len() {
+			if !nameable(t.TypeParams().At(i).Constraint(), seen) {
+				return false
+			}
+		}
+		return tuple(t.Params()) && tuple(t.Results())
+	case *types.Struct:
+		for i := range t.NumFields() {
+			if !t.Field(i).Exported() || !nameable(t.Field(i).Type(), seen) {
+				return false
+			}
+		}
+		return true
+	case *types.Interface:
+		for i := range t.NumExplicitMethods() {
+			if !t.ExplicitMethod(i).Exported() || !nameable(t.ExplicitMethod(i).Type(), seen) {
+				return false
+			}
+		}
+		for i := range t.NumEmbeddeds() {
+			if !nameable(t.EmbeddedType(i), seen) {
+				return false
+			}
+		}
+		return true
+	case *types.Union:
+		for i := range t.Len() {
+			if !nameable(t.Term(i).Type(), seen) {
+				return false
+			}
+		}
+		return true
+	}
+	return false
 }
 
 // deprecation returns the paragraph of a doc comment that deprecates what it

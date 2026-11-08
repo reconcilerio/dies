@@ -56,6 +56,8 @@ func (l *ListMapMut[C, CD, CDM, K]) DieReadOnly() *ListMap[C, CD, K] {
 
 func (l *ListMap[C, CD, K]) DiePath() base.Path { return l.at }
 
+func (l *ListMap[C, CD, K]) handleState() (*core.Holder, base.Path) { return l.h, l.at }
+
 // DieValue marks a list map as a location of a []C, for [base.LocatedAs]. It
 // does nothing.
 func (*ListMap[C, CD, K]) DieValue(*[]C) {}
@@ -102,6 +104,17 @@ func (l *ListMapMut[C, CD, CDM, K]) Clear() error {
 // Empty sets the list to present and empty: [] in patches.
 func (l *ListMapMut[C, CD, CDM, K]) Empty() error {
 	return l.write(nil, core.OpEmpty, true)
+}
+
+// Replace replaces the list with a copy of src's, of a die or handle of any
+// root, or removes it, as Clear does, when src is absent. It records the
+// diff as intent, as writes of each change would: elements src doesn't have
+// are removed, its new elements are set, and those of both are diffed by
+// field. The list is a copy, so later writes to src aren't seen here.
+//
+//	current.Status().Conditions().Replace(desired.Status().Conditions())
+func (l *ListMapMut[C, CD, CDM, K]) Replace(src base.LocatedAs[[]C]) error {
+	return core.ReplaceAt(l.h, l.at, nil, src)
 }
 
 // Len returns the number of elements.
@@ -234,6 +247,8 @@ func (m *MapMut[K, V]) DieReadOnly() *Map[K, V] {
 
 func (m *Map[K, V]) DiePath() base.Path { return m.at }
 
+func (m *Map[K, V]) handleState() (*core.Holder, base.Path) { return m.h, m.at }
+
 // DieValue marks a map as a location of a map[K]V, for [base.LocatedAs]. It
 // does nothing.
 func (*Map[K, V]) DieValue(*map[K]V) {}
@@ -281,6 +296,17 @@ func (m *MapMut[K, V]) Clear() error {
 // Empty sets the map to present and empty: {} in patches.
 func (m *MapMut[K, V]) Empty() error {
 	return m.write(nil, core.OpEmpty, reflect.Value{}, true)
+}
+
+// Replace replaces the map with a copy of src's, of a die or handle of any
+// root, or removes it, as Clear does, when src is absent. It records the
+// diff as intent, as writes of each change would: keys src doesn't have are
+// removed, and those whose values differ are set. The map is a copy, so
+// later writes to src aren't seen here.
+//
+//	current.Metadata().Labels().Replace(desired.Metadata().Labels())
+func (m *MapMut[K, V]) Replace(src base.LocatedAs[map[K]V]) error {
+	return core.ReplaceAt(m.h, m.at, nil, src)
 }
 
 // Len returns the number of entries.

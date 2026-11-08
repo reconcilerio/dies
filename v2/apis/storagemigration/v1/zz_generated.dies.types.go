@@ -20,14 +20,31 @@ package v1
 
 import (
 	storagemigrationv1 "k8s.io/api/storagemigration/v1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/storagemigration/v1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/storagemigration/v1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
+// ErrIntOverflowGenerated is [storagemigrationv1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = storagemigrationv1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [storagemigrationv1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = storagemigrationv1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [storagemigrationv1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = storagemigrationv1.ErrUnexpectedEndOfGroupGenerated
+
 const GroupName = storagemigrationv1.GroupName
+
+// Kind calls [storagemigrationv1.Kind].
+func Kind(kind string) schema.GroupKind {
+	return storagemigrationv1.Kind(kind)
+}
 
 type MigrationConditionType = storagemigrationv1.MigrationConditionType
 
@@ -36,6 +53,11 @@ const (
 	MigrationRunning   = storagemigrationv1.MigrationRunning
 	MigrationSucceeded = storagemigrationv1.MigrationSucceeded
 )
+
+// Resource calls [storagemigrationv1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return storagemigrationv1.Resource(resource)
+}
 
 // +die:object:apiVersion=storagemigration.k8s.io/v1,kind=StorageVersionMigration
 // +die:subresource:name=status

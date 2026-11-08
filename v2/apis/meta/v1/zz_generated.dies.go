@@ -1009,6 +1009,42 @@ func (d *ConditionDieMut) IsUnknown() bool {
 	return d.DieReadOnly().IsUnknown()
 }
 
+// MarkTrue is [ConditionDieMut.MarkTrue] on a copy of the die, shared by +die:shared.
+func (d *ConditionDie) MarkTrue(reason string, messageFormat string, messageA ...any) (*ConditionDie, error) {
+	var r1 error
+	out := d.DieStamp(func(m *ConditionDieMut) {
+		_, r1 = m.MarkTrue(reason, messageFormat, messageA...)
+	})
+	return out, r1
+}
+
+// MarkFalse is [ConditionDieMut.MarkFalse] on a copy of the die, shared by +die:shared.
+func (d *ConditionDie) MarkFalse(reason string, messageFormat string, messageA ...any) (*ConditionDie, error) {
+	var r1 error
+	out := d.DieStamp(func(m *ConditionDieMut) {
+		_, r1 = m.MarkFalse(reason, messageFormat, messageA...)
+	})
+	return out, r1
+}
+
+// MarkUnknown is [ConditionDieMut.MarkUnknown] on a copy of the die, shared by +die:shared.
+func (d *ConditionDie) MarkUnknown(reason string, messageFormat string, messageA ...any) (*ConditionDie, error) {
+	var r1 error
+	out := d.DieStamp(func(m *ConditionDieMut) {
+		_, r1 = m.MarkUnknown(reason, messageFormat, messageA...)
+	})
+	return out, r1
+}
+
+// mark is [ConditionDieMut.mark] on a copy of the die, shared by +die:shared.
+func (d *ConditionDie) mark(status ConditionStatus, reason string, messageFormat string, messageA ...any) (*ConditionDie, error) {
+	var r1 error
+	out := d.DieStamp(func(m *ConditionDieMut) {
+		_, r1 = m.mark(status, reason, messageFormat, messageA...)
+	})
+	return out, r1
+}
+
 // +kubebuilder:object:generate=false
 // +k8s:deepcopy-gen=false
 

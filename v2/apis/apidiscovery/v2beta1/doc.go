@@ -16,6 +16,6 @@ limitations under the License.
 
 // +die:types:package=k8s.io/api/apidiscovery/v2beta1
 
-// Package v2beta1 has dies for [k8s.io/api/apidiscovery/v2beta1], whose types and constants it
-// also aliases.
+// Package v2beta1 has dies for [k8s.io/api/apidiscovery/v2beta1], whose types,
+// constants, functions and variables it also re-exports.
 package v2beta1

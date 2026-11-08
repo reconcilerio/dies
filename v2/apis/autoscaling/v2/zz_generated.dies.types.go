@@ -20,11 +20,14 @@ package v2
 
 import (
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/autoscaling/v2], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/autoscaling/v2], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 // +die
@@ -35,6 +38,15 @@ type ContainerResourceMetricStatus = autoscalingv2.ContainerResourceMetricStatus
 
 // +die
 type CrossVersionObjectReference = autoscalingv2.CrossVersionObjectReference
+
+// ErrIntOverflowGenerated is [autoscalingv2.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = autoscalingv2.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [autoscalingv2.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = autoscalingv2.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [autoscalingv2.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = autoscalingv2.ErrUnexpectedEndOfGroupGenerated
 
 // +die
 type ExternalMetricSource = autoscalingv2.ExternalMetricSource
@@ -134,6 +146,11 @@ type PodsMetricSource = autoscalingv2.PodsMetricSource
 
 // +die
 type PodsMetricStatus = autoscalingv2.PodsMetricStatus
+
+// Resource calls [autoscalingv2.Resource].
+func Resource(resource string) schema.GroupResource {
+	return autoscalingv2.Resource(resource)
+}
 
 // +die
 type ResourceMetricSource = autoscalingv2.ResourceMetricSource

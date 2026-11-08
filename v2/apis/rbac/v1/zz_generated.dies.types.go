@@ -20,11 +20,14 @@ package v1
 
 import (
 	rbacv1 "k8s.io/api/rbac/v1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/rbac/v1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/rbac/v1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 const APIGroupAll = rbacv1.APIGroupAll
@@ -50,6 +53,15 @@ type ClusterRoleBindingList = rbacv1.ClusterRoleBindingList
 // +die:object:apiVersion=rbac.authorization.k8s.io/v1,kind=ClusterRoleList
 type ClusterRoleList = rbacv1.ClusterRoleList
 
+// ErrIntOverflowGenerated is [rbacv1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = rbacv1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [rbacv1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = rbacv1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [rbacv1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = rbacv1.ErrUnexpectedEndOfGroupGenerated
+
 const GroupKind = rbacv1.GroupKind
 
 const GroupName = rbacv1.GroupName
@@ -63,6 +75,11 @@ const NonResourceAll = rbacv1.NonResourceAll
 // +die:field:name=resourceNames,listType=atomic
 // +die:field:name=nonResourceURLs,listType=atomic
 type PolicyRule = rbacv1.PolicyRule
+
+// Resource calls [rbacv1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return rbacv1.Resource(resource)
+}
 
 const ResourceAll = rbacv1.ResourceAll
 

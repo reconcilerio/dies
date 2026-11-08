@@ -65,7 +65,7 @@ v2 is a rewrite, and its API is not compatible with v0. The v0 API is documented
 go get reconciler.io/dies/v2
 ```
 
-Dies for the built-in APIs are in `reconciler.io/dies/v2/apis/<group>/<version>`, following the layout of `k8s.io/api`. Each die package aliases the upstream package's types and constants, so one import gives you both the types and their dies.
+Dies for the built-in APIs are in `reconciler.io/dies/v2/apis/<group>/<version>`, following the layout of `k8s.io/api`. Each die package aliases the upstream package's types and constants, and re-exports its functions and variables, so one import gives you both the types and their dies, and the helpers that go with the types, such as `diemetav1.Now()`.
 
 ```go
 import (
@@ -183,7 +183,7 @@ For test fixtures, `die.FeedYAMLFile(DeploymentBlank, "testdata/deployment.yaml"
 
 A die's reads can't fail. Content is checked where it enters a die: a feed, decode or write that would give a list map two elements with the same key is refused, as is a jig of a source it can't hold. So `Get`, `Has`, `DieRelease` and the other reads always have an answer, and return no error.
 
-Writes return only an error: `Set`, `Clear`, `Empty` and `Remove`, `DieFeed` and the `die.Feed…` functions, `die.StampValue` and `DieClear`. A write fails for content the die can't hold: JSON or YAML that doesn't decode as the die's type, a duplicate list-map key, a value an unstructured die can't convert, or a change a jig's transform can't represent in its source. Check the error, as linters such as errcheck require. `DieStampE` takes functions that return errors, such as a client operation or a block of writes, and returns the first one, along with the die as the functions left it. `errors.Join` checks a block of writes at once:
+Writes return only an error: `Set`, `Clear`, `Empty`, `Remove` and `Replace`, `DieFeed`, `DieReplace` and the `die.Feed…` functions, `die.StampValue` and `DieClear`. A write fails for content the die can't hold: JSON or YAML that doesn't decode as the die's type, a duplicate list-map key, a value an unstructured die can't convert, or a change a jig's transform can't represent in its source. Check the error, as linters such as errcheck require. `DieStampE` takes functions that return errors, such as a client operation or a block of writes, and returns the first one, along with the die as the functions left it. `errors.Join` checks a block of writes at once:
 
 ```go
 updated, err := current.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
@@ -192,6 +192,15 @@ updated, err := current.DieStampE(func(d *dieappsv1.DeploymentDieMut) error {
 		d.Spec().Template().Spec().Containers().At("app").Image().Set(image),
 	)
 })
+```
+
+To copy a value from one location to another of the same type, such as from a desired object to the current one, a mutable handle's `Replace` and a mutable die's `DieReplace` take the source location: a die or handle, immutable or mutable, of any root, the same one included. The destination gets a copy of the source's value, recorded as intent, on a root die as on a child: what differs is written as writes of each change would be, so the intent is the diff, as if you'd applied it by hand. A map's keys and a list map's elements are diffed one by one, fields and keys the source doesn't have are cleared, and nothing is written where the two are the same. If the source is absent, the destination is cleared. The copy shares nothing with the source, so later writes to either aren't seen by the other:
+
+```go
+err := errors.Join(
+	current.Metadata().Labels().Replace(desired.Metadata().Labels()),
+	current.AggregationRule().DieReplace(desired.AggregationRule()),
+)
 ```
 
 In a test, `dietesting.NoError(t, errs...)` fails the test with the first error, so fixtures check their writes inline: `dietesting.NoError(t, d.Spec().Replicas().Set(3))`.
@@ -653,6 +662,7 @@ Every die has these methods, but those that write, which only mutable dies have.
 | `DieMutable()`, immutable only / `DieImmutable()`, mutable only | Return a mutable copy of an immutable die, or an immutable copy of a mutable one                                                     |
 | `DieFeed(*T)`, mutable only / `DieRelease()`                    | Convert to and from Go values; the `die.Feed…` and `die.Release…` functions convert to and from JSON, YAML, patches and the rest     |
 | `DieHas()` / `DieClear()`, mutable only                         | Report and change whether the die's value is present                                                                                 |
+| `DieReplace(src)`, mutable only                                | Replace the value with a copy of another die's or handle's of the same type, of any root, recording the diff as intent, or clear it if that is absent |
 | `DieTare()`                                                     | Fold the intent into the value                                                                                                       |
 | `DieIntent()`                                                   | Describe the intent                                                                                                                  |
 | `DieFields()`                                                   | List the fields the die manages                                                                                                      |
@@ -702,7 +712,7 @@ A die package for another package's types needs only a `doc.go`. The `+die:types
 package v1
 ```
 
-- **Aliased** (`mode=alias`, the default): the die package aliases the upstream package's types and constants, so one import gives you both.
+- **Aliased** (`mode=alias`, the default): the die package aliases the upstream package's types and constants, so one import gives you both. Its functions are re-exported as functions of the same signature that call them, and its variables as copies, made when the die package is initialized. The scheme registration (`SchemeGroupVersion`, `SchemeBuilder`, `AddToScheme`) isn't: the die package's registers its dies. A function whose signature names something the die package can't, such as an unexported type, isn't re-exported either.
 - **Cloned** (`mode=clone`): the die package copies the types, with their docs, markers and constants, so it doesn't depend on the upstream package or its dependencies. The package is resolved at a version given with it, `package=…@v1.2.3`, or in the module a `from=` path names.
 
 Each type that needs a die is marked as the upstream package marks it. The markers that change a die's API or its patches, such as `+listType`, `+listMapKey`, `+mapType`, `+structType`, `+default`, `+nullable` and kubebuilder's `+kubebuilder:subresource:status`, are read from the upstream source, in their plain, `k8s:` and `kubebuilder:` forms, as are the markers that validate and default it (see [Checks from markers](#checks-from-markers)). What upstream doesn't say is added with metadata declared on the blank identifier, which adds markers to a type without declaring anything:
@@ -759,7 +769,7 @@ A field whose type is from another package uses that type's die: from the built-
 | `+die:union:name=…,members={…}[,oneOf=true]`        | type    | Declares a union, whose members clear the others when set; at most one may be set, or with `oneOf=true` exactly one                                                                                                                                                                          |
 | `+die:subresource:name=…`                           | type    | Declares a subresource, for `die.Subresource` and `die.MainResource`                                                                                                                                                                                                                         |
 | `+die:listMap:keys=…`                               | type    | Names the list maps of the type, keyed by those fields, for a type listed by another package, as `metav1.Condition` is: `ConditionListMap` and `ConditionListMapMut`                                                                                                                         |
-| `+die:shared`                                       | method  | On a hand-written method of an immutable die, generates the same method on its mutable die, reading through `DieReadOnly`                                                                                                                                                                    |
+| `+die:shared`                                       | method  | On a hand-written method of an immutable die, generates the same method on its mutable die, reading through `DieReadOnly`; on one of a mutable die that returns the die, generates the method on its immutable die, writing a copy in `DieStamp` and returning it immutable                  |
 
 A die package names the list maps of the element types its list-map fields list, such as `ContainerListMap` and `ContainerListMapMut`, which its accessors return. An accessor of another package's elements, keyed by one field, returns that package's, such as `*diemetav1.ConditionListMapMut`. An element type listed by more than one set of keys isn't named.
 

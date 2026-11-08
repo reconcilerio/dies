@@ -20,11 +20,14 @@ package v1
 
 import (
 	storagev1 "k8s.io/api/storage/v1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/storage/v1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/storage/v1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 // +die:object:apiVersion=storage.k8s.io/v1,kind=CSIDriver
@@ -64,6 +67,15 @@ type CSIStorageCapacity = storagev1.CSIStorageCapacity
 // +die:object:apiVersion=storage.k8s.io/v1,kind=CSIStorageCapacityList
 type CSIStorageCapacityList = storagev1.CSIStorageCapacityList
 
+// ErrIntOverflowGenerated is [storagev1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = storagev1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [storagev1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = storagev1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [storagev1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = storagev1.ErrUnexpectedEndOfGroupGenerated
+
 type FSGroupPolicy = storagev1.FSGroupPolicy
 
 const (
@@ -73,6 +85,11 @@ const (
 )
 
 const GroupName = storagev1.GroupName
+
+// Resource calls [storagev1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return storagev1.Resource(resource)
+}
 
 // +die:object:apiVersion=storage.k8s.io/v1,kind=StorageClass
 // +die:field:name=mountOptions,listType=atomic

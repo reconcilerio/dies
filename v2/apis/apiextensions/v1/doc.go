@@ -16,6 +16,7 @@ limitations under the License.
 
 // +die:types:package=k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 
-// Package v1 has dies for [k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1], whose types and constants it
-// also aliases.
+// Package v1 has dies for
+// [k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1], whose types,
+// constants, functions and variables it also re-exports.
 package v1

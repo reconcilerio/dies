@@ -20,11 +20,14 @@ package v1
 
 import (
 	flowcontrolv1 "k8s.io/api/flowcontrol/v1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/flowcontrol/v1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/flowcontrol/v1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 const APIGroupAll = flowcontrolv1.APIGroupAll
@@ -38,6 +41,15 @@ const (
 	ConditionTrue    = flowcontrolv1.ConditionTrue
 	ConditionUnknown = flowcontrolv1.ConditionUnknown
 )
+
+// ErrIntOverflowGenerated is [flowcontrolv1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = flowcontrolv1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [flowcontrolv1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = flowcontrolv1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [flowcontrolv1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = flowcontrolv1.ErrUnexpectedEndOfGroupGenerated
 
 // +die
 type ExemptPriorityLevelConfiguration = flowcontrolv1.ExemptPriorityLevelConfiguration
@@ -84,6 +96,11 @@ const GroupName = flowcontrolv1.GroupName
 
 // +die
 type GroupSubject = flowcontrolv1.GroupSubject
+
+// Kind calls [flowcontrolv1.Kind].
+func Kind(kind string) schema.GroupKind {
+	return flowcontrolv1.Kind(kind)
+}
 
 // +die
 type LimitResponse = flowcontrolv1.LimitResponse
@@ -152,6 +169,11 @@ const (
 
 // +die
 type QueuingConfiguration = flowcontrolv1.QueuingConfiguration
+
+// Resource calls [flowcontrolv1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return flowcontrolv1.Resource(resource)
+}
 
 const ResourceAll = flowcontrolv1.ResourceAll
 

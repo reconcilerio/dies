@@ -17,6 +17,9 @@ limitations under the License.
 package v1
 
 import (
+	runtime "k8s.io/apimachinery/pkg/runtime"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/utils/ptr"
 	"reconciler.io/dies/v2/die/base"
 	"reconciler.io/dies/v2/die/fields"
 )
@@ -36,4 +39,24 @@ type DieObjectOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] interfa
 type DieObjectMutOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] interface {
 	fields.DieObjectMutOf[T, D, M]
 	Metadata() *ObjectMetaDieMut
+}
+
+func (m *ObjectMetaDieMut) ControlledBy(obj runtime.Object, scheme *runtime.Scheme) error {
+	gvks, _, err := scheme.ObjectKinds(obj)
+	if err != nil {
+		if gvk := obj.GetObjectKind().GroupVersionKind(); gvk != (schema.GroupVersionKind{}) {
+			gvks = []schema.GroupVersionKind{gvk}
+		} else {
+			return err
+		}
+	}
+	ref := &OwnerReference{
+		APIVersion:         gvks[0].GroupVersion().String(),
+		Kind:               gvks[0].Kind,
+		Name:               obj.(Object).GetName(),
+		UID:                obj.(Object).GetUID(),
+		BlockOwnerDeletion: ptr.To(true),
+		Controller:         ptr.To(true),
+	}
+	return m.OwnerReferences().At(ref.UID).DieFeed(ref)
 }

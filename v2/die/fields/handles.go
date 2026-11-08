@@ -54,6 +54,22 @@ func write(l leaf, o core.Op, v reflect.Value, union bool) error {
 	return err
 }
 
+func init() {
+	core.HandleStateOf = func(l any) (*core.Holder, base.Path, bool) {
+		s, ok := l.(stated)
+		if !ok {
+			return nil, nil, false
+		}
+		h, p := s.handleState()
+		return h, p, true
+	}
+}
+
+// stated is a handle, with the state of the location it is of.
+type stated interface {
+	handleState() (*core.Holder, base.Path)
+}
+
 // Value is a handle to a leaf field of type V, of an immutable die, which
 // reads it.
 type Value[V any] struct{ l leaf }
@@ -132,6 +148,8 @@ func (v Value[V]) Has() bool {
 
 func (v Value[V]) DiePath() base.Path { return v.l.path() }
 
+func (v Value[V]) handleState() (*core.Holder, base.Path) { return v.l.h, v.l.path() }
+
 // DieRoot returns the root die this is within: see [base.DieBase.DieRoot].
 func (v Value[V]) DieRoot() base.Die { return base.RootOf(v.l.h) }
 
@@ -153,6 +171,16 @@ func (v ValueMut[V]) Empty() error {
 	return write(v.l, core.OpEmpty, reflect.Value{}, true)
 }
 
+// Replace records src's value, of a die or handle of any root, as Set
+// does, or that the field is absent, as Clear does, when src is absent. It
+// writes nothing when the values are the same. The value is a copy, so
+// later writes to src aren't seen here.
+//
+//	current.Spec().Replicas().Replace(desired.Spec().Replicas())
+func (v ValueMut[V]) Replace(src base.LocatedAs[V]) error {
+	return core.ReplaceAt(v.l.h, v.l.at, v.l.rel, src)
+}
+
 // Optional is a handle to a pointer leaf field of type *V of an immutable
 // die, which reads V, with presence reported separately.
 type Optional[V any] struct{ l leaf }
@@ -164,6 +192,10 @@ type OptionalMut[V any] struct{ Optional[V] }
 // DieReadOnly returns the immutable handle of the same field, sharing this
 // one's state: it reads what is written through this one.
 func (v OptionalMut[V]) DieReadOnly() Optional[V] { return v.Optional }
+
+// DieValue marks a handle as a location of a *V, for [base.LocatedAs], as
+// the field is. It does nothing.
+func (Optional[V]) DieValue(**V) {}
 
 // OptionalOf returns the handle for a pointer leaf field of an immutable die.
 func OptionalOf[T, V any](d base.LocatedAs[T], f Field[T, *V]) Optional[V] {
@@ -197,6 +229,8 @@ func (o Optional[V]) Has() bool {
 
 func (o Optional[V]) DiePath() base.Path { return o.l.path() }
 
+func (o Optional[V]) handleState() (*core.Holder, base.Path) { return o.l.h, o.l.path() }
+
 // DieRoot returns the root die this is within: see [base.DieBase.DieRoot].
 func (o Optional[V]) DieRoot() base.Die { return base.RootOf(o.l.h) }
 
@@ -211,4 +245,12 @@ func (o OptionalMut[V]) Set(x V) error {
 // Clear records that the field is absent: null in patches.
 func (o OptionalMut[V]) Clear() error {
 	return write(o.l, core.OpClear, reflect.Value{}, false)
+}
+
+// Replace records src's value, of a die or handle of any root, as Set
+// does, or that the field is absent, as Clear does, when src is absent. It
+// writes nothing when the values are the same. The value is a copy, so
+// later writes to src aren't seen here.
+func (o OptionalMut[V]) Replace(src base.LocatedAs[*V]) error {
+	return core.ReplaceAt(o.l.h, o.l.at, o.l.rel, src)
 }

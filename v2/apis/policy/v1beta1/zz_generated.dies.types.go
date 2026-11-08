@@ -20,14 +20,26 @@ package v1beta1
 
 import (
 	policyv1beta1 "k8s.io/api/policy/v1beta1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/policy/v1beta1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/policy/v1beta1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 const DisruptionAllowedCondition = policyv1beta1.DisruptionAllowedCondition
+
+// ErrIntOverflowGenerated is [policyv1beta1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = policyv1beta1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [policyv1beta1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = policyv1beta1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [policyv1beta1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = policyv1beta1.ErrUnexpectedEndOfGroupGenerated
 
 // +die:object:apiVersion=policy/v1beta1,kind=Eviction
 type Eviction = policyv1beta1.Eviction
@@ -50,6 +62,11 @@ type PodDisruptionBudgetSpec = policyv1beta1.PodDisruptionBudgetSpec
 // +die
 // +die:field:name=conditions,listType=map,listMapKey=type
 type PodDisruptionBudgetStatus = policyv1beta1.PodDisruptionBudgetStatus
+
+// Resource calls [policyv1beta1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return policyv1beta1.Resource(resource)
+}
 
 const SufficientPodsReason = policyv1beta1.SufficientPodsReason
 

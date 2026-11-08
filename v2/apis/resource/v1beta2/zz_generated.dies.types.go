@@ -20,11 +20,14 @@ package v1beta2
 
 import (
 	resourcev1beta2 "k8s.io/api/resource/v1beta2"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/resource/v1beta2], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/resource/v1beta2], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 // +die
@@ -245,6 +248,15 @@ const DeviceTolerationsMaxLength = resourcev1beta2.DeviceTolerationsMaxLength
 
 const DriverNameMaxLength = resourcev1beta2.DriverNameMaxLength
 
+// ErrIntOverflowGenerated is [resourcev1beta2.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = resourcev1beta2.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [resourcev1beta2.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = resourcev1beta2.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [resourcev1beta2.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = resourcev1beta2.ErrUnexpectedEndOfGroupGenerated
+
 // +die
 // +die:field:name=selectors,listType=atomic
 // +die:field:name=tolerations,listType=atomic
@@ -292,6 +304,11 @@ const PodResourceClaimAnnotation = resourcev1beta2.PodResourceClaimAnnotation
 const PoolNameMaxLength = resourcev1beta2.PoolNameMaxLength
 
 type QualifiedName = resourcev1beta2.QualifiedName
+
+// Resource calls [resourcev1beta2.Resource].
+func Resource(resource string) schema.GroupResource {
+	return resourcev1beta2.Resource(resource)
+}
 
 // +die:object:apiVersion=resource.k8s.io/v1beta2,kind=ResourceClaim
 // +die:subresource:name=status

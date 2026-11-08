@@ -20,11 +20,14 @@ package v1alpha1
 
 import (
 	certificatesv1alpha1 "k8s.io/api/certificates/v1alpha1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/certificates/v1alpha1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/certificates/v1alpha1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 // +die:object:apiVersion=certificates.k8s.io/v1alpha1,kind=ClusterTrustBundle
@@ -36,4 +39,23 @@ type ClusterTrustBundleList = certificatesv1alpha1.ClusterTrustBundleList
 // +die
 type ClusterTrustBundleSpec = certificatesv1alpha1.ClusterTrustBundleSpec
 
+// ErrIntOverflowGenerated is [certificatesv1alpha1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = certificatesv1alpha1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [certificatesv1alpha1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = certificatesv1alpha1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [certificatesv1alpha1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = certificatesv1alpha1.ErrUnexpectedEndOfGroupGenerated
+
 const GroupName = certificatesv1alpha1.GroupName
+
+// Kind calls [certificatesv1alpha1.Kind].
+func Kind(kind string) schema.GroupKind {
+	return certificatesv1alpha1.Kind(kind)
+}
+
+// Resource calls [certificatesv1alpha1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return certificatesv1alpha1.Resource(resource)
+}

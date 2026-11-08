@@ -20,11 +20,14 @@ package v1alpha3
 
 import (
 	resourcev1alpha3 "k8s.io/api/resource/v1alpha3"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/resource/v1alpha3], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/resource/v1alpha3], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 // +die
@@ -70,6 +73,15 @@ const DeviceTaintRuleStatusMaxConditions = resourcev1alpha3.DeviceTaintRuleStatu
 // +die
 type DeviceTaintSelector = resourcev1alpha3.DeviceTaintSelector
 
+// ErrIntOverflowGenerated is [resourcev1alpha3.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = resourcev1alpha3.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [resourcev1alpha3.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = resourcev1alpha3.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [resourcev1alpha3.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = resourcev1alpha3.ErrUnexpectedEndOfGroupGenerated
+
 const GroupName = resourcev1alpha3.GroupName
 
 // +die
@@ -78,6 +90,11 @@ type PartitionTypeStatus = resourcev1alpha3.PartitionTypeStatus
 // +die
 // +die:field:name=partitionSummary,listType=atomic,listMapKey={attribute,type}
 type PoolStatus = resourcev1alpha3.PoolStatus
+
+// Resource calls [resourcev1alpha3.Resource].
+func Resource(resource string) schema.GroupResource {
+	return resourcev1alpha3.Resource(resource)
+}
 
 // +die:object:apiVersion=resource.k8s.io/v1alpha3,kind=ResourcePoolStatusRequest
 // +die:subresource:name=status

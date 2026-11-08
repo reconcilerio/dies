@@ -19,12 +19,18 @@ limitations under the License.
 package v1alpha3
 
 import (
+	context "context"
 	schedulingv1alpha3 "k8s.io/api/scheduling/v1alpha3"
+	operation "k8s.io/apimachinery/pkg/api/operation"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	field "k8s.io/apimachinery/pkg/util/validation/field"
 )
 
-// The types and constants of [k8s.io/api/scheduling/v1alpha3], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/scheduling/v1alpha3], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 // +die
@@ -79,6 +85,15 @@ type CompositePodGroupTemplate = schedulingv1alpha3.CompositePodGroupTemplate
 type DisruptionMode = schedulingv1alpha3.DisruptionMode
 
 const DisruptionTarget = schedulingv1alpha3.DisruptionTarget
+
+// ErrIntOverflowGenerated is [schedulingv1alpha3.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = schedulingv1alpha3.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [schedulingv1alpha3.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = schedulingv1alpha3.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [schedulingv1alpha3.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = schedulingv1alpha3.ErrUnexpectedEndOfGroupGenerated
 
 // +die
 type GangSchedulingPolicy = schedulingv1alpha3.GangSchedulingPolicy
@@ -138,6 +153,11 @@ const (
 	PreemptNever         = schedulingv1alpha3.PreemptNever
 )
 
+// Resource calls [schedulingv1alpha3.Resource].
+func Resource(resource string) schema.GroupResource {
+	return schedulingv1alpha3.Resource(resource)
+}
+
 // +die
 type SingleCompositeDisruptionMode = schedulingv1alpha3.SingleCompositeDisruptionMode
 
@@ -149,6 +169,171 @@ type TopologyConstraint = schedulingv1alpha3.TopologyConstraint
 
 // +die
 type TypedLocalObjectReference = schedulingv1alpha3.TypedLocalObjectReference
+
+// Validate_CompositeDisruptionMode calls [schedulingv1alpha3.Validate_CompositeDisruptionMode].
+func Validate_CompositeDisruptionMode(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.CompositeDisruptionMode, oldObj *schedulingv1alpha3.CompositeDisruptionMode) field.ErrorList {
+	return schedulingv1alpha3.Validate_CompositeDisruptionMode(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_CompositeGangSchedulingPolicy calls [schedulingv1alpha3.Validate_CompositeGangSchedulingPolicy].
+func Validate_CompositeGangSchedulingPolicy(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.CompositeGangSchedulingPolicy, oldObj *schedulingv1alpha3.CompositeGangSchedulingPolicy) field.ErrorList {
+	return schedulingv1alpha3.Validate_CompositeGangSchedulingPolicy(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_CompositePodGroup calls [schedulingv1alpha3.Validate_CompositePodGroup].
+func Validate_CompositePodGroup(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.CompositePodGroup, oldObj *schedulingv1alpha3.CompositePodGroup) field.ErrorList {
+	return schedulingv1alpha3.Validate_CompositePodGroup(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_CompositePodGroupSchedulingConstraints calls [schedulingv1alpha3.Validate_CompositePodGroupSchedulingConstraints].
+func Validate_CompositePodGroupSchedulingConstraints(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.CompositePodGroupSchedulingConstraints, oldObj *schedulingv1alpha3.CompositePodGroupSchedulingConstraints) field.ErrorList {
+	return schedulingv1alpha3.Validate_CompositePodGroupSchedulingConstraints(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_CompositePodGroupSchedulingPolicy calls [schedulingv1alpha3.Validate_CompositePodGroupSchedulingPolicy].
+func Validate_CompositePodGroupSchedulingPolicy(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.CompositePodGroupSchedulingPolicy, oldObj *schedulingv1alpha3.CompositePodGroupSchedulingPolicy) field.ErrorList {
+	return schedulingv1alpha3.Validate_CompositePodGroupSchedulingPolicy(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_CompositePodGroupSpec calls [schedulingv1alpha3.Validate_CompositePodGroupSpec].
+func Validate_CompositePodGroupSpec(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.CompositePodGroupSpec, oldObj *schedulingv1alpha3.CompositePodGroupSpec) field.ErrorList {
+	return schedulingv1alpha3.Validate_CompositePodGroupSpec(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_CompositePodGroupStatus calls [schedulingv1alpha3.Validate_CompositePodGroupStatus].
+func Validate_CompositePodGroupStatus(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.CompositePodGroupStatus, oldObj *schedulingv1alpha3.CompositePodGroupStatus) field.ErrorList {
+	return schedulingv1alpha3.Validate_CompositePodGroupStatus(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_CompositePodGroupTemplate calls [schedulingv1alpha3.Validate_CompositePodGroupTemplate].
+func Validate_CompositePodGroupTemplate(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.CompositePodGroupTemplate, oldObj *schedulingv1alpha3.CompositePodGroupTemplate) field.ErrorList {
+	return schedulingv1alpha3.Validate_CompositePodGroupTemplate(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DisruptionMode calls [schedulingv1alpha3.Validate_DisruptionMode].
+func Validate_DisruptionMode(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.DisruptionMode, oldObj *schedulingv1alpha3.DisruptionMode) field.ErrorList {
+	return schedulingv1alpha3.Validate_DisruptionMode(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_GangSchedulingPolicy calls [schedulingv1alpha3.Validate_GangSchedulingPolicy].
+func Validate_GangSchedulingPolicy(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.GangSchedulingPolicy, oldObj *schedulingv1alpha3.GangSchedulingPolicy) field.ErrorList {
+	return schedulingv1alpha3.Validate_GangSchedulingPolicy(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_PodGroup calls [schedulingv1alpha3.Validate_PodGroup].
+func Validate_PodGroup(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.PodGroup, oldObj *schedulingv1alpha3.PodGroup) field.ErrorList {
+	return schedulingv1alpha3.Validate_PodGroup(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_PodGroupResourceClaim calls [schedulingv1alpha3.Validate_PodGroupResourceClaim].
+func Validate_PodGroupResourceClaim(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.PodGroupResourceClaim, oldObj *schedulingv1alpha3.PodGroupResourceClaim) field.ErrorList {
+	return schedulingv1alpha3.Validate_PodGroupResourceClaim(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_PodGroupResourceClaimStatus calls [schedulingv1alpha3.Validate_PodGroupResourceClaimStatus].
+func Validate_PodGroupResourceClaimStatus(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.PodGroupResourceClaimStatus, oldObj *schedulingv1alpha3.PodGroupResourceClaimStatus) field.ErrorList {
+	return schedulingv1alpha3.Validate_PodGroupResourceClaimStatus(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_PodGroupSchedulingConstraints calls [schedulingv1alpha3.Validate_PodGroupSchedulingConstraints].
+func Validate_PodGroupSchedulingConstraints(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.PodGroupSchedulingConstraints, oldObj *schedulingv1alpha3.PodGroupSchedulingConstraints) field.ErrorList {
+	return schedulingv1alpha3.Validate_PodGroupSchedulingConstraints(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_PodGroupSchedulingPolicy calls [schedulingv1alpha3.Validate_PodGroupSchedulingPolicy].
+func Validate_PodGroupSchedulingPolicy(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.PodGroupSchedulingPolicy, oldObj *schedulingv1alpha3.PodGroupSchedulingPolicy) field.ErrorList {
+	return schedulingv1alpha3.Validate_PodGroupSchedulingPolicy(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_PodGroupSpec calls [schedulingv1alpha3.Validate_PodGroupSpec].
+func Validate_PodGroupSpec(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.PodGroupSpec, oldObj *schedulingv1alpha3.PodGroupSpec) field.ErrorList {
+	return schedulingv1alpha3.Validate_PodGroupSpec(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_PodGroupStatus calls [schedulingv1alpha3.Validate_PodGroupStatus].
+func Validate_PodGroupStatus(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.PodGroupStatus, oldObj *schedulingv1alpha3.PodGroupStatus) field.ErrorList {
+	return schedulingv1alpha3.Validate_PodGroupStatus(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_PodGroupTemplate calls [schedulingv1alpha3.Validate_PodGroupTemplate].
+func Validate_PodGroupTemplate(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.PodGroupTemplate, oldObj *schedulingv1alpha3.PodGroupTemplate) field.ErrorList {
+	return schedulingv1alpha3.Validate_PodGroupTemplate(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_PreemptionPolicy calls [schedulingv1alpha3.Validate_PreemptionPolicy].
+func Validate_PreemptionPolicy(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.PreemptionPolicy, oldObj *schedulingv1alpha3.PreemptionPolicy) field.ErrorList {
+	return schedulingv1alpha3.Validate_PreemptionPolicy(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_TopologyConstraint calls [schedulingv1alpha3.Validate_TopologyConstraint].
+func Validate_TopologyConstraint(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.TopologyConstraint, oldObj *schedulingv1alpha3.TopologyConstraint) field.ErrorList {
+	return schedulingv1alpha3.Validate_TopologyConstraint(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_TypedLocalObjectReference calls [schedulingv1alpha3.Validate_TypedLocalObjectReference].
+func Validate_TypedLocalObjectReference(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.TypedLocalObjectReference, oldObj *schedulingv1alpha3.TypedLocalObjectReference) field.ErrorList {
+	return schedulingv1alpha3.Validate_TypedLocalObjectReference(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_Workload calls [schedulingv1alpha3.Validate_Workload].
+func Validate_Workload(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.Workload, oldObj *schedulingv1alpha3.Workload) field.ErrorList {
+	return schedulingv1alpha3.Validate_Workload(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_WorkloadCompositePodGroupDisruptionMode calls [schedulingv1alpha3.Validate_WorkloadCompositePodGroupDisruptionMode].
+func Validate_WorkloadCompositePodGroupDisruptionMode(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.WorkloadCompositePodGroupDisruptionMode, oldObj *schedulingv1alpha3.WorkloadCompositePodGroupDisruptionMode) field.ErrorList {
+	return schedulingv1alpha3.Validate_WorkloadCompositePodGroupDisruptionMode(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_WorkloadCompositePodGroupGangSchedulingPolicy calls [schedulingv1alpha3.Validate_WorkloadCompositePodGroupGangSchedulingPolicy].
+func Validate_WorkloadCompositePodGroupGangSchedulingPolicy(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.WorkloadCompositePodGroupGangSchedulingPolicy, oldObj *schedulingv1alpha3.WorkloadCompositePodGroupGangSchedulingPolicy) field.ErrorList {
+	return schedulingv1alpha3.Validate_WorkloadCompositePodGroupGangSchedulingPolicy(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_WorkloadCompositePodGroupSchedulingConstraints calls [schedulingv1alpha3.Validate_WorkloadCompositePodGroupSchedulingConstraints].
+func Validate_WorkloadCompositePodGroupSchedulingConstraints(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.WorkloadCompositePodGroupSchedulingConstraints, oldObj *schedulingv1alpha3.WorkloadCompositePodGroupSchedulingConstraints) field.ErrorList {
+	return schedulingv1alpha3.Validate_WorkloadCompositePodGroupSchedulingConstraints(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_WorkloadCompositePodGroupSchedulingPolicy calls [schedulingv1alpha3.Validate_WorkloadCompositePodGroupSchedulingPolicy].
+func Validate_WorkloadCompositePodGroupSchedulingPolicy(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.WorkloadCompositePodGroupSchedulingPolicy, oldObj *schedulingv1alpha3.WorkloadCompositePodGroupSchedulingPolicy) field.ErrorList {
+	return schedulingv1alpha3.Validate_WorkloadCompositePodGroupSchedulingPolicy(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_WorkloadPodGroupDisruptionMode calls [schedulingv1alpha3.Validate_WorkloadPodGroupDisruptionMode].
+func Validate_WorkloadPodGroupDisruptionMode(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.WorkloadPodGroupDisruptionMode, oldObj *schedulingv1alpha3.WorkloadPodGroupDisruptionMode) field.ErrorList {
+	return schedulingv1alpha3.Validate_WorkloadPodGroupDisruptionMode(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_WorkloadPodGroupGangSchedulingPolicy calls [schedulingv1alpha3.Validate_WorkloadPodGroupGangSchedulingPolicy].
+func Validate_WorkloadPodGroupGangSchedulingPolicy(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy, oldObj *schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy) field.ErrorList {
+	return schedulingv1alpha3.Validate_WorkloadPodGroupGangSchedulingPolicy(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_WorkloadPodGroupResourceClaim calls [schedulingv1alpha3.Validate_WorkloadPodGroupResourceClaim].
+func Validate_WorkloadPodGroupResourceClaim(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.WorkloadPodGroupResourceClaim, oldObj *schedulingv1alpha3.WorkloadPodGroupResourceClaim) field.ErrorList {
+	return schedulingv1alpha3.Validate_WorkloadPodGroupResourceClaim(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_WorkloadPodGroupSchedulingConstraints calls [schedulingv1alpha3.Validate_WorkloadPodGroupSchedulingConstraints].
+func Validate_WorkloadPodGroupSchedulingConstraints(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints, oldObj *schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints) field.ErrorList {
+	return schedulingv1alpha3.Validate_WorkloadPodGroupSchedulingConstraints(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_WorkloadPodGroupSchedulingPolicy calls [schedulingv1alpha3.Validate_WorkloadPodGroupSchedulingPolicy].
+func Validate_WorkloadPodGroupSchedulingPolicy(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy, oldObj *schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy) field.ErrorList {
+	return schedulingv1alpha3.Validate_WorkloadPodGroupSchedulingPolicy(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_WorkloadReference calls [schedulingv1alpha3.Validate_WorkloadReference].
+func Validate_WorkloadReference(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.WorkloadReference, oldObj *schedulingv1alpha3.WorkloadReference) field.ErrorList {
+	return schedulingv1alpha3.Validate_WorkloadReference(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_WorkloadSpec calls [schedulingv1alpha3.Validate_WorkloadSpec].
+func Validate_WorkloadSpec(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *schedulingv1alpha3.WorkloadSpec, oldObj *schedulingv1alpha3.WorkloadSpec) field.ErrorList {
+	return schedulingv1alpha3.Validate_WorkloadSpec(ctx, op, fldPath, obj, oldObj)
+}
 
 // +die:object:apiVersion=scheduling.k8s.io/v1alpha3,kind=Workload
 type Workload = schedulingv1alpha3.Workload

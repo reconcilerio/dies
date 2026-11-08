@@ -20,14 +20,26 @@ package v1
 
 import (
 	networkingv1 "k8s.io/api/networking/v1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/networking/v1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/networking/v1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 const AnnotationIsDefaultIngressClass = networkingv1.AnnotationIsDefaultIngressClass
+
+// ErrIntOverflowGenerated is [networkingv1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = networkingv1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [networkingv1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = networkingv1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [networkingv1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = networkingv1.ErrUnexpectedEndOfGroupGenerated
 
 const GroupName = networkingv1.GroupName
 
@@ -163,6 +175,11 @@ const (
 	PolicyTypeEgress  = networkingv1.PolicyTypeEgress
 	PolicyTypeIngress = networkingv1.PolicyTypeIngress
 )
+
+// Resource calls [networkingv1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return networkingv1.Resource(resource)
+}
 
 // +die
 type ServiceBackendPort = networkingv1.ServiceBackendPort

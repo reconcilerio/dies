@@ -20,11 +20,14 @@ package v1
 
 import (
 	appsv1 "k8s.io/api/apps/v1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/apps/v1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/apps/v1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 // +die:object:apiVersion=apps/v1,kind=ControllerRevision
@@ -110,6 +113,15 @@ const DeprecatedRollbackTo = appsv1.DeprecatedRollbackTo
 
 const DeprecatedTemplateGeneration = appsv1.DeprecatedTemplateGeneration
 
+// ErrIntOverflowGenerated is [appsv1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = appsv1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [appsv1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = appsv1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [appsv1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = appsv1.ErrUnexpectedEndOfGroupGenerated
+
 const GroupName = appsv1.GroupName
 
 type PersistentVolumeClaimRetentionPolicyType = appsv1.PersistentVolumeClaimRetentionPolicyType
@@ -152,6 +164,11 @@ type ReplicaSetSpec = appsv1.ReplicaSetSpec
 // +die
 // +die:field:name=conditions,listType=map,listMapKey=type
 type ReplicaSetStatus = appsv1.ReplicaSetStatus
+
+// Resource calls [appsv1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return appsv1.Resource(resource)
+}
 
 // +die
 type RollingUpdateDaemonSet = appsv1.RollingUpdateDaemonSet

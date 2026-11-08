@@ -20,16 +20,28 @@ package v1beta1
 
 import (
 	networkingv1beta1 "k8s.io/api/networking/v1beta1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/networking/v1beta1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/networking/v1beta1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 const AnnotationIngressClass = networkingv1beta1.AnnotationIngressClass
 
 const AnnotationIsDefaultIngressClass = networkingv1beta1.AnnotationIsDefaultIngressClass
+
+// ErrIntOverflowGenerated is [networkingv1beta1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = networkingv1beta1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [networkingv1beta1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = networkingv1beta1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [networkingv1beta1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = networkingv1beta1.ErrUnexpectedEndOfGroupGenerated
 
 const GroupName = networkingv1beta1.GroupName
 
@@ -119,6 +131,11 @@ const (
 	PathTypeImplementationSpecific = networkingv1beta1.PathTypeImplementationSpecific
 	PathTypePrefix                 = networkingv1beta1.PathTypePrefix
 )
+
+// Resource calls [networkingv1beta1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return networkingv1beta1.Resource(resource)
+}
 
 // +die:object:apiVersion=networking.k8s.io/v1beta1,kind=ServiceCIDR
 // +die:subresource:name=status

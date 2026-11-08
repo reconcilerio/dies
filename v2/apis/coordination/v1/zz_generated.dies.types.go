@@ -20,11 +20,14 @@ package v1
 
 import (
 	coordinationv1 "k8s.io/api/coordination/v1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/coordination/v1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/coordination/v1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 type CoordinatedLeaseStrategy = coordinationv1.CoordinatedLeaseStrategy
@@ -32,6 +35,15 @@ type CoordinatedLeaseStrategy = coordinationv1.CoordinatedLeaseStrategy
 const (
 	OldestEmulationVersion = coordinationv1.OldestEmulationVersion
 )
+
+// ErrIntOverflowGenerated is [coordinationv1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = coordinationv1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [coordinationv1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = coordinationv1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [coordinationv1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = coordinationv1.ErrUnexpectedEndOfGroupGenerated
 
 const GroupName = coordinationv1.GroupName
 
@@ -43,3 +55,8 @@ type LeaseList = coordinationv1.LeaseList
 
 // +die
 type LeaseSpec = coordinationv1.LeaseSpec
+
+// Resource calls [coordinationv1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return coordinationv1.Resource(resource)
+}

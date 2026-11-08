@@ -20,11 +20,14 @@ package v1beta2
 
 import (
 	appsv1beta2 "k8s.io/api/apps/v1beta2"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/apps/v1beta2], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/apps/v1beta2], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 // +die:object:apiVersion=apps/v1beta2,kind=ControllerRevision
@@ -110,6 +113,15 @@ const DeprecatedRollbackTo = appsv1beta2.DeprecatedRollbackTo
 
 const DeprecatedTemplateGeneration = appsv1beta2.DeprecatedTemplateGeneration
 
+// ErrIntOverflowGenerated is [appsv1beta2.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = appsv1beta2.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [appsv1beta2.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = appsv1beta2.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [appsv1beta2.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = appsv1beta2.ErrUnexpectedEndOfGroupGenerated
+
 const GroupName = appsv1beta2.GroupName
 
 type PersistentVolumeClaimRetentionPolicyType = appsv1beta2.PersistentVolumeClaimRetentionPolicyType
@@ -150,6 +162,11 @@ type ReplicaSetSpec = appsv1beta2.ReplicaSetSpec
 // +die
 // +die:field:name=conditions,listType=map,listMapKey=type
 type ReplicaSetStatus = appsv1beta2.ReplicaSetStatus
+
+// Resource calls [appsv1beta2.Resource].
+func Resource(resource string) schema.GroupResource {
+	return appsv1beta2.Resource(resource)
+}
 
 // +die
 type RollingUpdateDaemonSet = appsv1beta2.RollingUpdateDaemonSet

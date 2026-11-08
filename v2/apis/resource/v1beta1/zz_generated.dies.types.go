@@ -20,11 +20,14 @@ package v1beta1
 
 import (
 	resourcev1beta1 "k8s.io/api/resource/v1beta1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/resource/v1beta1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/resource/v1beta1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 // +die
@@ -232,6 +235,15 @@ const DeviceTolerationsMaxLength = resourcev1beta1.DeviceTolerationsMaxLength
 
 const DriverNameMaxLength = resourcev1beta1.DriverNameMaxLength
 
+// ErrIntOverflowGenerated is [resourcev1beta1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = resourcev1beta1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [resourcev1beta1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = resourcev1beta1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [resourcev1beta1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = resourcev1beta1.ErrUnexpectedEndOfGroupGenerated
+
 const ExtendedResourceClaimAnnotation = resourcev1beta1.ExtendedResourceClaimAnnotation
 
 const Finalizer = resourcev1beta1.Finalizer
@@ -272,6 +284,11 @@ const PodResourceClaimAnnotation = resourcev1beta1.PodResourceClaimAnnotation
 const PoolNameMaxLength = resourcev1beta1.PoolNameMaxLength
 
 type QualifiedName = resourcev1beta1.QualifiedName
+
+// Resource calls [resourcev1beta1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return resourcev1beta1.Resource(resource)
+}
 
 // +die:object:apiVersion=resource.k8s.io/v1beta1,kind=ResourceClaim
 // +die:subresource:name=status

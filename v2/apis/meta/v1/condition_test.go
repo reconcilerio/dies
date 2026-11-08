@@ -21,6 +21,7 @@ import (
 
 	dieadmissionregistrationv1 "reconciler.io/dies/v2/apis/admissionregistration/v1"
 	diemetav1 "reconciler.io/dies/v2/apis/meta/v1"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dietesting "reconciler.io/dies/v2/die/testing"
 )
 
@@ -160,5 +161,73 @@ func TestConditionHelpersOfAMutableDieReadItsWrites(t *testing.T) {
 	dietesting.NoError(t, policy.Metadata().Generation().Set(2))
 	if !c.IsStale() {
 		t.Error("fresh after the object's generation moved on")
+	}
+}
+
+// Marking an immutable die marks a copy, which it returns, as marking the
+// mutable die marks it.
+func TestConditionMarkOfAnImmutableDieMarksACopy(t *testing.T) {
+	type marked interface {
+		Status() diefields.Value[diemetav1.ConditionStatus]
+		Reason() diefields.Value[string]
+		Message() diefields.Value[string]
+	}
+	tests := []struct {
+		name   string
+		status diemetav1.ConditionStatus
+		mark   func(*diemetav1.ConditionDie) (*diemetav1.ConditionDie, error)
+		markM  func(*diemetav1.ConditionDieMut) (*diemetav1.ConditionDieMut, error)
+	}{
+		{"MarkTrue", diemetav1.ConditionTrue,
+			func(d *diemetav1.ConditionDie) (*diemetav1.ConditionDie, error) {
+				return d.MarkTrue("Ready", "%d of %d", 1, 1)
+			},
+			func(d *diemetav1.ConditionDieMut) (*diemetav1.ConditionDieMut, error) {
+				return d.MarkTrue("Ready", "%d of %d", 1, 1)
+			}},
+		{"MarkFalse", diemetav1.ConditionFalse,
+			func(d *diemetav1.ConditionDie) (*diemetav1.ConditionDie, error) {
+				return d.MarkFalse("Ready", "%d of %d", 1, 1)
+			},
+			func(d *diemetav1.ConditionDieMut) (*diemetav1.ConditionDieMut, error) {
+				return d.MarkFalse("Ready", "%d of %d", 1, 1)
+			}},
+		{"MarkUnknown", diemetav1.ConditionUnknown,
+			func(d *diemetav1.ConditionDie) (*diemetav1.ConditionDie, error) {
+				return d.MarkUnknown("Ready", "%d of %d", 1, 1)
+			},
+			func(d *diemetav1.ConditionDieMut) (*diemetav1.ConditionDieMut, error) {
+				return d.MarkUnknown("Ready", "%d of %d", 1, 1)
+			}},
+	}
+	check := func(t *testing.T, d marked, status diemetav1.ConditionStatus) {
+		t.Helper()
+		if got := d.Status().Get(); got != status {
+			t.Errorf("status %q, want %q", got, status)
+		}
+		if got := d.Reason().Get(); got != "Ready" {
+			t.Errorf("reason %q, want Ready", got)
+		}
+		if got := d.Message().Get(); got != "1 of 1" {
+			t.Errorf("message %q, want 1 of 1", got)
+		}
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := diemetav1.ConditionBlank.DieStamp(func(d *diemetav1.ConditionDieMut) {
+				dietesting.NoError(t, d.Type().Set("Ready"))
+			})
+			out, err := tt.mark(c)
+			dietesting.NoError(t, err)
+			check(t, out, tt.status)
+			if c.Status().Get() != "" || c.Reason().Get() != "" || c.Message().Get() != "" {
+				t.Errorf("the immutable die was marked: %v", c.DieRelease())
+			}
+			m := c.DieMutable()
+			mout, err := tt.markM(m)
+			dietesting.NoError(t, err)
+			check(t, m.DieImmutable(), tt.status)
+			check(t, mout.DieImmutable(), tt.status)
+		})
 	}
 }

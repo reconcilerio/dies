@@ -16,6 +16,6 @@ limitations under the License.
 
 // +die:types:package=k8s.io/api/extensions/v1beta1
 
-// Package v1beta1 has dies for [k8s.io/api/extensions/v1beta1], whose types and constants it
-// also aliases.
+// Package v1beta1 has dies for [k8s.io/api/extensions/v1beta1], whose types,
+// constants, functions and variables it also re-exports.
 package v1beta1

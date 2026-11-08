@@ -20,11 +20,14 @@ package v1beta1
 
 import (
 	admissionregistrationv1beta1 "k8s.io/api/admissionregistration/v1beta1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/admissionregistration/v1beta1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/admissionregistration/v1beta1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 const AllScopes = admissionregistrationv1beta1.AllScopes
@@ -42,6 +45,15 @@ const Connect = admissionregistrationv1beta1.Connect
 const Create = admissionregistrationv1beta1.Create
 
 const Delete = admissionregistrationv1beta1.Delete
+
+// ErrIntOverflowGenerated is [admissionregistrationv1beta1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = admissionregistrationv1beta1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [admissionregistrationv1beta1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = admissionregistrationv1beta1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [admissionregistrationv1beta1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = admissionregistrationv1beta1.ErrUnexpectedEndOfGroupGenerated
 
 // +die
 type ExpressionWarning = admissionregistrationv1beta1.ExpressionWarning
@@ -154,6 +166,11 @@ const (
 )
 
 type ReinvocationPolicyType = admissionregistrationv1beta1.ReinvocationPolicyType
+
+// Resource calls [admissionregistrationv1beta1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return admissionregistrationv1beta1.Resource(resource)
+}
 
 type Rule = admissionregistrationv1beta1.Rule
 

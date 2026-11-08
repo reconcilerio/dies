@@ -20,12 +20,24 @@ package v1
 
 import (
 	schedulingv1 "k8s.io/api/scheduling/v1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/scheduling/v1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/scheduling/v1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
+
+// ErrIntOverflowGenerated is [schedulingv1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = schedulingv1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [schedulingv1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = schedulingv1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [schedulingv1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = schedulingv1.ErrUnexpectedEndOfGroupGenerated
 
 const GroupName = schedulingv1.GroupName
 
@@ -34,3 +46,8 @@ type PriorityClass = schedulingv1.PriorityClass
 
 // +die:object:apiVersion=scheduling.k8s.io/v1,kind=PriorityClassList
 type PriorityClassList = schedulingv1.PriorityClassList
+
+// Resource calls [schedulingv1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return schedulingv1.Resource(resource)
+}

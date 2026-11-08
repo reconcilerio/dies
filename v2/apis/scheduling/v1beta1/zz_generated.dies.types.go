@@ -20,11 +20,14 @@ package v1beta1
 
 import (
 	schedulingv1beta1 "k8s.io/api/scheduling/v1beta1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/scheduling/v1beta1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/scheduling/v1beta1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 // +die
@@ -64,6 +67,15 @@ type CompositePodGroupTemplate = schedulingv1beta1.CompositePodGroupTemplate
 type DisruptionMode = schedulingv1beta1.DisruptionMode
 
 const DisruptionTarget = schedulingv1beta1.DisruptionTarget
+
+// ErrIntOverflowGenerated is [schedulingv1beta1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = schedulingv1beta1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [schedulingv1beta1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = schedulingv1beta1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [schedulingv1beta1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = schedulingv1beta1.ErrUnexpectedEndOfGroupGenerated
 
 // +die
 type GangSchedulingPolicy = schedulingv1beta1.GangSchedulingPolicy
@@ -128,6 +140,11 @@ type PriorityClass = schedulingv1beta1.PriorityClass
 
 // +die:object:apiVersion=scheduling.k8s.io/v1beta1,kind=PriorityClassList
 type PriorityClassList = schedulingv1beta1.PriorityClassList
+
+// Resource calls [schedulingv1beta1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return schedulingv1beta1.Resource(resource)
+}
 
 // +die
 type SingleCompositeDisruptionMode = schedulingv1beta1.SingleCompositeDisruptionMode

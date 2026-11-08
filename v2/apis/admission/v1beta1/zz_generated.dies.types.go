@@ -20,11 +20,14 @@ package v1beta1
 
 import (
 	admissionv1beta1 "k8s.io/api/admission/v1beta1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/admission/v1beta1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/admission/v1beta1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 // +die
@@ -36,6 +39,15 @@ type AdmissionResponse = admissionv1beta1.AdmissionResponse
 
 // +die:object:apiVersion=admission.k8s.io/v1beta1,kind=AdmissionReview
 type AdmissionReview = admissionv1beta1.AdmissionReview
+
+// ErrIntOverflowGenerated is [admissionv1beta1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = admissionv1beta1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [admissionv1beta1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = admissionv1beta1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [admissionv1beta1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = admissionv1beta1.ErrUnexpectedEndOfGroupGenerated
 
 const GroupName = admissionv1beta1.GroupName
 
@@ -53,3 +65,8 @@ type PatchType = admissionv1beta1.PatchType
 const (
 	PatchTypeJSONPatch = admissionv1beta1.PatchTypeJSONPatch
 )
+
+// Resource calls [admissionv1beta1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return admissionv1beta1.Resource(resource)
+}

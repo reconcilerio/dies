@@ -33,9 +33,13 @@ limitations under the License.
 //	package v1
 //
 // Either way it gets a zz_generated.dies.types.go. Aliased, it aliases the
-// upstream package's types and constants, so that one import provides both
-// types and dies. Cloned, it copies them, so that it doesn't depend on the
-// upstream package at all. Each type
+// upstream package's types and constants, and re-exports its functions, by
+// functions of the same signature that call them, and its variables, as
+// copies made when it is initialized, so that one import provides both types
+// and dies. The scheme registration isn't re-exported, as the die package
+// registers its dies, nor what names what it can't, such as an unexported
+// type. Cloned, it copies the types and constants, so that it doesn't depend
+// on the upstream package at all. Each type
 // that needs a die is marked +die, or +die:object:apiVersion=…,kind=… for a
 // top-level object. Like a package's, a type's markers may be in its doc, or
 // in a comment of their own before it, separated by a blank line:
@@ -67,9 +71,13 @@ limitations under the License.
 // A field type with no die is used as a value.
 //
 // A method written by hand on a die, marked +die:shared in its doc comment,
-// is shared with the mutable die: the mutable die gets a method of the same
-// signature that calls it through DieReadOnly, so a method that reads is
-// written once.
+// is shared with its counterpart, so it is written once. A method of the
+// immutable die, which reads, is shared with the mutable die: the mutable
+// die gets a method of the same signature that calls it through
+// DieReadOnly. A method of the mutable die, which writes and returns the
+// die, is shared with the immutable die: the immutable die gets a method of
+// the same parameters that calls it on a copy in DieStamp, returning the
+// immutable die of the copy in place of the mutable die.
 //
 // A die package names the list maps of the element types its list-map fields
 // list, <Elem>ListMap and <Elem>ListMapMut, which its accessors return, and

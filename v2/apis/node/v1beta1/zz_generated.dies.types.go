@@ -20,17 +20,34 @@ package v1beta1
 
 import (
 	nodev1beta1 "k8s.io/api/node/v1beta1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/node/v1beta1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/node/v1beta1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
+
+// ErrIntOverflowGenerated is [nodev1beta1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = nodev1beta1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [nodev1beta1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = nodev1beta1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [nodev1beta1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = nodev1beta1.ErrUnexpectedEndOfGroupGenerated
 
 const GroupName = nodev1beta1.GroupName
 
 // +die
 type Overhead = nodev1beta1.Overhead
+
+// Resource calls [nodev1beta1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return nodev1beta1.Resource(resource)
+}
 
 // +die:object:apiVersion=node.k8s.io/v1beta1,kind=RuntimeClass
 type RuntimeClass = nodev1beta1.RuntimeClass

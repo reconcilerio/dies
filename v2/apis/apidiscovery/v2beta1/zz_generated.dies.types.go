@@ -20,11 +20,14 @@ package v2beta1
 
 import (
 	apidiscoveryv2beta1 "k8s.io/api/apidiscovery/v2beta1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/apidiscovery/v2beta1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/apidiscovery/v2beta1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 // +die:object:apiVersion=apidiscovery.k8s.io/v2beta1,kind=APIGroupDiscovery
@@ -57,7 +60,26 @@ const (
 	DiscoveryFreshnessStale   = apidiscoveryv2beta1.DiscoveryFreshnessStale
 )
 
+// ErrIntOverflowGenerated is [apidiscoveryv2beta1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = apidiscoveryv2beta1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [apidiscoveryv2beta1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = apidiscoveryv2beta1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [apidiscoveryv2beta1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = apidiscoveryv2beta1.ErrUnexpectedEndOfGroupGenerated
+
 const GroupName = apidiscoveryv2beta1.GroupName
+
+// Kind calls [apidiscoveryv2beta1.Kind].
+func Kind(kind string) schema.GroupKind {
+	return apidiscoveryv2beta1.Kind(kind)
+}
+
+// Resource calls [apidiscoveryv2beta1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return apidiscoveryv2beta1.Resource(resource)
+}
 
 type ResourceScope = apidiscoveryv2beta1.ResourceScope
 

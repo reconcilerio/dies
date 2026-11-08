@@ -20,11 +20,14 @@ package v1
 
 import (
 	batchv1 "k8s.io/api/batch/v1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/batch/v1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/batch/v1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 type CompletionMode = batchv1.CompletionMode
@@ -59,6 +62,15 @@ type CronJobSpec = batchv1.CronJobSpec
 // +die
 // +die:field:name=active,listType=atomic
 type CronJobStatus = batchv1.CronJobStatus
+
+// ErrIntOverflowGenerated is [batchv1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = batchv1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [batchv1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = batchv1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [batchv1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = batchv1.ErrUnexpectedEndOfGroupGenerated
 
 const GroupName = batchv1.GroupName
 
@@ -160,6 +172,11 @@ const (
 	Failed              = batchv1.Failed
 	TerminatingOrFailed = batchv1.TerminatingOrFailed
 )
+
+// Resource calls [batchv1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return batchv1.Resource(resource)
+}
 
 // +die
 // +die:field:name=rules,listType=atomic

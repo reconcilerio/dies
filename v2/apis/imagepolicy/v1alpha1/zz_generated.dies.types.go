@@ -20,12 +20,24 @@ package v1alpha1
 
 import (
 	imagepolicyv1alpha1 "k8s.io/api/imagepolicy/v1alpha1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/imagepolicy/v1alpha1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/imagepolicy/v1alpha1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
+
+// ErrIntOverflowGenerated is [imagepolicyv1alpha1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = imagepolicyv1alpha1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [imagepolicyv1alpha1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = imagepolicyv1alpha1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [imagepolicyv1alpha1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = imagepolicyv1alpha1.ErrUnexpectedEndOfGroupGenerated
 
 const GroupName = imagepolicyv1alpha1.GroupName
 
@@ -42,3 +54,8 @@ type ImageReviewSpec = imagepolicyv1alpha1.ImageReviewSpec
 
 // +die
 type ImageReviewStatus = imagepolicyv1alpha1.ImageReviewStatus
+
+// Resource calls [imagepolicyv1alpha1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return imagepolicyv1alpha1.Resource(resource)
+}

@@ -16,6 +16,6 @@ limitations under the License.
 
 // +die:types:package=k8s.io/api/flowcontrol/v1beta3
 
-// Package v1beta3 has dies for [k8s.io/api/flowcontrol/v1beta3], whose types and constants it
-// also aliases.
+// Package v1beta3 has dies for [k8s.io/api/flowcontrol/v1beta3], whose types,
+// constants, functions and variables it also re-exports.
 package v1beta3

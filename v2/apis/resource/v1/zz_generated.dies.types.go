@@ -19,12 +19,18 @@ limitations under the License.
 package v1
 
 import (
+	context "context"
 	resourcev1 "k8s.io/api/resource/v1"
+	operation "k8s.io/apimachinery/pkg/api/operation"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	field "k8s.io/apimachinery/pkg/util/validation/field"
 )
 
-// The types and constants of [k8s.io/api/resource/v1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/resource/v1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 // +die
@@ -245,6 +251,15 @@ const DeviceTolerationsMaxLength = resourcev1.DeviceTolerationsMaxLength
 
 const DriverNameMaxLength = resourcev1.DriverNameMaxLength
 
+// ErrIntOverflowGenerated is [resourcev1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = resourcev1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [resourcev1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = resourcev1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [resourcev1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = resourcev1.ErrUnexpectedEndOfGroupGenerated
+
 // +die
 // +die:field:name=selectors,listType=atomic
 // +die:field:name=tolerations,listType=atomic
@@ -292,6 +307,11 @@ const PodResourceClaimAnnotation = resourcev1.PodResourceClaimAnnotation
 const PoolNameMaxLength = resourcev1.PoolNameMaxLength
 
 type QualifiedName = resourcev1.QualifiedName
+
+// Resource calls [resourcev1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return resourcev1.Resource(resource)
+}
 
 // +die:object:apiVersion=resource.k8s.io/v1,kind=ResourceClaim
 // +die:subresource:name=status
@@ -377,6 +397,191 @@ const (
 const SubresourceBinding = resourcev1.SubresourceBinding
 
 const SubresourceDriver = resourcev1.SubresourceDriver
+
+// Validate_AllocatedDeviceStatus calls [resourcev1.Validate_AllocatedDeviceStatus].
+func Validate_AllocatedDeviceStatus(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.AllocatedDeviceStatus, oldObj *resourcev1.AllocatedDeviceStatus) field.ErrorList {
+	return resourcev1.Validate_AllocatedDeviceStatus(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_AllocationConfigSource calls [resourcev1.Validate_AllocationConfigSource].
+func Validate_AllocationConfigSource(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.AllocationConfigSource, oldObj *resourcev1.AllocationConfigSource) field.ErrorList {
+	return resourcev1.Validate_AllocationConfigSource(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_AllocationResult calls [resourcev1.Validate_AllocationResult].
+func Validate_AllocationResult(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.AllocationResult, oldObj *resourcev1.AllocationResult) field.ErrorList {
+	return resourcev1.Validate_AllocationResult(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_CounterSet calls [resourcev1.Validate_CounterSet].
+func Validate_CounterSet(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.CounterSet, oldObj *resourcev1.CounterSet) field.ErrorList {
+	return resourcev1.Validate_CounterSet(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_Device calls [resourcev1.Validate_Device].
+func Validate_Device(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.Device, oldObj *resourcev1.Device) field.ErrorList {
+	return resourcev1.Validate_Device(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceAllocationConfiguration calls [resourcev1.Validate_DeviceAllocationConfiguration].
+func Validate_DeviceAllocationConfiguration(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceAllocationConfiguration, oldObj *resourcev1.DeviceAllocationConfiguration) field.ErrorList {
+	return resourcev1.Validate_DeviceAllocationConfiguration(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceAllocationMode calls [resourcev1.Validate_DeviceAllocationMode].
+func Validate_DeviceAllocationMode(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceAllocationMode, oldObj *resourcev1.DeviceAllocationMode) field.ErrorList {
+	return resourcev1.Validate_DeviceAllocationMode(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceAllocationResult calls [resourcev1.Validate_DeviceAllocationResult].
+func Validate_DeviceAllocationResult(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceAllocationResult, oldObj *resourcev1.DeviceAllocationResult) field.ErrorList {
+	return resourcev1.Validate_DeviceAllocationResult(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceAttribute calls [resourcev1.Validate_DeviceAttribute].
+func Validate_DeviceAttribute(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceAttribute, oldObj *resourcev1.DeviceAttribute) field.ErrorList {
+	return resourcev1.Validate_DeviceAttribute(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceClaim calls [resourcev1.Validate_DeviceClaim].
+func Validate_DeviceClaim(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceClaim, oldObj *resourcev1.DeviceClaim) field.ErrorList {
+	return resourcev1.Validate_DeviceClaim(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceClaimConfiguration calls [resourcev1.Validate_DeviceClaimConfiguration].
+func Validate_DeviceClaimConfiguration(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceClaimConfiguration, oldObj *resourcev1.DeviceClaimConfiguration) field.ErrorList {
+	return resourcev1.Validate_DeviceClaimConfiguration(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceClassConfiguration calls [resourcev1.Validate_DeviceClassConfiguration].
+func Validate_DeviceClassConfiguration(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceClassConfiguration, oldObj *resourcev1.DeviceClassConfiguration) field.ErrorList {
+	return resourcev1.Validate_DeviceClassConfiguration(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceClassSpec calls [resourcev1.Validate_DeviceClassSpec].
+func Validate_DeviceClassSpec(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceClassSpec, oldObj *resourcev1.DeviceClassSpec) field.ErrorList {
+	return resourcev1.Validate_DeviceClassSpec(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceConfiguration calls [resourcev1.Validate_DeviceConfiguration].
+func Validate_DeviceConfiguration(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceConfiguration, oldObj *resourcev1.DeviceConfiguration) field.ErrorList {
+	return resourcev1.Validate_DeviceConfiguration(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceConstraint calls [resourcev1.Validate_DeviceConstraint].
+func Validate_DeviceConstraint(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceConstraint, oldObj *resourcev1.DeviceConstraint) field.ErrorList {
+	return resourcev1.Validate_DeviceConstraint(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceCounterConsumption calls [resourcev1.Validate_DeviceCounterConsumption].
+func Validate_DeviceCounterConsumption(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceCounterConsumption, oldObj *resourcev1.DeviceCounterConsumption) field.ErrorList {
+	return resourcev1.Validate_DeviceCounterConsumption(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceDerivedAttribute calls [resourcev1.Validate_DeviceDerivedAttribute].
+func Validate_DeviceDerivedAttribute(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceDerivedAttribute, oldObj *resourcev1.DeviceDerivedAttribute) field.ErrorList {
+	return resourcev1.Validate_DeviceDerivedAttribute(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceRequest calls [resourcev1.Validate_DeviceRequest].
+func Validate_DeviceRequest(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceRequest, oldObj *resourcev1.DeviceRequest) field.ErrorList {
+	return resourcev1.Validate_DeviceRequest(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceRequestAllocationResult calls [resourcev1.Validate_DeviceRequestAllocationResult].
+func Validate_DeviceRequestAllocationResult(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceRequestAllocationResult, oldObj *resourcev1.DeviceRequestAllocationResult) field.ErrorList {
+	return resourcev1.Validate_DeviceRequestAllocationResult(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceSubRequest calls [resourcev1.Validate_DeviceSubRequest].
+func Validate_DeviceSubRequest(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceSubRequest, oldObj *resourcev1.DeviceSubRequest) field.ErrorList {
+	return resourcev1.Validate_DeviceSubRequest(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceTaint calls [resourcev1.Validate_DeviceTaint].
+func Validate_DeviceTaint(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceTaint, oldObj *resourcev1.DeviceTaint) field.ErrorList {
+	return resourcev1.Validate_DeviceTaint(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceTaintEffect calls [resourcev1.Validate_DeviceTaintEffect].
+func Validate_DeviceTaintEffect(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceTaintEffect, oldObj *resourcev1.DeviceTaintEffect) field.ErrorList {
+	return resourcev1.Validate_DeviceTaintEffect(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceTaintRuleSpec calls [resourcev1.Validate_DeviceTaintRuleSpec].
+func Validate_DeviceTaintRuleSpec(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceTaintRuleSpec, oldObj *resourcev1.DeviceTaintRuleSpec) field.ErrorList {
+	return resourcev1.Validate_DeviceTaintRuleSpec(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceTaintRuleStatus calls [resourcev1.Validate_DeviceTaintRuleStatus].
+func Validate_DeviceTaintRuleStatus(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceTaintRuleStatus, oldObj *resourcev1.DeviceTaintRuleStatus) field.ErrorList {
+	return resourcev1.Validate_DeviceTaintRuleStatus(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceToleration calls [resourcev1.Validate_DeviceToleration].
+func Validate_DeviceToleration(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceToleration, oldObj *resourcev1.DeviceToleration) field.ErrorList {
+	return resourcev1.Validate_DeviceToleration(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_DeviceTolerationOperator calls [resourcev1.Validate_DeviceTolerationOperator].
+func Validate_DeviceTolerationOperator(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.DeviceTolerationOperator, oldObj *resourcev1.DeviceTolerationOperator) field.ErrorList {
+	return resourcev1.Validate_DeviceTolerationOperator(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_ExactDeviceRequest calls [resourcev1.Validate_ExactDeviceRequest].
+func Validate_ExactDeviceRequest(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.ExactDeviceRequest, oldObj *resourcev1.ExactDeviceRequest) field.ErrorList {
+	return resourcev1.Validate_ExactDeviceRequest(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_NetworkDeviceData calls [resourcev1.Validate_NetworkDeviceData].
+func Validate_NetworkDeviceData(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.NetworkDeviceData, oldObj *resourcev1.NetworkDeviceData) field.ErrorList {
+	return resourcev1.Validate_NetworkDeviceData(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_NodeAllocatableMapping calls [resourcev1.Validate_NodeAllocatableMapping].
+func Validate_NodeAllocatableMapping(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.NodeAllocatableMapping, oldObj *resourcev1.NodeAllocatableMapping) field.ErrorList {
+	return resourcev1.Validate_NodeAllocatableMapping(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_NodeAllocatableOverhead calls [resourcev1.Validate_NodeAllocatableOverhead].
+func Validate_NodeAllocatableOverhead(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.NodeAllocatableOverhead, oldObj *resourcev1.NodeAllocatableOverhead) field.ErrorList {
+	return resourcev1.Validate_NodeAllocatableOverhead(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_NodeAllocatableResource calls [resourcev1.Validate_NodeAllocatableResource].
+func Validate_NodeAllocatableResource(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.NodeAllocatableResource, oldObj *resourcev1.NodeAllocatableResource) field.ErrorList {
+	return resourcev1.Validate_NodeAllocatableResource(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_OpaqueDeviceConfiguration calls [resourcev1.Validate_OpaqueDeviceConfiguration].
+func Validate_OpaqueDeviceConfiguration(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.OpaqueDeviceConfiguration, oldObj *resourcev1.OpaqueDeviceConfiguration) field.ErrorList {
+	return resourcev1.Validate_OpaqueDeviceConfiguration(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_ResourceClaimSpec calls [resourcev1.Validate_ResourceClaimSpec].
+func Validate_ResourceClaimSpec(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.ResourceClaimSpec, oldObj *resourcev1.ResourceClaimSpec) field.ErrorList {
+	return resourcev1.Validate_ResourceClaimSpec(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_ResourceClaimStatus calls [resourcev1.Validate_ResourceClaimStatus].
+func Validate_ResourceClaimStatus(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.ResourceClaimStatus, oldObj *resourcev1.ResourceClaimStatus) field.ErrorList {
+	return resourcev1.Validate_ResourceClaimStatus(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_ResourceClaimTemplateSpec calls [resourcev1.Validate_ResourceClaimTemplateSpec].
+func Validate_ResourceClaimTemplateSpec(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.ResourceClaimTemplateSpec, oldObj *resourcev1.ResourceClaimTemplateSpec) field.ErrorList {
+	return resourcev1.Validate_ResourceClaimTemplateSpec(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_ResourceSliceSpec calls [resourcev1.Validate_ResourceSliceSpec].
+func Validate_ResourceSliceSpec(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.ResourceSliceSpec, oldObj *resourcev1.ResourceSliceSpec) field.ErrorList {
+	return resourcev1.Validate_ResourceSliceSpec(ctx, op, fldPath, obj, oldObj)
+}
+
+// Validate_SkipNodeOperation calls [resourcev1.Validate_SkipNodeOperation].
+func Validate_SkipNodeOperation(ctx context.Context, op operation.Operation, fldPath *field.Path, obj *resourcev1.SkipNodeOperation, oldObj *resourcev1.SkipNodeOperation) field.ErrorList {
+	return resourcev1.Validate_SkipNodeOperation(ctx, op, fldPath, obj, oldObj)
+}
 
 const VerbPrefixArbitraryNode = resourcev1.VerbPrefixArbitraryNode
 

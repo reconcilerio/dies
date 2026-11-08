@@ -20,11 +20,14 @@ package v1
 
 import (
 	certificatesv1 "k8s.io/api/certificates/v1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/certificates/v1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/certificates/v1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 // +die:object:apiVersion=certificates.k8s.io/v1,kind=CertificateSigningRequest
@@ -55,6 +58,15 @@ type ClusterTrustBundleList = certificatesv1.ClusterTrustBundleList
 
 // +die
 type ClusterTrustBundleSpec = certificatesv1.ClusterTrustBundleSpec
+
+// ErrIntOverflowGenerated is [certificatesv1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = certificatesv1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [certificatesv1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = certificatesv1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [certificatesv1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = certificatesv1.ErrUnexpectedEndOfGroupGenerated
 
 type ExtraValue = certificatesv1.ExtraValue
 
@@ -87,6 +99,11 @@ const (
 	UsageSigning           = certificatesv1.UsageSigning
 	UsageTimestamping      = certificatesv1.UsageTimestamping
 )
+
+// Kind calls [certificatesv1.Kind].
+func Kind(kind string) schema.GroupKind {
+	return certificatesv1.Kind(kind)
+}
 
 const KubeAPIServerClientKubeletSignerName = certificatesv1.KubeAPIServerClientKubeletSignerName
 
@@ -126,3 +143,8 @@ const (
 	CertificateDenied   = certificatesv1.CertificateDenied
 	CertificateFailed   = certificatesv1.CertificateFailed
 )
+
+// Resource calls [certificatesv1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return certificatesv1.Resource(resource)
+}

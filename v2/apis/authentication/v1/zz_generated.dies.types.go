@@ -20,11 +20,14 @@ package v1
 
 import (
 	authenticationv1 "k8s.io/api/authentication/v1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/authentication/v1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/authentication/v1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 const AttestationAdmissionReviewAPIGroups = authenticationv1.AttestationAdmissionReviewAPIGroups
@@ -33,6 +36,15 @@ type AttestationValue = authenticationv1.AttestationValue
 
 // +die
 type BoundObjectReference = authenticationv1.BoundObjectReference
+
+// ErrIntOverflowGenerated is [authenticationv1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = authenticationv1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [authenticationv1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = authenticationv1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [authenticationv1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = authenticationv1.ErrUnexpectedEndOfGroupGenerated
 
 type ExtraValue = authenticationv1.ExtraValue
 
@@ -45,6 +57,11 @@ const ImpersonateUIDHeader = authenticationv1.ImpersonateUIDHeader
 const ImpersonateUserExtraHeaderPrefix = authenticationv1.ImpersonateUserExtraHeaderPrefix
 
 const ImpersonateUserHeader = authenticationv1.ImpersonateUserHeader
+
+// Resource calls [authenticationv1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return authenticationv1.Resource(resource)
+}
 
 // +die:object:apiVersion=authentication.k8s.io/v1,kind=SelfSubjectReview
 // +die:subresource:name=status

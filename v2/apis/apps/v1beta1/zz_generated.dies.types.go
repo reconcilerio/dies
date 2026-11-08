@@ -20,11 +20,14 @@ package v1beta1
 
 import (
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/apps/v1beta1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/apps/v1beta1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 // +die:object:apiVersion=apps/v1beta1,kind=ControllerRevision
@@ -77,6 +80,15 @@ const (
 	RollingUpdateDeploymentStrategyType = appsv1beta1.RollingUpdateDeploymentStrategyType
 )
 
+// ErrIntOverflowGenerated is [appsv1beta1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = appsv1beta1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [appsv1beta1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = appsv1beta1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [appsv1beta1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = appsv1beta1.ErrUnexpectedEndOfGroupGenerated
+
 const GroupName = appsv1beta1.GroupName
 
 type PersistentVolumeClaimRetentionPolicyType = appsv1beta1.PersistentVolumeClaimRetentionPolicyType
@@ -92,6 +104,11 @@ const (
 	OrderedReadyPodManagement = appsv1beta1.OrderedReadyPodManagement
 	ParallelPodManagement     = appsv1beta1.ParallelPodManagement
 )
+
+// Resource calls [appsv1beta1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return appsv1beta1.Resource(resource)
+}
 
 // +die
 type RollbackConfig = appsv1beta1.RollbackConfig

@@ -20,11 +20,14 @@ package v1
 
 import (
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/admissionregistration/v1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/admissionregistration/v1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 // +die
@@ -32,6 +35,15 @@ type ApplyConfiguration = admissionregistrationv1.ApplyConfiguration
 
 // +die
 type AuditAnnotation = admissionregistrationv1.AuditAnnotation
+
+// ErrIntOverflowGenerated is [admissionregistrationv1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = admissionregistrationv1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [admissionregistrationv1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = admissionregistrationv1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [admissionregistrationv1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = admissionregistrationv1.ErrUnexpectedEndOfGroupGenerated
 
 // +die
 type ExpressionWarning = admissionregistrationv1.ExpressionWarning
@@ -149,6 +161,11 @@ const (
 	IfNeededReinvocationPolicy = admissionregistrationv1.IfNeededReinvocationPolicy
 	NeverReinvocationPolicy    = admissionregistrationv1.NeverReinvocationPolicy
 )
+
+// Resource calls [admissionregistrationv1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return admissionregistrationv1.Resource(resource)
+}
 
 // +die
 // +die:field:name=apiGroups,listType=atomic

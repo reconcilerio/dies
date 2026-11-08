@@ -20,11 +20,14 @@ package v1
 
 import (
 	discoveryv1 "k8s.io/api/discovery/v1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/discovery/v1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/discovery/v1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 type AddressType = discoveryv1.AddressType
@@ -59,6 +62,15 @@ type EndpointSlice = discoveryv1.EndpointSlice
 // +die:object:apiVersion=discovery.k8s.io/v1,kind=EndpointSliceList
 type EndpointSliceList = discoveryv1.EndpointSliceList
 
+// ErrIntOverflowGenerated is [discoveryv1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = discoveryv1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [discoveryv1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = discoveryv1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [discoveryv1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = discoveryv1.ErrUnexpectedEndOfGroupGenerated
+
 // +die
 type ForNode = discoveryv1.ForNode
 
@@ -67,8 +79,18 @@ type ForZone = discoveryv1.ForZone
 
 const GroupName = discoveryv1.GroupName
 
+// Kind calls [discoveryv1.Kind].
+func Kind(kind string) schema.GroupKind {
+	return discoveryv1.Kind(kind)
+}
+
 const LabelManagedBy = discoveryv1.LabelManagedBy
 
 const LabelServiceName = discoveryv1.LabelServiceName
 
 const LabelSkipMirror = discoveryv1.LabelSkipMirror
+
+// Resource calls [discoveryv1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return discoveryv1.Resource(resource)
+}

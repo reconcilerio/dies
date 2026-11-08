@@ -20,11 +20,14 @@ package v1beta3
 
 import (
 	flowcontrolv1beta3 "k8s.io/api/flowcontrol/v1beta3"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/flowcontrol/v1beta3], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/flowcontrol/v1beta3], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 const APIGroupAll = flowcontrolv1beta3.APIGroupAll
@@ -38,6 +41,15 @@ const (
 	ConditionTrue    = flowcontrolv1beta3.ConditionTrue
 	ConditionUnknown = flowcontrolv1beta3.ConditionUnknown
 )
+
+// ErrIntOverflowGenerated is [flowcontrolv1beta3.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = flowcontrolv1beta3.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [flowcontrolv1beta3.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = flowcontrolv1beta3.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [flowcontrolv1beta3.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = flowcontrolv1beta3.ErrUnexpectedEndOfGroupGenerated
 
 // +die
 type ExemptPriorityLevelConfiguration = flowcontrolv1beta3.ExemptPriorityLevelConfiguration
@@ -84,6 +96,11 @@ const GroupName = flowcontrolv1beta3.GroupName
 
 // +die
 type GroupSubject = flowcontrolv1beta3.GroupSubject
+
+// Kind calls [flowcontrolv1beta3.Kind].
+func Kind(kind string) schema.GroupKind {
+	return flowcontrolv1beta3.Kind(kind)
+}
 
 // +die
 type LimitResponse = flowcontrolv1beta3.LimitResponse
@@ -154,6 +171,11 @@ const PriorityLevelPreserveZeroConcurrencySharesKey = flowcontrolv1beta3.Priorit
 
 // +die
 type QueuingConfiguration = flowcontrolv1beta3.QueuingConfiguration
+
+// Resource calls [flowcontrolv1beta3.Resource].
+func Resource(resource string) schema.GroupResource {
+	return flowcontrolv1beta3.Resource(resource)
+}
 
 const ResourceAll = flowcontrolv1beta3.ResourceAll
 

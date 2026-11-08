@@ -101,11 +101,52 @@ func (d *DuckDieMut) Rest() {
 	}
 }
 
+func TestSharedMutableMethods(t *testing.T) {
+	pg := sharedGen(t, `
+// +die:shared
+func (d *DuckDieMut) Quack() *DuckDieMut { return d }
+
+// +die:shared
+func (d *DuckDieMut) Swim(m time.Duration, out int, strokes ...string) (time.Duration, *DuckDieMut, error) { return 0, d, nil }
+`)
+	shared, err := pg.sharedMethods()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, fn := range shared["DuckDieMut"] {
+		pg.emitStamped("DuckDie", "DuckDieMut", fn)
+	}
+	want := `// Quack is [DuckDieMut.Quack] on a copy of the die, shared by +die:shared.
+func (d *DuckDie) Quack() *DuckDie {
+	out := d.DieStamp(func(m *DuckDieMut) {
+		_ = m.Quack()
+	})
+	return out
+}
+
+// Swim is [DuckDieMut.Swim] on a copy of the die, shared by +die:shared.
+func (d *DuckDie) Swim(m time.Duration, out int, strokes ...string) (time.Duration, *DuckDie, error) {
+	var r0 time.Duration
+	var r2 error
+	out_ := d.DieStamp(func(m_ *DuckDieMut) {
+		r0, _, r2 = m_.Swim(m, out, strokes...)
+	})
+	return r0, out_, r2
+}
+
+`
+	if got := pg.f.buf.String(); got != want {
+		t.Errorf("got:\n%s\nwant:\n%s", got, want)
+	}
+}
+
 func TestSharedMethodsMisplaced(t *testing.T) {
 	tests := []struct{ name, src, want string }{
-		{"on the mutable die", "// +die:shared\nfunc (d *DuckDieMut) Quacks() bool { return true }\n", "only a method of an immutable die, such as DuckDie, is shared"},
-		{"on another type", "type Pond struct{}\n\n// +die:shared\nfunc (p *Pond) Deep() bool { return true }\n", "+die:shared on Pond.Deep: only a method of an immutable die"},
+		{"on the mutable die, not returning it", "// +die:shared\nfunc (d *DuckDieMut) Quacks() bool { return true }\n", "a method of a mutable die is shared when it returns the die, *DuckDieMut, once"},
+		{"on the mutable die, returning it twice", "// +die:shared\nfunc (d *DuckDieMut) Twin() (*DuckDieMut, *DuckDieMut) { return d, d }\n", "returns the die, *DuckDieMut, once"},
+		{"on another type", "type Pond struct{}\n\n// +die:shared\nfunc (p *Pond) Deep() bool { return true }\n", "+die:shared on Pond.Deep: only a method of a die"},
 		{"declared by hand too", "// +die:shared\nfunc (d *DuckDie) Quacks() bool { return true }\n\nfunc (d *DuckDieMut) Quacks() bool { return true }\n", "DuckDieMut.Quacks is declared by hand"},
+		{"declared by hand on the immutable die too", "// +die:shared\nfunc (d *DuckDieMut) Quack() *DuckDieMut { return d }\n\nfunc (d *DuckDie) Quack() *DuckDie { return d }\n", "DuckDie.Quack is declared by hand"},
 		{"generic", "// +die:shared\nfunc (d *DuckDie) Call[T any](t T) T { return t }\n", "a generic method isn't shared yet"},
 	}
 	for _, tt := range tests {

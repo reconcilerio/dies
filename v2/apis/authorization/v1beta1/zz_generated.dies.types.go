@@ -20,12 +20,24 @@ package v1beta1
 
 import (
 	authorizationv1beta1 "k8s.io/api/authorization/v1beta1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/authorization/v1beta1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/authorization/v1beta1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
+
+// ErrIntOverflowGenerated is [authorizationv1beta1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = authorizationv1beta1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [authorizationv1beta1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = authorizationv1beta1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [authorizationv1beta1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = authorizationv1beta1.ErrUnexpectedEndOfGroupGenerated
 
 type ExtraValue = authorizationv1beta1.ExtraValue
 
@@ -42,6 +54,11 @@ type NonResourceAttributes = authorizationv1beta1.NonResourceAttributes
 // +die:field:name=verbs,listType=atomic
 // +die:field:name=nonResourceURLs,listType=atomic
 type NonResourceRule = authorizationv1beta1.NonResourceRule
+
+// Resource calls [authorizationv1beta1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return authorizationv1beta1.Resource(resource)
+}
 
 // +die
 type ResourceAttributes = authorizationv1beta1.ResourceAttributes

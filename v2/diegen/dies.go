@@ -555,6 +555,9 @@ func (pg *pkgGen) emit() error {
 		for _, fn := range shared[dname] {
 			pg.emitShared(dname, mname, fn)
 		}
+		for _, fn := range shared[mname] {
+			pg.emitStamped(dname, mname, fn)
+		}
 	}
 
 	if err := pg.emitRegister(); err != nil {

@@ -20,12 +20,24 @@ package v1alpha1
 
 import (
 	lifecyclev1alpha1 "k8s.io/api/lifecycle/v1alpha1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/lifecycle/v1alpha1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/lifecycle/v1alpha1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
+
+// ErrIntOverflowGenerated is [lifecyclev1alpha1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = lifecyclev1alpha1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [lifecyclev1alpha1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = lifecyclev1alpha1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [lifecyclev1alpha1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = lifecyclev1alpha1.ErrUnexpectedEndOfGroupGenerated
 
 // +die:object:apiVersion=lifecycle.k8s.io/v1alpha1,kind=Eviction
 // +die:subresource:name=status
@@ -120,6 +132,11 @@ const (
 	RequesterIntentEviction  = lifecyclev1alpha1.RequesterIntentEviction
 	RequesterIntentWithdrawn = lifecyclev1alpha1.RequesterIntentWithdrawn
 )
+
+// Resource calls [lifecyclev1alpha1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return lifecyclev1alpha1.Resource(resource)
+}
 
 type ResponderStateType = lifecyclev1alpha1.ResponderStateType
 

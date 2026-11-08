@@ -84,6 +84,7 @@ type DieMutOf[T any, D DieOf[T, D, M], M DieMutOf[T, D, M]] interface {
 
 	DieClear() error
 	DieFeed(r *T) error
+	DieReplace(src LocatedAs[T]) error
 	DieStamp(fns ...func(m M)) M
 	DieStampE(fns ...func(m M) error) (M, error)
 	DieStampAtomic(fns ...func(m M) error) (M, error)
@@ -446,6 +447,18 @@ func (b *DieMutBase[T, D, M]) DieFeed(r *T) error {
 		return b.ref().Feed(reflect.Zero(reflect.TypeFor[T]()))
 	}
 	return b.ref().Feed(reflect.ValueOf(r).Elem())
+}
+
+// DieReplace replaces the value with a copy of src's, of a die or handle of
+// any root, as intent, on a root as on a child: what differs is recorded as
+// writes of each change would record it, so the intent is the diff from the
+// value to src's, and fields src doesn't have are cleared. When src is
+// absent the value is cleared, as [DieMutBase.DieClear] does. The value is a
+// copy, so later writes to src aren't seen here.
+//
+//	current.AggregationRule().DieReplace(desired.AggregationRule())
+func (b *DieMutBase[T, D, M]) DieReplace(src LocatedAs[T]) error {
+	return core.ReplaceAt(b.hold(), b.at, nil, src)
 }
 
 // DieStamp passes the die itself to each fn, so their writes change it, and

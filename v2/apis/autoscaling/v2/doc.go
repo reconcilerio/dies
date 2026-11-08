@@ -16,6 +16,6 @@ limitations under the License.
 
 // +die:types:package=k8s.io/api/autoscaling/v2
 
-// Package v2 has dies for [k8s.io/api/autoscaling/v2], whose types and constants it
-// also aliases.
+// Package v2 has dies for [k8s.io/api/autoscaling/v2], whose types, constants,
+// functions and variables it also re-exports.
 package v2

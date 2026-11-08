@@ -19,12 +19,24 @@ limitations under the License.
 package v1
 
 import (
+	resource "k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	conversion "k8s.io/apimachinery/pkg/conversion"
+	fields "k8s.io/apimachinery/pkg/fields"
+	labels "k8s.io/apimachinery/pkg/labels"
+	runtime "k8s.io/apimachinery/pkg/runtime"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	intstr "k8s.io/apimachinery/pkg/util/intstr"
+	watch "k8s.io/apimachinery/pkg/watch"
+	url "net/url"
+	time "time"
 )
 
-// The types and constants of [k8s.io/apimachinery/pkg/apis/meta/v1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/apimachinery/pkg/apis/meta/v1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 // +die
@@ -50,6 +62,21 @@ type APIResourceList = metav1.APIResourceList
 // +die:field:name=serverAddressByClientCIDRs,listType=atomic
 type APIVersions = metav1.APIVersions
 
+// AddLabelToSelector calls [metav1.AddLabelToSelector].
+func AddLabelToSelector(selector *metav1.LabelSelector, labelKey string, labelValue string) *metav1.LabelSelector {
+	return metav1.AddLabelToSelector(selector, labelKey, labelValue)
+}
+
+// AddMetaToScheme calls [metav1.AddMetaToScheme].
+func AddMetaToScheme(scheme *runtime.Scheme) error {
+	return metav1.AddMetaToScheme(scheme)
+}
+
+// AddToGroupVersion calls [metav1.AddToGroupVersion].
+func AddToGroupVersion(scheme *runtime.Scheme, groupVersion schema.GroupVersion) {
+	metav1.AddToGroupVersion(scheme, groupVersion)
+}
+
 // +die
 // +die:field:name=dryRun,listType=atomic
 type ApplyOptions = metav1.ApplyOptions
@@ -72,6 +99,11 @@ const (
 	CauseTypeUnexpectedServerResponse = metav1.CauseTypeUnexpectedServerResponse
 )
 
+// CloneSelectorAndAddLabel calls [metav1.CloneSelectorAndAddLabel].
+func CloneSelectorAndAddLabel(selector *metav1.LabelSelector, labelKey string, labelValue string) *metav1.LabelSelector {
+	return metav1.CloneSelectorAndAddLabel(selector, labelKey, labelValue)
+}
+
 type Common = metav1.Common
 
 // +die
@@ -85,9 +117,249 @@ const (
 	ConditionUnknown = metav1.ConditionUnknown
 )
 
+// Convert_Map_string_To_string_To_v1_LabelSelector calls [metav1.Convert_Map_string_To_string_To_v1_LabelSelector].
+func Convert_Map_string_To_string_To_v1_LabelSelector(in *map[string]string, out *metav1.LabelSelector, s conversion.Scope) error {
+	return metav1.Convert_Map_string_To_string_To_v1_LabelSelector(in, out, s)
+}
+
+// Convert_Pointer_bool_To_bool calls [metav1.Convert_Pointer_bool_To_bool].
+func Convert_Pointer_bool_To_bool(in **bool, out *bool, s conversion.Scope) error {
+	return metav1.Convert_Pointer_bool_To_bool(in, out, s)
+}
+
+// Convert_Pointer_float64_To_float64 calls [metav1.Convert_Pointer_float64_To_float64].
+func Convert_Pointer_float64_To_float64(in **float64, out *float64, s conversion.Scope) error {
+	return metav1.Convert_Pointer_float64_To_float64(in, out, s)
+}
+
+// Convert_Pointer_int32_To_int32 calls [metav1.Convert_Pointer_int32_To_int32].
+func Convert_Pointer_int32_To_int32(in **int32, out *int32, s conversion.Scope) error {
+	return metav1.Convert_Pointer_int32_To_int32(in, out, s)
+}
+
+// Convert_Pointer_int64_To_int calls [metav1.Convert_Pointer_int64_To_int].
+func Convert_Pointer_int64_To_int(in **int64, out *int, s conversion.Scope) error {
+	return metav1.Convert_Pointer_int64_To_int(in, out, s)
+}
+
+// Convert_Pointer_int64_To_int64 calls [metav1.Convert_Pointer_int64_To_int64].
+func Convert_Pointer_int64_To_int64(in **int64, out *int64, s conversion.Scope) error {
+	return metav1.Convert_Pointer_int64_To_int64(in, out, s)
+}
+
+// Convert_Pointer_intstr_IntOrString_To_intstr_IntOrString calls [metav1.Convert_Pointer_intstr_IntOrString_To_intstr_IntOrString].
+func Convert_Pointer_intstr_IntOrString_To_intstr_IntOrString(in **intstr.IntOrString, out *intstr.IntOrString, s conversion.Scope) error {
+	return metav1.Convert_Pointer_intstr_IntOrString_To_intstr_IntOrString(in, out, s)
+}
+
+// Convert_Pointer_string_To_string calls [metav1.Convert_Pointer_string_To_string].
+func Convert_Pointer_string_To_string(in **string, out *string, s conversion.Scope) error {
+	return metav1.Convert_Pointer_string_To_string(in, out, s)
+}
+
+// Convert_Pointer_v1_Duration_To_v1_Duration calls [metav1.Convert_Pointer_v1_Duration_To_v1_Duration].
+func Convert_Pointer_v1_Duration_To_v1_Duration(in **metav1.Duration, out *metav1.Duration, s conversion.Scope) error {
+	return metav1.Convert_Pointer_v1_Duration_To_v1_Duration(in, out, s)
+}
+
+// Convert_Slice_string_To_Pointer_v1_DeletionPropagation calls [metav1.Convert_Slice_string_To_Pointer_v1_DeletionPropagation].
+func Convert_Slice_string_To_Pointer_v1_DeletionPropagation(in *[]string, out **metav1.DeletionPropagation, s conversion.Scope) error {
+	return metav1.Convert_Slice_string_To_Pointer_v1_DeletionPropagation(in, out, s)
+}
+
+// Convert_Slice_string_To_Pointer_v1_Time calls [metav1.Convert_Slice_string_To_Pointer_v1_Time].
+func Convert_Slice_string_To_Pointer_v1_Time(in *[]string, out **metav1.Time, s conversion.Scope) error {
+	return metav1.Convert_Slice_string_To_Pointer_v1_Time(in, out, s)
+}
+
+// Convert_Slice_string_To_Slice_int32 calls [metav1.Convert_Slice_string_To_Slice_int32].
+func Convert_Slice_string_To_Slice_int32(in *[]string, out *[]int32, s conversion.Scope) error {
+	return metav1.Convert_Slice_string_To_Slice_int32(in, out, s)
+}
+
+// Convert_Slice_string_To_v1_IncludeObjectPolicy calls [metav1.Convert_Slice_string_To_v1_IncludeObjectPolicy].
+func Convert_Slice_string_To_v1_IncludeObjectPolicy(in *[]string, out *metav1.IncludeObjectPolicy, s conversion.Scope) error {
+	return metav1.Convert_Slice_string_To_v1_IncludeObjectPolicy(in, out, s)
+}
+
+// Convert_Slice_string_To_v1_ResourceVersionMatch calls [metav1.Convert_Slice_string_To_v1_ResourceVersionMatch].
+func Convert_Slice_string_To_v1_ResourceVersionMatch(in *[]string, out *metav1.ResourceVersionMatch, s conversion.Scope) error {
+	return metav1.Convert_Slice_string_To_v1_ResourceVersionMatch(in, out, s)
+}
+
+// Convert_Slice_string_To_v1_Time calls [metav1.Convert_Slice_string_To_v1_Time].
+func Convert_Slice_string_To_v1_Time(in *[]string, out *metav1.Time, s conversion.Scope) error {
+	return metav1.Convert_Slice_string_To_v1_Time(in, out, s)
+}
+
+// Convert_bool_To_Pointer_bool calls [metav1.Convert_bool_To_Pointer_bool].
+func Convert_bool_To_Pointer_bool(in *bool, out **bool, s conversion.Scope) error {
+	return metav1.Convert_bool_To_Pointer_bool(in, out, s)
+}
+
+// Convert_fields_Selector_To_string calls [metav1.Convert_fields_Selector_To_string].
+func Convert_fields_Selector_To_string(in *fields.Selector, out *string, s conversion.Scope) error {
+	return metav1.Convert_fields_Selector_To_string(in, out, s)
+}
+
+// Convert_float64_To_Pointer_float64 calls [metav1.Convert_float64_To_Pointer_float64].
+func Convert_float64_To_Pointer_float64(in *float64, out **float64, s conversion.Scope) error {
+	return metav1.Convert_float64_To_Pointer_float64(in, out, s)
+}
+
+// Convert_int32_To_Pointer_int32 calls [metav1.Convert_int32_To_Pointer_int32].
+func Convert_int32_To_Pointer_int32(in *int32, out **int32, s conversion.Scope) error {
+	return metav1.Convert_int32_To_Pointer_int32(in, out, s)
+}
+
+// Convert_int64_To_Pointer_int64 calls [metav1.Convert_int64_To_Pointer_int64].
+func Convert_int64_To_Pointer_int64(in *int64, out **int64, s conversion.Scope) error {
+	return metav1.Convert_int64_To_Pointer_int64(in, out, s)
+}
+
+// Convert_int_To_Pointer_int64 calls [metav1.Convert_int_To_Pointer_int64].
+func Convert_int_To_Pointer_int64(in *int, out **int64, s conversion.Scope) error {
+	return metav1.Convert_int_To_Pointer_int64(in, out, s)
+}
+
+// Convert_intstr_IntOrString_To_Pointer_intstr_IntOrString calls [metav1.Convert_intstr_IntOrString_To_Pointer_intstr_IntOrString].
+func Convert_intstr_IntOrString_To_Pointer_intstr_IntOrString(in *intstr.IntOrString, out **intstr.IntOrString, s conversion.Scope) error {
+	return metav1.Convert_intstr_IntOrString_To_Pointer_intstr_IntOrString(in, out, s)
+}
+
+// Convert_intstr_IntOrString_To_intstr_IntOrString calls [metav1.Convert_intstr_IntOrString_To_intstr_IntOrString].
+func Convert_intstr_IntOrString_To_intstr_IntOrString(in *intstr.IntOrString, out *intstr.IntOrString, s conversion.Scope) error {
+	return metav1.Convert_intstr_IntOrString_To_intstr_IntOrString(in, out, s)
+}
+
+// Convert_labels_Selector_To_string calls [metav1.Convert_labels_Selector_To_string].
+func Convert_labels_Selector_To_string(in *labels.Selector, out *string, s conversion.Scope) error {
+	return metav1.Convert_labels_Selector_To_string(in, out, s)
+}
+
+// Convert_resource_Quantity_To_resource_Quantity calls [metav1.Convert_resource_Quantity_To_resource_Quantity].
+func Convert_resource_Quantity_To_resource_Quantity(in *resource.Quantity, out *resource.Quantity, s conversion.Scope) error {
+	return metav1.Convert_resource_Quantity_To_resource_Quantity(in, out, s)
+}
+
+// Convert_string_To_Pointer_string calls [metav1.Convert_string_To_Pointer_string].
+func Convert_string_To_Pointer_string(in *string, out **string, s conversion.Scope) error {
+	return metav1.Convert_string_To_Pointer_string(in, out, s)
+}
+
+// Convert_string_To_fields_Selector calls [metav1.Convert_string_To_fields_Selector].
+func Convert_string_To_fields_Selector(in *string, out *fields.Selector, s conversion.Scope) error {
+	return metav1.Convert_string_To_fields_Selector(in, out, s)
+}
+
+// Convert_string_To_labels_Selector calls [metav1.Convert_string_To_labels_Selector].
+func Convert_string_To_labels_Selector(in *string, out *labels.Selector, s conversion.Scope) error {
+	return metav1.Convert_string_To_labels_Selector(in, out, s)
+}
+
+// Convert_url_Values_To_v1_CreateOptions calls [metav1.Convert_url_Values_To_v1_CreateOptions].
+func Convert_url_Values_To_v1_CreateOptions(in *url.Values, out *metav1.CreateOptions, s conversion.Scope) error {
+	return metav1.Convert_url_Values_To_v1_CreateOptions(in, out, s)
+}
+
+// Convert_url_Values_To_v1_DeleteOptions calls [metav1.Convert_url_Values_To_v1_DeleteOptions].
+func Convert_url_Values_To_v1_DeleteOptions(in *url.Values, out *metav1.DeleteOptions, s conversion.Scope) error {
+	return metav1.Convert_url_Values_To_v1_DeleteOptions(in, out, s)
+}
+
+// Convert_url_Values_To_v1_GetOptions calls [metav1.Convert_url_Values_To_v1_GetOptions].
+func Convert_url_Values_To_v1_GetOptions(in *url.Values, out *metav1.GetOptions, s conversion.Scope) error {
+	return metav1.Convert_url_Values_To_v1_GetOptions(in, out, s)
+}
+
+// Convert_url_Values_To_v1_ListOptions calls [metav1.Convert_url_Values_To_v1_ListOptions].
+func Convert_url_Values_To_v1_ListOptions(in *url.Values, out *metav1.ListOptions, s conversion.Scope) error {
+	return metav1.Convert_url_Values_To_v1_ListOptions(in, out, s)
+}
+
+// Convert_url_Values_To_v1_PatchOptions calls [metav1.Convert_url_Values_To_v1_PatchOptions].
+func Convert_url_Values_To_v1_PatchOptions(in *url.Values, out *metav1.PatchOptions, s conversion.Scope) error {
+	return metav1.Convert_url_Values_To_v1_PatchOptions(in, out, s)
+}
+
+// Convert_url_Values_To_v1_TableOptions calls [metav1.Convert_url_Values_To_v1_TableOptions].
+func Convert_url_Values_To_v1_TableOptions(in *url.Values, out *metav1.TableOptions, s conversion.Scope) error {
+	return metav1.Convert_url_Values_To_v1_TableOptions(in, out, s)
+}
+
+// Convert_url_Values_To_v1_UpdateOptions calls [metav1.Convert_url_Values_To_v1_UpdateOptions].
+func Convert_url_Values_To_v1_UpdateOptions(in *url.Values, out *metav1.UpdateOptions, s conversion.Scope) error {
+	return metav1.Convert_url_Values_To_v1_UpdateOptions(in, out, s)
+}
+
+// Convert_v1_DeleteOptions_To_v1_DeleteOptions calls [metav1.Convert_v1_DeleteOptions_To_v1_DeleteOptions].
+func Convert_v1_DeleteOptions_To_v1_DeleteOptions(in *metav1.DeleteOptions, out *metav1.DeleteOptions, s conversion.Scope) error {
+	return metav1.Convert_v1_DeleteOptions_To_v1_DeleteOptions(in, out, s)
+}
+
+// Convert_v1_Duration_To_Pointer_v1_Duration calls [metav1.Convert_v1_Duration_To_Pointer_v1_Duration].
+func Convert_v1_Duration_To_Pointer_v1_Duration(in *metav1.Duration, out **metav1.Duration, s conversion.Scope) error {
+	return metav1.Convert_v1_Duration_To_Pointer_v1_Duration(in, out, s)
+}
+
+// Convert_v1_InternalEvent_To_v1_WatchEvent calls [metav1.Convert_v1_InternalEvent_To_v1_WatchEvent].
+func Convert_v1_InternalEvent_To_v1_WatchEvent(in *metav1.InternalEvent, out *metav1.WatchEvent, s conversion.Scope) error {
+	return metav1.Convert_v1_InternalEvent_To_v1_WatchEvent(in, out, s)
+}
+
+// Convert_v1_LabelSelector_To_Map_string_To_string calls [metav1.Convert_v1_LabelSelector_To_Map_string_To_string].
+func Convert_v1_LabelSelector_To_Map_string_To_string(in *metav1.LabelSelector, out *map[string]string, s conversion.Scope) error {
+	return metav1.Convert_v1_LabelSelector_To_Map_string_To_string(in, out, s)
+}
+
+// Convert_v1_ListMeta_To_v1_ListMeta calls [metav1.Convert_v1_ListMeta_To_v1_ListMeta].
+func Convert_v1_ListMeta_To_v1_ListMeta(in *metav1.ListMeta, out *metav1.ListMeta, s conversion.Scope) error {
+	return metav1.Convert_v1_ListMeta_To_v1_ListMeta(in, out, s)
+}
+
+// Convert_v1_MicroTime_To_v1_MicroTime calls [metav1.Convert_v1_MicroTime_To_v1_MicroTime].
+func Convert_v1_MicroTime_To_v1_MicroTime(in *metav1.MicroTime, out *metav1.MicroTime, s conversion.Scope) error {
+	return metav1.Convert_v1_MicroTime_To_v1_MicroTime(in, out, s)
+}
+
+// Convert_v1_Time_To_v1_Time calls [metav1.Convert_v1_Time_To_v1_Time].
+func Convert_v1_Time_To_v1_Time(in *metav1.Time, out *metav1.Time, s conversion.Scope) error {
+	return metav1.Convert_v1_Time_To_v1_Time(in, out, s)
+}
+
+// Convert_v1_TypeMeta_To_v1_TypeMeta calls [metav1.Convert_v1_TypeMeta_To_v1_TypeMeta].
+func Convert_v1_TypeMeta_To_v1_TypeMeta(in *metav1.TypeMeta, out *metav1.TypeMeta, s conversion.Scope) error {
+	return metav1.Convert_v1_TypeMeta_To_v1_TypeMeta(in, out, s)
+}
+
+// Convert_v1_WatchEvent_To_v1_InternalEvent calls [metav1.Convert_v1_WatchEvent_To_v1_InternalEvent].
+func Convert_v1_WatchEvent_To_v1_InternalEvent(in *metav1.WatchEvent, out *metav1.InternalEvent, s conversion.Scope) error {
+	return metav1.Convert_v1_WatchEvent_To_v1_InternalEvent(in, out, s)
+}
+
+// Convert_v1_WatchEvent_To_watch_Event calls [metav1.Convert_v1_WatchEvent_To_watch_Event].
+func Convert_v1_WatchEvent_To_watch_Event(in *metav1.WatchEvent, out *watch.Event, s conversion.Scope) error {
+	return metav1.Convert_v1_WatchEvent_To_watch_Event(in, out, s)
+}
+
+// Convert_watch_Event_To_v1_WatchEvent calls [metav1.Convert_watch_Event_To_v1_WatchEvent].
+func Convert_watch_Event_To_v1_WatchEvent(in *watch.Event, out *metav1.WatchEvent, s conversion.Scope) error {
+	return metav1.Convert_watch_Event_To_v1_WatchEvent(in, out, s)
+}
+
 // +die
 // +die:field:name=dryRun,listType=atomic
 type CreateOptions = metav1.CreateOptions
+
+// Date calls [metav1.Date].
+func Date(year int, month time.Month, day int, hour int, min int, sec int, nsec int, loc *time.Location) metav1.Time {
+	return metav1.Date(year, month, day, hour, min, sec, nsec, loc)
+}
+
+// DateMicro calls [metav1.DateMicro].
+func DateMicro(year int, month time.Month, day int, hour int, min int, sec int, nsec int, loc *time.Location) metav1.MicroTime {
+	return metav1.DateMicro(year, month, day, hour, min, sec, nsec, loc)
+}
 
 // +die
 // +die:field:name=dryRun,listType=atomic
@@ -105,6 +377,20 @@ const DryRunAll = metav1.DryRunAll
 
 type Duration = metav1.Duration
 
+// ErrIntOverflowGenerated is [metav1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = metav1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [metav1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = metav1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [metav1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = metav1.ErrUnexpectedEndOfGroupGenerated
+
+// ExtractGroupVersions calls [metav1.ExtractGroupVersions].
+func ExtractGroupVersions(l *metav1.APIGroupList) []string {
+	return metav1.ExtractGroupVersions(l)
+}
+
 type FieldSelectorOperator = metav1.FieldSelectorOperator
 
 const (
@@ -113,6 +399,11 @@ const (
 	FieldSelectorOpIn           = metav1.FieldSelectorOpIn
 	FieldSelectorOpNotIn        = metav1.FieldSelectorOpNotIn
 )
+
+// FieldSelectorQueryParam calls [metav1.FieldSelectorQueryParam].
+func FieldSelectorQueryParam(version string) string {
+	return metav1.FieldSelectorQueryParam(version)
+}
 
 // +die
 // +die:field:name=values,listType=atomic
@@ -131,6 +422,21 @@ type FieldsV1Reader = metav1.FieldsV1Reader
 const FinalizerDeleteDependents = metav1.FinalizerDeleteDependents
 
 const FinalizerOrphanDependents = metav1.FinalizerOrphanDependents
+
+// FormatLabelSelector calls [metav1.FormatLabelSelector].
+func FormatLabelSelector(labelSelector *metav1.LabelSelector) string {
+	return metav1.FormatLabelSelector(labelSelector)
+}
+
+// GetControllerOf calls [metav1.GetControllerOf].
+func GetControllerOf(controllee metav1.Object) *metav1.OwnerReference {
+	return metav1.GetControllerOf(controllee)
+}
+
+// GetControllerOfNoCopy calls [metav1.GetControllerOfNoCopy].
+func GetControllerOfNoCopy(controllee metav1.Object) *metav1.OwnerReference {
+	return metav1.GetControllerOfNoCopy(controllee)
+}
 
 // +die
 type GetOptions = metav1.GetOptions
@@ -154,6 +460,21 @@ type GroupVersionKind = metav1.GroupVersionKind
 // +die
 type GroupVersionResource = metav1.GroupVersionResource
 
+// HasAnnotation calls [metav1.HasAnnotation].
+func HasAnnotation(obj metav1.ObjectMeta, ann string) bool {
+	return metav1.HasAnnotation(obj, ann)
+}
+
+// HasLabel calls [metav1.HasLabel].
+func HasLabel(obj metav1.ObjectMeta, label string) bool {
+	return metav1.HasLabel(obj, label)
+}
+
+// HasObjectMetaSystemFieldValues calls [metav1.HasObjectMetaSystemFieldValues].
+func HasObjectMetaSystemFieldValues(meta metav1.Object) bool {
+	return metav1.HasObjectMetaSystemFieldValues(meta)
+}
+
 type IncludeObjectPolicy = metav1.IncludeObjectPolicy
 
 const (
@@ -167,9 +488,29 @@ const InitialEventsAnnotationKey = metav1.InitialEventsAnnotationKey
 // +die
 type InternalEvent = metav1.InternalEvent
 
+// IsControlledBy calls [metav1.IsControlledBy].
+func IsControlledBy(obj metav1.Object, owner metav1.Object) bool {
+	return metav1.IsControlledBy(obj, owner)
+}
+
+// Kind calls [metav1.Kind].
+func Kind(kind string) schema.GroupKind {
+	return metav1.Kind(kind)
+}
+
 // +die
 // +die:field:name=matchExpressions,listType=atomic
 type LabelSelector = metav1.LabelSelector
+
+// LabelSelectorAsMap calls [metav1.LabelSelectorAsMap].
+func LabelSelectorAsMap(ps *metav1.LabelSelector) (map[string]string, error) {
+	return metav1.LabelSelectorAsMap(ps)
+}
+
+// LabelSelectorAsSelector calls [metav1.LabelSelectorAsSelector].
+func LabelSelectorAsSelector(ps *metav1.LabelSelector) (labels.Selector, error) {
+	return metav1.LabelSelectorAsSelector(ps)
+}
 
 type LabelSelectorOperator = metav1.LabelSelectorOperator
 
@@ -179,6 +520,11 @@ const (
 	LabelSelectorOpIn           = metav1.LabelSelectorOpIn
 	LabelSelectorOpNotIn        = metav1.LabelSelectorOpNotIn
 )
+
+// LabelSelectorQueryParam calls [metav1.LabelSelectorQueryParam].
+func LabelSelectorQueryParam(version string) string {
+	return metav1.LabelSelectorQueryParam(version)
+}
 
 // +die
 // +die:field:name=values,listType=atomic
@@ -219,6 +565,56 @@ const NamespacePublic = metav1.NamespacePublic
 
 const NamespaceSystem = metav1.NamespaceSystem
 
+// NewControllerRef calls [metav1.NewControllerRef].
+func NewControllerRef(owner metav1.Object, gvk schema.GroupVersionKind) *metav1.OwnerReference {
+	return metav1.NewControllerRef(owner, gvk)
+}
+
+// NewDeleteOptions calls [metav1.NewDeleteOptions].
+func NewDeleteOptions(grace int64) *metav1.DeleteOptions {
+	return metav1.NewDeleteOptions(grace)
+}
+
+// NewFieldsV1 calls [metav1.NewFieldsV1].
+func NewFieldsV1(raw string) *metav1.FieldsV1 {
+	return metav1.NewFieldsV1(raw)
+}
+
+// NewMicroTime calls [metav1.NewMicroTime].
+func NewMicroTime(p0 time.Time) metav1.MicroTime {
+	return metav1.NewMicroTime(p0)
+}
+
+// NewPreconditionDeleteOptions calls [metav1.NewPreconditionDeleteOptions].
+func NewPreconditionDeleteOptions(uid string) *metav1.DeleteOptions {
+	return metav1.NewPreconditionDeleteOptions(uid)
+}
+
+// NewRVDeletionPrecondition calls [metav1.NewRVDeletionPrecondition].
+func NewRVDeletionPrecondition(rv string) *metav1.DeleteOptions {
+	return metav1.NewRVDeletionPrecondition(rv)
+}
+
+// NewTime calls [metav1.NewTime].
+func NewTime(p0 time.Time) metav1.Time {
+	return metav1.NewTime(p0)
+}
+
+// NewUIDPreconditions calls [metav1.NewUIDPreconditions].
+func NewUIDPreconditions(uid string) *metav1.Preconditions {
+	return metav1.NewUIDPreconditions(uid)
+}
+
+// Now calls [metav1.Now].
+func Now() metav1.Time {
+	return metav1.Now()
+}
+
+// NowMicro calls [metav1.NowMicro].
+func NowMicro() metav1.MicroTime {
+	return metav1.NowMicro()
+}
+
 type Object = metav1.Object
 
 // +die
@@ -233,6 +629,14 @@ const ObjectNameField = metav1.ObjectNameField
 
 // +die
 type OwnerReference = metav1.OwnerReference
+
+// ParameterCodec is [metav1.ParameterCodec].
+var ParameterCodec = metav1.ParameterCodec
+
+// ParseToLabelSelector calls [metav1.ParseToLabelSelector].
+func ParseToLabelSelector(selector string) (*metav1.LabelSelector, error) {
+	return metav1.ParseToLabelSelector(selector)
+}
 
 // +die
 type PartialObjectMetadata = metav1.PartialObjectMetadata
@@ -252,6 +656,21 @@ type Preconditions = metav1.Preconditions
 
 const RFC3339Micro = metav1.RFC3339Micro
 
+// RegisterConversions calls [metav1.RegisterConversions].
+func RegisterConversions(s *runtime.Scheme) error {
+	return metav1.RegisterConversions(s)
+}
+
+// RegisterDefaults calls [metav1.RegisterDefaults].
+func RegisterDefaults(scheme *runtime.Scheme) error {
+	return metav1.RegisterDefaults(scheme)
+}
+
+// ResetObjectMetaForStatus calls [metav1.ResetObjectMetaForStatus].
+func ResetObjectMetaForStatus(meta metav1.Object, existingMeta metav1.Object) {
+	metav1.ResetObjectMetaForStatus(meta, existingMeta)
+}
+
 type ResourceVersionMatch = metav1.ResourceVersionMatch
 
 const (
@@ -269,13 +688,38 @@ const (
 	RowCompleted = metav1.RowCompleted
 )
 
+// SelectorHasLabel calls [metav1.SelectorHasLabel].
+func SelectorHasLabel(selector *metav1.LabelSelector, labelKey string) bool {
+	return metav1.SelectorHasLabel(selector, labelKey)
+}
+
 // +die
 type ServerAddressByClientCIDR = metav1.ServerAddressByClientCIDR
+
+// SetAsLabelSelector calls [metav1.SetAsLabelSelector].
+func SetAsLabelSelector(ls labels.Set) *metav1.LabelSelector {
+	return metav1.SetAsLabelSelector(ls)
+}
+
+// SetMetaDataAnnotation calls [metav1.SetMetaDataAnnotation].
+func SetMetaDataAnnotation(obj *metav1.ObjectMeta, ann string, value string) {
+	metav1.SetMetaDataAnnotation(obj, ann, value)
+}
+
+// SetMetaDataLabel calls [metav1.SetMetaDataLabel].
+func SetMetaDataLabel(obj *metav1.ObjectMeta, label string, value string) {
+	metav1.SetMetaDataLabel(obj, label, value)
+}
 
 // +die
 type ShardInfo = metav1.ShardInfo
 
 type ShardedListInterface = metav1.ShardedListInterface
+
+// SingleObject calls [metav1.SingleObject].
+func SingleObject(meta metav1.ObjectMeta) metav1.ListOptions {
+	return metav1.SingleObject(meta)
+}
 
 // +die
 type Status = metav1.Status
@@ -344,6 +788,19 @@ type Type = metav1.Type
 
 // +die
 type TypeMeta = metav1.TypeMeta
+
+// Unix calls [metav1.Unix].
+func Unix(sec int64, nsec int64) metav1.Time {
+	return metav1.Unix(sec, nsec)
+}
+
+// UnixMicro calls [metav1.UnixMicro].
+func UnixMicro(sec int64, nsec int64) metav1.MicroTime {
+	return metav1.UnixMicro(sec, nsec)
+}
+
+// Unversioned is [metav1.Unversioned].
+var Unversioned = metav1.Unversioned
 
 // +die
 // +die:field:name=dryRun,listType=atomic

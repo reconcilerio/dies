@@ -20,11 +20,14 @@ package v1alpha1
 
 import (
 	apiserverinternalv1alpha1 "k8s.io/api/apiserverinternal/v1alpha1"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// The types and constants of [k8s.io/api/apiserverinternal/v1alpha1], so that importing this package provides
-// both the types and their dies. Each type is followed by its values.
-// Functions and variables are deliberately not re-exported: this package's
+// The types, constants, functions and variables of [k8s.io/api/apiserverinternal/v1alpha1], so that
+// importing this package provides both the types and their dies. Each type is
+// followed by its values. A function is called through one of the same
+// signature, and a variable is copied as it is when this package is
+// initialized. The scheme registration isn't re-exported: this package's
 // [AddToScheme] registers its dies, not the upstream types.
 
 type ConditionStatus = apiserverinternalv1alpha1.ConditionStatus
@@ -35,7 +38,21 @@ const (
 	ConditionUnknown = apiserverinternalv1alpha1.ConditionUnknown
 )
 
+// ErrIntOverflowGenerated is [apiserverinternalv1alpha1.ErrIntOverflowGenerated].
+var ErrIntOverflowGenerated = apiserverinternalv1alpha1.ErrIntOverflowGenerated
+
+// ErrInvalidLengthGenerated is [apiserverinternalv1alpha1.ErrInvalidLengthGenerated].
+var ErrInvalidLengthGenerated = apiserverinternalv1alpha1.ErrInvalidLengthGenerated
+
+// ErrUnexpectedEndOfGroupGenerated is [apiserverinternalv1alpha1.ErrUnexpectedEndOfGroupGenerated].
+var ErrUnexpectedEndOfGroupGenerated = apiserverinternalv1alpha1.ErrUnexpectedEndOfGroupGenerated
+
 const GroupName = apiserverinternalv1alpha1.GroupName
+
+// Resource calls [apiserverinternalv1alpha1.Resource].
+func Resource(resource string) schema.GroupResource {
+	return apiserverinternalv1alpha1.Resource(resource)
+}
 
 // +die
 // +die:field:name=decodableVersions,listType=set
