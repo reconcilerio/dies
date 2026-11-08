@@ -42,19 +42,19 @@ package conversion
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"maps"
 	"reflect"
 	"strings"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/validation"
 
 	"reconciler.io/dies/v2/die/base"
+	"reconciler.io/dies/v2/die/fields"
 	"reconciler.io/dies/v2/die/internal/core"
 	"reconciler.io/dies/v2/die/jigs"
-	"reconciler.io/dies/v2/die/objects"
 )
 
 // StashAnnotation is the prefix of the annotations that keep what a
@@ -137,10 +137,8 @@ type Converter struct {
 	gvk    schema.GroupVersionKind
 	newHub func() base.MutableDie
 	// hub is the hub's blank, which a spoke's jig is clamped to, and
-	// metadata its metadata, which a spoke's is bound to
-	hub      base.Located
-	metadata base.LocatedAs[metav1.ObjectMeta]
-	spokes   map[schema.GroupVersion]*spoke
+	hub    base.Located
+	spokes map[schema.GroupVersion]*spoke
 	// stash is the prefix of the stash annotations
 	stash string
 }
@@ -150,15 +148,14 @@ type Converter struct {
 // package records from its +die:object marker, not those of the blank's
 // value, and converted objects start from an empty die of its type, so a
 // value stamped on the blank isn't part of them.
-func New[H any, HD objects.DieObjectOf[H, HD, HDM], HDM objects.DieObjectMutOf[H, HD, HDM]](hub HD) *Converter {
+func New[H any, HD fields.DieObjectOf[H, HD, HDM], HDM fields.DieObjectMutOf[H, HD, HDM]](hub HD) *Converter {
 	gvk := core.Must(identity[H]())
 	return &Converter{
-		gvk:      gvk,
-		newHub:   empty[H, HD, HDM](gvk),
-		hub:      hub,
-		metadata: hub.Metadata(),
-		spokes:   map[schema.GroupVersion]*spoke{},
-		stash:    StashAnnotation,
+		gvk:    gvk,
+		newHub: empty[H, HD, HDM](gvk),
+		hub:    hub,
+		spokes: map[schema.GroupVersion]*spoke{},
+		stash:  StashAnnotation,
 	}
 }
 
@@ -171,7 +168,7 @@ func New[H any, HD objects.DieObjectOf[H, HD, HDM], HDM objects.DieObjectMutOf[H
 //
 // It panics if the spoke isn't another version of the hub's group and kind,
 // already has a conversion, or a binding can't be made.
-func (c *Converter) AddSpoke[S any, SD objects.DieObjectOf[S, SD, SDM], SDM objects.DieObjectMutOf[S, SD, SDM]](blank SD, bindings ...jigs.Binding) *Converter {
+func (c *Converter) AddSpoke[S any, SD fields.DieObjectOf[S, SD, SDM], SDM fields.DieObjectMutOf[S, SD, SDM]](blank SD, bindings ...jigs.Binding) *Converter {
 	gvk := core.Must(identity[S]())
 	gv := gvk.GroupVersion()
 	if gvk.GroupKind() != c.gvk.GroupKind() || gv == c.gvk.GroupVersion() {
@@ -181,7 +178,7 @@ func (c *Converter) AddSpoke[S any, SD objects.DieObjectOf[S, SD, SDM], SDM obje
 		panic(core.Errorf("conversion: %s has more than one conversion", gv))
 	}
 	core.Check(checkStash(c.stash, gv))
-	bindings = append([]jigs.Binding{jigs.Bind(blank.Metadata(), c.metadata)}, bindings...)
+	bindings = append([]jigs.Binding{bindMetadata(blank, c.hub)}, bindings...)
 	jig := jigs.NewJig(blank).MustClamp(c.hub, bindings...)
 	s := &spoke{
 		gvk:      gvk,
@@ -449,6 +446,16 @@ func decode(b []byte) (map[string]any, error) {
 	return m, nil
 }
 
+// bindMetadata binds a spoke's metadata to the hub's. An object die's
+// metadata is a metav1.ObjectMeta at metadata, as its base requires, so it's
+// bound by its path, without naming the die of meta/v1 it has.
+func bindMetadata(spoke, hub base.Located) jigs.Binding {
+	vroot, verr := core.RootOf(spoke)
+	root, err := core.RootOf(hub)
+	path := core.Path{core.FieldStep("metadata")}
+	return core.WithErr(core.NewBinding(path, path, vroot, root, nil, nil), errors.Join(verr, err))
+}
+
 // identity returns the group, version and kind an object type's die package
 // recorded from its +die:object marker.
 func identity[T any]() (schema.GroupVersionKind, error) {
@@ -465,7 +472,7 @@ func identity[T any]() (schema.GroupVersionKind, error) {
 
 // empty returns a function that makes an empty mutable die of an object type,
 // with only its group, version and kind.
-func empty[T any, D objects.DieObjectOf[T, D, M], M objects.DieObjectMutOf[T, D, M]](gvk schema.GroupVersionKind) func() base.MutableDie {
+func empty[T any, D fields.DieObjectOf[T, D, M], M fields.DieObjectMutOf[T, D, M]](gvk schema.GroupVersionKind) func() base.MutableDie {
 	return func() base.MutableDie {
 		d := base.Blank[T, D, M]().DieMutable()
 		d.GetObjectKind().SetGroupVersionKind(gvk)

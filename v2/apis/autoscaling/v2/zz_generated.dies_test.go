@@ -22,8 +22,8 @@ import (
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	dieautoscalingv2 "reconciler.io/dies/v2/apis/autoscaling/v2"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -62,9 +62,9 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[dieautoscalingv2.HorizontalPodAutoscaler, *dieautoscalingv2.HorizontalPodAutoscalerDie, *dieautoscalingv2.HorizontalPodAutoscalerDieMut]    = (*dieautoscalingv2.HorizontalPodAutoscalerDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieautoscalingv2.HorizontalPodAutoscaler, *dieautoscalingv2.HorizontalPodAutoscalerDie, *dieautoscalingv2.HorizontalPodAutoscalerDieMut] = (*dieautoscalingv2.HorizontalPodAutoscalerDieMut)(nil)
-	_ dielists.DieListOf[*dieautoscalingv2.HorizontalPodAutoscalerDieMut]                                                                                                = (*dieautoscalingv2.HorizontalPodAutoscalerListDie)(nil)
+	_ diefields.DieObjectOf[dieautoscalingv2.HorizontalPodAutoscaler, *dieautoscalingv2.HorizontalPodAutoscalerDie, *dieautoscalingv2.HorizontalPodAutoscalerDieMut]    = (*dieautoscalingv2.HorizontalPodAutoscalerDie)(nil)
+	_ diefields.DieObjectMutOf[dieautoscalingv2.HorizontalPodAutoscaler, *dieautoscalingv2.HorizontalPodAutoscalerDie, *dieautoscalingv2.HorizontalPodAutoscalerDieMut] = (*dieautoscalingv2.HorizontalPodAutoscalerDieMut)(nil)
+	_ dielists.DieListOf[*dieautoscalingv2.HorizontalPodAutoscalerDieMut]                                                                                               = (*dieautoscalingv2.HorizontalPodAutoscalerListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

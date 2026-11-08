@@ -22,8 +22,8 @@ import (
 	policyv1 "k8s.io/api/policy/v1"
 	diepolicyv1 "reconciler.io/dies/v2/apis/policy/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -43,11 +43,11 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[diepolicyv1.Eviction, *diepolicyv1.EvictionDie, *diepolicyv1.EvictionDieMut]                                     = (*diepolicyv1.EvictionDie)(nil)
-	_ dieobjects.DieObjectMutOf[diepolicyv1.Eviction, *diepolicyv1.EvictionDie, *diepolicyv1.EvictionDieMut]                                  = (*diepolicyv1.EvictionDieMut)(nil)
-	_ dieobjects.DieObjectOf[diepolicyv1.PodDisruptionBudget, *diepolicyv1.PodDisruptionBudgetDie, *diepolicyv1.PodDisruptionBudgetDieMut]    = (*diepolicyv1.PodDisruptionBudgetDie)(nil)
-	_ dieobjects.DieObjectMutOf[diepolicyv1.PodDisruptionBudget, *diepolicyv1.PodDisruptionBudgetDie, *diepolicyv1.PodDisruptionBudgetDieMut] = (*diepolicyv1.PodDisruptionBudgetDieMut)(nil)
-	_ dielists.DieListOf[*diepolicyv1.PodDisruptionBudgetDieMut]                                                                              = (*diepolicyv1.PodDisruptionBudgetListDie)(nil)
+	_ diefields.DieObjectOf[diepolicyv1.Eviction, *diepolicyv1.EvictionDie, *diepolicyv1.EvictionDieMut]                                     = (*diepolicyv1.EvictionDie)(nil)
+	_ diefields.DieObjectMutOf[diepolicyv1.Eviction, *diepolicyv1.EvictionDie, *diepolicyv1.EvictionDieMut]                                  = (*diepolicyv1.EvictionDieMut)(nil)
+	_ diefields.DieObjectOf[diepolicyv1.PodDisruptionBudget, *diepolicyv1.PodDisruptionBudgetDie, *diepolicyv1.PodDisruptionBudgetDieMut]    = (*diepolicyv1.PodDisruptionBudgetDie)(nil)
+	_ diefields.DieObjectMutOf[diepolicyv1.PodDisruptionBudget, *diepolicyv1.PodDisruptionBudgetDie, *diepolicyv1.PodDisruptionBudgetDieMut] = (*diepolicyv1.PodDisruptionBudgetDieMut)(nil)
+	_ dielists.DieListOf[*diepolicyv1.PodDisruptionBudgetDieMut]                                                                             = (*diepolicyv1.PodDisruptionBudgetListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

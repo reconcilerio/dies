@@ -22,8 +22,8 @@ import (
 	resourcev1beta1 "k8s.io/api/resource/v1beta1"
 	dieresourcev1beta1 "reconciler.io/dies/v2/apis/resource/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -85,18 +85,18 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[dieresourcev1beta1.DeviceClass, *dieresourcev1beta1.DeviceClassDie, *dieresourcev1beta1.DeviceClassDieMut]                                  = (*dieresourcev1beta1.DeviceClassDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieresourcev1beta1.DeviceClass, *dieresourcev1beta1.DeviceClassDie, *dieresourcev1beta1.DeviceClassDieMut]                               = (*dieresourcev1beta1.DeviceClassDieMut)(nil)
-	_ dieobjects.DieObjectOf[dieresourcev1beta1.ResourceClaim, *dieresourcev1beta1.ResourceClaimDie, *dieresourcev1beta1.ResourceClaimDieMut]                            = (*dieresourcev1beta1.ResourceClaimDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieresourcev1beta1.ResourceClaim, *dieresourcev1beta1.ResourceClaimDie, *dieresourcev1beta1.ResourceClaimDieMut]                         = (*dieresourcev1beta1.ResourceClaimDieMut)(nil)
-	_ dieobjects.DieObjectOf[dieresourcev1beta1.ResourceClaimTemplate, *dieresourcev1beta1.ResourceClaimTemplateDie, *dieresourcev1beta1.ResourceClaimTemplateDieMut]    = (*dieresourcev1beta1.ResourceClaimTemplateDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieresourcev1beta1.ResourceClaimTemplate, *dieresourcev1beta1.ResourceClaimTemplateDie, *dieresourcev1beta1.ResourceClaimTemplateDieMut] = (*dieresourcev1beta1.ResourceClaimTemplateDieMut)(nil)
-	_ dieobjects.DieObjectOf[dieresourcev1beta1.ResourceSlice, *dieresourcev1beta1.ResourceSliceDie, *dieresourcev1beta1.ResourceSliceDieMut]                            = (*dieresourcev1beta1.ResourceSliceDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieresourcev1beta1.ResourceSlice, *dieresourcev1beta1.ResourceSliceDie, *dieresourcev1beta1.ResourceSliceDieMut]                         = (*dieresourcev1beta1.ResourceSliceDieMut)(nil)
-	_ dielists.DieListOf[*dieresourcev1beta1.DeviceClassDieMut]                                                                                                          = (*dieresourcev1beta1.DeviceClassListDie)(nil)
-	_ dielists.DieListOf[*dieresourcev1beta1.ResourceClaimDieMut]                                                                                                        = (*dieresourcev1beta1.ResourceClaimListDie)(nil)
-	_ dielists.DieListOf[*dieresourcev1beta1.ResourceClaimTemplateDieMut]                                                                                                = (*dieresourcev1beta1.ResourceClaimTemplateListDie)(nil)
-	_ dielists.DieListOf[*dieresourcev1beta1.ResourceSliceDieMut]                                                                                                        = (*dieresourcev1beta1.ResourceSliceListDie)(nil)
+	_ diefields.DieObjectOf[dieresourcev1beta1.DeviceClass, *dieresourcev1beta1.DeviceClassDie, *dieresourcev1beta1.DeviceClassDieMut]                                  = (*dieresourcev1beta1.DeviceClassDie)(nil)
+	_ diefields.DieObjectMutOf[dieresourcev1beta1.DeviceClass, *dieresourcev1beta1.DeviceClassDie, *dieresourcev1beta1.DeviceClassDieMut]                               = (*dieresourcev1beta1.DeviceClassDieMut)(nil)
+	_ diefields.DieObjectOf[dieresourcev1beta1.ResourceClaim, *dieresourcev1beta1.ResourceClaimDie, *dieresourcev1beta1.ResourceClaimDieMut]                            = (*dieresourcev1beta1.ResourceClaimDie)(nil)
+	_ diefields.DieObjectMutOf[dieresourcev1beta1.ResourceClaim, *dieresourcev1beta1.ResourceClaimDie, *dieresourcev1beta1.ResourceClaimDieMut]                         = (*dieresourcev1beta1.ResourceClaimDieMut)(nil)
+	_ diefields.DieObjectOf[dieresourcev1beta1.ResourceClaimTemplate, *dieresourcev1beta1.ResourceClaimTemplateDie, *dieresourcev1beta1.ResourceClaimTemplateDieMut]    = (*dieresourcev1beta1.ResourceClaimTemplateDie)(nil)
+	_ diefields.DieObjectMutOf[dieresourcev1beta1.ResourceClaimTemplate, *dieresourcev1beta1.ResourceClaimTemplateDie, *dieresourcev1beta1.ResourceClaimTemplateDieMut] = (*dieresourcev1beta1.ResourceClaimTemplateDieMut)(nil)
+	_ diefields.DieObjectOf[dieresourcev1beta1.ResourceSlice, *dieresourcev1beta1.ResourceSliceDie, *dieresourcev1beta1.ResourceSliceDieMut]                            = (*dieresourcev1beta1.ResourceSliceDie)(nil)
+	_ diefields.DieObjectMutOf[dieresourcev1beta1.ResourceSlice, *dieresourcev1beta1.ResourceSliceDie, *dieresourcev1beta1.ResourceSliceDieMut]                         = (*dieresourcev1beta1.ResourceSliceDieMut)(nil)
+	_ dielists.DieListOf[*dieresourcev1beta1.DeviceClassDieMut]                                                                                                         = (*dieresourcev1beta1.DeviceClassListDie)(nil)
+	_ dielists.DieListOf[*dieresourcev1beta1.ResourceClaimDieMut]                                                                                                       = (*dieresourcev1beta1.ResourceClaimListDie)(nil)
+	_ dielists.DieListOf[*dieresourcev1beta1.ResourceClaimTemplateDieMut]                                                                                               = (*dieresourcev1beta1.ResourceClaimTemplateListDie)(nil)
+	_ dielists.DieListOf[*dieresourcev1beta1.ResourceSliceDieMut]                                                                                                       = (*dieresourcev1beta1.ResourceSliceListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

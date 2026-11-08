@@ -22,8 +22,8 @@ import (
 	apidiscoveryv2beta1 "k8s.io/api/apidiscovery/v2beta1"
 	dieapidiscoveryv2beta1 "reconciler.io/dies/v2/apis/apidiscovery/v2beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -43,9 +43,9 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[dieapidiscoveryv2beta1.APIGroupDiscovery, *dieapidiscoveryv2beta1.APIGroupDiscoveryDie, *dieapidiscoveryv2beta1.APIGroupDiscoveryDieMut]    = (*dieapidiscoveryv2beta1.APIGroupDiscoveryDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieapidiscoveryv2beta1.APIGroupDiscovery, *dieapidiscoveryv2beta1.APIGroupDiscoveryDie, *dieapidiscoveryv2beta1.APIGroupDiscoveryDieMut] = (*dieapidiscoveryv2beta1.APIGroupDiscoveryDieMut)(nil)
-	_ dielists.DieListOf[*dieapidiscoveryv2beta1.APIGroupDiscoveryDieMut]                                                                                                = (*dieapidiscoveryv2beta1.APIGroupDiscoveryListDie)(nil)
+	_ diefields.DieObjectOf[dieapidiscoveryv2beta1.APIGroupDiscovery, *dieapidiscoveryv2beta1.APIGroupDiscoveryDie, *dieapidiscoveryv2beta1.APIGroupDiscoveryDieMut]    = (*dieapidiscoveryv2beta1.APIGroupDiscoveryDie)(nil)
+	_ diefields.DieObjectMutOf[dieapidiscoveryv2beta1.APIGroupDiscovery, *dieapidiscoveryv2beta1.APIGroupDiscoveryDie, *dieapidiscoveryv2beta1.APIGroupDiscoveryDieMut] = (*dieapidiscoveryv2beta1.APIGroupDiscoveryDieMut)(nil)
+	_ dielists.DieListOf[*dieapidiscoveryv2beta1.APIGroupDiscoveryDieMut]                                                                                               = (*dieapidiscoveryv2beta1.APIGroupDiscoveryListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

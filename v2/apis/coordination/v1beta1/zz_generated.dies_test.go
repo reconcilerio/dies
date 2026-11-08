@@ -22,8 +22,8 @@ import (
 	coordinationv1beta1 "k8s.io/api/coordination/v1beta1"
 	diecoordinationv1beta1 "reconciler.io/dies/v2/apis/coordination/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -44,12 +44,12 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[diecoordinationv1beta1.Lease, *diecoordinationv1beta1.LeaseDie, *diecoordinationv1beta1.LeaseDieMut]                               = (*diecoordinationv1beta1.LeaseDie)(nil)
-	_ dieobjects.DieObjectMutOf[diecoordinationv1beta1.Lease, *diecoordinationv1beta1.LeaseDie, *diecoordinationv1beta1.LeaseDieMut]                            = (*diecoordinationv1beta1.LeaseDieMut)(nil)
-	_ dieobjects.DieObjectOf[diecoordinationv1beta1.LeaseCandidate, *diecoordinationv1beta1.LeaseCandidateDie, *diecoordinationv1beta1.LeaseCandidateDieMut]    = (*diecoordinationv1beta1.LeaseCandidateDie)(nil)
-	_ dieobjects.DieObjectMutOf[diecoordinationv1beta1.LeaseCandidate, *diecoordinationv1beta1.LeaseCandidateDie, *diecoordinationv1beta1.LeaseCandidateDieMut] = (*diecoordinationv1beta1.LeaseCandidateDieMut)(nil)
-	_ dielists.DieListOf[*diecoordinationv1beta1.LeaseCandidateDieMut]                                                                                          = (*diecoordinationv1beta1.LeaseCandidateListDie)(nil)
-	_ dielists.DieListOf[*diecoordinationv1beta1.LeaseDieMut]                                                                                                   = (*diecoordinationv1beta1.LeaseListDie)(nil)
+	_ diefields.DieObjectOf[diecoordinationv1beta1.Lease, *diecoordinationv1beta1.LeaseDie, *diecoordinationv1beta1.LeaseDieMut]                               = (*diecoordinationv1beta1.LeaseDie)(nil)
+	_ diefields.DieObjectMutOf[diecoordinationv1beta1.Lease, *diecoordinationv1beta1.LeaseDie, *diecoordinationv1beta1.LeaseDieMut]                            = (*diecoordinationv1beta1.LeaseDieMut)(nil)
+	_ diefields.DieObjectOf[diecoordinationv1beta1.LeaseCandidate, *diecoordinationv1beta1.LeaseCandidateDie, *diecoordinationv1beta1.LeaseCandidateDieMut]    = (*diecoordinationv1beta1.LeaseCandidateDie)(nil)
+	_ diefields.DieObjectMutOf[diecoordinationv1beta1.LeaseCandidate, *diecoordinationv1beta1.LeaseCandidateDie, *diecoordinationv1beta1.LeaseCandidateDieMut] = (*diecoordinationv1beta1.LeaseCandidateDieMut)(nil)
+	_ dielists.DieListOf[*diecoordinationv1beta1.LeaseCandidateDieMut]                                                                                         = (*diecoordinationv1beta1.LeaseCandidateListDie)(nil)
+	_ dielists.DieListOf[*diecoordinationv1beta1.LeaseDieMut]                                                                                                  = (*diecoordinationv1beta1.LeaseListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

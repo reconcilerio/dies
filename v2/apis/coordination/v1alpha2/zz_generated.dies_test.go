@@ -22,8 +22,8 @@ import (
 	coordinationv1alpha2 "k8s.io/api/coordination/v1alpha2"
 	diecoordinationv1alpha2 "reconciler.io/dies/v2/apis/coordination/v1alpha2"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -41,9 +41,9 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[diecoordinationv1alpha2.LeaseCandidate, *diecoordinationv1alpha2.LeaseCandidateDie, *diecoordinationv1alpha2.LeaseCandidateDieMut]    = (*diecoordinationv1alpha2.LeaseCandidateDie)(nil)
-	_ dieobjects.DieObjectMutOf[diecoordinationv1alpha2.LeaseCandidate, *diecoordinationv1alpha2.LeaseCandidateDie, *diecoordinationv1alpha2.LeaseCandidateDieMut] = (*diecoordinationv1alpha2.LeaseCandidateDieMut)(nil)
-	_ dielists.DieListOf[*diecoordinationv1alpha2.LeaseCandidateDieMut]                                                                                            = (*diecoordinationv1alpha2.LeaseCandidateListDie)(nil)
+	_ diefields.DieObjectOf[diecoordinationv1alpha2.LeaseCandidate, *diecoordinationv1alpha2.LeaseCandidateDie, *diecoordinationv1alpha2.LeaseCandidateDieMut]    = (*diecoordinationv1alpha2.LeaseCandidateDie)(nil)
+	_ diefields.DieObjectMutOf[diecoordinationv1alpha2.LeaseCandidate, *diecoordinationv1alpha2.LeaseCandidateDie, *diecoordinationv1alpha2.LeaseCandidateDieMut] = (*diecoordinationv1alpha2.LeaseCandidateDieMut)(nil)
+	_ dielists.DieListOf[*diecoordinationv1alpha2.LeaseCandidateDieMut]                                                                                           = (*diecoordinationv1alpha2.LeaseCandidateListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

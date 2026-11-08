@@ -22,7 +22,7 @@ import (
 	authorizationv1beta1 "k8s.io/api/authorization/v1beta1"
 	dieauthorizationv1beta1 "reconciler.io/dies/v2/apis/authorization/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
-	dieobjects "reconciler.io/dies/v2/die/objects"
+	diefields "reconciler.io/dies/v2/die/fields"
 	testing "testing"
 )
 
@@ -50,14 +50,14 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[dieauthorizationv1beta1.LocalSubjectAccessReview, *dieauthorizationv1beta1.LocalSubjectAccessReviewDie, *dieauthorizationv1beta1.LocalSubjectAccessReviewDieMut]    = (*dieauthorizationv1beta1.LocalSubjectAccessReviewDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieauthorizationv1beta1.LocalSubjectAccessReview, *dieauthorizationv1beta1.LocalSubjectAccessReviewDie, *dieauthorizationv1beta1.LocalSubjectAccessReviewDieMut] = (*dieauthorizationv1beta1.LocalSubjectAccessReviewDieMut)(nil)
-	_ dieobjects.DieObjectOf[dieauthorizationv1beta1.SelfSubjectAccessReview, *dieauthorizationv1beta1.SelfSubjectAccessReviewDie, *dieauthorizationv1beta1.SelfSubjectAccessReviewDieMut]       = (*dieauthorizationv1beta1.SelfSubjectAccessReviewDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieauthorizationv1beta1.SelfSubjectAccessReview, *dieauthorizationv1beta1.SelfSubjectAccessReviewDie, *dieauthorizationv1beta1.SelfSubjectAccessReviewDieMut]    = (*dieauthorizationv1beta1.SelfSubjectAccessReviewDieMut)(nil)
-	_ dieobjects.DieObjectOf[dieauthorizationv1beta1.SelfSubjectRulesReview, *dieauthorizationv1beta1.SelfSubjectRulesReviewDie, *dieauthorizationv1beta1.SelfSubjectRulesReviewDieMut]          = (*dieauthorizationv1beta1.SelfSubjectRulesReviewDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieauthorizationv1beta1.SelfSubjectRulesReview, *dieauthorizationv1beta1.SelfSubjectRulesReviewDie, *dieauthorizationv1beta1.SelfSubjectRulesReviewDieMut]       = (*dieauthorizationv1beta1.SelfSubjectRulesReviewDieMut)(nil)
-	_ dieobjects.DieObjectOf[dieauthorizationv1beta1.SubjectAccessReview, *dieauthorizationv1beta1.SubjectAccessReviewDie, *dieauthorizationv1beta1.SubjectAccessReviewDieMut]                   = (*dieauthorizationv1beta1.SubjectAccessReviewDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieauthorizationv1beta1.SubjectAccessReview, *dieauthorizationv1beta1.SubjectAccessReviewDie, *dieauthorizationv1beta1.SubjectAccessReviewDieMut]                = (*dieauthorizationv1beta1.SubjectAccessReviewDieMut)(nil)
+	_ diefields.DieObjectOf[dieauthorizationv1beta1.LocalSubjectAccessReview, *dieauthorizationv1beta1.LocalSubjectAccessReviewDie, *dieauthorizationv1beta1.LocalSubjectAccessReviewDieMut]    = (*dieauthorizationv1beta1.LocalSubjectAccessReviewDie)(nil)
+	_ diefields.DieObjectMutOf[dieauthorizationv1beta1.LocalSubjectAccessReview, *dieauthorizationv1beta1.LocalSubjectAccessReviewDie, *dieauthorizationv1beta1.LocalSubjectAccessReviewDieMut] = (*dieauthorizationv1beta1.LocalSubjectAccessReviewDieMut)(nil)
+	_ diefields.DieObjectOf[dieauthorizationv1beta1.SelfSubjectAccessReview, *dieauthorizationv1beta1.SelfSubjectAccessReviewDie, *dieauthorizationv1beta1.SelfSubjectAccessReviewDieMut]       = (*dieauthorizationv1beta1.SelfSubjectAccessReviewDie)(nil)
+	_ diefields.DieObjectMutOf[dieauthorizationv1beta1.SelfSubjectAccessReview, *dieauthorizationv1beta1.SelfSubjectAccessReviewDie, *dieauthorizationv1beta1.SelfSubjectAccessReviewDieMut]    = (*dieauthorizationv1beta1.SelfSubjectAccessReviewDieMut)(nil)
+	_ diefields.DieObjectOf[dieauthorizationv1beta1.SelfSubjectRulesReview, *dieauthorizationv1beta1.SelfSubjectRulesReviewDie, *dieauthorizationv1beta1.SelfSubjectRulesReviewDieMut]          = (*dieauthorizationv1beta1.SelfSubjectRulesReviewDie)(nil)
+	_ diefields.DieObjectMutOf[dieauthorizationv1beta1.SelfSubjectRulesReview, *dieauthorizationv1beta1.SelfSubjectRulesReviewDie, *dieauthorizationv1beta1.SelfSubjectRulesReviewDieMut]       = (*dieauthorizationv1beta1.SelfSubjectRulesReviewDieMut)(nil)
+	_ diefields.DieObjectOf[dieauthorizationv1beta1.SubjectAccessReview, *dieauthorizationv1beta1.SubjectAccessReviewDie, *dieauthorizationv1beta1.SubjectAccessReviewDieMut]                   = (*dieauthorizationv1beta1.SubjectAccessReviewDie)(nil)
+	_ diefields.DieObjectMutOf[dieauthorizationv1beta1.SubjectAccessReview, *dieauthorizationv1beta1.SubjectAccessReviewDie, *dieauthorizationv1beta1.SubjectAccessReviewDieMut]                = (*dieauthorizationv1beta1.SubjectAccessReviewDieMut)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

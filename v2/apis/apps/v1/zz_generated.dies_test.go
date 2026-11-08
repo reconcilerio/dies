@@ -22,8 +22,8 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -68,21 +68,21 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[dieappsv1.ControllerRevision, *dieappsv1.ControllerRevisionDie, *dieappsv1.ControllerRevisionDieMut]    = (*dieappsv1.ControllerRevisionDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieappsv1.ControllerRevision, *dieappsv1.ControllerRevisionDie, *dieappsv1.ControllerRevisionDieMut] = (*dieappsv1.ControllerRevisionDieMut)(nil)
-	_ dieobjects.DieObjectOf[dieappsv1.DaemonSet, *dieappsv1.DaemonSetDie, *dieappsv1.DaemonSetDieMut]                               = (*dieappsv1.DaemonSetDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieappsv1.DaemonSet, *dieappsv1.DaemonSetDie, *dieappsv1.DaemonSetDieMut]                            = (*dieappsv1.DaemonSetDieMut)(nil)
-	_ dieobjects.DieObjectOf[dieappsv1.Deployment, *dieappsv1.DeploymentDie, *dieappsv1.DeploymentDieMut]                            = (*dieappsv1.DeploymentDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieappsv1.Deployment, *dieappsv1.DeploymentDie, *dieappsv1.DeploymentDieMut]                         = (*dieappsv1.DeploymentDieMut)(nil)
-	_ dieobjects.DieObjectOf[dieappsv1.ReplicaSet, *dieappsv1.ReplicaSetDie, *dieappsv1.ReplicaSetDieMut]                            = (*dieappsv1.ReplicaSetDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieappsv1.ReplicaSet, *dieappsv1.ReplicaSetDie, *dieappsv1.ReplicaSetDieMut]                         = (*dieappsv1.ReplicaSetDieMut)(nil)
-	_ dieobjects.DieObjectOf[dieappsv1.StatefulSet, *dieappsv1.StatefulSetDie, *dieappsv1.StatefulSetDieMut]                         = (*dieappsv1.StatefulSetDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieappsv1.StatefulSet, *dieappsv1.StatefulSetDie, *dieappsv1.StatefulSetDieMut]                      = (*dieappsv1.StatefulSetDieMut)(nil)
-	_ dielists.DieListOf[*dieappsv1.ControllerRevisionDieMut]                                                                        = (*dieappsv1.ControllerRevisionListDie)(nil)
-	_ dielists.DieListOf[*dieappsv1.DaemonSetDieMut]                                                                                 = (*dieappsv1.DaemonSetListDie)(nil)
-	_ dielists.DieListOf[*dieappsv1.DeploymentDieMut]                                                                                = (*dieappsv1.DeploymentListDie)(nil)
-	_ dielists.DieListOf[*dieappsv1.ReplicaSetDieMut]                                                                                = (*dieappsv1.ReplicaSetListDie)(nil)
-	_ dielists.DieListOf[*dieappsv1.StatefulSetDieMut]                                                                               = (*dieappsv1.StatefulSetListDie)(nil)
+	_ diefields.DieObjectOf[dieappsv1.ControllerRevision, *dieappsv1.ControllerRevisionDie, *dieappsv1.ControllerRevisionDieMut]    = (*dieappsv1.ControllerRevisionDie)(nil)
+	_ diefields.DieObjectMutOf[dieappsv1.ControllerRevision, *dieappsv1.ControllerRevisionDie, *dieappsv1.ControllerRevisionDieMut] = (*dieappsv1.ControllerRevisionDieMut)(nil)
+	_ diefields.DieObjectOf[dieappsv1.DaemonSet, *dieappsv1.DaemonSetDie, *dieappsv1.DaemonSetDieMut]                               = (*dieappsv1.DaemonSetDie)(nil)
+	_ diefields.DieObjectMutOf[dieappsv1.DaemonSet, *dieappsv1.DaemonSetDie, *dieappsv1.DaemonSetDieMut]                            = (*dieappsv1.DaemonSetDieMut)(nil)
+	_ diefields.DieObjectOf[dieappsv1.Deployment, *dieappsv1.DeploymentDie, *dieappsv1.DeploymentDieMut]                            = (*dieappsv1.DeploymentDie)(nil)
+	_ diefields.DieObjectMutOf[dieappsv1.Deployment, *dieappsv1.DeploymentDie, *dieappsv1.DeploymentDieMut]                         = (*dieappsv1.DeploymentDieMut)(nil)
+	_ diefields.DieObjectOf[dieappsv1.ReplicaSet, *dieappsv1.ReplicaSetDie, *dieappsv1.ReplicaSetDieMut]                            = (*dieappsv1.ReplicaSetDie)(nil)
+	_ diefields.DieObjectMutOf[dieappsv1.ReplicaSet, *dieappsv1.ReplicaSetDie, *dieappsv1.ReplicaSetDieMut]                         = (*dieappsv1.ReplicaSetDieMut)(nil)
+	_ diefields.DieObjectOf[dieappsv1.StatefulSet, *dieappsv1.StatefulSetDie, *dieappsv1.StatefulSetDieMut]                         = (*dieappsv1.StatefulSetDie)(nil)
+	_ diefields.DieObjectMutOf[dieappsv1.StatefulSet, *dieappsv1.StatefulSetDie, *dieappsv1.StatefulSetDieMut]                      = (*dieappsv1.StatefulSetDieMut)(nil)
+	_ dielists.DieListOf[*dieappsv1.ControllerRevisionDieMut]                                                                       = (*dieappsv1.ControllerRevisionListDie)(nil)
+	_ dielists.DieListOf[*dieappsv1.DaemonSetDieMut]                                                                                = (*dieappsv1.DaemonSetListDie)(nil)
+	_ dielists.DieListOf[*dieappsv1.DeploymentDieMut]                                                                               = (*dieappsv1.DeploymentListDie)(nil)
+	_ dielists.DieListOf[*dieappsv1.ReplicaSetDieMut]                                                                               = (*dieappsv1.ReplicaSetListDie)(nil)
+	_ dielists.DieListOf[*dieappsv1.StatefulSetDieMut]                                                                              = (*dieappsv1.StatefulSetListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

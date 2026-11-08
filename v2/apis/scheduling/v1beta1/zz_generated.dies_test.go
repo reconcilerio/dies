@@ -22,8 +22,8 @@ import (
 	schedulingv1beta1 "k8s.io/api/scheduling/v1beta1"
 	dieschedulingv1beta1 "reconciler.io/dies/v2/apis/scheduling/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -68,15 +68,15 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[dieschedulingv1beta1.PodGroup, *dieschedulingv1beta1.PodGroupDie, *dieschedulingv1beta1.PodGroupDieMut]                   = (*dieschedulingv1beta1.PodGroupDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieschedulingv1beta1.PodGroup, *dieschedulingv1beta1.PodGroupDie, *dieschedulingv1beta1.PodGroupDieMut]                = (*dieschedulingv1beta1.PodGroupDieMut)(nil)
-	_ dieobjects.DieObjectOf[dieschedulingv1beta1.PriorityClass, *dieschedulingv1beta1.PriorityClassDie, *dieschedulingv1beta1.PriorityClassDieMut]    = (*dieschedulingv1beta1.PriorityClassDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieschedulingv1beta1.PriorityClass, *dieschedulingv1beta1.PriorityClassDie, *dieschedulingv1beta1.PriorityClassDieMut] = (*dieschedulingv1beta1.PriorityClassDieMut)(nil)
-	_ dieobjects.DieObjectOf[dieschedulingv1beta1.Workload, *dieschedulingv1beta1.WorkloadDie, *dieschedulingv1beta1.WorkloadDieMut]                   = (*dieschedulingv1beta1.WorkloadDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieschedulingv1beta1.Workload, *dieschedulingv1beta1.WorkloadDie, *dieschedulingv1beta1.WorkloadDieMut]                = (*dieschedulingv1beta1.WorkloadDieMut)(nil)
-	_ dielists.DieListOf[*dieschedulingv1beta1.PodGroupDieMut]                                                                                         = (*dieschedulingv1beta1.PodGroupListDie)(nil)
-	_ dielists.DieListOf[*dieschedulingv1beta1.PriorityClassDieMut]                                                                                    = (*dieschedulingv1beta1.PriorityClassListDie)(nil)
-	_ dielists.DieListOf[*dieschedulingv1beta1.WorkloadDieMut]                                                                                         = (*dieschedulingv1beta1.WorkloadListDie)(nil)
+	_ diefields.DieObjectOf[dieschedulingv1beta1.PodGroup, *dieschedulingv1beta1.PodGroupDie, *dieschedulingv1beta1.PodGroupDieMut]                   = (*dieschedulingv1beta1.PodGroupDie)(nil)
+	_ diefields.DieObjectMutOf[dieschedulingv1beta1.PodGroup, *dieschedulingv1beta1.PodGroupDie, *dieschedulingv1beta1.PodGroupDieMut]                = (*dieschedulingv1beta1.PodGroupDieMut)(nil)
+	_ diefields.DieObjectOf[dieschedulingv1beta1.PriorityClass, *dieschedulingv1beta1.PriorityClassDie, *dieschedulingv1beta1.PriorityClassDieMut]    = (*dieschedulingv1beta1.PriorityClassDie)(nil)
+	_ diefields.DieObjectMutOf[dieschedulingv1beta1.PriorityClass, *dieschedulingv1beta1.PriorityClassDie, *dieschedulingv1beta1.PriorityClassDieMut] = (*dieschedulingv1beta1.PriorityClassDieMut)(nil)
+	_ diefields.DieObjectOf[dieschedulingv1beta1.Workload, *dieschedulingv1beta1.WorkloadDie, *dieschedulingv1beta1.WorkloadDieMut]                   = (*dieschedulingv1beta1.WorkloadDie)(nil)
+	_ diefields.DieObjectMutOf[dieschedulingv1beta1.Workload, *dieschedulingv1beta1.WorkloadDie, *dieschedulingv1beta1.WorkloadDieMut]                = (*dieschedulingv1beta1.WorkloadDieMut)(nil)
+	_ dielists.DieListOf[*dieschedulingv1beta1.PodGroupDieMut]                                                                                        = (*dieschedulingv1beta1.PodGroupListDie)(nil)
+	_ dielists.DieListOf[*dieschedulingv1beta1.PriorityClassDieMut]                                                                                   = (*dieschedulingv1beta1.PriorityClassListDie)(nil)
+	_ dielists.DieListOf[*dieschedulingv1beta1.WorkloadDieMut]                                                                                        = (*dieschedulingv1beta1.WorkloadListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

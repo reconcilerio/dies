@@ -22,8 +22,8 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	diebatchv1 "reconciler.io/dies/v2/apis/batch/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -56,12 +56,12 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[diebatchv1.CronJob, *diebatchv1.CronJobDie, *diebatchv1.CronJobDieMut]    = (*diebatchv1.CronJobDie)(nil)
-	_ dieobjects.DieObjectMutOf[diebatchv1.CronJob, *diebatchv1.CronJobDie, *diebatchv1.CronJobDieMut] = (*diebatchv1.CronJobDieMut)(nil)
-	_ dieobjects.DieObjectOf[diebatchv1.Job, *diebatchv1.JobDie, *diebatchv1.JobDieMut]                = (*diebatchv1.JobDie)(nil)
-	_ dieobjects.DieObjectMutOf[diebatchv1.Job, *diebatchv1.JobDie, *diebatchv1.JobDieMut]             = (*diebatchv1.JobDieMut)(nil)
-	_ dielists.DieListOf[*diebatchv1.CronJobDieMut]                                                    = (*diebatchv1.CronJobListDie)(nil)
-	_ dielists.DieListOf[*diebatchv1.JobDieMut]                                                        = (*diebatchv1.JobListDie)(nil)
+	_ diefields.DieObjectOf[diebatchv1.CronJob, *diebatchv1.CronJobDie, *diebatchv1.CronJobDieMut]    = (*diebatchv1.CronJobDie)(nil)
+	_ diefields.DieObjectMutOf[diebatchv1.CronJob, *diebatchv1.CronJobDie, *diebatchv1.CronJobDieMut] = (*diebatchv1.CronJobDieMut)(nil)
+	_ diefields.DieObjectOf[diebatchv1.Job, *diebatchv1.JobDie, *diebatchv1.JobDieMut]                = (*diebatchv1.JobDie)(nil)
+	_ diefields.DieObjectMutOf[diebatchv1.Job, *diebatchv1.JobDie, *diebatchv1.JobDieMut]             = (*diebatchv1.JobDieMut)(nil)
+	_ dielists.DieListOf[*diebatchv1.CronJobDieMut]                                                   = (*diebatchv1.CronJobListDie)(nil)
+	_ dielists.DieListOf[*diebatchv1.JobDieMut]                                                       = (*diebatchv1.JobListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

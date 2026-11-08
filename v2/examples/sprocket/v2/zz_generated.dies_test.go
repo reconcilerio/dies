@@ -20,7 +20,7 @@ package v2_test
 
 import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
-	dieobjects "reconciler.io/dies/v2/die/objects"
+	diefields "reconciler.io/dies/v2/die/fields"
 	sprocketv2 "reconciler.io/dies/v2/examples/sprocket/v2"
 	testing "testing"
 )
@@ -40,6 +40,6 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[sprocketv2.Sprocket, *sprocketv2.SprocketDie, *sprocketv2.SprocketDieMut]    = (*sprocketv2.SprocketDie)(nil)
-	_ dieobjects.DieObjectMutOf[sprocketv2.Sprocket, *sprocketv2.SprocketDie, *sprocketv2.SprocketDieMut] = (*sprocketv2.SprocketDieMut)(nil)
+	_ diefields.DieObjectOf[sprocketv2.Sprocket, *sprocketv2.SprocketDie, *sprocketv2.SprocketDieMut]    = (*sprocketv2.SprocketDie)(nil)
+	_ diefields.DieObjectMutOf[sprocketv2.Sprocket, *sprocketv2.SprocketDie, *sprocketv2.SprocketDieMut] = (*sprocketv2.SprocketDieMut)(nil)
 )

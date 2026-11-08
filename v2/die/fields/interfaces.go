@@ -35,3 +35,23 @@ type DieTypedMutOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] inter
 	APIVersion() ValueMut[string]
 	Kind() ValueMut[string]
 }
+
+// DieObjectOf carries an immutable object die's types for generic code, as
+// [DieTypedOf] does a typed die's, as a [base.DieObject]. It doesn't name
+// the die of the object's metadata, which is generated for a version of
+// apimachinery's meta/v1 and so isn't the die API's to choose: a package of
+// dies for meta/v1, such as reconciler.io/dies/v2/apis/meta/v1, has an
+// interface that adds its Metadata(). An unstructured die is a
+// [base.DieObject], but not a DieObjectOf: its fields are reached through its
+// nodes, not accessors.
+type DieObjectOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] interface {
+	DieTypedOf[T, D, M]
+	base.DieObject
+}
+
+// DieObjectMutOf carries a mutable object die's types for generic code, as
+// [DieObjectOf] does an immutable one's.
+type DieObjectMutOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] interface {
+	DieTypedMutOf[T, D, M]
+	base.DieObject
+}

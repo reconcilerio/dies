@@ -22,8 +22,8 @@ import (
 	nodev1beta1 "k8s.io/api/node/v1beta1"
 	dienodev1beta1 "reconciler.io/dies/v2/apis/node/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -42,9 +42,9 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[dienodev1beta1.RuntimeClass, *dienodev1beta1.RuntimeClassDie, *dienodev1beta1.RuntimeClassDieMut]    = (*dienodev1beta1.RuntimeClassDie)(nil)
-	_ dieobjects.DieObjectMutOf[dienodev1beta1.RuntimeClass, *dienodev1beta1.RuntimeClassDie, *dienodev1beta1.RuntimeClassDieMut] = (*dienodev1beta1.RuntimeClassDieMut)(nil)
-	_ dielists.DieListOf[*dienodev1beta1.RuntimeClassDieMut]                                                                      = (*dienodev1beta1.RuntimeClassListDie)(nil)
+	_ diefields.DieObjectOf[dienodev1beta1.RuntimeClass, *dienodev1beta1.RuntimeClassDie, *dienodev1beta1.RuntimeClassDieMut]    = (*dienodev1beta1.RuntimeClassDie)(nil)
+	_ diefields.DieObjectMutOf[dienodev1beta1.RuntimeClass, *dienodev1beta1.RuntimeClassDie, *dienodev1beta1.RuntimeClassDieMut] = (*dienodev1beta1.RuntimeClassDieMut)(nil)
+	_ dielists.DieListOf[*dienodev1beta1.RuntimeClassDieMut]                                                                     = (*dienodev1beta1.RuntimeClassListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

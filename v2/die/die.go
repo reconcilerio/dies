@@ -34,7 +34,6 @@ import (
 	"reconciler.io/dies/v2/die/base"
 	"reconciler.io/dies/v2/die/fields"
 	"reconciler.io/dies/v2/die/lists"
-	"reconciler.io/dies/v2/die/objects"
 )
 
 // Path is a location in an object's wire schema, such as
@@ -76,14 +75,16 @@ type DieTypedMutOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] = fie
 // metav1.Object.
 type DieObject = base.DieObject
 
-// DieObjectOf carries an immutable object die's types for generic code, with
-// its metadata's accessor. An unstructured die is a [DieObject], but not a
+// DieObjectOf carries an immutable object die's types for generic code. It
+// doesn't name the die of the object's metadata: a package of dies for
+// meta/v1, such as reconciler.io/dies/v2/apis/meta/v1, has an interface that
+// adds its Metadata(). An unstructured die is a [DieObject], but not a
 // DieObjectOf: its fields are reached through its nodes, not accessors.
-type DieObjectOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] = objects.DieObjectOf[T, D, M]
+type DieObjectOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] = fields.DieObjectOf[T, D, M]
 
-// DieObjectMutOf carries a mutable object die's types for generic code, with
-// its metadata's accessor and the unstructured feed.
-type DieObjectMutOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] = objects.DieObjectMutOf[T, D, M]
+// DieObjectMutOf carries a mutable object die's types for generic code, as
+// [DieObjectOf] does an immutable one's.
+type DieObjectMutOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] = fields.DieObjectMutOf[T, D, M]
 
 // DieList is a list die of any type, as the Kubernetes list interfaces see a
 // list.

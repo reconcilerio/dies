@@ -22,8 +22,8 @@ import (
 	flowcontrolv1 "k8s.io/api/flowcontrol/v1"
 	dieflowcontrolv1 "reconciler.io/dies/v2/apis/flowcontrol/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -61,12 +61,12 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[dieflowcontrolv1.FlowSchema, *dieflowcontrolv1.FlowSchemaDie, *dieflowcontrolv1.FlowSchemaDieMut]                                                    = (*dieflowcontrolv1.FlowSchemaDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieflowcontrolv1.FlowSchema, *dieflowcontrolv1.FlowSchemaDie, *dieflowcontrolv1.FlowSchemaDieMut]                                                 = (*dieflowcontrolv1.FlowSchemaDieMut)(nil)
-	_ dieobjects.DieObjectOf[dieflowcontrolv1.PriorityLevelConfiguration, *dieflowcontrolv1.PriorityLevelConfigurationDie, *dieflowcontrolv1.PriorityLevelConfigurationDieMut]    = (*dieflowcontrolv1.PriorityLevelConfigurationDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieflowcontrolv1.PriorityLevelConfiguration, *dieflowcontrolv1.PriorityLevelConfigurationDie, *dieflowcontrolv1.PriorityLevelConfigurationDieMut] = (*dieflowcontrolv1.PriorityLevelConfigurationDieMut)(nil)
-	_ dielists.DieListOf[*dieflowcontrolv1.FlowSchemaDieMut]                                                                                                                      = (*dieflowcontrolv1.FlowSchemaListDie)(nil)
-	_ dielists.DieListOf[*dieflowcontrolv1.PriorityLevelConfigurationDieMut]                                                                                                      = (*dieflowcontrolv1.PriorityLevelConfigurationListDie)(nil)
+	_ diefields.DieObjectOf[dieflowcontrolv1.FlowSchema, *dieflowcontrolv1.FlowSchemaDie, *dieflowcontrolv1.FlowSchemaDieMut]                                                    = (*dieflowcontrolv1.FlowSchemaDie)(nil)
+	_ diefields.DieObjectMutOf[dieflowcontrolv1.FlowSchema, *dieflowcontrolv1.FlowSchemaDie, *dieflowcontrolv1.FlowSchemaDieMut]                                                 = (*dieflowcontrolv1.FlowSchemaDieMut)(nil)
+	_ diefields.DieObjectOf[dieflowcontrolv1.PriorityLevelConfiguration, *dieflowcontrolv1.PriorityLevelConfigurationDie, *dieflowcontrolv1.PriorityLevelConfigurationDieMut]    = (*dieflowcontrolv1.PriorityLevelConfigurationDie)(nil)
+	_ diefields.DieObjectMutOf[dieflowcontrolv1.PriorityLevelConfiguration, *dieflowcontrolv1.PriorityLevelConfigurationDie, *dieflowcontrolv1.PriorityLevelConfigurationDieMut] = (*dieflowcontrolv1.PriorityLevelConfigurationDieMut)(nil)
+	_ dielists.DieListOf[*dieflowcontrolv1.FlowSchemaDieMut]                                                                                                                     = (*dieflowcontrolv1.FlowSchemaListDie)(nil)
+	_ dielists.DieListOf[*dieflowcontrolv1.PriorityLevelConfigurationDieMut]                                                                                                     = (*dieflowcontrolv1.PriorityLevelConfigurationListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

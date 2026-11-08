@@ -22,8 +22,8 @@ import (
 	storagev1 "k8s.io/api/storage/v1"
 	diestoragev1 "reconciler.io/dies/v2/apis/storage/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -62,24 +62,24 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[diestoragev1.CSIDriver, *diestoragev1.CSIDriverDie, *diestoragev1.CSIDriverDieMut]                                        = (*diestoragev1.CSIDriverDie)(nil)
-	_ dieobjects.DieObjectMutOf[diestoragev1.CSIDriver, *diestoragev1.CSIDriverDie, *diestoragev1.CSIDriverDieMut]                                     = (*diestoragev1.CSIDriverDieMut)(nil)
-	_ dieobjects.DieObjectOf[diestoragev1.CSINode, *diestoragev1.CSINodeDie, *diestoragev1.CSINodeDieMut]                                              = (*diestoragev1.CSINodeDie)(nil)
-	_ dieobjects.DieObjectMutOf[diestoragev1.CSINode, *diestoragev1.CSINodeDie, *diestoragev1.CSINodeDieMut]                                           = (*diestoragev1.CSINodeDieMut)(nil)
-	_ dieobjects.DieObjectOf[diestoragev1.CSIStorageCapacity, *diestoragev1.CSIStorageCapacityDie, *diestoragev1.CSIStorageCapacityDieMut]             = (*diestoragev1.CSIStorageCapacityDie)(nil)
-	_ dieobjects.DieObjectMutOf[diestoragev1.CSIStorageCapacity, *diestoragev1.CSIStorageCapacityDie, *diestoragev1.CSIStorageCapacityDieMut]          = (*diestoragev1.CSIStorageCapacityDieMut)(nil)
-	_ dieobjects.DieObjectOf[diestoragev1.StorageClass, *diestoragev1.StorageClassDie, *diestoragev1.StorageClassDieMut]                               = (*diestoragev1.StorageClassDie)(nil)
-	_ dieobjects.DieObjectMutOf[diestoragev1.StorageClass, *diestoragev1.StorageClassDie, *diestoragev1.StorageClassDieMut]                            = (*diestoragev1.StorageClassDieMut)(nil)
-	_ dieobjects.DieObjectOf[diestoragev1.VolumeAttachment, *diestoragev1.VolumeAttachmentDie, *diestoragev1.VolumeAttachmentDieMut]                   = (*diestoragev1.VolumeAttachmentDie)(nil)
-	_ dieobjects.DieObjectMutOf[diestoragev1.VolumeAttachment, *diestoragev1.VolumeAttachmentDie, *diestoragev1.VolumeAttachmentDieMut]                = (*diestoragev1.VolumeAttachmentDieMut)(nil)
-	_ dieobjects.DieObjectOf[diestoragev1.VolumeAttributesClass, *diestoragev1.VolumeAttributesClassDie, *diestoragev1.VolumeAttributesClassDieMut]    = (*diestoragev1.VolumeAttributesClassDie)(nil)
-	_ dieobjects.DieObjectMutOf[diestoragev1.VolumeAttributesClass, *diestoragev1.VolumeAttributesClassDie, *diestoragev1.VolumeAttributesClassDieMut] = (*diestoragev1.VolumeAttributesClassDieMut)(nil)
-	_ dielists.DieListOf[*diestoragev1.CSIDriverDieMut]                                                                                                = (*diestoragev1.CSIDriverListDie)(nil)
-	_ dielists.DieListOf[*diestoragev1.CSINodeDieMut]                                                                                                  = (*diestoragev1.CSINodeListDie)(nil)
-	_ dielists.DieListOf[*diestoragev1.CSIStorageCapacityDieMut]                                                                                       = (*diestoragev1.CSIStorageCapacityListDie)(nil)
-	_ dielists.DieListOf[*diestoragev1.StorageClassDieMut]                                                                                             = (*diestoragev1.StorageClassListDie)(nil)
-	_ dielists.DieListOf[*diestoragev1.VolumeAttachmentDieMut]                                                                                         = (*diestoragev1.VolumeAttachmentListDie)(nil)
-	_ dielists.DieListOf[*diestoragev1.VolumeAttributesClassDieMut]                                                                                    = (*diestoragev1.VolumeAttributesClassListDie)(nil)
+	_ diefields.DieObjectOf[diestoragev1.CSIDriver, *diestoragev1.CSIDriverDie, *diestoragev1.CSIDriverDieMut]                                        = (*diestoragev1.CSIDriverDie)(nil)
+	_ diefields.DieObjectMutOf[diestoragev1.CSIDriver, *diestoragev1.CSIDriverDie, *diestoragev1.CSIDriverDieMut]                                     = (*diestoragev1.CSIDriverDieMut)(nil)
+	_ diefields.DieObjectOf[diestoragev1.CSINode, *diestoragev1.CSINodeDie, *diestoragev1.CSINodeDieMut]                                              = (*diestoragev1.CSINodeDie)(nil)
+	_ diefields.DieObjectMutOf[diestoragev1.CSINode, *diestoragev1.CSINodeDie, *diestoragev1.CSINodeDieMut]                                           = (*diestoragev1.CSINodeDieMut)(nil)
+	_ diefields.DieObjectOf[diestoragev1.CSIStorageCapacity, *diestoragev1.CSIStorageCapacityDie, *diestoragev1.CSIStorageCapacityDieMut]             = (*diestoragev1.CSIStorageCapacityDie)(nil)
+	_ diefields.DieObjectMutOf[diestoragev1.CSIStorageCapacity, *diestoragev1.CSIStorageCapacityDie, *diestoragev1.CSIStorageCapacityDieMut]          = (*diestoragev1.CSIStorageCapacityDieMut)(nil)
+	_ diefields.DieObjectOf[diestoragev1.StorageClass, *diestoragev1.StorageClassDie, *diestoragev1.StorageClassDieMut]                               = (*diestoragev1.StorageClassDie)(nil)
+	_ diefields.DieObjectMutOf[diestoragev1.StorageClass, *diestoragev1.StorageClassDie, *diestoragev1.StorageClassDieMut]                            = (*diestoragev1.StorageClassDieMut)(nil)
+	_ diefields.DieObjectOf[diestoragev1.VolumeAttachment, *diestoragev1.VolumeAttachmentDie, *diestoragev1.VolumeAttachmentDieMut]                   = (*diestoragev1.VolumeAttachmentDie)(nil)
+	_ diefields.DieObjectMutOf[diestoragev1.VolumeAttachment, *diestoragev1.VolumeAttachmentDie, *diestoragev1.VolumeAttachmentDieMut]                = (*diestoragev1.VolumeAttachmentDieMut)(nil)
+	_ diefields.DieObjectOf[diestoragev1.VolumeAttributesClass, *diestoragev1.VolumeAttributesClassDie, *diestoragev1.VolumeAttributesClassDieMut]    = (*diestoragev1.VolumeAttributesClassDie)(nil)
+	_ diefields.DieObjectMutOf[diestoragev1.VolumeAttributesClass, *diestoragev1.VolumeAttributesClassDie, *diestoragev1.VolumeAttributesClassDieMut] = (*diestoragev1.VolumeAttributesClassDieMut)(nil)
+	_ dielists.DieListOf[*diestoragev1.CSIDriverDieMut]                                                                                               = (*diestoragev1.CSIDriverListDie)(nil)
+	_ dielists.DieListOf[*diestoragev1.CSINodeDieMut]                                                                                                 = (*diestoragev1.CSINodeListDie)(nil)
+	_ dielists.DieListOf[*diestoragev1.CSIStorageCapacityDieMut]                                                                                      = (*diestoragev1.CSIStorageCapacityListDie)(nil)
+	_ dielists.DieListOf[*diestoragev1.StorageClassDieMut]                                                                                            = (*diestoragev1.StorageClassListDie)(nil)
+	_ dielists.DieListOf[*diestoragev1.VolumeAttachmentDieMut]                                                                                        = (*diestoragev1.VolumeAttachmentListDie)(nil)
+	_ dielists.DieListOf[*diestoragev1.VolumeAttributesClassDieMut]                                                                                   = (*diestoragev1.VolumeAttributesClassListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

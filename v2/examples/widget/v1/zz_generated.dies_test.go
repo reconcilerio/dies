@@ -20,7 +20,7 @@ package v1_test
 
 import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
-	dieobjects "reconciler.io/dies/v2/die/objects"
+	diefields "reconciler.io/dies/v2/die/fields"
 	widgetv1 "reconciler.io/dies/v2/examples/widget/v1"
 	testing "testing"
 )
@@ -44,8 +44,8 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[widgetv1.Templated, *widgetv1.TemplatedDie, *widgetv1.TemplatedDieMut]    = (*widgetv1.TemplatedDie)(nil)
-	_ dieobjects.DieObjectMutOf[widgetv1.Templated, *widgetv1.TemplatedDie, *widgetv1.TemplatedDieMut] = (*widgetv1.TemplatedDieMut)(nil)
-	_ dieobjects.DieObjectOf[widgetv1.Widget, *widgetv1.WidgetDie, *widgetv1.WidgetDieMut]             = (*widgetv1.WidgetDie)(nil)
-	_ dieobjects.DieObjectMutOf[widgetv1.Widget, *widgetv1.WidgetDie, *widgetv1.WidgetDieMut]          = (*widgetv1.WidgetDieMut)(nil)
+	_ diefields.DieObjectOf[widgetv1.Templated, *widgetv1.TemplatedDie, *widgetv1.TemplatedDieMut]    = (*widgetv1.TemplatedDie)(nil)
+	_ diefields.DieObjectMutOf[widgetv1.Templated, *widgetv1.TemplatedDie, *widgetv1.TemplatedDieMut] = (*widgetv1.TemplatedDieMut)(nil)
+	_ diefields.DieObjectOf[widgetv1.Widget, *widgetv1.WidgetDie, *widgetv1.WidgetDieMut]             = (*widgetv1.WidgetDie)(nil)
+	_ diefields.DieObjectMutOf[widgetv1.Widget, *widgetv1.WidgetDie, *widgetv1.WidgetDieMut]          = (*widgetv1.WidgetDieMut)(nil)
 )

@@ -22,8 +22,8 @@ import (
 	apiregistrationv1 "k8s.io/kube-aggregator/pkg/apis/apiregistration/v1"
 	dieapiregistrationv1 "reconciler.io/dies/v2/apis/apiregistration/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -44,9 +44,9 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[dieapiregistrationv1.APIService, *dieapiregistrationv1.APIServiceDie, *dieapiregistrationv1.APIServiceDieMut]    = (*dieapiregistrationv1.APIServiceDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieapiregistrationv1.APIService, *dieapiregistrationv1.APIServiceDie, *dieapiregistrationv1.APIServiceDieMut] = (*dieapiregistrationv1.APIServiceDieMut)(nil)
-	_ dielists.DieListOf[*dieapiregistrationv1.APIServiceDieMut]                                                                              = (*dieapiregistrationv1.APIServiceListDie)(nil)
+	_ diefields.DieObjectOf[dieapiregistrationv1.APIService, *dieapiregistrationv1.APIServiceDie, *dieapiregistrationv1.APIServiceDieMut]    = (*dieapiregistrationv1.APIServiceDie)(nil)
+	_ diefields.DieObjectMutOf[dieapiregistrationv1.APIService, *dieapiregistrationv1.APIServiceDie, *dieapiregistrationv1.APIServiceDieMut] = (*dieapiregistrationv1.APIServiceDieMut)(nil)
+	_ dielists.DieListOf[*dieapiregistrationv1.APIServiceDieMut]                                                                             = (*dieapiregistrationv1.APIServiceListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

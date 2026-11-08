@@ -22,8 +22,8 @@ import (
 	lifecyclev1alpha1 "k8s.io/api/lifecycle/v1alpha1"
 	dielifecyclev1alpha1 "reconciler.io/dies/v2/apis/lifecycle/v1alpha1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -53,12 +53,12 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[dielifecyclev1alpha1.Eviction, *dielifecyclev1alpha1.EvictionDie, *dielifecyclev1alpha1.EvictionDieMut]                         = (*dielifecyclev1alpha1.EvictionDie)(nil)
-	_ dieobjects.DieObjectMutOf[dielifecyclev1alpha1.Eviction, *dielifecyclev1alpha1.EvictionDie, *dielifecyclev1alpha1.EvictionDieMut]                      = (*dielifecyclev1alpha1.EvictionDieMut)(nil)
-	_ dieobjects.DieObjectOf[dielifecyclev1alpha1.EvictionRequest, *dielifecyclev1alpha1.EvictionRequestDie, *dielifecyclev1alpha1.EvictionRequestDieMut]    = (*dielifecyclev1alpha1.EvictionRequestDie)(nil)
-	_ dieobjects.DieObjectMutOf[dielifecyclev1alpha1.EvictionRequest, *dielifecyclev1alpha1.EvictionRequestDie, *dielifecyclev1alpha1.EvictionRequestDieMut] = (*dielifecyclev1alpha1.EvictionRequestDieMut)(nil)
-	_ dielists.DieListOf[*dielifecyclev1alpha1.EvictionDieMut]                                                                                               = (*dielifecyclev1alpha1.EvictionListDie)(nil)
-	_ dielists.DieListOf[*dielifecyclev1alpha1.EvictionRequestDieMut]                                                                                        = (*dielifecyclev1alpha1.EvictionRequestListDie)(nil)
+	_ diefields.DieObjectOf[dielifecyclev1alpha1.Eviction, *dielifecyclev1alpha1.EvictionDie, *dielifecyclev1alpha1.EvictionDieMut]                         = (*dielifecyclev1alpha1.EvictionDie)(nil)
+	_ diefields.DieObjectMutOf[dielifecyclev1alpha1.Eviction, *dielifecyclev1alpha1.EvictionDie, *dielifecyclev1alpha1.EvictionDieMut]                      = (*dielifecyclev1alpha1.EvictionDieMut)(nil)
+	_ diefields.DieObjectOf[dielifecyclev1alpha1.EvictionRequest, *dielifecyclev1alpha1.EvictionRequestDie, *dielifecyclev1alpha1.EvictionRequestDieMut]    = (*dielifecyclev1alpha1.EvictionRequestDie)(nil)
+	_ diefields.DieObjectMutOf[dielifecyclev1alpha1.EvictionRequest, *dielifecyclev1alpha1.EvictionRequestDie, *dielifecyclev1alpha1.EvictionRequestDieMut] = (*dielifecyclev1alpha1.EvictionRequestDieMut)(nil)
+	_ dielists.DieListOf[*dielifecyclev1alpha1.EvictionDieMut]                                                                                              = (*dielifecyclev1alpha1.EvictionListDie)(nil)
+	_ dielists.DieListOf[*dielifecyclev1alpha1.EvictionRequestDieMut]                                                                                       = (*dielifecyclev1alpha1.EvictionRequestListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

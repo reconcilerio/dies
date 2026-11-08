@@ -22,8 +22,8 @@ import (
 	discoveryv1 "k8s.io/api/discovery/v1"
 	diediscoveryv1 "reconciler.io/dies/v2/apis/discovery/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -46,9 +46,9 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[diediscoveryv1.EndpointSlice, *diediscoveryv1.EndpointSliceDie, *diediscoveryv1.EndpointSliceDieMut]    = (*diediscoveryv1.EndpointSliceDie)(nil)
-	_ dieobjects.DieObjectMutOf[diediscoveryv1.EndpointSlice, *diediscoveryv1.EndpointSliceDie, *diediscoveryv1.EndpointSliceDieMut] = (*diediscoveryv1.EndpointSliceDieMut)(nil)
-	_ dielists.DieListOf[*diediscoveryv1.EndpointSliceDieMut]                                                                        = (*diediscoveryv1.EndpointSliceListDie)(nil)
+	_ diefields.DieObjectOf[diediscoveryv1.EndpointSlice, *diediscoveryv1.EndpointSliceDie, *diediscoveryv1.EndpointSliceDieMut]    = (*diediscoveryv1.EndpointSliceDie)(nil)
+	_ diefields.DieObjectMutOf[diediscoveryv1.EndpointSlice, *diediscoveryv1.EndpointSliceDie, *diediscoveryv1.EndpointSliceDieMut] = (*diediscoveryv1.EndpointSliceDieMut)(nil)
+	_ dielists.DieListOf[*diediscoveryv1.EndpointSliceDieMut]                                                                       = (*diediscoveryv1.EndpointSliceListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

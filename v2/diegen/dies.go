@@ -768,10 +768,6 @@ func (pg *pkgGen) objectBase(tg *target, name, dname string) dieBase {
 			continue
 		}
 		if n.Obj().Name() == "ObjectMeta" {
-			// DieObjectOf names the dies of meta/v1, which can't import it
-			if pg.p.PkgPath == "reconciler.io/dies/v2/apis/meta/v1" {
-				return dieBase{"DieObjectBase", "DieObjectMutBase", "die.AsObject(b)", "die.AsObjectMut(b)", "die.DieTypedOf", "die.DieTypedMutOf"}
-			}
 			return dieBase{"DieObjectBase", "DieObjectMutBase", "die.AsObject(b)", "die.AsObjectMut(b)", "die.DieObjectOf", "die.DieObjectMutOf"}
 		}
 	}

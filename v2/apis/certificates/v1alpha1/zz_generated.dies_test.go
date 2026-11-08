@@ -22,8 +22,8 @@ import (
 	certificatesv1alpha1 "k8s.io/api/certificates/v1alpha1"
 	diecertificatesv1alpha1 "reconciler.io/dies/v2/apis/certificates/v1alpha1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -41,9 +41,9 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[diecertificatesv1alpha1.ClusterTrustBundle, *diecertificatesv1alpha1.ClusterTrustBundleDie, *diecertificatesv1alpha1.ClusterTrustBundleDieMut]    = (*diecertificatesv1alpha1.ClusterTrustBundleDie)(nil)
-	_ dieobjects.DieObjectMutOf[diecertificatesv1alpha1.ClusterTrustBundle, *diecertificatesv1alpha1.ClusterTrustBundleDie, *diecertificatesv1alpha1.ClusterTrustBundleDieMut] = (*diecertificatesv1alpha1.ClusterTrustBundleDieMut)(nil)
-	_ dielists.DieListOf[*diecertificatesv1alpha1.ClusterTrustBundleDieMut]                                                                                                    = (*diecertificatesv1alpha1.ClusterTrustBundleListDie)(nil)
+	_ diefields.DieObjectOf[diecertificatesv1alpha1.ClusterTrustBundle, *diecertificatesv1alpha1.ClusterTrustBundleDie, *diecertificatesv1alpha1.ClusterTrustBundleDieMut]    = (*diecertificatesv1alpha1.ClusterTrustBundleDie)(nil)
+	_ diefields.DieObjectMutOf[diecertificatesv1alpha1.ClusterTrustBundle, *diecertificatesv1alpha1.ClusterTrustBundleDie, *diecertificatesv1alpha1.ClusterTrustBundleDieMut] = (*diecertificatesv1alpha1.ClusterTrustBundleDieMut)(nil)
+	_ dielists.DieListOf[*diecertificatesv1alpha1.ClusterTrustBundleDieMut]                                                                                                   = (*diecertificatesv1alpha1.ClusterTrustBundleListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

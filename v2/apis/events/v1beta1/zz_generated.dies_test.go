@@ -22,8 +22,8 @@ import (
 	eventsv1beta1 "k8s.io/api/events/v1beta1"
 	dieeventsv1beta1 "reconciler.io/dies/v2/apis/events/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -41,9 +41,9 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[dieeventsv1beta1.Event, *dieeventsv1beta1.EventDie, *dieeventsv1beta1.EventDieMut]    = (*dieeventsv1beta1.EventDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieeventsv1beta1.Event, *dieeventsv1beta1.EventDie, *dieeventsv1beta1.EventDieMut] = (*dieeventsv1beta1.EventDieMut)(nil)
-	_ dielists.DieListOf[*dieeventsv1beta1.EventDieMut]                                                            = (*dieeventsv1beta1.EventListDie)(nil)
+	_ diefields.DieObjectOf[dieeventsv1beta1.Event, *dieeventsv1beta1.EventDie, *dieeventsv1beta1.EventDieMut]    = (*dieeventsv1beta1.EventDie)(nil)
+	_ diefields.DieObjectMutOf[dieeventsv1beta1.Event, *dieeventsv1beta1.EventDie, *dieeventsv1beta1.EventDieMut] = (*dieeventsv1beta1.EventDieMut)(nil)
+	_ dielists.DieListOf[*dieeventsv1beta1.EventDieMut]                                                           = (*dieeventsv1beta1.EventListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

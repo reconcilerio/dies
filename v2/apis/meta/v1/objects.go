@@ -14,32 +14,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package objects has the interface of object dies for generic code,
-// [DieObjectOf], apart from the base of dies, as it names the die of an
-// object's metadata, from apis/meta/v1.
-package objects
+package v1
 
 import (
-	diemetav1 "reconciler.io/dies/v2/apis/meta/v1"
 	"reconciler.io/dies/v2/die/base"
 	"reconciler.io/dies/v2/die/fields"
 )
 
 // DieObjectOf carries an immutable object die's types for generic code, as
-// [fields.DieTypedOf] does a typed die's, with its metadata's accessor.
-// Generated object dies check they satisfy it; die.DieObjectOf is the same
-// interface. An unstructured die is a [base.DieObject], but not a DieObjectOf:
-// its fields are reached through its nodes, not accessors.
+// die.DieObjectOf does, with the accessor of its metadata's die, from this
+// package. The die API's interface doesn't name a die of meta/v1, so that it
+// doesn't depend on one; code that reaches into an object's metadata through
+// its die names this one instead.
 type DieObjectOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] interface {
-	fields.DieTypedOf[T, D, M]
-	base.DieObject
-	Metadata() *diemetav1.ObjectMetaDie
+	fields.DieObjectOf[T, D, M]
+	Metadata() *ObjectMetaDie
 }
 
 // DieObjectMutOf carries a mutable object die's types for generic code, as
 // [DieObjectOf] does an immutable one's.
 type DieObjectMutOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] interface {
-	fields.DieTypedMutOf[T, D, M]
-	base.DieObject
-	Metadata() *diemetav1.ObjectMetaDieMut
+	fields.DieObjectMutOf[T, D, M]
+	Metadata() *ObjectMetaDieMut
 }

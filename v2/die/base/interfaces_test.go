@@ -26,6 +26,7 @@ import (
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
+	diemetav1 "reconciler.io/dies/v2/apis/meta/v1"
 	"reconciler.io/dies/v2/die"
 	"reconciler.io/dies/v2/die/base"
 	"reconciler.io/dies/v2/die/lists"
@@ -58,8 +59,9 @@ var (
 )
 
 // Generic code over DieOf calls a die's methods directly, and writes
-// through its mutable die.
-func stampName[T any, D die.DieObjectOf[T, D, M], M die.DieObjectMutOf[T, D, M]](t testing.TB, d D, name string) D {
+// through its mutable die; it reaches the metadata's die through the
+// interface of the package of meta/v1's dies.
+func stampName[T any, D diemetav1.DieObjectOf[T, D, M], M diemetav1.DieObjectMutOf[T, D, M]](t testing.TB, d D, name string) D {
 	return d.DieStamp(func(m M) {
 		dietesting.NoError(t, m.Metadata().Name().Set(name))
 		dietesting.NoError(t, m.APIVersion().Set("apps/v1"))

@@ -22,8 +22,8 @@ import (
 	certificatesv1 "k8s.io/api/certificates/v1"
 	diecertificatesv1 "reconciler.io/dies/v2/apis/certificates/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -50,15 +50,15 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[diecertificatesv1.CertificateSigningRequest, *diecertificatesv1.CertificateSigningRequestDie, *diecertificatesv1.CertificateSigningRequestDieMut]    = (*diecertificatesv1.CertificateSigningRequestDie)(nil)
-	_ dieobjects.DieObjectMutOf[diecertificatesv1.CertificateSigningRequest, *diecertificatesv1.CertificateSigningRequestDie, *diecertificatesv1.CertificateSigningRequestDieMut] = (*diecertificatesv1.CertificateSigningRequestDieMut)(nil)
-	_ dieobjects.DieObjectOf[diecertificatesv1.ClusterTrustBundle, *diecertificatesv1.ClusterTrustBundleDie, *diecertificatesv1.ClusterTrustBundleDieMut]                         = (*diecertificatesv1.ClusterTrustBundleDie)(nil)
-	_ dieobjects.DieObjectMutOf[diecertificatesv1.ClusterTrustBundle, *diecertificatesv1.ClusterTrustBundleDie, *diecertificatesv1.ClusterTrustBundleDieMut]                      = (*diecertificatesv1.ClusterTrustBundleDieMut)(nil)
-	_ dieobjects.DieObjectOf[diecertificatesv1.PodCertificateRequest, *diecertificatesv1.PodCertificateRequestDie, *diecertificatesv1.PodCertificateRequestDieMut]                = (*diecertificatesv1.PodCertificateRequestDie)(nil)
-	_ dieobjects.DieObjectMutOf[diecertificatesv1.PodCertificateRequest, *diecertificatesv1.PodCertificateRequestDie, *diecertificatesv1.PodCertificateRequestDieMut]             = (*diecertificatesv1.PodCertificateRequestDieMut)(nil)
-	_ dielists.DieListOf[*diecertificatesv1.CertificateSigningRequestDieMut]                                                                                                      = (*diecertificatesv1.CertificateSigningRequestListDie)(nil)
-	_ dielists.DieListOf[*diecertificatesv1.ClusterTrustBundleDieMut]                                                                                                             = (*diecertificatesv1.ClusterTrustBundleListDie)(nil)
-	_ dielists.DieListOf[*diecertificatesv1.PodCertificateRequestDieMut]                                                                                                          = (*diecertificatesv1.PodCertificateRequestListDie)(nil)
+	_ diefields.DieObjectOf[diecertificatesv1.CertificateSigningRequest, *diecertificatesv1.CertificateSigningRequestDie, *diecertificatesv1.CertificateSigningRequestDieMut]    = (*diecertificatesv1.CertificateSigningRequestDie)(nil)
+	_ diefields.DieObjectMutOf[diecertificatesv1.CertificateSigningRequest, *diecertificatesv1.CertificateSigningRequestDie, *diecertificatesv1.CertificateSigningRequestDieMut] = (*diecertificatesv1.CertificateSigningRequestDieMut)(nil)
+	_ diefields.DieObjectOf[diecertificatesv1.ClusterTrustBundle, *diecertificatesv1.ClusterTrustBundleDie, *diecertificatesv1.ClusterTrustBundleDieMut]                         = (*diecertificatesv1.ClusterTrustBundleDie)(nil)
+	_ diefields.DieObjectMutOf[diecertificatesv1.ClusterTrustBundle, *diecertificatesv1.ClusterTrustBundleDie, *diecertificatesv1.ClusterTrustBundleDieMut]                      = (*diecertificatesv1.ClusterTrustBundleDieMut)(nil)
+	_ diefields.DieObjectOf[diecertificatesv1.PodCertificateRequest, *diecertificatesv1.PodCertificateRequestDie, *diecertificatesv1.PodCertificateRequestDieMut]                = (*diecertificatesv1.PodCertificateRequestDie)(nil)
+	_ diefields.DieObjectMutOf[diecertificatesv1.PodCertificateRequest, *diecertificatesv1.PodCertificateRequestDie, *diecertificatesv1.PodCertificateRequestDieMut]             = (*diecertificatesv1.PodCertificateRequestDieMut)(nil)
+	_ dielists.DieListOf[*diecertificatesv1.CertificateSigningRequestDieMut]                                                                                                     = (*diecertificatesv1.CertificateSigningRequestListDie)(nil)
+	_ dielists.DieListOf[*diecertificatesv1.ClusterTrustBundleDieMut]                                                                                                            = (*diecertificatesv1.ClusterTrustBundleListDie)(nil)
+	_ dielists.DieListOf[*diecertificatesv1.PodCertificateRequestDieMut]                                                                                                         = (*diecertificatesv1.PodCertificateRequestListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

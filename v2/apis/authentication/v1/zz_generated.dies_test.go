@@ -22,7 +22,7 @@ import (
 	authenticationv1 "k8s.io/api/authentication/v1"
 	dieauthenticationv1 "reconciler.io/dies/v2/apis/authentication/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
-	dieobjects "reconciler.io/dies/v2/die/objects"
+	diefields "reconciler.io/dies/v2/die/fields"
 	testing "testing"
 )
 
@@ -47,12 +47,12 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[dieauthenticationv1.SelfSubjectReview, *dieauthenticationv1.SelfSubjectReviewDie, *dieauthenticationv1.SelfSubjectReviewDieMut]    = (*dieauthenticationv1.SelfSubjectReviewDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieauthenticationv1.SelfSubjectReview, *dieauthenticationv1.SelfSubjectReviewDie, *dieauthenticationv1.SelfSubjectReviewDieMut] = (*dieauthenticationv1.SelfSubjectReviewDieMut)(nil)
-	_ dieobjects.DieObjectOf[dieauthenticationv1.TokenRequest, *dieauthenticationv1.TokenRequestDie, *dieauthenticationv1.TokenRequestDieMut]                   = (*dieauthenticationv1.TokenRequestDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieauthenticationv1.TokenRequest, *dieauthenticationv1.TokenRequestDie, *dieauthenticationv1.TokenRequestDieMut]                = (*dieauthenticationv1.TokenRequestDieMut)(nil)
-	_ dieobjects.DieObjectOf[dieauthenticationv1.TokenReview, *dieauthenticationv1.TokenReviewDie, *dieauthenticationv1.TokenReviewDieMut]                      = (*dieauthenticationv1.TokenReviewDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieauthenticationv1.TokenReview, *dieauthenticationv1.TokenReviewDie, *dieauthenticationv1.TokenReviewDieMut]                   = (*dieauthenticationv1.TokenReviewDieMut)(nil)
+	_ diefields.DieObjectOf[dieauthenticationv1.SelfSubjectReview, *dieauthenticationv1.SelfSubjectReviewDie, *dieauthenticationv1.SelfSubjectReviewDieMut]    = (*dieauthenticationv1.SelfSubjectReviewDie)(nil)
+	_ diefields.DieObjectMutOf[dieauthenticationv1.SelfSubjectReview, *dieauthenticationv1.SelfSubjectReviewDie, *dieauthenticationv1.SelfSubjectReviewDieMut] = (*dieauthenticationv1.SelfSubjectReviewDieMut)(nil)
+	_ diefields.DieObjectOf[dieauthenticationv1.TokenRequest, *dieauthenticationv1.TokenRequestDie, *dieauthenticationv1.TokenRequestDieMut]                   = (*dieauthenticationv1.TokenRequestDie)(nil)
+	_ diefields.DieObjectMutOf[dieauthenticationv1.TokenRequest, *dieauthenticationv1.TokenRequestDie, *dieauthenticationv1.TokenRequestDieMut]                = (*dieauthenticationv1.TokenRequestDieMut)(nil)
+	_ diefields.DieObjectOf[dieauthenticationv1.TokenReview, *dieauthenticationv1.TokenReviewDie, *dieauthenticationv1.TokenReviewDieMut]                      = (*dieauthenticationv1.TokenReviewDie)(nil)
+	_ diefields.DieObjectMutOf[dieauthenticationv1.TokenReview, *dieauthenticationv1.TokenReviewDie, *dieauthenticationv1.TokenReviewDieMut]                   = (*dieauthenticationv1.TokenReviewDieMut)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {

@@ -22,8 +22,8 @@ import (
 	schedulingv1 "k8s.io/api/scheduling/v1"
 	dieschedulingv1 "reconciler.io/dies/v2/apis/scheduling/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -40,9 +40,9 @@ func TestDiesMatchTypes(t *testing.T) {
 
 // typed, object and list dies have the methods of their interfaces
 var (
-	_ dieobjects.DieObjectOf[dieschedulingv1.PriorityClass, *dieschedulingv1.PriorityClassDie, *dieschedulingv1.PriorityClassDieMut]    = (*dieschedulingv1.PriorityClassDie)(nil)
-	_ dieobjects.DieObjectMutOf[dieschedulingv1.PriorityClass, *dieschedulingv1.PriorityClassDie, *dieschedulingv1.PriorityClassDieMut] = (*dieschedulingv1.PriorityClassDieMut)(nil)
-	_ dielists.DieListOf[*dieschedulingv1.PriorityClassDieMut]                                                                          = (*dieschedulingv1.PriorityClassListDie)(nil)
+	_ diefields.DieObjectOf[dieschedulingv1.PriorityClass, *dieschedulingv1.PriorityClassDie, *dieschedulingv1.PriorityClassDieMut]    = (*dieschedulingv1.PriorityClassDie)(nil)
+	_ diefields.DieObjectMutOf[dieschedulingv1.PriorityClass, *dieschedulingv1.PriorityClassDie, *dieschedulingv1.PriorityClassDieMut] = (*dieschedulingv1.PriorityClassDieMut)(nil)
+	_ dielists.DieListOf[*dieschedulingv1.PriorityClassDieMut]                                                                         = (*dieschedulingv1.PriorityClassListDie)(nil)
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
