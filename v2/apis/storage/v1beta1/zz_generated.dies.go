@@ -31,6 +31,7 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
+	dieschemes "reconciler.io/dies/v2/die/schemes"
 )
 
 // +kubebuilder:object:generate=false
@@ -3155,26 +3156,62 @@ func (d *VolumeNodeResourcesDieMut) Count() diefields.OptionalMut[int32] {
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "storage.k8s.io", Version: "v1beta1"}
 
-// SchemeBuilder registers this package's mutable object dies, and list
-// dies, as the Go types of their kinds, in place of the upstream types.
-var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
+// SchemeBuilder registers this package's objects and lists, of each
+// category: their Go types, their immutable dies and their mutable dies,
+// each as the type of its kind. Its AddToComposite registers each in its
+// scheme of a composite scheme.
+var SchemeBuilder = dieschemes.NewBuilder(addKnownTypes)
 
-// AddToScheme registers this package's dies with a scheme.
+// AddToScheme registers this package's mutable dies, and list dies, with a
+// scheme, as the Go types of their kinds, in place of the upstream types,
+// for clients to decode into. SchemeBuilder.AddToSchemeAs registers
+// another category.
 var AddToScheme = SchemeBuilder.AddToScheme
 
-func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSIDriver"), &CSIDriverDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSIDriverList"), &CSIDriverListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSINode"), &CSINodeDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSINodeList"), &CSINodeListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSIStorageCapacity"), &CSIStorageCapacityDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSIStorageCapacityList"), &CSIStorageCapacityListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("StorageClass"), &StorageClassDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("StorageClassList"), &StorageClassListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("VolumeAttachment"), &VolumeAttachmentDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("VolumeAttachmentList"), &VolumeAttachmentListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("VolumeAttributesClass"), &VolumeAttributesClassDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("VolumeAttributesClassList"), &VolumeAttributesClassListDie{})
+func addKnownTypes(scheme *runtime.Scheme, c dieschemes.Category) error {
+	switch c {
+	case dieschemes.Types:
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSIDriver"), &CSIDriver{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSIDriverList"), &CSIDriverList{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSINode"), &CSINode{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSINodeList"), &CSINodeList{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSIStorageCapacity"), &CSIStorageCapacity{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSIStorageCapacityList"), &CSIStorageCapacityList{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("StorageClass"), &StorageClass{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("StorageClassList"), &StorageClassList{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("VolumeAttachment"), &VolumeAttachment{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("VolumeAttachmentList"), &VolumeAttachmentList{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("VolumeAttributesClass"), &VolumeAttributesClass{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("VolumeAttributesClassList"), &VolumeAttributesClassList{})
+	case dieschemes.Dies:
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSIDriver"), &CSIDriverDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSIDriverList"), &CSIDriverListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSINode"), &CSINodeDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSINodeList"), &CSINodeListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSIStorageCapacity"), &CSIStorageCapacityDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSIStorageCapacityList"), &CSIStorageCapacityListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("StorageClass"), &StorageClassDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("StorageClassList"), &StorageClassListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("VolumeAttachment"), &VolumeAttachmentDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("VolumeAttachmentList"), &VolumeAttachmentListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("VolumeAttributesClass"), &VolumeAttributesClassDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("VolumeAttributesClassList"), &VolumeAttributesClassListDie{})
+	case dieschemes.DieMuts:
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSIDriver"), &CSIDriverDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSIDriverList"), &CSIDriverListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSINode"), &CSINodeDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSINodeList"), &CSINodeListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSIStorageCapacity"), &CSIStorageCapacityDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CSIStorageCapacityList"), &CSIStorageCapacityListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("StorageClass"), &StorageClassDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("StorageClassList"), &StorageClassListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("VolumeAttachment"), &VolumeAttachmentDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("VolumeAttachmentList"), &VolumeAttachmentListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("VolumeAttributesClass"), &VolumeAttributesClassDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("VolumeAttributesClassList"), &VolumeAttributesClassListDie{})
+	default:
+		return dieschemes.CheckCategory(c)
+	}
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }

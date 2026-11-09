@@ -30,6 +30,7 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
+	dieschemes "reconciler.io/dies/v2/die/schemes"
 )
 
 // +kubebuilder:object:generate=false
@@ -3883,22 +3884,50 @@ func (d *VariableDieMut) Expression() diefields.ValueMut[string] {
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "admissionregistration.k8s.io", Version: "v1alpha1"}
 
-// SchemeBuilder registers this package's mutable object dies, and list
-// dies, as the Go types of their kinds, in place of the upstream types.
-var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
+// SchemeBuilder registers this package's objects and lists, of each
+// category: their Go types, their immutable dies and their mutable dies,
+// each as the type of its kind. Its AddToComposite registers each in its
+// scheme of a composite scheme.
+var SchemeBuilder = dieschemes.NewBuilder(addKnownTypes)
 
-// AddToScheme registers this package's dies with a scheme.
+// AddToScheme registers this package's mutable dies, and list dies, with a
+// scheme, as the Go types of their kinds, in place of the upstream types,
+// for clients to decode into. SchemeBuilder.AddToSchemeAs registers
+// another category.
 var AddToScheme = SchemeBuilder.AddToScheme
 
-func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("MutatingAdmissionPolicy"), &MutatingAdmissionPolicyDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("MutatingAdmissionPolicyBinding"), &MutatingAdmissionPolicyBindingDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("MutatingAdmissionPolicyBindingList"), &MutatingAdmissionPolicyBindingListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("MutatingAdmissionPolicyList"), &MutatingAdmissionPolicyListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ValidatingAdmissionPolicy"), &ValidatingAdmissionPolicyDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ValidatingAdmissionPolicyBinding"), &ValidatingAdmissionPolicyBindingDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ValidatingAdmissionPolicyBindingList"), &ValidatingAdmissionPolicyBindingListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ValidatingAdmissionPolicyList"), &ValidatingAdmissionPolicyListDie{})
+func addKnownTypes(scheme *runtime.Scheme, c dieschemes.Category) error {
+	switch c {
+	case dieschemes.Types:
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("MutatingAdmissionPolicy"), &MutatingAdmissionPolicy{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("MutatingAdmissionPolicyBinding"), &MutatingAdmissionPolicyBinding{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("MutatingAdmissionPolicyBindingList"), &MutatingAdmissionPolicyBindingList{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("MutatingAdmissionPolicyList"), &MutatingAdmissionPolicyList{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ValidatingAdmissionPolicy"), &ValidatingAdmissionPolicy{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ValidatingAdmissionPolicyBinding"), &ValidatingAdmissionPolicyBinding{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ValidatingAdmissionPolicyBindingList"), &ValidatingAdmissionPolicyBindingList{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ValidatingAdmissionPolicyList"), &ValidatingAdmissionPolicyList{})
+	case dieschemes.Dies:
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("MutatingAdmissionPolicy"), &MutatingAdmissionPolicyDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("MutatingAdmissionPolicyBinding"), &MutatingAdmissionPolicyBindingDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("MutatingAdmissionPolicyBindingList"), &MutatingAdmissionPolicyBindingListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("MutatingAdmissionPolicyList"), &MutatingAdmissionPolicyListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ValidatingAdmissionPolicy"), &ValidatingAdmissionPolicyDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ValidatingAdmissionPolicyBinding"), &ValidatingAdmissionPolicyBindingDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ValidatingAdmissionPolicyBindingList"), &ValidatingAdmissionPolicyBindingListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ValidatingAdmissionPolicyList"), &ValidatingAdmissionPolicyListDie{})
+	case dieschemes.DieMuts:
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("MutatingAdmissionPolicy"), &MutatingAdmissionPolicyDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("MutatingAdmissionPolicyBinding"), &MutatingAdmissionPolicyBindingDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("MutatingAdmissionPolicyBindingList"), &MutatingAdmissionPolicyBindingListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("MutatingAdmissionPolicyList"), &MutatingAdmissionPolicyListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ValidatingAdmissionPolicy"), &ValidatingAdmissionPolicyDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ValidatingAdmissionPolicyBinding"), &ValidatingAdmissionPolicyBindingDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ValidatingAdmissionPolicyBindingList"), &ValidatingAdmissionPolicyBindingListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ValidatingAdmissionPolicyList"), &ValidatingAdmissionPolicyListDie{})
+	default:
+		return dieschemes.CheckCategory(c)
+	}
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }

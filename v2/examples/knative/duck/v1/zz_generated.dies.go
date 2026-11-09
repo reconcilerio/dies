@@ -31,6 +31,7 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
+	dieschemes "reconciler.io/dies/v2/die/schemes"
 	apis "reconciler.io/dies/v2/examples/knative/apis"
 	tracker "reconciler.io/dies/v2/examples/knative/tracker"
 )
@@ -2088,30 +2089,58 @@ func (d *WithPodSpecDieMut) Template() *PodSpecableDieMut {
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "duck.knative.dev", Version: "v1"}
 
-// SchemeBuilder registers this package's mutable object dies, and list
-// dies, as the Go types of their kinds, in place of the upstream types.
-var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
+// SchemeBuilder registers this package's objects and lists, of each
+// category: their Go types, their immutable dies and their mutable dies,
+// each as the type of its kind. Its AddToComposite registers each in its
+// scheme of a composite scheme.
+var SchemeBuilder = dieschemes.NewBuilder(addKnownTypes)
 
-// AddToScheme registers this package's dies with a scheme.
+// AddToScheme registers this package's mutable dies, and list dies, with a
+// scheme, as the Go types of their kinds, in place of the upstream types,
+// for clients to decode into. SchemeBuilder.AddToSchemeAs registers
+// another category.
 var AddToScheme = SchemeBuilder.AddToScheme
 
-func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("AddressableType"), &AddressableTypeDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("AddressableTypeList"), &AddressableTypeListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("AuthenticatableType"), &AuthenticatableTypeDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("AuthenticatableTypeList"), &AuthenticatableTypeListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Binding"), &BindingDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("BindingList"), &BindingListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CronJob"), &CronJobDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CronJobList"), &CronJobListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("KResource"), &KResourceDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("KResourceList"), &KResourceListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Pod"), &PodDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PodList"), &PodListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Source"), &SourceDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("SourceList"), &SourceListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("WithPod"), &WithPodDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("WithPodList"), &WithPodListDie{})
+func addKnownTypes(scheme *runtime.Scheme, c dieschemes.Category) error {
+	switch c {
+	case dieschemes.Types:
+	case dieschemes.Dies:
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("AddressableType"), &AddressableTypeDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("AddressableTypeList"), &AddressableTypeListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("AuthenticatableType"), &AuthenticatableTypeDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("AuthenticatableTypeList"), &AuthenticatableTypeListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Binding"), &BindingDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("BindingList"), &BindingListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CronJob"), &CronJobDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CronJobList"), &CronJobListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("KResource"), &KResourceDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("KResourceList"), &KResourceListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Pod"), &PodDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PodList"), &PodListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Source"), &SourceDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("SourceList"), &SourceListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("WithPod"), &WithPodDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("WithPodList"), &WithPodListDie{})
+	case dieschemes.DieMuts:
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("AddressableType"), &AddressableTypeDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("AddressableTypeList"), &AddressableTypeListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("AuthenticatableType"), &AuthenticatableTypeDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("AuthenticatableTypeList"), &AuthenticatableTypeListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Binding"), &BindingDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("BindingList"), &BindingListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CronJob"), &CronJobDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CronJobList"), &CronJobListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("KResource"), &KResourceDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("KResourceList"), &KResourceListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Pod"), &PodDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PodList"), &PodListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Source"), &SourceDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("SourceList"), &SourceListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("WithPod"), &WithPodDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("WithPodList"), &WithPodListDie{})
+	default:
+		return dieschemes.CheckCategory(c)
+	}
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }

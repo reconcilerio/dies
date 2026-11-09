@@ -18,23 +18,24 @@ limitations under the License.
 package node
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
-
 	nodev1 "reconciler.io/dies/v2/apis/node/v1"
 	nodev1alpha1 "reconciler.io/dies/v2/apis/node/v1alpha1"
 	nodev1beta1 "reconciler.io/dies/v2/apis/node/v1beta1"
+	"reconciler.io/dies/v2/die/schemes"
 )
 
 const GroupName = nodev1.GroupName
 
-// SchemeBuilder registers the dies of every version of the group, in order
+// SchemeBuilder registers the types and dies of every version of the group,
+// of each category, in order
 // of version priority.
-var SchemeBuilder = runtime.NewSchemeBuilder(
-	nodev1.AddToScheme,
-	nodev1beta1.AddToScheme,
-	nodev1alpha1.AddToScheme,
+var SchemeBuilder = schemes.NewBuilder(
+	nodev1.SchemeBuilder.Add,
+	nodev1beta1.SchemeBuilder.Add,
+	nodev1alpha1.SchemeBuilder.Add,
 )
 
-// AddToScheme registers the dies of every version of the group with a
-// scheme.
+// AddToScheme registers the mutable dies of every version of the group
+// with a scheme. SchemeBuilder.AddToSchemeAs registers another category, and
+// SchemeBuilder.AddToComposite each.
 var AddToScheme = SchemeBuilder.AddToScheme

@@ -69,7 +69,7 @@ var (
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
-	if err := diecodegen.CheckRegistered(dieapiextensionsv1.AddToScheme, apiextensionsv1.AddToScheme, dieapiextensionsv1.SchemeGroupVersion); err != nil {
+	if err := diecodegen.CheckRegisteredCategories(dieapiextensionsv1.SchemeBuilder, apiextensionsv1.AddToScheme, dieapiextensionsv1.SchemeGroupVersion); err != nil {
 		t.Error(err)
 	}
 }

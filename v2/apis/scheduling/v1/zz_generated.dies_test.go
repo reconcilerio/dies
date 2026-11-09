@@ -46,7 +46,7 @@ var (
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
-	if err := diecodegen.CheckRegistered(dieschedulingv1.AddToScheme, schedulingv1.AddToScheme, dieschedulingv1.SchemeGroupVersion); err != nil {
+	if err := diecodegen.CheckRegisteredCategories(dieschedulingv1.SchemeBuilder, schedulingv1.AddToScheme, dieschedulingv1.SchemeGroupVersion); err != nil {
 		t.Error(err)
 	}
 }

@@ -18,25 +18,26 @@ limitations under the License.
 package flowcontrol
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
-
 	flowcontrolv1 "reconciler.io/dies/v2/apis/flowcontrol/v1"
 	flowcontrolv1beta1 "reconciler.io/dies/v2/apis/flowcontrol/v1beta1"
 	flowcontrolv1beta2 "reconciler.io/dies/v2/apis/flowcontrol/v1beta2"
 	flowcontrolv1beta3 "reconciler.io/dies/v2/apis/flowcontrol/v1beta3"
+	"reconciler.io/dies/v2/die/schemes"
 )
 
 const GroupName = flowcontrolv1.GroupName
 
-// SchemeBuilder registers the dies of every version of the group, in order
+// SchemeBuilder registers the types and dies of every version of the group,
+// of each category, in order
 // of version priority.
-var SchemeBuilder = runtime.NewSchemeBuilder(
-	flowcontrolv1.AddToScheme,
-	flowcontrolv1beta3.AddToScheme,
-	flowcontrolv1beta2.AddToScheme,
-	flowcontrolv1beta1.AddToScheme,
+var SchemeBuilder = schemes.NewBuilder(
+	flowcontrolv1.SchemeBuilder.Add,
+	flowcontrolv1beta3.SchemeBuilder.Add,
+	flowcontrolv1beta2.SchemeBuilder.Add,
+	flowcontrolv1beta1.SchemeBuilder.Add,
 )
 
-// AddToScheme registers the dies of every version of the group with a
-// scheme.
+// AddToScheme registers the mutable dies of every version of the group
+// with a scheme. SchemeBuilder.AddToSchemeAs registers another category, and
+// SchemeBuilder.AddToComposite each.
 var AddToScheme = SchemeBuilder.AddToScheme

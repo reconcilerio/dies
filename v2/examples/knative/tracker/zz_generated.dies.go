@@ -21,11 +21,11 @@ limitations under the License.
 package tracker
 
 import (
-	runtime "k8s.io/apimachinery/pkg/runtime"
 	diemetav1 "reconciler.io/dies/v2/apis/meta/v1"
 	diebase "reconciler.io/dies/v2/die/base"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
+	dieschemes "reconciler.io/dies/v2/die/schemes"
 )
 
 // +kubebuilder:object:generate=false
@@ -134,11 +134,12 @@ func (d *ReferenceDieMut) Selector() *diemetav1.LabelSelectorDieMut {
 	return diefields.ChildMut(d, referenceFields.Get().Selector)
 }
 
-// SchemeBuilder registers this package's object and list dies, of which
-// it has none.
-var SchemeBuilder = runtime.NewSchemeBuilder()
+// SchemeBuilder registers this package's objects and lists, of which it
+// has none.
+var SchemeBuilder = dieschemes.NewBuilder()
 
-// AddToScheme registers this package's dies with a scheme: here, nothing.
+// AddToScheme registers this package's mutable dies with a scheme: here,
+// nothing.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 var annotated = diecodegen.Register(diecodegen.Package{

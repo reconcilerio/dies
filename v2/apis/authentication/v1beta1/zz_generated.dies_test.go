@@ -50,7 +50,7 @@ var (
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
-	if err := diecodegen.CheckRegistered(dieauthenticationv1beta1.AddToScheme, authenticationv1beta1.AddToScheme, dieauthenticationv1beta1.SchemeGroupVersion); err != nil {
+	if err := diecodegen.CheckRegisteredCategories(dieauthenticationv1beta1.SchemeBuilder, authenticationv1beta1.AddToScheme, dieauthenticationv1beta1.SchemeGroupVersion); err != nil {
 		t.Error(err)
 	}
 }

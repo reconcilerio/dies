@@ -21,17 +21,16 @@ limitations under the License.
 package sprocket
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
-
+	"reconciler.io/dies/v2/die/schemes"
 	sprocketv1 "reconciler.io/dies/v2/examples/sprocket/v1"
 	sprocketv2 "reconciler.io/dies/v2/examples/sprocket/v2"
 )
 
 // SchemeBuilder registers the dies of every version, in order of version
 // priority.
-var SchemeBuilder = runtime.NewSchemeBuilder(
-	sprocketv2.AddToScheme,
-	sprocketv1.AddToScheme,
+var SchemeBuilder = schemes.NewBuilder(
+	sprocketv2.SchemeBuilder.Add,
+	sprocketv1.SchemeBuilder.Add,
 )
 
 // AddToScheme registers the dies of every version with a scheme.

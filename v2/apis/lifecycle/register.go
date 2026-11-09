@@ -18,19 +18,20 @@ limitations under the License.
 package lifecycle
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
-
 	lifecyclev1alpha1 "reconciler.io/dies/v2/apis/lifecycle/v1alpha1"
+	"reconciler.io/dies/v2/die/schemes"
 )
 
 const GroupName = lifecyclev1alpha1.GroupName
 
-// SchemeBuilder registers the dies of every version of the group, in order
+// SchemeBuilder registers the types and dies of every version of the group,
+// of each category, in order
 // of version priority.
-var SchemeBuilder = runtime.NewSchemeBuilder(
-	lifecyclev1alpha1.AddToScheme,
+var SchemeBuilder = schemes.NewBuilder(
+	lifecyclev1alpha1.SchemeBuilder.Add,
 )
 
-// AddToScheme registers the dies of every version of the group with a
-// scheme.
+// AddToScheme registers the mutable dies of every version of the group
+// with a scheme. SchemeBuilder.AddToSchemeAs registers another category, and
+// SchemeBuilder.AddToComposite each.
 var AddToScheme = SchemeBuilder.AddToScheme

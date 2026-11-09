@@ -19,6 +19,7 @@ limitations under the License.
 package codegen
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"slices"
@@ -26,6 +27,8 @@ import (
 	"reconciler.io/dies/v2/die/base"
 	"reconciler.io/dies/v2/die/fields"
 	"reconciler.io/dies/v2/die/internal/core"
+	"reconciler.io/dies/v2/die/lists"
+	"reconciler.io/dies/v2/die/schemes"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -93,6 +96,90 @@ func CheckRegistered(dies, upstream func(*runtime.Scheme) error, gv schema.Group
 }
 
 const metaPackage = "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+// CheckRegisteredCategories reports whether a die package's builder
+// registers each category of every kind of a group version that upstream
+// does, and no other: the dies of each category are dies of it, as
+// [CheckRegistered] checks, and the Go types are the upstream types. Generated
+// tests call it for every die package of an upstream package that registers
+// its types.
+func CheckRegisteredCategories(b schemes.Builder, upstream func(*runtime.Scheme) error, gv schema.GroupVersion) error {
+	var errs []error
+	for _, c := range []schemes.Category{schemes.Dies, schemes.DieMuts} {
+		if err := CheckRegistered(b.AddToSchemeAs(c), upstream, gv); err != nil {
+			errs = append(errs, fmt.Errorf("%s: %w", c, err))
+		}
+		if err := checkCategory(b, c, gv); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	if err := checkTypes(b.AddToSchemeAs(schemes.Types), upstream, gv); err != nil {
+		errs = append(errs, err)
+	}
+	return errors.Join(errs...)
+}
+
+var (
+	immutableDie = reflect.TypeFor[base.ImmutableDie]()
+	mutableDie   = reflect.TypeFor[base.MutableDie]()
+	listDie      = reflect.TypeFor[lists.DieList]()
+)
+
+// checkCategory reports whether each kind of a category of dies is a die of
+// it, or a list die, which is of both.
+func checkCategory(b schemes.Builder, c schemes.Category, gv schema.GroupVersion) error {
+	s := runtime.NewScheme()
+	if err := b.Add(s, c); err != nil {
+		return err
+	}
+	want := immutableDie
+	if c == schemes.DieMuts {
+		want = mutableDie
+	}
+	var wrong []string
+	for kind, t := range s.KnownTypes(gv) {
+		if t.PkgPath() == metaPackage {
+			continue
+		}
+		if p := reflect.PointerTo(t); !p.Implements(want) && !p.Implements(listDie) {
+			wrong = append(wrong, kind)
+		}
+	}
+	if len(wrong) == 0 {
+		return nil
+	}
+	slices.Sort(wrong)
+	return fmt.Errorf("%s: the dies of %s register kinds as other than dies of the category: %v", c, gv, wrong)
+}
+
+// checkTypes reports whether the Go types registered are upstream's, kind
+// for kind.
+func checkTypes(types, upstream func(*runtime.Scheme) error, gv schema.GroupVersion) error {
+	ts, us := runtime.NewScheme(), runtime.NewScheme()
+	if err := types(ts); err != nil {
+		return err
+	}
+	if err := upstream(us); err != nil {
+		return err
+	}
+	have, want := ts.KnownTypes(gv), us.KnownTypes(gv)
+	var differ []string
+	for kind, ut := range want {
+		if have[kind] != ut {
+			differ = append(differ, kind)
+		}
+	}
+	for kind := range have {
+		if _, ok := want[kind]; !ok {
+			differ = append(differ, kind)
+		}
+	}
+	if len(differ) == 0 {
+		return nil
+	}
+	slices.Sort(differ)
+	return fmt.Errorf("%s: the types of %s don't register as upstream does: kinds %v", schemes.Types, gv, differ)
+}
 
 // CheckList reports whether T is still a list, with exactly type and list
 // metadata and items, as its list die is. Generated tests call it for every

@@ -18,21 +18,22 @@ limitations under the License.
 package events
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
-
 	eventsv1 "reconciler.io/dies/v2/apis/events/v1"
 	eventsv1beta1 "reconciler.io/dies/v2/apis/events/v1beta1"
+	"reconciler.io/dies/v2/die/schemes"
 )
 
 const GroupName = eventsv1.GroupName
 
-// SchemeBuilder registers the dies of every version of the group, in order
+// SchemeBuilder registers the types and dies of every version of the group,
+// of each category, in order
 // of version priority.
-var SchemeBuilder = runtime.NewSchemeBuilder(
-	eventsv1.AddToScheme,
-	eventsv1beta1.AddToScheme,
+var SchemeBuilder = schemes.NewBuilder(
+	eventsv1.SchemeBuilder.Add,
+	eventsv1beta1.SchemeBuilder.Add,
 )
 
-// AddToScheme registers the dies of every version of the group with a
-// scheme.
+// AddToScheme registers the mutable dies of every version of the group
+// with a scheme. SchemeBuilder.AddToSchemeAs registers another category, and
+// SchemeBuilder.AddToComposite each.
 var AddToScheme = SchemeBuilder.AddToScheme

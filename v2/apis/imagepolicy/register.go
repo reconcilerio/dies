@@ -18,19 +18,20 @@ limitations under the License.
 package imagepolicy
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
-
 	imagepolicyv1alpha1 "reconciler.io/dies/v2/apis/imagepolicy/v1alpha1"
+	"reconciler.io/dies/v2/die/schemes"
 )
 
 const GroupName = imagepolicyv1alpha1.GroupName
 
-// SchemeBuilder registers the dies of every version of the group, in order
+// SchemeBuilder registers the types and dies of every version of the group,
+// of each category, in order
 // of version priority.
-var SchemeBuilder = runtime.NewSchemeBuilder(
-	imagepolicyv1alpha1.AddToScheme,
+var SchemeBuilder = schemes.NewBuilder(
+	imagepolicyv1alpha1.SchemeBuilder.Add,
 )
 
-// AddToScheme registers the dies of every version of the group with a
-// scheme.
+// AddToScheme registers the mutable dies of every version of the group
+// with a scheme. SchemeBuilder.AddToSchemeAs registers another category, and
+// SchemeBuilder.AddToComposite each.
 var AddToScheme = SchemeBuilder.AddToScheme

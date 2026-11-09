@@ -30,6 +30,7 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
+	dieschemes "reconciler.io/dies/v2/die/schemes"
 )
 
 // +kubebuilder:object:generate=false
@@ -384,16 +385,32 @@ func (d *LeaseCandidateSpecDieMut) Strategy() diefields.ValueMut[diecoordination
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "coordination.k8s.io", Version: "v1alpha2"}
 
-// SchemeBuilder registers this package's mutable object dies, and list
-// dies, as the Go types of their kinds, in place of the upstream types.
-var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
+// SchemeBuilder registers this package's objects and lists, of each
+// category: their Go types, their immutable dies and their mutable dies,
+// each as the type of its kind. Its AddToComposite registers each in its
+// scheme of a composite scheme.
+var SchemeBuilder = dieschemes.NewBuilder(addKnownTypes)
 
-// AddToScheme registers this package's dies with a scheme.
+// AddToScheme registers this package's mutable dies, and list dies, with a
+// scheme, as the Go types of their kinds, in place of the upstream types,
+// for clients to decode into. SchemeBuilder.AddToSchemeAs registers
+// another category.
 var AddToScheme = SchemeBuilder.AddToScheme
 
-func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("LeaseCandidate"), &LeaseCandidateDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("LeaseCandidateList"), &LeaseCandidateListDie{})
+func addKnownTypes(scheme *runtime.Scheme, c dieschemes.Category) error {
+	switch c {
+	case dieschemes.Types:
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("LeaseCandidate"), &LeaseCandidate{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("LeaseCandidateList"), &LeaseCandidateList{})
+	case dieschemes.Dies:
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("LeaseCandidate"), &LeaseCandidateDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("LeaseCandidateList"), &LeaseCandidateListDie{})
+	case dieschemes.DieMuts:
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("LeaseCandidate"), &LeaseCandidateDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("LeaseCandidateList"), &LeaseCandidateListDie{})
+	default:
+		return dieschemes.CheckCategory(c)
+	}
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }

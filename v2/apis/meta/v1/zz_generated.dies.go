@@ -27,6 +27,7 @@ import (
 	diebase "reconciler.io/dies/v2/die/base"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
+	dieschemes "reconciler.io/dies/v2/die/schemes"
 )
 
 // +kubebuilder:object:generate=false
@@ -5816,11 +5817,12 @@ func (d *WatchEventDieMut) Object() diefields.ValueMut[runtime.RawExtension] {
 	return diefields.ValueMutOf(d, watchEventFields.Get().Object)
 }
 
-// SchemeBuilder registers this package's object and list dies, of which
-// it has none.
-var SchemeBuilder = runtime.NewSchemeBuilder()
+// SchemeBuilder registers this package's objects and lists, of which it
+// has none.
+var SchemeBuilder = dieschemes.NewBuilder()
 
-// AddToScheme registers this package's dies with a scheme: here, nothing.
+// AddToScheme registers this package's mutable dies with a scheme: here,
+// nothing.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 // ConditionListMap is the list map of an immutable die's Condition elements, keyed by type.

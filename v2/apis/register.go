@@ -17,8 +17,6 @@ limitations under the License.
 package apis
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
-
 	"reconciler.io/dies/v2/apis/admission"
 	"reconciler.io/dies/v2/apis/admissionregistration"
 	"reconciler.io/dies/v2/apis/apidiscovery"
@@ -48,39 +46,40 @@ import (
 	"reconciler.io/dies/v2/apis/scheduling"
 	"reconciler.io/dies/v2/apis/storage"
 	"reconciler.io/dies/v2/apis/storagemigration"
+	"reconciler.io/dies/v2/die/schemes"
 )
 
 // SchemeBuilder registers the dies of every API group.
-var SchemeBuilder = runtime.NewSchemeBuilder(
-	admission.AddToScheme,
-	admissionregistration.AddToScheme,
-	apidiscovery.AddToScheme,
-	apiextensions.AddToScheme,
-	apiregistration.AddToScheme,
-	apiserverinternal.AddToScheme,
-	apps.AddToScheme,
-	authentication.AddToScheme,
-	authorization.AddToScheme,
-	autoscaling.AddToScheme,
-	batch.AddToScheme,
-	certificates.AddToScheme,
-	coordination.AddToScheme,
-	core.AddToScheme,
-	discovery.AddToScheme,
-	events.AddToScheme,
-	extensions.AddToScheme,
-	flowcontrol.AddToScheme,
-	imagepolicy.AddToScheme,
-	lifecycle.AddToScheme,
-	meta.AddToScheme,
-	networking.AddToScheme,
-	node.AddToScheme,
-	policy.AddToScheme,
-	rbac.AddToScheme,
-	resource.AddToScheme,
-	scheduling.AddToScheme,
-	storage.AddToScheme,
-	storagemigration.AddToScheme,
+var SchemeBuilder = schemes.NewBuilder(
+	admission.SchemeBuilder.Add,
+	admissionregistration.SchemeBuilder.Add,
+	apidiscovery.SchemeBuilder.Add,
+	apiextensions.SchemeBuilder.Add,
+	apiregistration.SchemeBuilder.Add,
+	apiserverinternal.SchemeBuilder.Add,
+	apps.SchemeBuilder.Add,
+	authentication.SchemeBuilder.Add,
+	authorization.SchemeBuilder.Add,
+	autoscaling.SchemeBuilder.Add,
+	batch.SchemeBuilder.Add,
+	certificates.SchemeBuilder.Add,
+	coordination.SchemeBuilder.Add,
+	core.SchemeBuilder.Add,
+	discovery.SchemeBuilder.Add,
+	events.SchemeBuilder.Add,
+	extensions.SchemeBuilder.Add,
+	flowcontrol.SchemeBuilder.Add,
+	imagepolicy.SchemeBuilder.Add,
+	lifecycle.SchemeBuilder.Add,
+	meta.SchemeBuilder.Add,
+	networking.SchemeBuilder.Add,
+	node.SchemeBuilder.Add,
+	policy.SchemeBuilder.Add,
+	rbac.SchemeBuilder.Add,
+	resource.SchemeBuilder.Add,
+	scheduling.SchemeBuilder.Add,
+	storage.SchemeBuilder.Add,
+	storagemigration.SchemeBuilder.Add,
 )
 
 // AddToScheme registers the dies of every API group with a scheme.

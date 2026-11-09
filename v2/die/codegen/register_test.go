@@ -28,6 +28,7 @@ import (
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
 	"reconciler.io/dies/v2/die/base"
 	"reconciler.io/dies/v2/die/codegen"
+	"reconciler.io/dies/v2/die/schemes"
 )
 
 func TestCheckRegistered(t *testing.T) {
@@ -67,6 +68,39 @@ func TestCheckRegistered(t *testing.T) {
 			err := codegen.CheckRegistered(tc.dies, upstreamappsv1.AddToScheme, gv)
 			if err == nil || !strings.Contains(err.Error(), tc.want) {
 				t.Errorf("error %v, want %q", err, tc.want)
+			}
+		})
+	}
+}
+
+func TestCheckRegisteredCategories(t *testing.T) {
+	gv := dieappsv1.SchemeGroupVersion
+	if err := codegen.CheckRegisteredCategories(dieappsv1.SchemeBuilder, upstreamappsv1.AddToScheme, gv); err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	// a builder that registers a category as another
+	as := func(c schemes.Category) schemes.AddFunc {
+		return func(s *runtime.Scheme, _ schemes.Category) error { return dieappsv1.SchemeBuilder.Add(s, c) }
+	}
+	for name, tc := range map[string]struct {
+		b    schemes.Builder
+		want []string
+	}{
+		"the mutable dies as each": {
+			b:    schemes.NewBuilder(as(schemes.DieMuts)),
+			want: []string{"Dies: the dies of apps/v1 register kinds as other than dies of the category: [ControllerRevision DaemonSet", "Types: the types of apps/v1 don't register as upstream does"},
+		},
+		"the types as each": {
+			b:    schemes.NewBuilder(as(schemes.Types)),
+			want: []string{"Dies: the dies of apps/v1 don't register as upstream does", "DieMuts: the dies of apps/v1 don't register as upstream does"},
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			err := codegen.CheckRegisteredCategories(tc.b, upstreamappsv1.AddToScheme, gv)
+			for _, w := range tc.want {
+				if err == nil || !strings.Contains(err.Error(), w) {
+					t.Errorf("error %v, want it to contain %q", err, w)
+				}
 			}
 		})
 	}

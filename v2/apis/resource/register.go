@@ -18,25 +18,26 @@ limitations under the License.
 package resource
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
-
 	resourcev1 "reconciler.io/dies/v2/apis/resource/v1"
 	resourcev1alpha3 "reconciler.io/dies/v2/apis/resource/v1alpha3"
 	resourcev1beta1 "reconciler.io/dies/v2/apis/resource/v1beta1"
 	resourcev1beta2 "reconciler.io/dies/v2/apis/resource/v1beta2"
+	"reconciler.io/dies/v2/die/schemes"
 )
 
 const GroupName = resourcev1.GroupName
 
-// SchemeBuilder registers the dies of every version of the group, in order
+// SchemeBuilder registers the types and dies of every version of the group,
+// of each category, in order
 // of version priority.
-var SchemeBuilder = runtime.NewSchemeBuilder(
-	resourcev1.AddToScheme,
-	resourcev1beta2.AddToScheme,
-	resourcev1beta1.AddToScheme,
-	resourcev1alpha3.AddToScheme,
+var SchemeBuilder = schemes.NewBuilder(
+	resourcev1.SchemeBuilder.Add,
+	resourcev1beta2.SchemeBuilder.Add,
+	resourcev1beta1.SchemeBuilder.Add,
+	resourcev1alpha3.SchemeBuilder.Add,
 )
 
-// AddToScheme registers the dies of every version of the group with a
-// scheme.
+// AddToScheme registers the mutable dies of every version of the group
+// with a scheme. SchemeBuilder.AddToSchemeAs registers another category, and
+// SchemeBuilder.AddToComposite each.
 var AddToScheme = SchemeBuilder.AddToScheme

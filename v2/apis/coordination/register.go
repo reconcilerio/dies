@@ -18,23 +18,24 @@ limitations under the License.
 package coordination
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
-
 	coordinationv1 "reconciler.io/dies/v2/apis/coordination/v1"
 	coordinationv1alpha2 "reconciler.io/dies/v2/apis/coordination/v1alpha2"
 	coordinationv1beta1 "reconciler.io/dies/v2/apis/coordination/v1beta1"
+	"reconciler.io/dies/v2/die/schemes"
 )
 
 const GroupName = coordinationv1.GroupName
 
-// SchemeBuilder registers the dies of every version of the group, in order
+// SchemeBuilder registers the types and dies of every version of the group,
+// of each category, in order
 // of version priority.
-var SchemeBuilder = runtime.NewSchemeBuilder(
-	coordinationv1.AddToScheme,
-	coordinationv1beta1.AddToScheme,
-	coordinationv1alpha2.AddToScheme,
+var SchemeBuilder = schemes.NewBuilder(
+	coordinationv1.SchemeBuilder.Add,
+	coordinationv1beta1.SchemeBuilder.Add,
+	coordinationv1alpha2.SchemeBuilder.Add,
 )
 
-// AddToScheme registers the dies of every version of the group with a
-// scheme.
+// AddToScheme registers the mutable dies of every version of the group
+// with a scheme. SchemeBuilder.AddToSchemeAs registers another category, and
+// SchemeBuilder.AddToComposite each.
 var AddToScheme = SchemeBuilder.AddToScheme

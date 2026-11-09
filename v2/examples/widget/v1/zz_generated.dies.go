@@ -29,6 +29,7 @@ import (
 	diebase "reconciler.io/dies/v2/die/base"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
+	dieschemes "reconciler.io/dies/v2/die/schemes"
 	gadgetv1 "reconciler.io/dies/v2/examples/gadget/v1"
 )
 
@@ -616,15 +617,28 @@ func (d *WidgetStatusDieMut) Conditions() *diemetav1.ConditionListMapMut {
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "example.dev", Version: "v1"}
 
-// SchemeBuilder registers this package's mutable object dies, and list
-// dies, as the Go types of their kinds, in place of the upstream types.
-var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
+// SchemeBuilder registers this package's objects and lists, of each
+// category: their Go types, their immutable dies and their mutable dies,
+// each as the type of its kind. Its AddToComposite registers each in its
+// scheme of a composite scheme.
+var SchemeBuilder = dieschemes.NewBuilder(addKnownTypes)
 
-// AddToScheme registers this package's dies with a scheme.
+// AddToScheme registers this package's mutable dies, and list dies, with a
+// scheme, as the Go types of their kinds, in place of the upstream types,
+// for clients to decode into. SchemeBuilder.AddToSchemeAs registers
+// another category.
 var AddToScheme = SchemeBuilder.AddToScheme
 
-func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Widget"), &WidgetDieMut{})
+func addKnownTypes(scheme *runtime.Scheme, c dieschemes.Category) error {
+	switch c {
+	case dieschemes.Types:
+	case dieschemes.Dies:
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Widget"), &WidgetDie{})
+	case dieschemes.DieMuts:
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Widget"), &WidgetDieMut{})
+	default:
+		return dieschemes.CheckCategory(c)
+	}
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }

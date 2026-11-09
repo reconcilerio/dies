@@ -18,23 +18,24 @@ limitations under the License.
 package rbac
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
-
 	rbacv1 "reconciler.io/dies/v2/apis/rbac/v1"
 	rbacv1alpha1 "reconciler.io/dies/v2/apis/rbac/v1alpha1"
 	rbacv1beta1 "reconciler.io/dies/v2/apis/rbac/v1beta1"
+	"reconciler.io/dies/v2/die/schemes"
 )
 
 const GroupName = rbacv1.GroupName
 
-// SchemeBuilder registers the dies of every version of the group, in order
+// SchemeBuilder registers the types and dies of every version of the group,
+// of each category, in order
 // of version priority.
-var SchemeBuilder = runtime.NewSchemeBuilder(
-	rbacv1.AddToScheme,
-	rbacv1beta1.AddToScheme,
-	rbacv1alpha1.AddToScheme,
+var SchemeBuilder = schemes.NewBuilder(
+	rbacv1.SchemeBuilder.Add,
+	rbacv1beta1.SchemeBuilder.Add,
+	rbacv1alpha1.SchemeBuilder.Add,
 )
 
-// AddToScheme registers the dies of every version of the group with a
-// scheme.
+// AddToScheme registers the mutable dies of every version of the group
+// with a scheme. SchemeBuilder.AddToSchemeAs registers another category, and
+// SchemeBuilder.AddToComposite each.
 var AddToScheme = SchemeBuilder.AddToScheme

@@ -21,10 +21,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	runtime "k8s.io/apimachinery/pkg/runtime"
 	diebase "reconciler.io/dies/v2/die/base"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
+	dieschemes "reconciler.io/dies/v2/die/schemes"
 )
 
 // +kubebuilder:object:generate=false
@@ -178,11 +178,12 @@ func (d *VersionSelectionSemverPrereleasesDieMut) Identifiers() diefields.ValueM
 	return diefields.ValueMutOf(d, versionSelectionSemverPrereleasesFields.Get().Identifiers)
 }
 
-// SchemeBuilder registers this package's object and list dies, of which
-// it has none.
-var SchemeBuilder = runtime.NewSchemeBuilder()
+// SchemeBuilder registers this package's objects and lists, of which it
+// has none.
+var SchemeBuilder = dieschemes.NewBuilder()
 
-// AddToScheme registers this package's dies with a scheme: here, nothing.
+// AddToScheme registers this package's mutable dies with a scheme: here,
+// nothing.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 var _ = diecodegen.Register(diecodegen.Package{

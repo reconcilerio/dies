@@ -159,7 +159,7 @@ func (pg *pkgGen) emitTest(dir string) error {
 	if up, ok := pg.p.Imports[pg.upstream]; ok && pg.hasObjects() && up.Types.Scope().Lookup("AddToScheme") != nil {
 		f.p("")
 		f.p("func TestDiesRegisterUpstreamKinds(t *testing.T) {")
-		f.p("	if err := die.CheckRegistered(%s.AddToScheme, %s.AddToScheme, %s.SchemeGroupVersion); err != nil {", self, f.use(pg.upstream), self)
+		f.p("	if err := die.CheckRegisteredCategories(%s.SchemeBuilder, %s.AddToScheme, %s.SchemeGroupVersion); err != nil {", self, f.use(pg.upstream), self)
 		f.p("		t.Error(err)")
 		f.p("	}")
 		f.p("}")
@@ -598,14 +598,16 @@ func (pg *pkgGen) hasObjects() bool {
 	return false
 }
 
-// emitRegister emits the package's scheme registration: each object and
-// list die with a kind as the Go type of its kind, as an upstream API
-// package registers its types. A package with no such dies has a
-// registration that does nothing, so group packages can register every
-// version alike.
+// emitRegister emits the package's scheme registration: for each object and
+// list with a kind, of each category, its Go type, as an upstream API
+// package registers it, its immutable die and its mutable die. A list die
+// is one type, the list's die of both categories of dies. A Go type that
+// isn't a runtime.Object, as a cloned type isn't, isn't registered. A
+// package with no such dies has a registration that does nothing, so group
+// packages can register every version alike.
 func (pg *pkgGen) emitRegister() error {
 	f := pg.f
-	type known struct{ kind, die string }
+	type known struct{ kind, typ, die, dieMut string }
 	var apiVersion string
 	var kinds []known
 	for _, tg := range pg.targets {
@@ -620,26 +622,28 @@ func (pg *pkgGen) emitRegister() error {
 			return fmt.Errorf("%s: object dies of more than one group version, %s and %s", pg.p.PkgPath, apiVersion, av)
 		}
 		apiVersion = av
-		// an object's registered type is its mutable die, which decodes; a
-		// list die is one type
-		d := tg.name() + "DieMut"
+		k := known{kind: m.arg("kind"), die: tg.name() + "Die", dieMut: tg.name() + "DieMut"}
 		if _, ok := pg.listItem(tg); ok {
-			d = tg.name() + "Die"
+			k.dieMut = k.die
 		}
-		kinds = append(kinds, known{m.arg("kind"), d})
+		if isObject(tg.named) {
+			k.typ = tg.name()
+		}
+		kinds = append(kinds, k)
 	}
 	for _, name := range []string{"SchemeGroupVersion", "SchemeBuilder", "AddToScheme", "addKnownTypes"} {
 		if obj := pg.p.Types.Scope().Lookup(name); obj != nil && filepath.Base(pg.p.Fset.File(obj.Pos()).Name()) != diesFile {
 			return fmt.Errorf("%s: generated scheme registration %s collides with a declared name", pg.p.PkgPath, name)
 		}
 	}
-	runtime := f.use("k8s.io/apimachinery/pkg/runtime")
+	schemes := f.use("reconciler.io/dies/v2/die/schemes")
 	if len(kinds) == 0 {
-		f.p("// SchemeBuilder registers this package's object and list dies, of which")
-		f.p("// it has none.")
-		f.p("var SchemeBuilder = %s.NewSchemeBuilder()", runtime)
+		f.p("// SchemeBuilder registers this package's objects and lists, of which it")
+		f.p("// has none.")
+		f.p("var SchemeBuilder = %s.NewBuilder()", schemes)
 		f.p("")
-		f.p("// AddToScheme registers this package's dies with a scheme: here, nothing.")
+		f.p("// AddToScheme registers this package's mutable dies with a scheme: here,")
+		f.p("// nothing.")
 		f.p("var AddToScheme = SchemeBuilder.AddToScheme")
 		f.p("")
 		return nil
@@ -648,27 +652,56 @@ func (pg *pkgGen) emitRegister() error {
 	if !ok {
 		group, version = "", apiVersion
 	}
+	runtime := f.use("k8s.io/apimachinery/pkg/runtime")
 	schema := f.use("k8s.io/apimachinery/pkg/runtime/schema")
 	metav1 := f.use("k8s.io/apimachinery/pkg/apis/meta/v1")
 	f.p("// SchemeGroupVersion is the group version of this package's object dies.")
 	f.p("var SchemeGroupVersion = %s.GroupVersion{Group: %q, Version: %q}", schema, group, version)
 	f.p("")
-	f.p("// SchemeBuilder registers this package's mutable object dies, and list")
-	f.p("// dies, as the Go types of their kinds, in place of the upstream types.")
-	f.p("var SchemeBuilder = %s.NewSchemeBuilder(addKnownTypes)", runtime)
+	f.p("// SchemeBuilder registers this package's objects and lists, of each")
+	f.p("// category: their Go types, their immutable dies and their mutable dies,")
+	f.p("// each as the type of its kind. Its AddToComposite registers each in its")
+	f.p("// scheme of a composite scheme.")
+	f.p("var SchemeBuilder = %s.NewBuilder(addKnownTypes)", schemes)
 	f.p("")
-	f.p("// AddToScheme registers this package's dies with a scheme.")
+	f.p("// AddToScheme registers this package's mutable dies, and list dies, with a")
+	f.p("// scheme, as the Go types of their kinds, in place of the upstream types,")
+	f.p("// for clients to decode into. SchemeBuilder.AddToSchemeAs registers")
+	f.p("// another category.")
 	f.p("var AddToScheme = SchemeBuilder.AddToScheme")
 	f.p("")
-	f.p("func addKnownTypes(scheme *%s.Scheme) error {", runtime)
-	for _, k := range kinds {
-		f.p("	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind(%q), &%s{})", k.kind, k.die)
+	f.p("func addKnownTypes(scheme *%s.Scheme, c %s.Category) error {", runtime, schemes)
+	f.p("	switch c {")
+	for _, c := range []struct {
+		name string
+		of   func(known) string
+	}{
+		{"Types", func(k known) string { return k.typ }},
+		{"Dies", func(k known) string { return k.die }},
+		{"DieMuts", func(k known) string { return k.dieMut }},
+	} {
+		f.p("	case %s.%s:", schemes, c.name)
+		for _, k := range kinds {
+			if t := c.of(k); t != "" {
+				f.p("		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind(%q), &%s{})", k.kind, t)
+			}
+		}
 	}
+	f.p("	default:")
+	f.p("		return %s.CheckCategory(c)", schemes)
+	f.p("	}")
 	f.p("	%s.AddToGroupVersion(scheme, SchemeGroupVersion)", metav1)
 	f.p("	return nil")
 	f.p("}")
 	f.p("")
 	return nil
+}
+
+// isObject reports whether a type's pointer is a runtime.Object, which a
+// scheme registers: it has the DeepCopyObject and GetObjectKind methods.
+func isObject(n *types.Named) bool {
+	ms := types.NewMethodSet(types.NewPointer(n))
+	return ms.Lookup(nil, "DeepCopyObject") != nil && ms.Lookup(nil, "GetObjectKind") != nil
 }
 
 // listItem returns the die of a list's items, for an object with list

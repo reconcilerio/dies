@@ -31,6 +31,7 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
+	dieschemes "reconciler.io/dies/v2/die/schemes"
 	apis "reconciler.io/dies/v2/examples/knative/apis"
 	duckv1 "reconciler.io/dies/v2/examples/knative/duck/v1"
 )
@@ -2731,22 +2732,42 @@ func (d *TrafficTargetDieMut) URL() diefields.OptionalMut[apis.URL] {
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "serving.knative.dev", Version: "v1"}
 
-// SchemeBuilder registers this package's mutable object dies, and list
-// dies, as the Go types of their kinds, in place of the upstream types.
-var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
+// SchemeBuilder registers this package's objects and lists, of each
+// category: their Go types, their immutable dies and their mutable dies,
+// each as the type of its kind. Its AddToComposite registers each in its
+// scheme of a composite scheme.
+var SchemeBuilder = dieschemes.NewBuilder(addKnownTypes)
 
-// AddToScheme registers this package's dies with a scheme.
+// AddToScheme registers this package's mutable dies, and list dies, with a
+// scheme, as the Go types of their kinds, in place of the upstream types,
+// for clients to decode into. SchemeBuilder.AddToSchemeAs registers
+// another category.
 var AddToScheme = SchemeBuilder.AddToScheme
 
-func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Configuration"), &ConfigurationDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ConfigurationList"), &ConfigurationListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Revision"), &RevisionDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("RevisionList"), &RevisionListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Route"), &RouteDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("RouteList"), &RouteListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Service"), &ServiceDieMut{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ServiceList"), &ServiceListDie{})
+func addKnownTypes(scheme *runtime.Scheme, c dieschemes.Category) error {
+	switch c {
+	case dieschemes.Types:
+	case dieschemes.Dies:
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Configuration"), &ConfigurationDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ConfigurationList"), &ConfigurationListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Revision"), &RevisionDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("RevisionList"), &RevisionListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Route"), &RouteDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("RouteList"), &RouteListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Service"), &ServiceDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ServiceList"), &ServiceListDie{})
+	case dieschemes.DieMuts:
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Configuration"), &ConfigurationDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ConfigurationList"), &ConfigurationListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Revision"), &RevisionDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("RevisionList"), &RevisionListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Route"), &RouteDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("RouteList"), &RouteListDie{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Service"), &ServiceDieMut{})
+		scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ServiceList"), &ServiceListDie{})
+	default:
+		return dieschemes.CheckCategory(c)
+	}
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }

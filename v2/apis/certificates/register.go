@@ -18,23 +18,24 @@ limitations under the License.
 package certificates
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
-
 	certificatesv1 "reconciler.io/dies/v2/apis/certificates/v1"
 	certificatesv1alpha1 "reconciler.io/dies/v2/apis/certificates/v1alpha1"
 	certificatesv1beta1 "reconciler.io/dies/v2/apis/certificates/v1beta1"
+	"reconciler.io/dies/v2/die/schemes"
 )
 
 const GroupName = certificatesv1.GroupName
 
-// SchemeBuilder registers the dies of every version of the group, in order
+// SchemeBuilder registers the types and dies of every version of the group,
+// of each category, in order
 // of version priority.
-var SchemeBuilder = runtime.NewSchemeBuilder(
-	certificatesv1.AddToScheme,
-	certificatesv1beta1.AddToScheme,
-	certificatesv1alpha1.AddToScheme,
+var SchemeBuilder = schemes.NewBuilder(
+	certificatesv1.SchemeBuilder.Add,
+	certificatesv1beta1.SchemeBuilder.Add,
+	certificatesv1alpha1.SchemeBuilder.Add,
 )
 
-// AddToScheme registers the dies of every version of the group with a
-// scheme.
+// AddToScheme registers the mutable dies of every version of the group
+// with a scheme. SchemeBuilder.AddToSchemeAs registers another category, and
+// SchemeBuilder.AddToComposite each.
 var AddToScheme = SchemeBuilder.AddToScheme

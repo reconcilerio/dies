@@ -18,21 +18,22 @@ limitations under the License.
 package storagemigration
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
-
 	storagemigrationv1 "reconciler.io/dies/v2/apis/storagemigration/v1"
 	storagemigrationv1beta1 "reconciler.io/dies/v2/apis/storagemigration/v1beta1"
+	"reconciler.io/dies/v2/die/schemes"
 )
 
 const GroupName = storagemigrationv1.GroupName
 
-// SchemeBuilder registers the dies of every version of the group, in order
+// SchemeBuilder registers the types and dies of every version of the group,
+// of each category, in order
 // of version priority.
-var SchemeBuilder = runtime.NewSchemeBuilder(
-	storagemigrationv1.AddToScheme,
-	storagemigrationv1beta1.AddToScheme,
+var SchemeBuilder = schemes.NewBuilder(
+	storagemigrationv1.SchemeBuilder.Add,
+	storagemigrationv1beta1.SchemeBuilder.Add,
 )
 
-// AddToScheme registers the dies of every version of the group with a
-// scheme.
+// AddToScheme registers the mutable dies of every version of the group
+// with a scheme. SchemeBuilder.AddToSchemeAs registers another category, and
+// SchemeBuilder.AddToComposite each.
 var AddToScheme = SchemeBuilder.AddToScheme

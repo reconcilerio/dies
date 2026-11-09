@@ -18,17 +18,18 @@ limitations under the License.
 package meta
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
-
 	metav1 "reconciler.io/dies/v2/apis/meta/v1"
+	"reconciler.io/dies/v2/die/schemes"
 )
 
-// SchemeBuilder registers the dies of every version of the group, in order
+// SchemeBuilder registers the types and dies of every version of the group,
+// of each category, in order
 // of version priority.
-var SchemeBuilder = runtime.NewSchemeBuilder(
-	metav1.AddToScheme,
+var SchemeBuilder = schemes.NewBuilder(
+	metav1.SchemeBuilder.Add,
 )
 
-// AddToScheme registers the dies of every version of the group with a
-// scheme.
+// AddToScheme registers the mutable dies of every version of the group
+// with a scheme. SchemeBuilder.AddToSchemeAs registers another category, and
+// SchemeBuilder.AddToComposite each.
 var AddToScheme = SchemeBuilder.AddToScheme

@@ -47,7 +47,7 @@ func init() {
 		"base":    {"DieBase", "DieObjectBase", "DieTypedBase", "AsObject", "AsTyped", "DieMutBase", "DieObjectMutBase", "DieTypedMutBase", "AsObjectMut", "AsTypedMut", "Blank", "BlankOf", "DieOf", "DieMutOf"},
 		"fields":  {"DieTypedOf", "DieTypedMutOf", "DieObjectOf", "DieObjectMutOf", "Field", "NewField", "NewItems", "Struct", "NewStruct", "ListMapField", "NewListMap", "MapField", "NewMap", "Value", "ValueOf", "ValueMut", "ValueMutOf", "Optional", "OptionalOf", "OptionalMut", "OptionalMutOf", "Child", "ChildMut", "ListMap", "ListMapOf", "ListMapMut", "ListMapMutOf", "Map", "MapOf", "MapMut", "MapMutOf", "Table"},
 		"lists":   {"List", "NewList", "DieListOf"},
-		"codegen": {"Register", "Package", "Annotate", "Object", "CheckManaged", "CheckList", "CheckRegistered", "TypedBlank", "ReleaseApplyConfiguration", "MustReleaseApplyConfiguration", "FeedApplyConfiguration", "StampApplyConfiguration"},
+		"codegen": {"Register", "Package", "Annotate", "Object", "CheckManaged", "CheckList", "CheckRegistered", "CheckRegisteredCategories", "TypedBlank", "ReleaseApplyConfiguration", "MustReleaseApplyConfiguration", "FeedApplyConfiguration", "StampApplyConfiguration"},
 	} {
 		for _, n := range names {
 			diePackages[n] = "reconciler.io/dies/v2/die/" + pkg

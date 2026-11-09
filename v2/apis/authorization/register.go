@@ -18,21 +18,22 @@ limitations under the License.
 package authorization
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
-
 	authorizationv1 "reconciler.io/dies/v2/apis/authorization/v1"
 	authorizationv1beta1 "reconciler.io/dies/v2/apis/authorization/v1beta1"
+	"reconciler.io/dies/v2/die/schemes"
 )
 
 const GroupName = authorizationv1.GroupName
 
-// SchemeBuilder registers the dies of every version of the group, in order
+// SchemeBuilder registers the types and dies of every version of the group,
+// of each category, in order
 // of version priority.
-var SchemeBuilder = runtime.NewSchemeBuilder(
-	authorizationv1.AddToScheme,
-	authorizationv1beta1.AddToScheme,
+var SchemeBuilder = schemes.NewBuilder(
+	authorizationv1.SchemeBuilder.Add,
+	authorizationv1beta1.SchemeBuilder.Add,
 )
 
-// AddToScheme registers the dies of every version of the group with a
-// scheme.
+// AddToScheme registers the mutable dies of every version of the group
+// with a scheme. SchemeBuilder.AddToSchemeAs registers another category, and
+// SchemeBuilder.AddToComposite each.
 var AddToScheme = SchemeBuilder.AddToScheme

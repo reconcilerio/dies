@@ -47,7 +47,7 @@ var (
 )
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
-	if err := diecodegen.CheckRegistered(diecoordinationv1.AddToScheme, coordinationv1.AddToScheme, diecoordinationv1.SchemeGroupVersion); err != nil {
+	if err := diecodegen.CheckRegisteredCategories(diecoordinationv1.SchemeBuilder, coordinationv1.AddToScheme, diecoordinationv1.SchemeGroupVersion); err != nil {
 		t.Error(err)
 	}
 }

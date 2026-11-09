@@ -343,6 +343,20 @@ d, err := dieappsv1.DeploymentBlank.DieStampE(func(d *dieappsv1.DeploymentDieMut
 replicas := d.Spec().Replicas().Get()
 ```
 
+A scheme maps a kind to one Go type, so a scheme can't have both a kind's upstream type and its die, or both its dies. Each die package's `SchemeBuilder` registers its kinds in three categories, from `reconciler.io/dies/v2/die/schemes`: `schemes.Types`, the Go types the dies are of; `schemes.Dies`, the immutable dies; and `schemes.DieMuts`, the mutable dies, which `AddToScheme` registers. A list die is the list's die of both categories of dies. `SchemeBuilder.AddToSchemeAs(c)` returns an `AddToScheme` for one category, for anything that takes one, and `SchemeBuilder.AddToComposite` registers every category in a `schemes.Composite`, which holds a scheme of each:
+
+```go
+cs := schemes.NewComposite()
+_ = apis.SchemeBuilder.AddToComposite(cs)
+
+gvk := dieappsv1.SchemeGroupVersion.WithKind("Deployment")
+d, _ := cs.New(gvk, schemes.DieMuts)    // a *DeploymentDieMut; Types gives an *appsv1.Deployment, Dies a *DeploymentDie
+kinds, _, _ := cs.ObjectKinds(dieappsv1.DeploymentBlank) // the kinds of an object of any category
+scheme, _, _ := cs.SchemeFor(d)                          // the scheme a client of d's type takes
+```
+
+A composite scheme is a `runtime.ObjectTyper` of objects of every category. `SchemeFor` finds an object's scheme by its Go type. A type in more than one scheme, such as a list die or apimachinery's meta types, is found in the first of Types, DieMuts and Dies that has it, and an unstructured object's scheme is that of Types. A Go type that isn't a `runtime.Object`, as a cloned type isn't, isn't registered. A group's `SchemeBuilder` is made of its versions', by their `Add` methods: `schemes.NewBuilder(appsv1.SchemeBuilder.Add, appsv1beta1.SchemeBuilder.Add)`.
+
 A client strips the type metadata of a typed object as it decodes it. Dies don't treat that as intent, and an apply patch fills in the object's `apiVersion` and `kind` from its die type.
 
 ### Apply configurations

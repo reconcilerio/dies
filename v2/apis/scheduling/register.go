@@ -18,23 +18,24 @@ limitations under the License.
 package scheduling
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
-
 	schedulingv1 "reconciler.io/dies/v2/apis/scheduling/v1"
 	schedulingv1alpha3 "reconciler.io/dies/v2/apis/scheduling/v1alpha3"
 	schedulingv1beta1 "reconciler.io/dies/v2/apis/scheduling/v1beta1"
+	"reconciler.io/dies/v2/die/schemes"
 )
 
 const GroupName = schedulingv1.GroupName
 
-// SchemeBuilder registers the dies of every version of the group, in order
+// SchemeBuilder registers the types and dies of every version of the group,
+// of each category, in order
 // of version priority.
-var SchemeBuilder = runtime.NewSchemeBuilder(
-	schedulingv1.AddToScheme,
-	schedulingv1beta1.AddToScheme,
-	schedulingv1alpha3.AddToScheme,
+var SchemeBuilder = schemes.NewBuilder(
+	schedulingv1.SchemeBuilder.Add,
+	schedulingv1beta1.SchemeBuilder.Add,
+	schedulingv1alpha3.SchemeBuilder.Add,
 )
 
-// AddToScheme registers the dies of every version of the group with a
-// scheme.
+// AddToScheme registers the mutable dies of every version of the group
+// with a scheme. SchemeBuilder.AddToSchemeAs registers another category, and
+// SchemeBuilder.AddToComposite each.
 var AddToScheme = SchemeBuilder.AddToScheme
