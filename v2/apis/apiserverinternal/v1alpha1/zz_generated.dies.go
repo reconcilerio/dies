@@ -107,16 +107,16 @@ func (d *ServerStorageVersionDieMut) DieStampApplyConfiguration(fn func(ac *Serv
 type serverStorageVersionFieldsTable struct {
 	APIServerID       diefields.Field[ServerStorageVersion, string]
 	EncodingVersion   diefields.Field[ServerStorageVersion, string]
-	DecodableVersions diefields.Field[ServerStorageVersion, []string]
-	ServedVersions    diefields.Field[ServerStorageVersion, []string]
+	DecodableVersions diefields.ListField[ServerStorageVersion, string, diefields.Value[string], diefields.ValueMut[string]]
+	ServedVersions    diefields.ListField[ServerStorageVersion, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var serverStorageVersionFields = &diefields.Table[serverStorageVersionFieldsTable]{Build: func() (f serverStorageVersionFieldsTable) {
 	_ = annotated
 	f.APIServerID = diefields.NewField[ServerStorageVersion, string]("apiServerID")
 	f.EncodingVersion = diefields.NewField[ServerStorageVersion, string]("encodingVersion")
-	f.DecodableVersions = diefields.NewField[ServerStorageVersion, []string]("decodableVersions")
-	f.ServedVersions = diefields.NewField[ServerStorageVersion, []string]("servedVersions")
+	f.DecodableVersions = diefields.NewValueList[ServerStorageVersion, string]("decodableVersions")
+	f.ServedVersions = diefields.NewValueList[ServerStorageVersion, string]("servedVersions")
 	return
 }}
 
@@ -134,14 +134,14 @@ func (d *ServerStorageVersionDie) EncodingVersion() diefields.Value[string] {
 // decodableVersions are the encoding versions the API server can handle to decode.
 // The API server can decode objects encoded in these versions.
 // The encodingVersion must be included in the decodableVersions.
-func (d *ServerStorageVersionDie) DecodableVersions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, serverStorageVersionFields.Get().DecodableVersions)
+func (d *ServerStorageVersionDie) DecodableVersions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, serverStorageVersionFields.Get().DecodableVersions)
 }
 
 // servedVersions lists all versions the API server can serve.
 // DecodableVersions must include all ServedVersions.
-func (d *ServerStorageVersionDie) ServedVersions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, serverStorageVersionFields.Get().ServedVersions)
+func (d *ServerStorageVersionDie) ServedVersions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, serverStorageVersionFields.Get().ServedVersions)
 }
 
 // apiServerID is the ID of the reporting API server.
@@ -158,14 +158,14 @@ func (d *ServerStorageVersionDieMut) EncodingVersion() diefields.ValueMut[string
 // decodableVersions are the encoding versions the API server can handle to decode.
 // The API server can decode objects encoded in these versions.
 // The encodingVersion must be included in the decodableVersions.
-func (d *ServerStorageVersionDieMut) DecodableVersions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, serverStorageVersionFields.Get().DecodableVersions)
+func (d *ServerStorageVersionDieMut) DecodableVersions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, serverStorageVersionFields.Get().DecodableVersions)
 }
 
 // servedVersions lists all versions the API server can serve.
 // DecodableVersions must include all ServedVersions.
-func (d *ServerStorageVersionDieMut) ServedVersions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, serverStorageVersionFields.Get().ServedVersions)
+func (d *ServerStorageVersionDieMut) ServedVersions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, serverStorageVersionFields.Get().ServedVersions)
 }
 
 // +kubebuilder:object:generate=false

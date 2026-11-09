@@ -468,25 +468,25 @@ func (d *CompositePodGroupSchedulingConstraintsDieMut) DieStampApplyConfiguratio
 // +k8s:deepcopy-gen=false
 
 type compositePodGroupSchedulingConstraintsFieldsTable struct {
-	Topology diefields.Field[CompositePodGroupSchedulingConstraints, []TopologyConstraint]
+	Topology diefields.ListField[CompositePodGroupSchedulingConstraints, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]
 }
 
 var compositePodGroupSchedulingConstraintsFields = &diefields.Table[compositePodGroupSchedulingConstraintsFieldsTable]{Build: func() (f compositePodGroupSchedulingConstraintsFieldsTable) {
 	_ = annotated
-	f.Topology = diefields.NewItems[CompositePodGroupSchedulingConstraints, []TopologyConstraint, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]("topology")
+	f.Topology = diefields.NewList[CompositePodGroupSchedulingConstraints, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]("topology")
 	return
 }}
 
 // topology defines the topology constraints for the composite pod group.
 // Currently only a single topology constraint can be specified. This may change in the future.
-func (d *CompositePodGroupSchedulingConstraintsDie) Topology() diefields.Value[[]TopologyConstraint] {
-	return diefields.ValueOf(d, compositePodGroupSchedulingConstraintsFields.Get().Topology)
+func (d *CompositePodGroupSchedulingConstraintsDie) Topology() *diefields.List[TopologyConstraint, *TopologyConstraintDie] {
+	return diefields.ListOf(d, compositePodGroupSchedulingConstraintsFields.Get().Topology)
 }
 
 // topology defines the topology constraints for the composite pod group.
 // Currently only a single topology constraint can be specified. This may change in the future.
-func (d *CompositePodGroupSchedulingConstraintsDieMut) Topology() diefields.ValueMut[[]TopologyConstraint] {
-	return diefields.ValueMutOf(d, compositePodGroupSchedulingConstraintsFields.Get().Topology)
+func (d *CompositePodGroupSchedulingConstraintsDieMut) Topology() *diefields.ListMut[TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut] {
+	return diefields.ListMutOf(d, compositePodGroupSchedulingConstraintsFields.Get().Topology)
 }
 
 // +kubebuilder:object:generate=false
@@ -1564,25 +1564,25 @@ func (d *PodGroupSchedulingConstraintsDieMut) DieStampApplyConfiguration(fn func
 // +k8s:deepcopy-gen=false
 
 type podGroupSchedulingConstraintsFieldsTable struct {
-	Topology diefields.Field[PodGroupSchedulingConstraints, []TopologyConstraint]
+	Topology diefields.ListField[PodGroupSchedulingConstraints, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]
 }
 
 var podGroupSchedulingConstraintsFields = &diefields.Table[podGroupSchedulingConstraintsFieldsTable]{Build: func() (f podGroupSchedulingConstraintsFieldsTable) {
 	_ = annotated
-	f.Topology = diefields.NewItems[PodGroupSchedulingConstraints, []TopologyConstraint, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]("topology")
+	f.Topology = diefields.NewList[PodGroupSchedulingConstraints, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]("topology")
 	return
 }}
 
 // topology defines the topology constraints for the pod group.
 // Currently only a single topology constraint can be specified. This may change in the future.
-func (d *PodGroupSchedulingConstraintsDie) Topology() diefields.Value[[]TopologyConstraint] {
-	return diefields.ValueOf(d, podGroupSchedulingConstraintsFields.Get().Topology)
+func (d *PodGroupSchedulingConstraintsDie) Topology() *diefields.List[TopologyConstraint, *TopologyConstraintDie] {
+	return diefields.ListOf(d, podGroupSchedulingConstraintsFields.Get().Topology)
 }
 
 // topology defines the topology constraints for the pod group.
 // Currently only a single topology constraint can be specified. This may change in the future.
-func (d *PodGroupSchedulingConstraintsDieMut) Topology() diefields.ValueMut[[]TopologyConstraint] {
-	return diefields.ValueMutOf(d, podGroupSchedulingConstraintsFields.Get().Topology)
+func (d *PodGroupSchedulingConstraintsDieMut) Topology() *diefields.ListMut[TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut] {
+	return diefields.ListMutOf(d, podGroupSchedulingConstraintsFields.Get().Topology)
 }
 
 // +kubebuilder:object:generate=false

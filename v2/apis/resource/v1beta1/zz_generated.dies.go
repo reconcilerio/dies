@@ -433,14 +433,14 @@ func (d *BasicDeviceDieMut) DieStampApplyConfiguration(fn func(ac *BasicDeviceAp
 type basicDeviceFieldsTable struct {
 	Attributes               diefields.Field[BasicDevice, map[QualifiedName]DeviceAttribute]
 	Capacity                 diefields.Field[BasicDevice, map[QualifiedName]DeviceCapacity]
-	ConsumesCounters         diefields.Field[BasicDevice, []DeviceCounterConsumption]
+	ConsumesCounters         diefields.ListField[BasicDevice, DeviceCounterConsumption, *DeviceCounterConsumptionDie, *DeviceCounterConsumptionDieMut]
 	NodeName                 diefields.Field[BasicDevice, *string]
 	NodeSelector             diefields.Struct[BasicDevice, diecorev1.NodeSelector, *diecorev1.NodeSelectorDie, *diecorev1.NodeSelectorDieMut]
 	AllNodes                 diefields.Field[BasicDevice, *bool]
-	Taints                   diefields.Field[BasicDevice, []DeviceTaint]
+	Taints                   diefields.ListField[BasicDevice, DeviceTaint, *DeviceTaintDie, *DeviceTaintDieMut]
 	BindsToNode              diefields.Field[BasicDevice, *bool]
-	BindingConditions        diefields.Field[BasicDevice, []string]
-	BindingFailureConditions diefields.Field[BasicDevice, []string]
+	BindingConditions        diefields.ListField[BasicDevice, string, diefields.Value[string], diefields.ValueMut[string]]
+	BindingFailureConditions diefields.ListField[BasicDevice, string, diefields.Value[string], diefields.ValueMut[string]]
 	AllowMultipleAllocations diefields.Field[BasicDevice, *bool]
 	NodeAllocatableResources diefields.Field[BasicDevice, map[diecorev1.ResourceName]NodeAllocatableResource]
 }
@@ -449,14 +449,14 @@ var basicDeviceFields = &diefields.Table[basicDeviceFieldsTable]{Build: func() (
 	_ = annotated
 	f.Attributes = diefields.NewField[BasicDevice, map[QualifiedName]DeviceAttribute]("attributes")
 	f.Capacity = diefields.NewField[BasicDevice, map[QualifiedName]DeviceCapacity]("capacity")
-	f.ConsumesCounters = diefields.NewItems[BasicDevice, []DeviceCounterConsumption, DeviceCounterConsumption, *DeviceCounterConsumptionDie, *DeviceCounterConsumptionDieMut]("consumesCounters")
+	f.ConsumesCounters = diefields.NewList[BasicDevice, DeviceCounterConsumption, *DeviceCounterConsumptionDie, *DeviceCounterConsumptionDieMut]("consumesCounters")
 	f.NodeName = diefields.NewField[BasicDevice, *string]("nodeName")
 	f.NodeSelector = diefields.NewStruct[BasicDevice, diecorev1.NodeSelector, *diecorev1.NodeSelectorDie, *diecorev1.NodeSelectorDieMut]("nodeSelector")
 	f.AllNodes = diefields.NewField[BasicDevice, *bool]("allNodes")
-	f.Taints = diefields.NewItems[BasicDevice, []DeviceTaint, DeviceTaint, *DeviceTaintDie, *DeviceTaintDieMut]("taints")
+	f.Taints = diefields.NewList[BasicDevice, DeviceTaint, *DeviceTaintDie, *DeviceTaintDieMut]("taints")
 	f.BindsToNode = diefields.NewField[BasicDevice, *bool]("bindsToNode")
-	f.BindingConditions = diefields.NewField[BasicDevice, []string]("bindingConditions")
-	f.BindingFailureConditions = diefields.NewField[BasicDevice, []string]("bindingFailureConditions")
+	f.BindingConditions = diefields.NewValueList[BasicDevice, string]("bindingConditions")
+	f.BindingFailureConditions = diefields.NewValueList[BasicDevice, string]("bindingFailureConditions")
 	f.AllowMultipleAllocations = diefields.NewField[BasicDevice, *bool]("allowMultipleAllocations")
 	f.NodeAllocatableResources = diefields.NewField[BasicDevice, map[diecorev1.ResourceName]NodeAllocatableResource]("nodeAllocatableResources")
 	return
@@ -486,8 +486,8 @@ func (d *BasicDeviceDie) Capacity() diefields.Value[map[QualifiedName]DeviceCapa
 //
 // The maximum number of device counter consumptions per
 // device is 2.
-func (d *BasicDeviceDie) ConsumesCounters() diefields.Value[[]DeviceCounterConsumption] {
-	return diefields.ValueOf(d, basicDeviceFields.Get().ConsumesCounters)
+func (d *BasicDeviceDie) ConsumesCounters() *diefields.List[DeviceCounterConsumption, *DeviceCounterConsumptionDie] {
+	return diefields.ListOf(d, basicDeviceFields.Get().ConsumesCounters)
 }
 
 // NodeName identifies the node where the device is available.
@@ -524,8 +524,8 @@ func (d *BasicDeviceDie) AllNodes() diefields.Optional[bool] {
 //
 // This is a beta field and requires enabling the DRADeviceTaints
 // feature gate.
-func (d *BasicDeviceDie) Taints() diefields.Value[[]DeviceTaint] {
-	return diefields.ValueOf(d, basicDeviceFields.Get().Taints)
+func (d *BasicDeviceDie) Taints() *diefields.List[DeviceTaint, *DeviceTaintDie] {
+	return diefields.ListOf(d, basicDeviceFields.Get().Taints)
 }
 
 // BindsToNode indicates if the usage of an allocation involving this device
@@ -550,8 +550,8 @@ func (d *BasicDeviceDie) BindsToNode() diefields.Optional[bool] {
 //
 // This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
 // feature gates.
-func (d *BasicDeviceDie) BindingConditions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, basicDeviceFields.Get().BindingConditions)
+func (d *BasicDeviceDie) BindingConditions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, basicDeviceFields.Get().BindingConditions)
 }
 
 // BindingFailureConditions defines the conditions for binding failure.
@@ -564,8 +564,8 @@ func (d *BasicDeviceDie) BindingConditions() diefields.Value[[]string] {
 //
 // This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
 // feature gates.
-func (d *BasicDeviceDie) BindingFailureConditions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, basicDeviceFields.Get().BindingFailureConditions)
+func (d *BasicDeviceDie) BindingFailureConditions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, basicDeviceFields.Get().BindingFailureConditions)
 }
 
 // AllowMultipleAllocations marks whether the device is allowed to be allocated to multiple DeviceRequests.
@@ -615,8 +615,8 @@ func (d *BasicDeviceDieMut) Capacity() diefields.ValueMut[map[QualifiedName]Devi
 //
 // The maximum number of device counter consumptions per
 // device is 2.
-func (d *BasicDeviceDieMut) ConsumesCounters() diefields.ValueMut[[]DeviceCounterConsumption] {
-	return diefields.ValueMutOf(d, basicDeviceFields.Get().ConsumesCounters)
+func (d *BasicDeviceDieMut) ConsumesCounters() *diefields.ListMut[DeviceCounterConsumption, *DeviceCounterConsumptionDie, *DeviceCounterConsumptionDieMut] {
+	return diefields.ListMutOf(d, basicDeviceFields.Get().ConsumesCounters)
 }
 
 // NodeName identifies the node where the device is available.
@@ -653,8 +653,8 @@ func (d *BasicDeviceDieMut) AllNodes() diefields.OptionalMut[bool] {
 //
 // This is a beta field and requires enabling the DRADeviceTaints
 // feature gate.
-func (d *BasicDeviceDieMut) Taints() diefields.ValueMut[[]DeviceTaint] {
-	return diefields.ValueMutOf(d, basicDeviceFields.Get().Taints)
+func (d *BasicDeviceDieMut) Taints() *diefields.ListMut[DeviceTaint, *DeviceTaintDie, *DeviceTaintDieMut] {
+	return diefields.ListMutOf(d, basicDeviceFields.Get().Taints)
 }
 
 // BindsToNode indicates if the usage of an allocation involving this device
@@ -679,8 +679,8 @@ func (d *BasicDeviceDieMut) BindsToNode() diefields.OptionalMut[bool] {
 //
 // This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
 // feature gates.
-func (d *BasicDeviceDieMut) BindingConditions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, basicDeviceFields.Get().BindingConditions)
+func (d *BasicDeviceDieMut) BindingConditions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, basicDeviceFields.Get().BindingConditions)
 }
 
 // BindingFailureConditions defines the conditions for binding failure.
@@ -693,8 +693,8 @@ func (d *BasicDeviceDieMut) BindingConditions() diefields.ValueMut[[]string] {
 //
 // This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
 // feature gates.
-func (d *BasicDeviceDieMut) BindingFailureConditions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, basicDeviceFields.Get().BindingFailureConditions)
+func (d *BasicDeviceDieMut) BindingFailureConditions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, basicDeviceFields.Get().BindingFailureConditions)
 }
 
 // AllowMultipleAllocations marks whether the device is allowed to be allocated to multiple DeviceRequests.
@@ -1022,14 +1022,14 @@ func (d *CapacityRequestPolicyDieMut) DieStampApplyConfiguration(fn func(ac *Cap
 
 type capacityRequestPolicyFieldsTable struct {
 	Default     diefields.Field[CapacityRequestPolicy, *resource.Quantity]
-	ValidValues diefields.Field[CapacityRequestPolicy, []resource.Quantity]
+	ValidValues diefields.ListField[CapacityRequestPolicy, resource.Quantity, diefields.Value[resource.Quantity], diefields.ValueMut[resource.Quantity]]
 	ValidRange  diefields.Struct[CapacityRequestPolicy, CapacityRequestPolicyRange, *CapacityRequestPolicyRangeDie, *CapacityRequestPolicyRangeDieMut]
 }
 
 var capacityRequestPolicyFields = &diefields.Table[capacityRequestPolicyFieldsTable]{Build: func() (f capacityRequestPolicyFieldsTable) {
 	_ = annotated
 	f.Default = diefields.NewField[CapacityRequestPolicy, *resource.Quantity]("default")
-	f.ValidValues = diefields.NewField[CapacityRequestPolicy, []resource.Quantity]("validValues")
+	f.ValidValues = diefields.NewValueList[CapacityRequestPolicy, resource.Quantity]("validValues")
 	f.ValidRange = diefields.NewStruct[CapacityRequestPolicy, CapacityRequestPolicyRange, *CapacityRequestPolicyRangeDie, *CapacityRequestPolicyRangeDieMut]("validRange")
 	return
 }}
@@ -1054,8 +1054,8 @@ func (d *CapacityRequestPolicyDie) Default() diefields.Optional[resource.Quantit
 //
 // If the requested amount exceeds all valid values, the request violates the policy,
 // and this device cannot be allocated.
-func (d *CapacityRequestPolicyDie) ValidValues() diefields.Value[[]resource.Quantity] {
-	return diefields.ValueOf(d, capacityRequestPolicyFields.Get().ValidValues)
+func (d *CapacityRequestPolicyDie) ValidValues() *diefields.List[resource.Quantity, diefields.Value[resource.Quantity]] {
+	return diefields.ListOf(d, capacityRequestPolicyFields.Get().ValidValues)
 }
 
 // ValidRange defines an acceptable quantity value range in consuming requests.
@@ -1091,8 +1091,8 @@ func (d *CapacityRequestPolicyDieMut) Default() diefields.OptionalMut[resource.Q
 //
 // If the requested amount exceeds all valid values, the request violates the policy,
 // and this device cannot be allocated.
-func (d *CapacityRequestPolicyDieMut) ValidValues() diefields.ValueMut[[]resource.Quantity] {
-	return diefields.ValueMutOf(d, capacityRequestPolicyFields.Get().ValidValues)
+func (d *CapacityRequestPolicyDieMut) ValidValues() *diefields.ListMut[resource.Quantity, diefields.Value[resource.Quantity], diefields.ValueMut[resource.Quantity]] {
+	return diefields.ListMutOf(d, capacityRequestPolicyFields.Get().ValidValues)
 }
 
 // ValidRange defines an acceptable quantity value range in consuming requests.
@@ -1776,14 +1776,14 @@ func (d *DeviceAllocationConfigurationDieMut) DieStampApplyConfiguration(fn func
 
 type deviceAllocationConfigurationFieldsTable struct {
 	Source   diefields.Field[DeviceAllocationConfiguration, AllocationConfigSource]
-	Requests diefields.Field[DeviceAllocationConfiguration, []string]
+	Requests diefields.ListField[DeviceAllocationConfiguration, string, diefields.Value[string], diefields.ValueMut[string]]
 	Opaque   diefields.Struct[DeviceAllocationConfiguration, OpaqueDeviceConfiguration, *OpaqueDeviceConfigurationDie, *OpaqueDeviceConfigurationDieMut]
 }
 
 var deviceAllocationConfigurationFields = &diefields.Table[deviceAllocationConfigurationFieldsTable]{Build: func() (f deviceAllocationConfigurationFieldsTable) {
 	_ = annotated
 	f.Source = diefields.NewField[DeviceAllocationConfiguration, AllocationConfigSource]("source")
-	f.Requests = diefields.NewField[DeviceAllocationConfiguration, []string]("requests")
+	f.Requests = diefields.NewValueList[DeviceAllocationConfiguration, string]("requests")
 	f.Opaque = diefields.NewStruct[DeviceAllocationConfiguration, OpaqueDeviceConfiguration, *OpaqueDeviceConfigurationDie, *OpaqueDeviceConfigurationDieMut]("opaque")
 	return
 }}
@@ -1801,8 +1801,8 @@ func (d *DeviceAllocationConfigurationDie) Source() diefields.Value[AllocationCo
 // References to subrequests must include the name of the main request
 // and may include the subrequest using the format <main request>[/<subrequest>]. If just
 // the main request is given, the configuration applies to all subrequests.
-func (d *DeviceAllocationConfigurationDie) Requests() diefields.Value[[]string] {
-	return diefields.ValueOf(d, deviceAllocationConfigurationFields.Get().Requests)
+func (d *DeviceAllocationConfigurationDie) Requests() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, deviceAllocationConfigurationFields.Get().Requests)
 }
 
 // Opaque provides driver-specific configuration parameters.
@@ -1823,8 +1823,8 @@ func (d *DeviceAllocationConfigurationDieMut) Source() diefields.ValueMut[Alloca
 // References to subrequests must include the name of the main request
 // and may include the subrequest using the format <main request>[/<subrequest>]. If just
 // the main request is given, the configuration applies to all subrequests.
-func (d *DeviceAllocationConfigurationDieMut) Requests() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, deviceAllocationConfigurationFields.Get().Requests)
+func (d *DeviceAllocationConfigurationDieMut) Requests() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, deviceAllocationConfigurationFields.Get().Requests)
 }
 
 // Opaque provides driver-specific configuration parameters.
@@ -1904,20 +1904,20 @@ func (d *DeviceAllocationResultDieMut) DieStampApplyConfiguration(fn func(ac *De
 // +k8s:deepcopy-gen=false
 
 type deviceAllocationResultFieldsTable struct {
-	Results diefields.Field[DeviceAllocationResult, []DeviceRequestAllocationResult]
-	Config  diefields.Field[DeviceAllocationResult, []DeviceAllocationConfiguration]
+	Results diefields.ListField[DeviceAllocationResult, DeviceRequestAllocationResult, *DeviceRequestAllocationResultDie, *DeviceRequestAllocationResultDieMut]
+	Config  diefields.ListField[DeviceAllocationResult, DeviceAllocationConfiguration, *DeviceAllocationConfigurationDie, *DeviceAllocationConfigurationDieMut]
 }
 
 var deviceAllocationResultFields = &diefields.Table[deviceAllocationResultFieldsTable]{Build: func() (f deviceAllocationResultFieldsTable) {
 	_ = annotated
-	f.Results = diefields.NewItems[DeviceAllocationResult, []DeviceRequestAllocationResult, DeviceRequestAllocationResult, *DeviceRequestAllocationResultDie, *DeviceRequestAllocationResultDieMut]("results")
-	f.Config = diefields.NewItems[DeviceAllocationResult, []DeviceAllocationConfiguration, DeviceAllocationConfiguration, *DeviceAllocationConfigurationDie, *DeviceAllocationConfigurationDieMut]("config")
+	f.Results = diefields.NewList[DeviceAllocationResult, DeviceRequestAllocationResult, *DeviceRequestAllocationResultDie, *DeviceRequestAllocationResultDieMut]("results")
+	f.Config = diefields.NewList[DeviceAllocationResult, DeviceAllocationConfiguration, *DeviceAllocationConfigurationDie, *DeviceAllocationConfigurationDieMut]("config")
 	return
 }}
 
 // Results lists all allocated devices.
-func (d *DeviceAllocationResultDie) Results() diefields.Value[[]DeviceRequestAllocationResult] {
-	return diefields.ValueOf(d, deviceAllocationResultFields.Get().Results)
+func (d *DeviceAllocationResultDie) Results() *diefields.List[DeviceRequestAllocationResult, *DeviceRequestAllocationResultDie] {
+	return diefields.ListOf(d, deviceAllocationResultFields.Get().Results)
 }
 
 // This field is a combination of all the claim and class configuration parameters.
@@ -1927,13 +1927,13 @@ func (d *DeviceAllocationResultDie) Results() diefields.Value[[]DeviceRequestAll
 // devices in the result because it is up to the drivers which configuration
 // parameters they support. They can silently ignore unknown configuration
 // parameters.
-func (d *DeviceAllocationResultDie) Config() diefields.Value[[]DeviceAllocationConfiguration] {
-	return diefields.ValueOf(d, deviceAllocationResultFields.Get().Config)
+func (d *DeviceAllocationResultDie) Config() *diefields.List[DeviceAllocationConfiguration, *DeviceAllocationConfigurationDie] {
+	return diefields.ListOf(d, deviceAllocationResultFields.Get().Config)
 }
 
 // Results lists all allocated devices.
-func (d *DeviceAllocationResultDieMut) Results() diefields.ValueMut[[]DeviceRequestAllocationResult] {
-	return diefields.ValueMutOf(d, deviceAllocationResultFields.Get().Results)
+func (d *DeviceAllocationResultDieMut) Results() *diefields.ListMut[DeviceRequestAllocationResult, *DeviceRequestAllocationResultDie, *DeviceRequestAllocationResultDieMut] {
+	return diefields.ListMutOf(d, deviceAllocationResultFields.Get().Results)
 }
 
 // This field is a combination of all the claim and class configuration parameters.
@@ -1943,8 +1943,8 @@ func (d *DeviceAllocationResultDieMut) Results() diefields.ValueMut[[]DeviceRequ
 // devices in the result because it is up to the drivers which configuration
 // parameters they support. They can silently ignore unknown configuration
 // parameters.
-func (d *DeviceAllocationResultDieMut) Config() diefields.ValueMut[[]DeviceAllocationConfiguration] {
-	return diefields.ValueMutOf(d, deviceAllocationResultFields.Get().Config)
+func (d *DeviceAllocationResultDieMut) Config() *diefields.ListMut[DeviceAllocationConfiguration, *DeviceAllocationConfigurationDie, *DeviceAllocationConfigurationDieMut] {
+	return diefields.ListMutOf(d, deviceAllocationResultFields.Get().Config)
 }
 
 // +kubebuilder:object:generate=false
@@ -2023,10 +2023,10 @@ type deviceAttributeFieldsTable struct {
 	BoolValue     diefields.Field[DeviceAttribute, *bool]
 	StringValue   diefields.Field[DeviceAttribute, *string]
 	VersionValue  diefields.Field[DeviceAttribute, *string]
-	IntValues     diefields.Field[DeviceAttribute, []int64]
-	BoolValues    diefields.Field[DeviceAttribute, []bool]
-	StringValues  diefields.Field[DeviceAttribute, []string]
-	VersionValues diefields.Field[DeviceAttribute, []string]
+	IntValues     diefields.ListField[DeviceAttribute, int64, diefields.Value[int64], diefields.ValueMut[int64]]
+	BoolValues    diefields.ListField[DeviceAttribute, bool, diefields.Value[bool], diefields.ValueMut[bool]]
+	StringValues  diefields.ListField[DeviceAttribute, string, diefields.Value[string], diefields.ValueMut[string]]
+	VersionValues diefields.ListField[DeviceAttribute, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var deviceAttributeFields = &diefields.Table[deviceAttributeFieldsTable]{Build: func() (f deviceAttributeFieldsTable) {
@@ -2035,10 +2035,10 @@ var deviceAttributeFields = &diefields.Table[deviceAttributeFieldsTable]{Build: 
 	f.BoolValue = diefields.NewField[DeviceAttribute, *bool]("bool")
 	f.StringValue = diefields.NewField[DeviceAttribute, *string]("string")
 	f.VersionValue = diefields.NewField[DeviceAttribute, *string]("version")
-	f.IntValues = diefields.NewField[DeviceAttribute, []int64]("ints")
-	f.BoolValues = diefields.NewField[DeviceAttribute, []bool]("bools")
-	f.StringValues = diefields.NewField[DeviceAttribute, []string]("strings")
-	f.VersionValues = diefields.NewField[DeviceAttribute, []string]("versions")
+	f.IntValues = diefields.NewValueList[DeviceAttribute, int64]("ints")
+	f.BoolValues = diefields.NewValueList[DeviceAttribute, bool]("bools")
+	f.StringValues = diefields.NewValueList[DeviceAttribute, string]("strings")
+	f.VersionValues = diefields.NewValueList[DeviceAttribute, string]("versions")
 	return
 }}
 
@@ -2066,29 +2066,29 @@ func (d *DeviceAttributeDie) VersionValue() diefields.Optional[string] {
 // IntValues is a non-empty list of numbers.
 //
 // This is an alpha field and requires enabling the DRAListTypeAttributes feature gate.
-func (d *DeviceAttributeDie) IntValues() diefields.Value[[]int64] {
-	return diefields.ValueOf(d, deviceAttributeFields.Get().IntValues)
+func (d *DeviceAttributeDie) IntValues() *diefields.List[int64, diefields.Value[int64]] {
+	return diefields.ListOf(d, deviceAttributeFields.Get().IntValues)
 }
 
 // BoolValues is a non-empty list of true/false values.
-func (d *DeviceAttributeDie) BoolValues() diefields.Value[[]bool] {
-	return diefields.ValueOf(d, deviceAttributeFields.Get().BoolValues)
+func (d *DeviceAttributeDie) BoolValues() *diefields.List[bool, diefields.Value[bool]] {
+	return diefields.ListOf(d, deviceAttributeFields.Get().BoolValues)
 }
 
 // StringValues is a non-empty list of strings.
 // Each string must not be longer than 64 characters.
 //
 // This is an alpha field and requires enabling the DRAListTypeAttributes feature gate.
-func (d *DeviceAttributeDie) StringValues() diefields.Value[[]string] {
-	return diefields.ValueOf(d, deviceAttributeFields.Get().StringValues)
+func (d *DeviceAttributeDie) StringValues() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, deviceAttributeFields.Get().StringValues)
 }
 
 // VersionValues is a non-empty list of semantic versions according to semver.org spec 2.0.0.
 // Each version string must not be longer than 64 characters.
 //
 // This is an alpha field and requires enabling the DRAListTypeAttributes feature gate.
-func (d *DeviceAttributeDie) VersionValues() diefields.Value[[]string] {
-	return diefields.ValueOf(d, deviceAttributeFields.Get().VersionValues)
+func (d *DeviceAttributeDie) VersionValues() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, deviceAttributeFields.Get().VersionValues)
 }
 
 // IntValue is a number.
@@ -2115,29 +2115,29 @@ func (d *DeviceAttributeDieMut) VersionValue() diefields.OptionalMut[string] {
 // IntValues is a non-empty list of numbers.
 //
 // This is an alpha field and requires enabling the DRAListTypeAttributes feature gate.
-func (d *DeviceAttributeDieMut) IntValues() diefields.ValueMut[[]int64] {
-	return diefields.ValueMutOf(d, deviceAttributeFields.Get().IntValues)
+func (d *DeviceAttributeDieMut) IntValues() *diefields.ListMut[int64, diefields.Value[int64], diefields.ValueMut[int64]] {
+	return diefields.ListMutOf(d, deviceAttributeFields.Get().IntValues)
 }
 
 // BoolValues is a non-empty list of true/false values.
-func (d *DeviceAttributeDieMut) BoolValues() diefields.ValueMut[[]bool] {
-	return diefields.ValueMutOf(d, deviceAttributeFields.Get().BoolValues)
+func (d *DeviceAttributeDieMut) BoolValues() *diefields.ListMut[bool, diefields.Value[bool], diefields.ValueMut[bool]] {
+	return diefields.ListMutOf(d, deviceAttributeFields.Get().BoolValues)
 }
 
 // StringValues is a non-empty list of strings.
 // Each string must not be longer than 64 characters.
 //
 // This is an alpha field and requires enabling the DRAListTypeAttributes feature gate.
-func (d *DeviceAttributeDieMut) StringValues() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, deviceAttributeFields.Get().StringValues)
+func (d *DeviceAttributeDieMut) StringValues() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, deviceAttributeFields.Get().StringValues)
 }
 
 // VersionValues is a non-empty list of semantic versions according to semver.org spec 2.0.0.
 // Each version string must not be longer than 64 characters.
 //
 // This is an alpha field and requires enabling the DRAListTypeAttributes feature gate.
-func (d *DeviceAttributeDieMut) VersionValues() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, deviceAttributeFields.Get().VersionValues)
+func (d *DeviceAttributeDieMut) VersionValues() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, deviceAttributeFields.Get().VersionValues)
 }
 
 // +kubebuilder:object:generate=false
@@ -2339,55 +2339,55 @@ func (d *DeviceClaimDieMut) DieStampApplyConfiguration(fn func(ac *DeviceClaimAp
 // +k8s:deepcopy-gen=false
 
 type deviceClaimFieldsTable struct {
-	Requests    diefields.Field[DeviceClaim, []DeviceRequest]
-	Constraints diefields.Field[DeviceClaim, []DeviceConstraint]
-	Config      diefields.Field[DeviceClaim, []DeviceClaimConfiguration]
+	Requests    diefields.ListField[DeviceClaim, DeviceRequest, *DeviceRequestDie, *DeviceRequestDieMut]
+	Constraints diefields.ListField[DeviceClaim, DeviceConstraint, *DeviceConstraintDie, *DeviceConstraintDieMut]
+	Config      diefields.ListField[DeviceClaim, DeviceClaimConfiguration, *DeviceClaimConfigurationDie, *DeviceClaimConfigurationDieMut]
 }
 
 var deviceClaimFields = &diefields.Table[deviceClaimFieldsTable]{Build: func() (f deviceClaimFieldsTable) {
 	_ = annotated
-	f.Requests = diefields.NewItems[DeviceClaim, []DeviceRequest, DeviceRequest, *DeviceRequestDie, *DeviceRequestDieMut]("requests")
-	f.Constraints = diefields.NewItems[DeviceClaim, []DeviceConstraint, DeviceConstraint, *DeviceConstraintDie, *DeviceConstraintDieMut]("constraints")
-	f.Config = diefields.NewItems[DeviceClaim, []DeviceClaimConfiguration, DeviceClaimConfiguration, *DeviceClaimConfigurationDie, *DeviceClaimConfigurationDieMut]("config")
+	f.Requests = diefields.NewList[DeviceClaim, DeviceRequest, *DeviceRequestDie, *DeviceRequestDieMut]("requests")
+	f.Constraints = diefields.NewList[DeviceClaim, DeviceConstraint, *DeviceConstraintDie, *DeviceConstraintDieMut]("constraints")
+	f.Config = diefields.NewList[DeviceClaim, DeviceClaimConfiguration, *DeviceClaimConfigurationDie, *DeviceClaimConfigurationDieMut]("config")
 	return
 }}
 
 // Requests represent individual requests for distinct devices which
 // must all be satisfied. If empty, nothing needs to be allocated.
-func (d *DeviceClaimDie) Requests() diefields.Value[[]DeviceRequest] {
-	return diefields.ValueOf(d, deviceClaimFields.Get().Requests)
+func (d *DeviceClaimDie) Requests() *diefields.List[DeviceRequest, *DeviceRequestDie] {
+	return diefields.ListOf(d, deviceClaimFields.Get().Requests)
 }
 
 // These constraints must be satisfied by the set of devices that get
 // allocated for the claim.
-func (d *DeviceClaimDie) Constraints() diefields.Value[[]DeviceConstraint] {
-	return diefields.ValueOf(d, deviceClaimFields.Get().Constraints)
+func (d *DeviceClaimDie) Constraints() *diefields.List[DeviceConstraint, *DeviceConstraintDie] {
+	return diefields.ListOf(d, deviceClaimFields.Get().Constraints)
 }
 
 // This field holds configuration for multiple potential drivers which
 // could satisfy requests in this claim. It is ignored while allocating
 // the claim.
-func (d *DeviceClaimDie) Config() diefields.Value[[]DeviceClaimConfiguration] {
-	return diefields.ValueOf(d, deviceClaimFields.Get().Config)
+func (d *DeviceClaimDie) Config() *diefields.List[DeviceClaimConfiguration, *DeviceClaimConfigurationDie] {
+	return diefields.ListOf(d, deviceClaimFields.Get().Config)
 }
 
 // Requests represent individual requests for distinct devices which
 // must all be satisfied. If empty, nothing needs to be allocated.
-func (d *DeviceClaimDieMut) Requests() diefields.ValueMut[[]DeviceRequest] {
-	return diefields.ValueMutOf(d, deviceClaimFields.Get().Requests)
+func (d *DeviceClaimDieMut) Requests() *diefields.ListMut[DeviceRequest, *DeviceRequestDie, *DeviceRequestDieMut] {
+	return diefields.ListMutOf(d, deviceClaimFields.Get().Requests)
 }
 
 // These constraints must be satisfied by the set of devices that get
 // allocated for the claim.
-func (d *DeviceClaimDieMut) Constraints() diefields.ValueMut[[]DeviceConstraint] {
-	return diefields.ValueMutOf(d, deviceClaimFields.Get().Constraints)
+func (d *DeviceClaimDieMut) Constraints() *diefields.ListMut[DeviceConstraint, *DeviceConstraintDie, *DeviceConstraintDieMut] {
+	return diefields.ListMutOf(d, deviceClaimFields.Get().Constraints)
 }
 
 // This field holds configuration for multiple potential drivers which
 // could satisfy requests in this claim. It is ignored while allocating
 // the claim.
-func (d *DeviceClaimDieMut) Config() diefields.ValueMut[[]DeviceClaimConfiguration] {
-	return diefields.ValueMutOf(d, deviceClaimFields.Get().Config)
+func (d *DeviceClaimDieMut) Config() *diefields.ListMut[DeviceClaimConfiguration, *DeviceClaimConfigurationDie, *DeviceClaimConfigurationDieMut] {
+	return diefields.ListMutOf(d, deviceClaimFields.Get().Config)
 }
 
 // +kubebuilder:object:generate=false
@@ -2462,13 +2462,13 @@ func (d *DeviceClaimConfigurationDieMut) DieStampApplyConfiguration(fn func(ac *
 // +k8s:deepcopy-gen=false
 
 type deviceClaimConfigurationFieldsTable struct {
-	Requests diefields.Field[DeviceClaimConfiguration, []string]
+	Requests diefields.ListField[DeviceClaimConfiguration, string, diefields.Value[string], diefields.ValueMut[string]]
 	Opaque   diefields.Struct[DeviceClaimConfiguration, OpaqueDeviceConfiguration, *OpaqueDeviceConfigurationDie, *OpaqueDeviceConfigurationDieMut]
 }
 
 var deviceClaimConfigurationFields = &diefields.Table[deviceClaimConfigurationFieldsTable]{Build: func() (f deviceClaimConfigurationFieldsTable) {
 	_ = annotated
-	f.Requests = diefields.NewField[DeviceClaimConfiguration, []string]("requests")
+	f.Requests = diefields.NewValueList[DeviceClaimConfiguration, string]("requests")
 	f.Opaque = diefields.NewStruct[DeviceClaimConfiguration, OpaqueDeviceConfiguration, *OpaqueDeviceConfigurationDie, *OpaqueDeviceConfigurationDieMut]("opaque")
 	return
 }}
@@ -2479,8 +2479,8 @@ var deviceClaimConfigurationFields = &diefields.Table[deviceClaimConfigurationFi
 // References to subrequests must include the name of the main request
 // and may include the subrequest using the format <main request>[/<subrequest>]. If just
 // the main request is given, the configuration applies to all subrequests.
-func (d *DeviceClaimConfigurationDie) Requests() diefields.Value[[]string] {
-	return diefields.ValueOf(d, deviceClaimConfigurationFields.Get().Requests)
+func (d *DeviceClaimConfigurationDie) Requests() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, deviceClaimConfigurationFields.Get().Requests)
 }
 
 // Opaque provides driver-specific configuration parameters.
@@ -2494,8 +2494,8 @@ func (d *DeviceClaimConfigurationDie) Opaque() *OpaqueDeviceConfigurationDie {
 // References to subrequests must include the name of the main request
 // and may include the subrequest using the format <main request>[/<subrequest>]. If just
 // the main request is given, the configuration applies to all subrequests.
-func (d *DeviceClaimConfigurationDieMut) Requests() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, deviceClaimConfigurationFields.Get().Requests)
+func (d *DeviceClaimConfigurationDieMut) Requests() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, deviceClaimConfigurationFields.Get().Requests)
 }
 
 // Opaque provides driver-specific configuration parameters.
@@ -2846,22 +2846,22 @@ func (d *DeviceClassSpecDieMut) DieStampApplyConfiguration(fn func(ac *DeviceCla
 // +k8s:deepcopy-gen=false
 
 type deviceClassSpecFieldsTable struct {
-	Selectors            diefields.Field[DeviceClassSpec, []DeviceSelector]
-	Config               diefields.Field[DeviceClassSpec, []DeviceClassConfiguration]
+	Selectors            diefields.ListField[DeviceClassSpec, DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut]
+	Config               diefields.ListField[DeviceClassSpec, DeviceClassConfiguration, *DeviceClassConfigurationDie, *DeviceClassConfigurationDieMut]
 	ExtendedResourceName diefields.Field[DeviceClassSpec, *string]
 }
 
 var deviceClassSpecFields = &diefields.Table[deviceClassSpecFieldsTable]{Build: func() (f deviceClassSpecFieldsTable) {
 	_ = annotated
-	f.Selectors = diefields.NewItems[DeviceClassSpec, []DeviceSelector, DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut]("selectors")
-	f.Config = diefields.NewItems[DeviceClassSpec, []DeviceClassConfiguration, DeviceClassConfiguration, *DeviceClassConfigurationDie, *DeviceClassConfigurationDieMut]("config")
+	f.Selectors = diefields.NewList[DeviceClassSpec, DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut]("selectors")
+	f.Config = diefields.NewList[DeviceClassSpec, DeviceClassConfiguration, *DeviceClassConfigurationDie, *DeviceClassConfigurationDieMut]("config")
 	f.ExtendedResourceName = diefields.NewField[DeviceClassSpec, *string]("extendedResourceName")
 	return
 }}
 
 // Each selector must be satisfied by a device which is claimed via this class.
-func (d *DeviceClassSpecDie) Selectors() diefields.Value[[]DeviceSelector] {
-	return diefields.ValueOf(d, deviceClassSpecFields.Get().Selectors)
+func (d *DeviceClassSpecDie) Selectors() *diefields.List[DeviceSelector, *DeviceSelectorDie] {
+	return diefields.ListOf(d, deviceClassSpecFields.Get().Selectors)
 }
 
 // Config defines configuration parameters that apply to each device that is claimed via this class.
@@ -2869,8 +2869,8 @@ func (d *DeviceClassSpecDie) Selectors() diefields.Value[[]DeviceSelector] {
 // configuration applies to exactly one driver.
 //
 // They are passed to the driver, but are not considered while allocating the claim.
-func (d *DeviceClassSpecDie) Config() diefields.Value[[]DeviceClassConfiguration] {
-	return diefields.ValueOf(d, deviceClassSpecFields.Get().Config)
+func (d *DeviceClassSpecDie) Config() *diefields.List[DeviceClassConfiguration, *DeviceClassConfigurationDie] {
+	return diefields.ListOf(d, deviceClassSpecFields.Get().Config)
 }
 
 // ExtendedResourceName is the extended resource name for the devices of this class.
@@ -2886,8 +2886,8 @@ func (d *DeviceClassSpecDie) ExtendedResourceName() diefields.Optional[string] {
 }
 
 // Each selector must be satisfied by a device which is claimed via this class.
-func (d *DeviceClassSpecDieMut) Selectors() diefields.ValueMut[[]DeviceSelector] {
-	return diefields.ValueMutOf(d, deviceClassSpecFields.Get().Selectors)
+func (d *DeviceClassSpecDieMut) Selectors() *diefields.ListMut[DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut] {
+	return diefields.ListMutOf(d, deviceClassSpecFields.Get().Selectors)
 }
 
 // Config defines configuration parameters that apply to each device that is claimed via this class.
@@ -2895,8 +2895,8 @@ func (d *DeviceClassSpecDieMut) Selectors() diefields.ValueMut[[]DeviceSelector]
 // configuration applies to exactly one driver.
 //
 // They are passed to the driver, but are not considered while allocating the claim.
-func (d *DeviceClassSpecDieMut) Config() diefields.ValueMut[[]DeviceClassConfiguration] {
-	return diefields.ValueMutOf(d, deviceClassSpecFields.Get().Config)
+func (d *DeviceClassSpecDieMut) Config() *diefields.ListMut[DeviceClassConfiguration, *DeviceClassConfigurationDie, *DeviceClassConfigurationDieMut] {
+	return diefields.ListMutOf(d, deviceClassSpecFields.Get().Config)
 }
 
 // ExtendedResourceName is the extended resource name for the devices of this class.
@@ -3076,14 +3076,14 @@ func (d *DeviceConstraintDieMut) DieStampApplyConfiguration(fn func(ac *DeviceCo
 // +k8s:deepcopy-gen=false
 
 type deviceConstraintFieldsTable struct {
-	Requests          diefields.Field[DeviceConstraint, []string]
+	Requests          diefields.ListField[DeviceConstraint, string, diefields.Value[string], diefields.ValueMut[string]]
 	MatchAttribute    diefields.Field[DeviceConstraint, *FullyQualifiedName]
 	DistinctAttribute diefields.Field[DeviceConstraint, *FullyQualifiedName]
 }
 
 var deviceConstraintFields = &diefields.Table[deviceConstraintFieldsTable]{Build: func() (f deviceConstraintFieldsTable) {
 	_ = annotated
-	f.Requests = diefields.NewField[DeviceConstraint, []string]("requests")
+	f.Requests = diefields.NewValueList[DeviceConstraint, string]("requests")
 	f.MatchAttribute = diefields.NewField[DeviceConstraint, *FullyQualifiedName]("matchAttribute")
 	f.DistinctAttribute = diefields.NewField[DeviceConstraint, *FullyQualifiedName]("distinctAttribute")
 	return
@@ -3098,8 +3098,8 @@ var deviceConstraintFields = &diefields.Table[deviceConstraintFieldsTable]{Build
 // References to subrequests must include the name of the main request
 // and may include the subrequest using the format <main request>[/<subrequest>]. If just
 // the main request is given, the constraint applies to all subrequests.
-func (d *DeviceConstraintDie) Requests() diefields.Value[[]string] {
-	return diefields.ValueOf(d, deviceConstraintFields.Get().Requests)
+func (d *DeviceConstraintDie) Requests() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, deviceConstraintFields.Get().Requests)
 }
 
 // MatchAttribute requires that all devices in question have this
@@ -3151,8 +3151,8 @@ func (d *DeviceConstraintDie) DistinctAttribute() diefields.Optional[FullyQualif
 // References to subrequests must include the name of the main request
 // and may include the subrequest using the format <main request>[/<subrequest>]. If just
 // the main request is given, the constraint applies to all subrequests.
-func (d *DeviceConstraintDieMut) Requests() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, deviceConstraintFields.Get().Requests)
+func (d *DeviceConstraintDieMut) Requests() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, deviceConstraintFields.Get().Requests)
 }
 
 // MatchAttribute requires that all devices in question have this
@@ -3270,14 +3270,14 @@ func (d *DeviceCounterConsumptionDieMut) DieStampApplyConfiguration(fn func(ac *
 type deviceCounterConsumptionFieldsTable struct {
 	CounterSet          diefields.Field[DeviceCounterConsumption, string]
 	Counters            diefields.Field[DeviceCounterConsumption, map[string]Counter]
-	CompatibilityGroups diefields.Field[DeviceCounterConsumption, []string]
+	CompatibilityGroups diefields.ListField[DeviceCounterConsumption, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var deviceCounterConsumptionFields = &diefields.Table[deviceCounterConsumptionFieldsTable]{Build: func() (f deviceCounterConsumptionFieldsTable) {
 	_ = annotated
 	f.CounterSet = diefields.NewField[DeviceCounterConsumption, string]("counterSet")
 	f.Counters = diefields.NewField[DeviceCounterConsumption, map[string]Counter]("counters")
-	f.CompatibilityGroups = diefields.NewField[DeviceCounterConsumption, []string]("compatibilityGroups")
+	f.CompatibilityGroups = diefields.NewValueList[DeviceCounterConsumption, string]("compatibilityGroups")
 	return
 }}
 
@@ -3313,8 +3313,8 @@ func (d *DeviceCounterConsumptionDie) Counters() diefields.Value[map[string]Coun
 // publishing driver's pool.
 //
 // The maximum number of groups is 2, and the names must be unique.
-func (d *DeviceCounterConsumptionDie) CompatibilityGroups() diefields.Value[[]string] {
-	return diefields.ValueOf(d, deviceCounterConsumptionFields.Get().CompatibilityGroups)
+func (d *DeviceCounterConsumptionDie) CompatibilityGroups() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, deviceCounterConsumptionFields.Get().CompatibilityGroups)
 }
 
 // CounterSet is the name of the set from which the
@@ -3349,8 +3349,8 @@ func (d *DeviceCounterConsumptionDieMut) Counters() diefields.ValueMut[map[strin
 // publishing driver's pool.
 //
 // The maximum number of groups is 2, and the names must be unique.
-func (d *DeviceCounterConsumptionDieMut) CompatibilityGroups() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, deviceCounterConsumptionFields.Get().CompatibilityGroups)
+func (d *DeviceCounterConsumptionDieMut) CompatibilityGroups() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, deviceCounterConsumptionFields.Get().CompatibilityGroups)
 }
 
 // +kubebuilder:object:generate=false
@@ -3610,28 +3610,28 @@ func (d *DeviceRequestDieMut) DieStampApplyConfiguration(fn func(ac *DeviceReque
 type deviceRequestFieldsTable struct {
 	Name              diefields.Field[DeviceRequest, string]
 	DeviceClassName   diefields.Field[DeviceRequest, string]
-	Selectors         diefields.Field[DeviceRequest, []DeviceSelector]
+	Selectors         diefields.ListField[DeviceRequest, DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut]
 	AllocationMode    diefields.Field[DeviceRequest, DeviceAllocationMode]
 	Count             diefields.Field[DeviceRequest, int64]
 	AdminAccess       diefields.Field[DeviceRequest, *bool]
-	FirstAvailable    diefields.Field[DeviceRequest, []DeviceSubRequest]
-	Tolerations       diefields.Field[DeviceRequest, []DeviceToleration]
+	FirstAvailable    diefields.ListField[DeviceRequest, DeviceSubRequest, *DeviceSubRequestDie, *DeviceSubRequestDieMut]
+	Tolerations       diefields.ListField[DeviceRequest, DeviceToleration, *DeviceTolerationDie, *DeviceTolerationDieMut]
 	Capacity          diefields.Struct[DeviceRequest, CapacityRequirements, *CapacityRequirementsDie, *CapacityRequirementsDieMut]
-	DerivedAttributes diefields.Field[DeviceRequest, []DeviceDerivedAttribute]
+	DerivedAttributes diefields.ListField[DeviceRequest, DeviceDerivedAttribute, *DeviceDerivedAttributeDie, *DeviceDerivedAttributeDieMut]
 }
 
 var deviceRequestFields = &diefields.Table[deviceRequestFieldsTable]{Build: func() (f deviceRequestFieldsTable) {
 	_ = annotated
 	f.Name = diefields.NewField[DeviceRequest, string]("name")
 	f.DeviceClassName = diefields.NewField[DeviceRequest, string]("deviceClassName")
-	f.Selectors = diefields.NewItems[DeviceRequest, []DeviceSelector, DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut]("selectors")
+	f.Selectors = diefields.NewList[DeviceRequest, DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut]("selectors")
 	f.AllocationMode = diefields.NewField[DeviceRequest, DeviceAllocationMode]("allocationMode")
 	f.Count = diefields.NewField[DeviceRequest, int64]("count")
 	f.AdminAccess = diefields.NewField[DeviceRequest, *bool]("adminAccess")
-	f.FirstAvailable = diefields.NewItems[DeviceRequest, []DeviceSubRequest, DeviceSubRequest, *DeviceSubRequestDie, *DeviceSubRequestDieMut]("firstAvailable")
-	f.Tolerations = diefields.NewItems[DeviceRequest, []DeviceToleration, DeviceToleration, *DeviceTolerationDie, *DeviceTolerationDieMut]("tolerations")
+	f.FirstAvailable = diefields.NewList[DeviceRequest, DeviceSubRequest, *DeviceSubRequestDie, *DeviceSubRequestDieMut]("firstAvailable")
+	f.Tolerations = diefields.NewList[DeviceRequest, DeviceToleration, *DeviceTolerationDie, *DeviceTolerationDieMut]("tolerations")
 	f.Capacity = diefields.NewStruct[DeviceRequest, CapacityRequirements, *CapacityRequirementsDie, *CapacityRequirementsDieMut]("capacity")
-	f.DerivedAttributes = diefields.NewItems[DeviceRequest, []DeviceDerivedAttribute, DeviceDerivedAttribute, *DeviceDerivedAttributeDie, *DeviceDerivedAttributeDieMut]("derivedAttributes")
+	f.DerivedAttributes = diefields.NewList[DeviceRequest, DeviceDerivedAttribute, *DeviceDerivedAttributeDie, *DeviceDerivedAttributeDieMut]("derivedAttributes")
 	return
 }}
 
@@ -3669,8 +3669,8 @@ func (d *DeviceRequestDie) DeviceClassName() diefields.Value[string] {
 //
 // This field can only be set when deviceClassName is set and no subrequests
 // are specified in the firstAvailable list.
-func (d *DeviceRequestDie) Selectors() diefields.Value[[]DeviceSelector] {
-	return diefields.ValueOf(d, deviceRequestFields.Get().Selectors)
+func (d *DeviceRequestDie) Selectors() *diefields.List[DeviceSelector, *DeviceSelectorDie] {
+	return diefields.ListOf(d, deviceRequestFields.Get().Selectors)
 }
 
 // AllocationMode and its related fields define how devices are allocated
@@ -3738,8 +3738,8 @@ func (d *DeviceRequestDie) AdminAccess() diefields.Optional[bool] {
 // will determine which node is chosen. This means that the set of
 // devices allocated to a claim might not be the optimal set
 // available to the cluster. Scoring will be implemented later.
-func (d *DeviceRequestDie) FirstAvailable() diefields.Value[[]DeviceSubRequest] {
-	return diefields.ValueOf(d, deviceRequestFields.Get().FirstAvailable)
+func (d *DeviceRequestDie) FirstAvailable() *diefields.List[DeviceSubRequest, *DeviceSubRequestDie] {
+	return diefields.ListOf(d, deviceRequestFields.Get().FirstAvailable)
 }
 
 // If specified, the request's tolerations.
@@ -3762,8 +3762,8 @@ func (d *DeviceRequestDie) FirstAvailable() diefields.Value[[]DeviceSubRequest] 
 //
 // This is a beta field and requires enabling the DRADeviceTaints
 // feature gate.
-func (d *DeviceRequestDie) Tolerations() diefields.Value[[]DeviceToleration] {
-	return diefields.ValueOf(d, deviceRequestFields.Get().Tolerations)
+func (d *DeviceRequestDie) Tolerations() *diefields.List[DeviceToleration, *DeviceTolerationDie] {
+	return diefields.ListOf(d, deviceRequestFields.Get().Tolerations)
 }
 
 // Capacity define resource requirements against each capacity.
@@ -3802,8 +3802,8 @@ func (d *DeviceRequestDie) Capacity() *CapacityRequirementsDie {
 //
 // This is an alpha field and requires enabling the DRADerivedAttributes
 // feature gate.
-func (d *DeviceRequestDie) DerivedAttributes() diefields.Value[[]DeviceDerivedAttribute] {
-	return diefields.ValueOf(d, deviceRequestFields.Get().DerivedAttributes)
+func (d *DeviceRequestDie) DerivedAttributes() *diefields.List[DeviceDerivedAttribute, *DeviceDerivedAttributeDie] {
+	return diefields.ListOf(d, deviceRequestFields.Get().DerivedAttributes)
 }
 
 // Name can be used to reference this request in a pod.spec.containers[].resources.claims
@@ -3840,8 +3840,8 @@ func (d *DeviceRequestDieMut) DeviceClassName() diefields.ValueMut[string] {
 //
 // This field can only be set when deviceClassName is set and no subrequests
 // are specified in the firstAvailable list.
-func (d *DeviceRequestDieMut) Selectors() diefields.ValueMut[[]DeviceSelector] {
-	return diefields.ValueMutOf(d, deviceRequestFields.Get().Selectors)
+func (d *DeviceRequestDieMut) Selectors() *diefields.ListMut[DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut] {
+	return diefields.ListMutOf(d, deviceRequestFields.Get().Selectors)
 }
 
 // AllocationMode and its related fields define how devices are allocated
@@ -3909,8 +3909,8 @@ func (d *DeviceRequestDieMut) AdminAccess() diefields.OptionalMut[bool] {
 // will determine which node is chosen. This means that the set of
 // devices allocated to a claim might not be the optimal set
 // available to the cluster. Scoring will be implemented later.
-func (d *DeviceRequestDieMut) FirstAvailable() diefields.ValueMut[[]DeviceSubRequest] {
-	return diefields.ValueMutOf(d, deviceRequestFields.Get().FirstAvailable)
+func (d *DeviceRequestDieMut) FirstAvailable() *diefields.ListMut[DeviceSubRequest, *DeviceSubRequestDie, *DeviceSubRequestDieMut] {
+	return diefields.ListMutOf(d, deviceRequestFields.Get().FirstAvailable)
 }
 
 // If specified, the request's tolerations.
@@ -3933,8 +3933,8 @@ func (d *DeviceRequestDieMut) FirstAvailable() diefields.ValueMut[[]DeviceSubReq
 //
 // This is a beta field and requires enabling the DRADeviceTaints
 // feature gate.
-func (d *DeviceRequestDieMut) Tolerations() diefields.ValueMut[[]DeviceToleration] {
-	return diefields.ValueMutOf(d, deviceRequestFields.Get().Tolerations)
+func (d *DeviceRequestDieMut) Tolerations() *diefields.ListMut[DeviceToleration, *DeviceTolerationDie, *DeviceTolerationDieMut] {
+	return diefields.ListMutOf(d, deviceRequestFields.Get().Tolerations)
 }
 
 // Capacity define resource requirements against each capacity.
@@ -3973,8 +3973,8 @@ func (d *DeviceRequestDieMut) Capacity() *CapacityRequirementsDieMut {
 //
 // This is an alpha field and requires enabling the DRADerivedAttributes
 // feature gate.
-func (d *DeviceRequestDieMut) DerivedAttributes() diefields.ValueMut[[]DeviceDerivedAttribute] {
-	return diefields.ValueMutOf(d, deviceRequestFields.Get().DerivedAttributes)
+func (d *DeviceRequestDieMut) DerivedAttributes() *diefields.ListMut[DeviceDerivedAttribute, *DeviceDerivedAttributeDie, *DeviceDerivedAttributeDieMut] {
+	return diefields.ListMutOf(d, deviceRequestFields.Get().DerivedAttributes)
 }
 
 // +kubebuilder:object:generate=false
@@ -4054,12 +4054,12 @@ type deviceRequestAllocationResultFieldsTable struct {
 	Pool                     diefields.Field[DeviceRequestAllocationResult, string]
 	Device                   diefields.Field[DeviceRequestAllocationResult, string]
 	AdminAccess              diefields.Field[DeviceRequestAllocationResult, *bool]
-	Tolerations              diefields.Field[DeviceRequestAllocationResult, []DeviceToleration]
-	BindingConditions        diefields.Field[DeviceRequestAllocationResult, []string]
-	BindingFailureConditions diefields.Field[DeviceRequestAllocationResult, []string]
+	Tolerations              diefields.ListField[DeviceRequestAllocationResult, DeviceToleration, *DeviceTolerationDie, *DeviceTolerationDieMut]
+	BindingConditions        diefields.ListField[DeviceRequestAllocationResult, string, diefields.Value[string], diefields.ValueMut[string]]
+	BindingFailureConditions diefields.ListField[DeviceRequestAllocationResult, string, diefields.Value[string], diefields.ValueMut[string]]
 	ShareID                  diefields.Field[DeviceRequestAllocationResult, *types.UID]
 	ConsumedCapacity         diefields.MapField[DeviceRequestAllocationResult, QualifiedName, resource.Quantity]
-	SkipNodeOperations       diefields.Field[DeviceRequestAllocationResult, []SkipNodeOperation]
+	SkipNodeOperations       diefields.ListField[DeviceRequestAllocationResult, SkipNodeOperation, diefields.Value[SkipNodeOperation], diefields.ValueMut[SkipNodeOperation]]
 }
 
 var deviceRequestAllocationResultFields = &diefields.Table[deviceRequestAllocationResultFieldsTable]{Build: func() (f deviceRequestAllocationResultFieldsTable) {
@@ -4069,12 +4069,12 @@ var deviceRequestAllocationResultFields = &diefields.Table[deviceRequestAllocati
 	f.Pool = diefields.NewField[DeviceRequestAllocationResult, string]("pool")
 	f.Device = diefields.NewField[DeviceRequestAllocationResult, string]("device")
 	f.AdminAccess = diefields.NewField[DeviceRequestAllocationResult, *bool]("adminAccess")
-	f.Tolerations = diefields.NewItems[DeviceRequestAllocationResult, []DeviceToleration, DeviceToleration, *DeviceTolerationDie, *DeviceTolerationDieMut]("tolerations")
-	f.BindingConditions = diefields.NewField[DeviceRequestAllocationResult, []string]("bindingConditions")
-	f.BindingFailureConditions = diefields.NewField[DeviceRequestAllocationResult, []string]("bindingFailureConditions")
+	f.Tolerations = diefields.NewList[DeviceRequestAllocationResult, DeviceToleration, *DeviceTolerationDie, *DeviceTolerationDieMut]("tolerations")
+	f.BindingConditions = diefields.NewValueList[DeviceRequestAllocationResult, string]("bindingConditions")
+	f.BindingFailureConditions = diefields.NewValueList[DeviceRequestAllocationResult, string]("bindingFailureConditions")
 	f.ShareID = diefields.NewField[DeviceRequestAllocationResult, *types.UID]("shareID")
 	f.ConsumedCapacity = diefields.NewMap[DeviceRequestAllocationResult, QualifiedName, resource.Quantity]("consumedCapacity")
-	f.SkipNodeOperations = diefields.NewField[DeviceRequestAllocationResult, []SkipNodeOperation]("skipNodeOperations")
+	f.SkipNodeOperations = diefields.NewValueList[DeviceRequestAllocationResult, SkipNodeOperation]("skipNodeOperations")
 	return
 }}
 
@@ -4132,8 +4132,8 @@ func (d *DeviceRequestAllocationResultDie) AdminAccess() diefields.Optional[bool
 //
 // This is a beta field and requires enabling the DRADeviceTaints
 // feature gate.
-func (d *DeviceRequestAllocationResultDie) Tolerations() diefields.Value[[]DeviceToleration] {
-	return diefields.ValueOf(d, deviceRequestAllocationResultFields.Get().Tolerations)
+func (d *DeviceRequestAllocationResultDie) Tolerations() *diefields.List[DeviceToleration, *DeviceTolerationDie] {
+	return diefields.ListOf(d, deviceRequestAllocationResultFields.Get().Tolerations)
 }
 
 // BindingConditions contains a copy of the BindingConditions
@@ -4141,8 +4141,8 @@ func (d *DeviceRequestAllocationResultDie) Tolerations() diefields.Value[[]Devic
 //
 // This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
 // feature gates.
-func (d *DeviceRequestAllocationResultDie) BindingConditions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, deviceRequestAllocationResultFields.Get().BindingConditions)
+func (d *DeviceRequestAllocationResultDie) BindingConditions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, deviceRequestAllocationResultFields.Get().BindingConditions)
 }
 
 // BindingFailureConditions contains a copy of the BindingFailureConditions
@@ -4150,8 +4150,8 @@ func (d *DeviceRequestAllocationResultDie) BindingConditions() diefields.Value[[
 //
 // This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
 // feature gates.
-func (d *DeviceRequestAllocationResultDie) BindingFailureConditions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, deviceRequestAllocationResultFields.Get().BindingFailureConditions)
+func (d *DeviceRequestAllocationResultDie) BindingFailureConditions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, deviceRequestAllocationResultFields.Get().BindingFailureConditions)
 }
 
 // ShareID uniquely identifies an individual allocation share of the device,
@@ -4179,8 +4179,8 @@ func (d *DeviceRequestAllocationResultDie) ConsumedCapacity() *diefields.Map[Qua
 // operations are necessary on the node. If all allocated devices for a driver in
 // a claim skip an operation, that gRPC call will be skipped. It is a copy of
 // the ResourceSlice.spec.skipNodeOperations value at the time when the device was allocated.
-func (d *DeviceRequestAllocationResultDie) SkipNodeOperations() diefields.Value[[]SkipNodeOperation] {
-	return diefields.ValueOf(d, deviceRequestAllocationResultFields.Get().SkipNodeOperations)
+func (d *DeviceRequestAllocationResultDie) SkipNodeOperations() *diefields.List[SkipNodeOperation, diefields.Value[SkipNodeOperation]] {
+	return diefields.ListOf(d, deviceRequestAllocationResultFields.Get().SkipNodeOperations)
 }
 
 // Request is the name of the request in the claim which caused this
@@ -4237,8 +4237,8 @@ func (d *DeviceRequestAllocationResultDieMut) AdminAccess() diefields.OptionalMu
 //
 // This is a beta field and requires enabling the DRADeviceTaints
 // feature gate.
-func (d *DeviceRequestAllocationResultDieMut) Tolerations() diefields.ValueMut[[]DeviceToleration] {
-	return diefields.ValueMutOf(d, deviceRequestAllocationResultFields.Get().Tolerations)
+func (d *DeviceRequestAllocationResultDieMut) Tolerations() *diefields.ListMut[DeviceToleration, *DeviceTolerationDie, *DeviceTolerationDieMut] {
+	return diefields.ListMutOf(d, deviceRequestAllocationResultFields.Get().Tolerations)
 }
 
 // BindingConditions contains a copy of the BindingConditions
@@ -4246,8 +4246,8 @@ func (d *DeviceRequestAllocationResultDieMut) Tolerations() diefields.ValueMut[[
 //
 // This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
 // feature gates.
-func (d *DeviceRequestAllocationResultDieMut) BindingConditions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, deviceRequestAllocationResultFields.Get().BindingConditions)
+func (d *DeviceRequestAllocationResultDieMut) BindingConditions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, deviceRequestAllocationResultFields.Get().BindingConditions)
 }
 
 // BindingFailureConditions contains a copy of the BindingFailureConditions
@@ -4255,8 +4255,8 @@ func (d *DeviceRequestAllocationResultDieMut) BindingConditions() diefields.Valu
 //
 // This is a beta field and requires enabling the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus
 // feature gates.
-func (d *DeviceRequestAllocationResultDieMut) BindingFailureConditions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, deviceRequestAllocationResultFields.Get().BindingFailureConditions)
+func (d *DeviceRequestAllocationResultDieMut) BindingFailureConditions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, deviceRequestAllocationResultFields.Get().BindingFailureConditions)
 }
 
 // ShareID uniquely identifies an individual allocation share of the device,
@@ -4284,8 +4284,8 @@ func (d *DeviceRequestAllocationResultDieMut) ConsumedCapacity() *diefields.MapM
 // operations are necessary on the node. If all allocated devices for a driver in
 // a claim skip an operation, that gRPC call will be skipped. It is a copy of
 // the ResourceSlice.spec.skipNodeOperations value at the time when the device was allocated.
-func (d *DeviceRequestAllocationResultDieMut) SkipNodeOperations() diefields.ValueMut[[]SkipNodeOperation] {
-	return diefields.ValueMutOf(d, deviceRequestAllocationResultFields.Get().SkipNodeOperations)
+func (d *DeviceRequestAllocationResultDieMut) SkipNodeOperations() *diefields.ListMut[SkipNodeOperation, diefields.Value[SkipNodeOperation], diefields.ValueMut[SkipNodeOperation]] {
+	return diefields.ListMutOf(d, deviceRequestAllocationResultFields.Get().SkipNodeOperations)
 }
 
 // +kubebuilder:object:generate=false
@@ -4461,24 +4461,24 @@ func (d *DeviceSubRequestDieMut) DieStampApplyConfiguration(fn func(ac *DeviceSu
 type deviceSubRequestFieldsTable struct {
 	Name              diefields.Field[DeviceSubRequest, string]
 	DeviceClassName   diefields.Field[DeviceSubRequest, string]
-	Selectors         diefields.Field[DeviceSubRequest, []DeviceSelector]
+	Selectors         diefields.ListField[DeviceSubRequest, DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut]
 	AllocationMode    diefields.Field[DeviceSubRequest, DeviceAllocationMode]
 	Count             diefields.Field[DeviceSubRequest, int64]
-	Tolerations       diefields.Field[DeviceSubRequest, []DeviceToleration]
+	Tolerations       diefields.ListField[DeviceSubRequest, DeviceToleration, *DeviceTolerationDie, *DeviceTolerationDieMut]
 	Capacity          diefields.Struct[DeviceSubRequest, CapacityRequirements, *CapacityRequirementsDie, *CapacityRequirementsDieMut]
-	DerivedAttributes diefields.Field[DeviceSubRequest, []DeviceDerivedAttribute]
+	DerivedAttributes diefields.ListField[DeviceSubRequest, DeviceDerivedAttribute, *DeviceDerivedAttributeDie, *DeviceDerivedAttributeDieMut]
 }
 
 var deviceSubRequestFields = &diefields.Table[deviceSubRequestFieldsTable]{Build: func() (f deviceSubRequestFieldsTable) {
 	_ = annotated
 	f.Name = diefields.NewField[DeviceSubRequest, string]("name")
 	f.DeviceClassName = diefields.NewField[DeviceSubRequest, string]("deviceClassName")
-	f.Selectors = diefields.NewItems[DeviceSubRequest, []DeviceSelector, DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut]("selectors")
+	f.Selectors = diefields.NewList[DeviceSubRequest, DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut]("selectors")
 	f.AllocationMode = diefields.NewField[DeviceSubRequest, DeviceAllocationMode]("allocationMode")
 	f.Count = diefields.NewField[DeviceSubRequest, int64]("count")
-	f.Tolerations = diefields.NewItems[DeviceSubRequest, []DeviceToleration, DeviceToleration, *DeviceTolerationDie, *DeviceTolerationDieMut]("tolerations")
+	f.Tolerations = diefields.NewList[DeviceSubRequest, DeviceToleration, *DeviceTolerationDie, *DeviceTolerationDieMut]("tolerations")
 	f.Capacity = diefields.NewStruct[DeviceSubRequest, CapacityRequirements, *CapacityRequirementsDie, *CapacityRequirementsDieMut]("capacity")
-	f.DerivedAttributes = diefields.NewItems[DeviceSubRequest, []DeviceDerivedAttribute, DeviceDerivedAttribute, *DeviceDerivedAttributeDie, *DeviceDerivedAttributeDieMut]("derivedAttributes")
+	f.DerivedAttributes = diefields.NewList[DeviceSubRequest, DeviceDerivedAttribute, *DeviceDerivedAttributeDie, *DeviceDerivedAttributeDieMut]("derivedAttributes")
 	return
 }}
 
@@ -4510,8 +4510,8 @@ func (d *DeviceSubRequestDie) DeviceClassName() diefields.Value[string] {
 // device in order for that device to be considered for this
 // subrequest. All selectors must be satisfied for a device to be
 // considered.
-func (d *DeviceSubRequestDie) Selectors() diefields.Value[[]DeviceSelector] {
-	return diefields.ValueOf(d, deviceSubRequestFields.Get().Selectors)
+func (d *DeviceSubRequestDie) Selectors() *diefields.List[DeviceSelector, *DeviceSelectorDie] {
+	return diefields.ListOf(d, deviceSubRequestFields.Get().Selectors)
 }
 
 // AllocationMode and its related fields define how devices are allocated
@@ -4558,8 +4558,8 @@ func (d *DeviceSubRequestDie) Count() diefields.Value[int64] {
 //
 // This is a beta field and requires enabling the DRADeviceTaints
 // feature gate.
-func (d *DeviceSubRequestDie) Tolerations() diefields.Value[[]DeviceToleration] {
-	return diefields.ValueOf(d, deviceSubRequestFields.Get().Tolerations)
+func (d *DeviceSubRequestDie) Tolerations() *diefields.List[DeviceToleration, *DeviceTolerationDie] {
+	return diefields.ListOf(d, deviceSubRequestFields.Get().Tolerations)
 }
 
 // Capacity define resource requirements against each capacity.
@@ -4598,8 +4598,8 @@ func (d *DeviceSubRequestDie) Capacity() *CapacityRequirementsDie {
 //
 // This is an alpha field and requires enabling the DRADerivedAttributes
 // feature gate.
-func (d *DeviceSubRequestDie) DerivedAttributes() diefields.Value[[]DeviceDerivedAttribute] {
-	return diefields.ValueOf(d, deviceSubRequestFields.Get().DerivedAttributes)
+func (d *DeviceSubRequestDie) DerivedAttributes() *diefields.List[DeviceDerivedAttribute, *DeviceDerivedAttributeDie] {
+	return diefields.ListOf(d, deviceSubRequestFields.Get().DerivedAttributes)
 }
 
 // Name can be used to reference this subrequest in the list of constraints
@@ -4630,8 +4630,8 @@ func (d *DeviceSubRequestDieMut) DeviceClassName() diefields.ValueMut[string] {
 // device in order for that device to be considered for this
 // subrequest. All selectors must be satisfied for a device to be
 // considered.
-func (d *DeviceSubRequestDieMut) Selectors() diefields.ValueMut[[]DeviceSelector] {
-	return diefields.ValueMutOf(d, deviceSubRequestFields.Get().Selectors)
+func (d *DeviceSubRequestDieMut) Selectors() *diefields.ListMut[DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut] {
+	return diefields.ListMutOf(d, deviceSubRequestFields.Get().Selectors)
 }
 
 // AllocationMode and its related fields define how devices are allocated
@@ -4678,8 +4678,8 @@ func (d *DeviceSubRequestDieMut) Count() diefields.ValueMut[int64] {
 //
 // This is a beta field and requires enabling the DRADeviceTaints
 // feature gate.
-func (d *DeviceSubRequestDieMut) Tolerations() diefields.ValueMut[[]DeviceToleration] {
-	return diefields.ValueMutOf(d, deviceSubRequestFields.Get().Tolerations)
+func (d *DeviceSubRequestDieMut) Tolerations() *diefields.ListMut[DeviceToleration, *DeviceTolerationDie, *DeviceTolerationDieMut] {
+	return diefields.ListMutOf(d, deviceSubRequestFields.Get().Tolerations)
 }
 
 // Capacity define resource requirements against each capacity.
@@ -4718,8 +4718,8 @@ func (d *DeviceSubRequestDieMut) Capacity() *CapacityRequirementsDieMut {
 //
 // This is an alpha field and requires enabling the DRADerivedAttributes
 // feature gate.
-func (d *DeviceSubRequestDieMut) DerivedAttributes() diefields.ValueMut[[]DeviceDerivedAttribute] {
-	return diefields.ValueMutOf(d, deviceSubRequestFields.Get().DerivedAttributes)
+func (d *DeviceSubRequestDieMut) DerivedAttributes() *diefields.ListMut[DeviceDerivedAttribute, *DeviceDerivedAttributeDie, *DeviceDerivedAttributeDieMut] {
+	return diefields.ListMutOf(d, deviceSubRequestFields.Get().DerivedAttributes)
 }
 
 // +kubebuilder:object:generate=false
@@ -5126,14 +5126,14 @@ func (d *NetworkDeviceDataDieMut) DieStampApplyConfiguration(fn func(ac *Network
 
 type networkDeviceDataFieldsTable struct {
 	InterfaceName   diefields.Field[NetworkDeviceData, string]
-	IPs             diefields.Field[NetworkDeviceData, []string]
+	IPs             diefields.ListField[NetworkDeviceData, string, diefields.Value[string], diefields.ValueMut[string]]
 	HardwareAddress diefields.Field[NetworkDeviceData, string]
 }
 
 var networkDeviceDataFields = &diefields.Table[networkDeviceDataFieldsTable]{Build: func() (f networkDeviceDataFieldsTable) {
 	_ = annotated
 	f.InterfaceName = diefields.NewField[NetworkDeviceData, string]("interfaceName")
-	f.IPs = diefields.NewField[NetworkDeviceData, []string]("ips")
+	f.IPs = diefields.NewValueList[NetworkDeviceData, string]("ips")
 	f.HardwareAddress = diefields.NewField[NetworkDeviceData, string]("hardwareAddress")
 	return
 }}
@@ -5154,8 +5154,8 @@ func (d *NetworkDeviceDataDie) InterfaceName() diefields.Value[string] {
 // e.g.: "192.0.2.5/24" for IPv4 and "2001:db8::5/64" for IPv6.
 //
 // Must not contain more than 16 entries.
-func (d *NetworkDeviceDataDie) IPs() diefields.Value[[]string] {
-	return diefields.ValueOf(d, networkDeviceDataFields.Get().IPs)
+func (d *NetworkDeviceDataDie) IPs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, networkDeviceDataFields.Get().IPs)
 }
 
 // HardwareAddress represents the hardware address (e.g. MAC Address) of the device's network interface.
@@ -5181,8 +5181,8 @@ func (d *NetworkDeviceDataDieMut) InterfaceName() diefields.ValueMut[string] {
 // e.g.: "192.0.2.5/24" for IPv4 and "2001:db8::5/64" for IPv6.
 //
 // Must not contain more than 16 entries.
-func (d *NetworkDeviceDataDieMut) IPs() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, networkDeviceDataFields.Get().IPs)
+func (d *NetworkDeviceDataDieMut) IPs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, networkDeviceDataFields.Get().IPs)
 }
 
 // HardwareAddress represents the hardware address (e.g. MAC Address) of the device's network interface.
@@ -6998,11 +6998,11 @@ type resourceSliceSpecFieldsTable struct {
 	NodeName               diefields.Field[ResourceSliceSpec, string]
 	NodeSelector           diefields.Struct[ResourceSliceSpec, diecorev1.NodeSelector, *diecorev1.NodeSelectorDie, *diecorev1.NodeSelectorDieMut]
 	AllNodes               diefields.Field[ResourceSliceSpec, bool]
-	Devices                diefields.Field[ResourceSliceSpec, []Device]
+	Devices                diefields.ListField[ResourceSliceSpec, Device, *DeviceDie, *DeviceDieMut]
 	PerDeviceNodeSelection diefields.Field[ResourceSliceSpec, *bool]
-	SharedCounters         diefields.Field[ResourceSliceSpec, []CounterSet]
+	SharedCounters         diefields.ListField[ResourceSliceSpec, CounterSet, *CounterSetDie, *CounterSetDieMut]
 	PartitionTypeAttribute diefields.Field[ResourceSliceSpec, *FullyQualifiedName]
-	SkipNodeOperations     diefields.Field[ResourceSliceSpec, []SkipNodeOperation]
+	SkipNodeOperations     diefields.ListField[ResourceSliceSpec, SkipNodeOperation, diefields.Value[SkipNodeOperation], diefields.ValueMut[SkipNodeOperation]]
 }
 
 var resourceSliceSpecFields = &diefields.Table[resourceSliceSpecFieldsTable]{Build: func() (f resourceSliceSpecFieldsTable) {
@@ -7012,11 +7012,11 @@ var resourceSliceSpecFields = &diefields.Table[resourceSliceSpecFieldsTable]{Bui
 	f.NodeName = diefields.NewField[ResourceSliceSpec, string]("nodeName")
 	f.NodeSelector = diefields.NewStruct[ResourceSliceSpec, diecorev1.NodeSelector, *diecorev1.NodeSelectorDie, *diecorev1.NodeSelectorDieMut]("nodeSelector")
 	f.AllNodes = diefields.NewField[ResourceSliceSpec, bool]("allNodes")
-	f.Devices = diefields.NewItems[ResourceSliceSpec, []Device, Device, *DeviceDie, *DeviceDieMut]("devices")
+	f.Devices = diefields.NewList[ResourceSliceSpec, Device, *DeviceDie, *DeviceDieMut]("devices")
 	f.PerDeviceNodeSelection = diefields.NewField[ResourceSliceSpec, *bool]("perDeviceNodeSelection")
-	f.SharedCounters = diefields.NewItems[ResourceSliceSpec, []CounterSet, CounterSet, *CounterSetDie, *CounterSetDieMut]("sharedCounters")
+	f.SharedCounters = diefields.NewList[ResourceSliceSpec, CounterSet, *CounterSetDie, *CounterSetDieMut]("sharedCounters")
 	f.PartitionTypeAttribute = diefields.NewField[ResourceSliceSpec, *FullyQualifiedName]("partitionTypeAttribute")
-	f.SkipNodeOperations = diefields.NewField[ResourceSliceSpec, []SkipNodeOperation]("skipNodeOperations")
+	f.SkipNodeOperations = diefields.NewValueList[ResourceSliceSpec, SkipNodeOperation]("skipNodeOperations")
 	return
 }}
 
@@ -7073,8 +7073,8 @@ func (d *ResourceSliceSpecDie) AllNodes() diefields.Value[bool] {
 // Must not have more than 128 entries. If any device uses taints or consumes counters the limit is 64.
 //
 // Only one of Devices and SharedCounters can be set in a ResourceSlice.
-func (d *ResourceSliceSpecDie) Devices() diefields.Value[[]Device] {
-	return diefields.ValueOf(d, resourceSliceSpecFields.Get().Devices)
+func (d *ResourceSliceSpecDie) Devices() *diefields.List[Device, *DeviceDie] {
+	return diefields.ListOf(d, resourceSliceSpecFields.Get().Devices)
 }
 
 // PerDeviceNodeSelection defines whether the access from nodes to
@@ -7095,8 +7095,8 @@ func (d *ResourceSliceSpecDie) PerDeviceNodeSelection() diefields.Optional[bool]
 // Only one of Devices and SharedCounters can be set in a ResourceSlice.
 //
 // The maximum number of counter sets is 8.
-func (d *ResourceSliceSpecDie) SharedCounters() diefields.Value[[]CounterSet] {
-	return diefields.ValueOf(d, resourceSliceSpecFields.Get().SharedCounters)
+func (d *ResourceSliceSpecDie) SharedCounters() *diefields.List[CounterSet, *CounterSetDie] {
+	return diefields.ListOf(d, resourceSliceSpecFields.Get().SharedCounters)
 }
 
 // PartitionTypeAttribute names a string device attribute (by fully
@@ -7123,8 +7123,8 @@ func (d *ResourceSliceSpecDie) PartitionTypeAttribute() diefields.Optional[Fully
 //
 // Other values may be added in the future. The kubelet must ignore unknown
 // values.
-func (d *ResourceSliceSpecDie) SkipNodeOperations() diefields.Value[[]SkipNodeOperation] {
-	return diefields.ValueOf(d, resourceSliceSpecFields.Get().SkipNodeOperations)
+func (d *ResourceSliceSpecDie) SkipNodeOperations() *diefields.List[SkipNodeOperation, diefields.Value[SkipNodeOperation]] {
+	return diefields.ListOf(d, resourceSliceSpecFields.Get().SkipNodeOperations)
 }
 
 // Driver identifies the DRA driver providing the capacity information.
@@ -7180,8 +7180,8 @@ func (d *ResourceSliceSpecDieMut) AllNodes() diefields.ValueMut[bool] {
 // Must not have more than 128 entries. If any device uses taints or consumes counters the limit is 64.
 //
 // Only one of Devices and SharedCounters can be set in a ResourceSlice.
-func (d *ResourceSliceSpecDieMut) Devices() diefields.ValueMut[[]Device] {
-	return diefields.ValueMutOf(d, resourceSliceSpecFields.Get().Devices)
+func (d *ResourceSliceSpecDieMut) Devices() *diefields.ListMut[Device, *DeviceDie, *DeviceDieMut] {
+	return diefields.ListMutOf(d, resourceSliceSpecFields.Get().Devices)
 }
 
 // PerDeviceNodeSelection defines whether the access from nodes to
@@ -7202,8 +7202,8 @@ func (d *ResourceSliceSpecDieMut) PerDeviceNodeSelection() diefields.OptionalMut
 // Only one of Devices and SharedCounters can be set in a ResourceSlice.
 //
 // The maximum number of counter sets is 8.
-func (d *ResourceSliceSpecDieMut) SharedCounters() diefields.ValueMut[[]CounterSet] {
-	return diefields.ValueMutOf(d, resourceSliceSpecFields.Get().SharedCounters)
+func (d *ResourceSliceSpecDieMut) SharedCounters() *diefields.ListMut[CounterSet, *CounterSetDie, *CounterSetDieMut] {
+	return diefields.ListMutOf(d, resourceSliceSpecFields.Get().SharedCounters)
 }
 
 // PartitionTypeAttribute names a string device attribute (by fully
@@ -7230,8 +7230,8 @@ func (d *ResourceSliceSpecDieMut) PartitionTypeAttribute() diefields.OptionalMut
 //
 // Other values may be added in the future. The kubelet must ignore unknown
 // values.
-func (d *ResourceSliceSpecDieMut) SkipNodeOperations() diefields.ValueMut[[]SkipNodeOperation] {
-	return diefields.ValueMutOf(d, resourceSliceSpecFields.Get().SkipNodeOperations)
+func (d *ResourceSliceSpecDieMut) SkipNodeOperations() *diefields.ListMut[SkipNodeOperation, diefields.Value[SkipNodeOperation], diefields.ValueMut[SkipNodeOperation]] {
+	return diefields.ListMutOf(d, resourceSliceSpecFields.Get().SkipNodeOperations)
 }
 
 // SchemeGroupVersion is the group version of this package's object dies.

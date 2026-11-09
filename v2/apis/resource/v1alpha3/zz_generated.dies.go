@@ -1192,7 +1192,7 @@ type poolStatusFieldsTable struct {
 	UnavailableDevices diefields.Field[PoolStatus, *int32]
 	NodeName           diefields.Field[PoolStatus, *string]
 	ValidationError    diefields.Field[PoolStatus, *string]
-	PartitionSummary   diefields.Field[PoolStatus, []PartitionTypeStatus]
+	PartitionSummary   diefields.ListField[PoolStatus, PartitionTypeStatus, *PartitionTypeStatusDie, *PartitionTypeStatusDieMut]
 	ShareableSummary   diefields.Struct[PoolStatus, ShareableSummaryStatus, *ShareableSummaryStatusDie, *ShareableSummaryStatusDieMut]
 }
 
@@ -1208,7 +1208,7 @@ var poolStatusFields = &diefields.Table[poolStatusFieldsTable]{Build: func() (f 
 	f.UnavailableDevices = diefields.NewField[PoolStatus, *int32]("unavailableDevices")
 	f.NodeName = diefields.NewField[PoolStatus, *string]("nodeName")
 	f.ValidationError = diefields.NewField[PoolStatus, *string]("validationError")
-	f.PartitionSummary = diefields.NewItems[PoolStatus, []PartitionTypeStatus, PartitionTypeStatus, *PartitionTypeStatusDie, *PartitionTypeStatusDieMut]("partitionSummary")
+	f.PartitionSummary = diefields.NewList[PoolStatus, PartitionTypeStatus, *PartitionTypeStatusDie, *PartitionTypeStatusDieMut]("partitionSummary")
 	f.ShareableSummary = diefields.NewStruct[PoolStatus, ShareableSummaryStatus, *ShareableSummaryStatusDie, *ShareableSummaryStatusDieMut]("shareableSummary")
 	return
 }}
@@ -1291,8 +1291,8 @@ func (d *PoolStatusDie) ValidationError() diefields.Optional[string] {
 // declared under different attributes reports each independently. When no
 // slice declares an attribute and the request names no default, the pool
 // reports no partition summary.
-func (d *PoolStatusDie) PartitionSummary() diefields.Value[[]PartitionTypeStatus] {
-	return diefields.ValueOf(d, poolStatusFields.Get().PartitionSummary)
+func (d *PoolStatusDie) PartitionSummary() *diefields.List[PartitionTypeStatus, *PartitionTypeStatusDie] {
+	return diefields.ListOf(d, poolStatusFields.Get().PartitionSummary)
 }
 
 // ShareableSummary reports aggregate capacity for a pool that contains
@@ -1380,8 +1380,8 @@ func (d *PoolStatusDieMut) ValidationError() diefields.OptionalMut[string] {
 // declared under different attributes reports each independently. When no
 // slice declares an attribute and the request names no default, the pool
 // reports no partition summary.
-func (d *PoolStatusDieMut) PartitionSummary() diefields.ValueMut[[]PartitionTypeStatus] {
-	return diefields.ValueMutOf(d, poolStatusFields.Get().PartitionSummary)
+func (d *PoolStatusDieMut) PartitionSummary() *diefields.ListMut[PartitionTypeStatus, *PartitionTypeStatusDie, *PartitionTypeStatusDieMut] {
+	return diefields.ListMutOf(d, poolStatusFields.Get().PartitionSummary)
 }
 
 // ShareableSummary reports aggregate capacity for a pool that contains
@@ -1816,14 +1816,14 @@ func (d *ResourcePoolStatusRequestStatusDieMut) DieStampApplyConfiguration(fn fu
 
 type resourcePoolStatusRequestStatusFieldsTable struct {
 	PoolCount  diefields.Field[ResourcePoolStatusRequestStatus, *int32]
-	Pools      diefields.Field[ResourcePoolStatusRequestStatus, []PoolStatus]
+	Pools      diefields.ListField[ResourcePoolStatusRequestStatus, PoolStatus, *PoolStatusDie, *PoolStatusDieMut]
 	Conditions diefields.ListMapField[ResourcePoolStatusRequestStatus, diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string]
 }
 
 var resourcePoolStatusRequestStatusFields = &diefields.Table[resourcePoolStatusRequestStatusFieldsTable]{Build: func() (f resourcePoolStatusRequestStatusFieldsTable) {
 	_ = annotated
 	f.PoolCount = diefields.NewField[ResourcePoolStatusRequestStatus, *int32]("poolCount")
-	f.Pools = diefields.NewItems[ResourcePoolStatusRequestStatus, []PoolStatus, PoolStatus, *PoolStatusDie, *PoolStatusDieMut]("pools")
+	f.Pools = diefields.NewList[ResourcePoolStatusRequestStatus, PoolStatus, *PoolStatusDie, *PoolStatusDieMut]("pools")
 	f.Conditions = diefields.NewListMap[ResourcePoolStatusRequestStatus, diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut]("conditions", func(k string) []any { return []any{k} }, func(e diemetav1.Condition) string { return e.Type })
 	return
 }}
@@ -1839,8 +1839,8 @@ func (d *ResourcePoolStatusRequestStatusDie) PoolCount() diefields.Optional[int3
 // Pools contains the first `spec.limit` matching pools, sorted by driver
 // then pool name. If `len(pools) < poolCount`, the list was truncated.
 // When omitted, no pools matched the request filters.
-func (d *ResourcePoolStatusRequestStatusDie) Pools() diefields.Value[[]PoolStatus] {
-	return diefields.ValueOf(d, resourcePoolStatusRequestStatusFields.Get().Pools)
+func (d *ResourcePoolStatusRequestStatusDie) Pools() *diefields.List[PoolStatus, *PoolStatusDie] {
+	return diefields.ListOf(d, resourcePoolStatusRequestStatusFields.Get().Pools)
 }
 
 // Conditions provide information about the state of the request.
@@ -1865,8 +1865,8 @@ func (d *ResourcePoolStatusRequestStatusDieMut) PoolCount() diefields.OptionalMu
 // Pools contains the first `spec.limit` matching pools, sorted by driver
 // then pool name. If `len(pools) < poolCount`, the list was truncated.
 // When omitted, no pools matched the request filters.
-func (d *ResourcePoolStatusRequestStatusDieMut) Pools() diefields.ValueMut[[]PoolStatus] {
-	return diefields.ValueMutOf(d, resourcePoolStatusRequestStatusFields.Get().Pools)
+func (d *ResourcePoolStatusRequestStatusDieMut) Pools() *diefields.ListMut[PoolStatus, *PoolStatusDie, *PoolStatusDieMut] {
+	return diefields.ListMutOf(d, resourcePoolStatusRequestStatusFields.Get().Pools)
 }
 
 // Conditions provide information about the state of the request.
@@ -2083,14 +2083,14 @@ func (d *ShareableSummaryStatusDieMut) DieStampApplyConfiguration(fn func(ac *Sh
 type shareableSummaryStatusFieldsTable struct {
 	FullyAvailableDevices     diefields.Field[ShareableSummaryStatus, *int32]
 	PartiallyAvailableDevices diefields.Field[ShareableSummaryStatus, *int32]
-	Capacity                  diefields.Field[ShareableSummaryStatus, []ShareableCapacityStatus]
+	Capacity                  diefields.ListField[ShareableSummaryStatus, ShareableCapacityStatus, *ShareableCapacityStatusDie, *ShareableCapacityStatusDieMut]
 }
 
 var shareableSummaryStatusFields = &diefields.Table[shareableSummaryStatusFieldsTable]{Build: func() (f shareableSummaryStatusFieldsTable) {
 	_ = annotated
 	f.FullyAvailableDevices = diefields.NewField[ShareableSummaryStatus, *int32]("fullyAvailableDevices")
 	f.PartiallyAvailableDevices = diefields.NewField[ShareableSummaryStatus, *int32]("partiallyAvailableDevices")
-	f.Capacity = diefields.NewItems[ShareableSummaryStatus, []ShareableCapacityStatus, ShareableCapacityStatus, *ShareableCapacityStatusDie, *ShareableCapacityStatusDieMut]("capacity")
+	f.Capacity = diefields.NewList[ShareableSummaryStatus, ShareableCapacityStatus, *ShareableCapacityStatusDie, *ShareableCapacityStatusDieMut]("capacity")
 	return
 }}
 
@@ -2108,8 +2108,8 @@ func (d *ShareableSummaryStatusDie) PartiallyAvailableDevices() diefields.Option
 
 // Capacity reports aggregate total, consumed, and available amounts per
 // shareable capacity key across the pool.
-func (d *ShareableSummaryStatusDie) Capacity() diefields.Value[[]ShareableCapacityStatus] {
-	return diefields.ValueOf(d, shareableSummaryStatusFields.Get().Capacity)
+func (d *ShareableSummaryStatusDie) Capacity() *diefields.List[ShareableCapacityStatus, *ShareableCapacityStatusDie] {
+	return diefields.ListOf(d, shareableSummaryStatusFields.Get().Capacity)
 }
 
 // FullyAvailableDevices is the number of shareable devices with no
@@ -2126,8 +2126,8 @@ func (d *ShareableSummaryStatusDieMut) PartiallyAvailableDevices() diefields.Opt
 
 // Capacity reports aggregate total, consumed, and available amounts per
 // shareable capacity key across the pool.
-func (d *ShareableSummaryStatusDieMut) Capacity() diefields.ValueMut[[]ShareableCapacityStatus] {
-	return diefields.ValueMutOf(d, shareableSummaryStatusFields.Get().Capacity)
+func (d *ShareableSummaryStatusDieMut) Capacity() *diefields.ListMut[ShareableCapacityStatus, *ShareableCapacityStatusDie, *ShareableCapacityStatusDieMut] {
+	return diefields.ListMutOf(d, shareableSummaryStatusFields.Get().Capacity)
 }
 
 // SchemeGroupVersion is the group version of this package's object dies.

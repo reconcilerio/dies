@@ -480,10 +480,10 @@ type certificateSigningRequestSpecFieldsTable struct {
 	Request           diefields.Field[CertificateSigningRequestSpec, []byte]
 	SignerName        diefields.Field[CertificateSigningRequestSpec, string]
 	ExpirationSeconds diefields.Field[CertificateSigningRequestSpec, *int32]
-	Usages            diefields.Field[CertificateSigningRequestSpec, []KeyUsage]
+	Usages            diefields.ListField[CertificateSigningRequestSpec, KeyUsage, diefields.Value[KeyUsage], diefields.ValueMut[KeyUsage]]
 	Username          diefields.Field[CertificateSigningRequestSpec, string]
 	UID               diefields.Field[CertificateSigningRequestSpec, string]
-	Groups            diefields.Field[CertificateSigningRequestSpec, []string]
+	Groups            diefields.ListField[CertificateSigningRequestSpec, string, diefields.Value[string], diefields.ValueMut[string]]
 	Extra             diefields.MapField[CertificateSigningRequestSpec, string, ExtraValue]
 }
 
@@ -492,10 +492,10 @@ var certificateSigningRequestSpecFields = &diefields.Table[certificateSigningReq
 	f.Request = diefields.NewField[CertificateSigningRequestSpec, []byte]("request")
 	f.SignerName = diefields.NewField[CertificateSigningRequestSpec, string]("signerName")
 	f.ExpirationSeconds = diefields.NewField[CertificateSigningRequestSpec, *int32]("expirationSeconds")
-	f.Usages = diefields.NewField[CertificateSigningRequestSpec, []KeyUsage]("usages")
+	f.Usages = diefields.NewValueList[CertificateSigningRequestSpec, KeyUsage]("usages")
 	f.Username = diefields.NewField[CertificateSigningRequestSpec, string]("username")
 	f.UID = diefields.NewField[CertificateSigningRequestSpec, string]("uid")
-	f.Groups = diefields.NewField[CertificateSigningRequestSpec, []string]("groups")
+	f.Groups = diefields.NewValueList[CertificateSigningRequestSpec, string]("groups")
 	f.Extra = diefields.NewMap[CertificateSigningRequestSpec, string, ExtraValue]("extra")
 	return
 }}
@@ -568,8 +568,8 @@ func (d *CertificateSigningRequestSpecDie) ExpirationSeconds() diefields.Optiona
 //	"code signing", "email protection", "s/mime",
 //	"ipsec end system", "ipsec tunnel", "ipsec user",
 //	"timestamping", "ocsp signing", "microsoft sgc", "netscape sgc"
-func (d *CertificateSigningRequestSpecDie) Usages() diefields.Value[[]KeyUsage] {
-	return diefields.ValueOf(d, certificateSigningRequestSpecFields.Get().Usages)
+func (d *CertificateSigningRequestSpecDie) Usages() *diefields.List[KeyUsage, diefields.Value[KeyUsage]] {
+	return diefields.ListOf(d, certificateSigningRequestSpecFields.Get().Usages)
 }
 
 // username contains the name of the user that created the CertificateSigningRequest.
@@ -586,8 +586,8 @@ func (d *CertificateSigningRequestSpecDie) UID() diefields.Value[string] {
 
 // groups contains group membership of the user that created the CertificateSigningRequest.
 // Populated by the API server on creation and immutable.
-func (d *CertificateSigningRequestSpecDie) Groups() diefields.Value[[]string] {
-	return diefields.ValueOf(d, certificateSigningRequestSpecFields.Get().Groups)
+func (d *CertificateSigningRequestSpecDie) Groups() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, certificateSigningRequestSpecFields.Get().Groups)
 }
 
 // extra contains extra attributes of the user that created the CertificateSigningRequest.
@@ -664,8 +664,8 @@ func (d *CertificateSigningRequestSpecDieMut) ExpirationSeconds() diefields.Opti
 //	"code signing", "email protection", "s/mime",
 //	"ipsec end system", "ipsec tunnel", "ipsec user",
 //	"timestamping", "ocsp signing", "microsoft sgc", "netscape sgc"
-func (d *CertificateSigningRequestSpecDieMut) Usages() diefields.ValueMut[[]KeyUsage] {
-	return diefields.ValueMutOf(d, certificateSigningRequestSpecFields.Get().Usages)
+func (d *CertificateSigningRequestSpecDieMut) Usages() *diefields.ListMut[KeyUsage, diefields.Value[KeyUsage], diefields.ValueMut[KeyUsage]] {
+	return diefields.ListMutOf(d, certificateSigningRequestSpecFields.Get().Usages)
 }
 
 // username contains the name of the user that created the CertificateSigningRequest.
@@ -682,8 +682,8 @@ func (d *CertificateSigningRequestSpecDieMut) UID() diefields.ValueMut[string] {
 
 // groups contains group membership of the user that created the CertificateSigningRequest.
 // Populated by the API server on creation and immutable.
-func (d *CertificateSigningRequestSpecDieMut) Groups() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, certificateSigningRequestSpecFields.Get().Groups)
+func (d *CertificateSigningRequestSpecDieMut) Groups() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, certificateSigningRequestSpecFields.Get().Groups)
 }
 
 // extra contains extra attributes of the user that created the CertificateSigningRequest.

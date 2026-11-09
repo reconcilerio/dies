@@ -26,12 +26,19 @@ import "reflect"
 // where they're the same. The value shares nothing with src's, so later
 // writes to either aren't seen by the other.
 func ReplaceAt(h *Holder, at, rel Path, src Located) error {
-	full := at.join(rel)
-	t := TypeAt(h.Base.Type(), full)
-	present, after, err := replacement(src, t)
+	present, after, err := ReadLocated(src, TypeAt(h.Base.Type(), at.join(rel)))
 	if err != nil {
 		return err
 	}
+	return ReplaceValueAt(h, at, rel, present, after)
+}
+
+// ReplaceValueAt replaces the value at at+rel with after, a value of its
+// type that the caller doesn't keep, as intent, as [ReplaceAt] does: or
+// clears it, unless present.
+func ReplaceValueAt(h *Holder, at, rel Path, present bool, after reflect.Value) error {
+	full := at.join(rel)
+	t := TypeAt(h.Base.Type(), full)
 	has, err := h.Has(full)
 	if err != nil {
 		return err
@@ -106,10 +113,11 @@ func diffAt(h *Holder, p Path, t reflect.Type, before, after reflect.Value) (*On
 	return DiffInto(ov, pp, pt, pbefore, pafter)
 }
 
-// replacement returns whether src is present and, if it is, a copy of its
-// value, as a t: a value and a pointer to one are the same location's, as a
-// die is of a struct field or a pointer to one.
-func replacement(src Located, t reflect.Type) (bool, reflect.Value, error) {
+// ReadLocated returns whether src, a die or a handle, is present and, if it
+// is, a copy of its value, as a t: a value and a pointer to one are the same
+// location's, as a die is of a struct field or a pointer to one, and a list
+// is of any slice type of its elements, as a named list type is.
+func ReadLocated(src Located, t reflect.Type) (bool, reflect.Value, error) {
 	h, p, ok := StateOf(src)
 	if !ok && HandleStateOf != nil {
 		h, p, ok = HandleStateOf(src)
@@ -138,6 +146,8 @@ func replacement(src Located, t reflect.Type) (bool, reflect.Value, error) {
 		ptr := reflect.New(v.Type())
 		ptr.Elem().Set(v)
 		v = ptr
+	case t.Kind() == reflect.Slice && v.Kind() == reflect.Slice && t.Elem() == v.Type().Elem():
+		v = v.Convert(t)
 	default:
 		return false, reflect.Value{}, Errorf("die: replacing a %s from %s, a %s", t, src.DiePath(), v.Type())
 	}

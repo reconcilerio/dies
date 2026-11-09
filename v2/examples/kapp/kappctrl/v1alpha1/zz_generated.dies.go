@@ -344,8 +344,8 @@ var AppDeployKappBlank = diebase.Blank[AppDeployKapp, *AppDeployKappDie, *AppDep
 
 type appDeployKappFieldsTable struct {
 	IntoNs     diefields.Field[AppDeployKapp, string]
-	MapNs      diefields.Field[AppDeployKapp, []string]
-	RawOptions diefields.Field[AppDeployKapp, []string]
+	MapNs      diefields.ListField[AppDeployKapp, string, diefields.Value[string], diefields.ValueMut[string]]
+	RawOptions diefields.ListField[AppDeployKapp, string, diefields.Value[string], diefields.ValueMut[string]]
 	Inspect    diefields.Struct[AppDeployKapp, AppDeployKappInspect, *AppDeployKappInspectDie, *AppDeployKappInspectDieMut]
 	Delete     diefields.Struct[AppDeployKapp, AppDeployKappDelete, *AppDeployKappDeleteDie, *AppDeployKappDeleteDieMut]
 }
@@ -353,8 +353,8 @@ type appDeployKappFieldsTable struct {
 var appDeployKappFields = &diefields.Table[appDeployKappFieldsTable]{Build: func() (f appDeployKappFieldsTable) {
 	_ = annotated
 	f.IntoNs = diefields.NewField[AppDeployKapp, string]("intoNs")
-	f.MapNs = diefields.NewField[AppDeployKapp, []string]("mapNs")
-	f.RawOptions = diefields.NewField[AppDeployKapp, []string]("rawOptions")
+	f.MapNs = diefields.NewValueList[AppDeployKapp, string]("mapNs")
+	f.RawOptions = diefields.NewValueList[AppDeployKapp, string]("rawOptions")
 	f.Inspect = diefields.NewStruct[AppDeployKapp, AppDeployKappInspect, *AppDeployKappInspectDie, *AppDeployKappInspectDieMut]("inspect")
 	f.Delete = diefields.NewStruct[AppDeployKapp, AppDeployKappDelete, *AppDeployKappDeleteDie, *AppDeployKappDeleteDieMut]("delete")
 	return
@@ -366,13 +366,13 @@ func (d *AppDeployKappDie) IntoNs() diefields.Value[string] {
 }
 
 // Provide custom namespace override mapping (optional)
-func (d *AppDeployKappDie) MapNs() diefields.Value[[]string] {
-	return diefields.ValueOf(d, appDeployKappFields.Get().MapNs)
+func (d *AppDeployKappDie) MapNs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, appDeployKappFields.Get().MapNs)
 }
 
 // Pass through options to kapp deploy (optional)
-func (d *AppDeployKappDie) RawOptions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, appDeployKappFields.Get().RawOptions)
+func (d *AppDeployKappDie) RawOptions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, appDeployKappFields.Get().RawOptions)
 }
 
 // Configuration for inspect command (optional)
@@ -393,13 +393,13 @@ func (d *AppDeployKappDieMut) IntoNs() diefields.ValueMut[string] {
 }
 
 // Provide custom namespace override mapping (optional)
-func (d *AppDeployKappDieMut) MapNs() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, appDeployKappFields.Get().MapNs)
+func (d *AppDeployKappDieMut) MapNs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, appDeployKappFields.Get().MapNs)
 }
 
 // Pass through options to kapp deploy (optional)
-func (d *AppDeployKappDieMut) RawOptions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, appDeployKappFields.Get().RawOptions)
+func (d *AppDeployKappDieMut) RawOptions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, appDeployKappFields.Get().RawOptions)
 }
 
 // Configuration for inspect command (optional)
@@ -445,23 +445,23 @@ var AppDeployKappDeleteBlank = diebase.Blank[AppDeployKappDelete, *AppDeployKapp
 // +k8s:deepcopy-gen=false
 
 type appDeployKappDeleteFieldsTable struct {
-	RawOptions diefields.Field[AppDeployKappDelete, []string]
+	RawOptions diefields.ListField[AppDeployKappDelete, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var appDeployKappDeleteFields = &diefields.Table[appDeployKappDeleteFieldsTable]{Build: func() (f appDeployKappDeleteFieldsTable) {
 	_ = annotated
-	f.RawOptions = diefields.NewField[AppDeployKappDelete, []string]("rawOptions")
+	f.RawOptions = diefields.NewValueList[AppDeployKappDelete, string]("rawOptions")
 	return
 }}
 
 // Pass through options to kapp delete (optional)
-func (d *AppDeployKappDeleteDie) RawOptions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, appDeployKappDeleteFields.Get().RawOptions)
+func (d *AppDeployKappDeleteDie) RawOptions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, appDeployKappDeleteFields.Get().RawOptions)
 }
 
 // Pass through options to kapp delete (optional)
-func (d *AppDeployKappDeleteDieMut) RawOptions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, appDeployKappDeleteFields.Get().RawOptions)
+func (d *AppDeployKappDeleteDieMut) RawOptions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, appDeployKappDeleteFields.Get().RawOptions)
 }
 
 // +kubebuilder:object:generate=false
@@ -495,23 +495,23 @@ var AppDeployKappInspectBlank = diebase.Blank[AppDeployKappInspect, *AppDeployKa
 // +k8s:deepcopy-gen=false
 
 type appDeployKappInspectFieldsTable struct {
-	RawOptions diefields.Field[AppDeployKappInspect, []string]
+	RawOptions diefields.ListField[AppDeployKappInspect, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var appDeployKappInspectFields = &diefields.Table[appDeployKappInspectFieldsTable]{Build: func() (f appDeployKappInspectFieldsTable) {
 	_ = annotated
-	f.RawOptions = diefields.NewField[AppDeployKappInspect, []string]("rawOptions")
+	f.RawOptions = diefields.NewValueList[AppDeployKappInspect, string]("rawOptions")
 	return
 }}
 
 // Pass through options to kapp inspect (optional)
-func (d *AppDeployKappInspectDie) RawOptions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, appDeployKappInspectFields.Get().RawOptions)
+func (d *AppDeployKappInspectDie) RawOptions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, appDeployKappInspectFields.Get().RawOptions)
 }
 
 // Pass through options to kapp inspect (optional)
-func (d *AppDeployKappInspectDieMut) RawOptions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, appDeployKappInspectFields.Get().RawOptions)
+func (d *AppDeployKappInspectDieMut) RawOptions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, appDeployKappInspectFields.Get().RawOptions)
 }
 
 // +kubebuilder:object:generate=false
@@ -1200,13 +1200,13 @@ var AppFetchInlineBlank = diebase.Blank[AppFetchInline, *AppFetchInlineDie, *App
 
 type appFetchInlineFieldsTable struct {
 	Paths     diefields.MapField[AppFetchInline, string, string]
-	PathsFrom diefields.Field[AppFetchInline, []AppFetchInlineSource]
+	PathsFrom diefields.ListField[AppFetchInline, AppFetchInlineSource, *AppFetchInlineSourceDie, *AppFetchInlineSourceDieMut]
 }
 
 var appFetchInlineFields = &diefields.Table[appFetchInlineFieldsTable]{Build: func() (f appFetchInlineFieldsTable) {
 	_ = annotated
 	f.Paths = diefields.NewMap[AppFetchInline, string, string]("paths")
-	f.PathsFrom = diefields.NewItems[AppFetchInline, []AppFetchInlineSource, AppFetchInlineSource, *AppFetchInlineSourceDie, *AppFetchInlineSourceDieMut]("pathsFrom")
+	f.PathsFrom = diefields.NewList[AppFetchInline, AppFetchInlineSource, *AppFetchInlineSourceDie, *AppFetchInlineSourceDieMut]("pathsFrom")
 	return
 }}
 
@@ -1218,8 +1218,8 @@ func (d *AppFetchInlineDie) Paths() *diefields.Map[string, string] {
 
 // Specifies content via secrets and config maps;
 // data values are recommended to be placed in secrets (optional)
-func (d *AppFetchInlineDie) PathsFrom() diefields.Value[[]AppFetchInlineSource] {
-	return diefields.ValueOf(d, appFetchInlineFields.Get().PathsFrom)
+func (d *AppFetchInlineDie) PathsFrom() *diefields.List[AppFetchInlineSource, *AppFetchInlineSourceDie] {
+	return diefields.ListOf(d, appFetchInlineFields.Get().PathsFrom)
 }
 
 // Specifies mapping of paths to their content;
@@ -1230,8 +1230,8 @@ func (d *AppFetchInlineDieMut) Paths() *diefields.MapMut[string, string] {
 
 // Specifies content via secrets and config maps;
 // data values are recommended to be placed in secrets (optional)
-func (d *AppFetchInlineDieMut) PathsFrom() diefields.ValueMut[[]AppFetchInlineSource] {
-	return diefields.ValueMutOf(d, appFetchInlineFields.Get().PathsFrom)
+func (d *AppFetchInlineDieMut) PathsFrom() *diefields.ListMut[AppFetchInlineSource, *AppFetchInlineSourceDie, *AppFetchInlineSourceDieMut] {
+	return diefields.ListMutOf(d, appFetchInlineFields.Get().PathsFrom)
 }
 
 // +kubebuilder:object:generate=false
@@ -1452,9 +1452,9 @@ var AppSpecBlank = diebase.Blank[AppSpec, *AppSpecDie, *AppSpecDieMut]()
 type appSpecFieldsTable struct {
 	ServiceAccountName diefields.Field[AppSpec, string]
 	Cluster            diefields.Struct[AppSpec, AppCluster, *AppClusterDie, *AppClusterDieMut]
-	Fetch              diefields.Field[AppSpec, []AppFetch]
-	Template           diefields.Field[AppSpec, []AppTemplate]
-	Deploy             diefields.Field[AppSpec, []AppDeploy]
+	Fetch              diefields.ListField[AppSpec, AppFetch, *AppFetchDie, *AppFetchDieMut]
+	Template           diefields.ListField[AppSpec, AppTemplate, *AppTemplateDie, *AppTemplateDieMut]
+	Deploy             diefields.ListField[AppSpec, AppDeploy, *AppDeployDie, *AppDeployDieMut]
 	Paused             diefields.Field[AppSpec, bool]
 	Canceled           diefields.Field[AppSpec, bool]
 	SyncPeriod         diefields.Field[AppSpec, *diemetav1.Duration]
@@ -1466,9 +1466,9 @@ var appSpecFields = &diefields.Table[appSpecFieldsTable]{Build: func() (f appSpe
 	_ = annotated
 	f.ServiceAccountName = diefields.NewField[AppSpec, string]("serviceAccountName")
 	f.Cluster = diefields.NewStruct[AppSpec, AppCluster, *AppClusterDie, *AppClusterDieMut]("cluster")
-	f.Fetch = diefields.NewItems[AppSpec, []AppFetch, AppFetch, *AppFetchDie, *AppFetchDieMut]("fetch")
-	f.Template = diefields.NewItems[AppSpec, []AppTemplate, AppTemplate, *AppTemplateDie, *AppTemplateDieMut]("template")
-	f.Deploy = diefields.NewItems[AppSpec, []AppDeploy, AppDeploy, *AppDeployDie, *AppDeployDieMut]("deploy")
+	f.Fetch = diefields.NewList[AppSpec, AppFetch, *AppFetchDie, *AppFetchDieMut]("fetch")
+	f.Template = diefields.NewList[AppSpec, AppTemplate, *AppTemplateDie, *AppTemplateDieMut]("template")
+	f.Deploy = diefields.NewList[AppSpec, AppDeploy, *AppDeployDie, *AppDeployDieMut]("deploy")
 	f.Paused = diefields.NewField[AppSpec, bool]("paused")
 	f.Canceled = diefields.NewField[AppSpec, bool]("canceled")
 	f.SyncPeriod = diefields.NewField[AppSpec, *diemetav1.Duration]("syncPeriod")
@@ -1487,16 +1487,16 @@ func (d *AppSpecDie) ServiceAccountName() diefields.Value[string] {
 // by default, cluster is same as where this resource resides (optional; v0.5.0+)
 func (d *AppSpecDie) Cluster() *AppClusterDie { return diefields.Child(d, appSpecFields.Get().Cluster) }
 
-func (d *AppSpecDie) Fetch() diefields.Value[[]AppFetch] {
-	return diefields.ValueOf(d, appSpecFields.Get().Fetch)
+func (d *AppSpecDie) Fetch() *diefields.List[AppFetch, *AppFetchDie] {
+	return diefields.ListOf(d, appSpecFields.Get().Fetch)
 }
 
-func (d *AppSpecDie) Template() diefields.Value[[]AppTemplate] {
-	return diefields.ValueOf(d, appSpecFields.Get().Template)
+func (d *AppSpecDie) Template() *diefields.List[AppTemplate, *AppTemplateDie] {
+	return diefields.ListOf(d, appSpecFields.Get().Template)
 }
 
-func (d *AppSpecDie) Deploy() diefields.Value[[]AppDeploy] {
-	return diefields.ValueOf(d, appSpecFields.Get().Deploy)
+func (d *AppSpecDie) Deploy() *diefields.List[AppDeploy, *AppDeployDie] {
+	return diefields.ListOf(d, appSpecFields.Get().Deploy)
 }
 
 // Pauses _future_ reconciliation; does _not_ affect
@@ -1542,16 +1542,16 @@ func (d *AppSpecDieMut) Cluster() *AppClusterDieMut {
 	return diefields.ChildMut(d, appSpecFields.Get().Cluster)
 }
 
-func (d *AppSpecDieMut) Fetch() diefields.ValueMut[[]AppFetch] {
-	return diefields.ValueMutOf(d, appSpecFields.Get().Fetch)
+func (d *AppSpecDieMut) Fetch() *diefields.ListMut[AppFetch, *AppFetchDie, *AppFetchDieMut] {
+	return diefields.ListMutOf(d, appSpecFields.Get().Fetch)
 }
 
-func (d *AppSpecDieMut) Template() diefields.ValueMut[[]AppTemplate] {
-	return diefields.ValueMutOf(d, appSpecFields.Get().Template)
+func (d *AppSpecDieMut) Template() *diefields.ListMut[AppTemplate, *AppTemplateDie, *AppTemplateDieMut] {
+	return diefields.ListMutOf(d, appSpecFields.Get().Template)
 }
 
-func (d *AppSpecDieMut) Deploy() diefields.ValueMut[[]AppDeploy] {
-	return diefields.ValueMutOf(d, appSpecFields.Get().Deploy)
+func (d *AppSpecDieMut) Deploy() *diefields.ListMut[AppDeploy, *AppDeployDie, *AppDeployDieMut] {
+	return diefields.ListMutOf(d, appSpecFields.Get().Deploy)
 }
 
 // Pauses _future_ reconciliation; does _not_ affect
@@ -1624,7 +1624,7 @@ type appStatusFieldsTable struct {
 	ConsecutiveReconcileSuccesses diefields.Field[AppStatus, int]
 	ConsecutiveReconcileFailures  diefields.Field[AppStatus, int]
 	ObservedGeneration            diefields.Field[AppStatus, int64]
-	Conditions                    diefields.Field[AppStatus, []Condition]
+	Conditions                    diefields.ListField[AppStatus, Condition, *ConditionDie, *ConditionDieMut]
 	FriendlyDescription           diefields.Field[AppStatus, string]
 	UsefulErrorMessage            diefields.Field[AppStatus, string]
 }
@@ -1639,7 +1639,7 @@ var appStatusFields = &diefields.Table[appStatusFieldsTable]{Build: func() (f ap
 	f.ConsecutiveReconcileSuccesses = diefields.NewField[AppStatus, int]("consecutiveReconcileSuccesses")
 	f.ConsecutiveReconcileFailures = diefields.NewField[AppStatus, int]("consecutiveReconcileFailures")
 	f.ObservedGeneration = diefields.NewField[AppStatus, int64]("observedGeneration")
-	f.Conditions = diefields.NewItems[AppStatus, []Condition, Condition, *ConditionDie, *ConditionDieMut]("conditions")
+	f.Conditions = diefields.NewList[AppStatus, Condition, *ConditionDie, *ConditionDieMut]("conditions")
 	f.FriendlyDescription = diefields.NewField[AppStatus, string]("friendlyDescription")
 	f.UsefulErrorMessage = diefields.NewField[AppStatus, string]("usefulErrorMessage")
 	return
@@ -1680,8 +1680,8 @@ func (d *AppStatusDie) ObservedGeneration() diefields.Value[int64] {
 	return diefields.ValueOf(d, appStatusFields.Get().ObservedGeneration)
 }
 
-func (d *AppStatusDie) Conditions() diefields.Value[[]Condition] {
-	return diefields.ValueOf(d, appStatusFields.Get().Conditions)
+func (d *AppStatusDie) Conditions() *diefields.List[Condition, *ConditionDie] {
+	return diefields.ListOf(d, appStatusFields.Get().Conditions)
 }
 
 func (d *AppStatusDie) FriendlyDescription() diefields.Value[string] {
@@ -1727,8 +1727,8 @@ func (d *AppStatusDieMut) ObservedGeneration() diefields.ValueMut[int64] {
 	return diefields.ValueMutOf(d, appStatusFields.Get().ObservedGeneration)
 }
 
-func (d *AppStatusDieMut) Conditions() diefields.ValueMut[[]Condition] {
-	return diefields.ValueMutOf(d, appStatusFields.Get().Conditions)
+func (d *AppStatusDieMut) Conditions() *diefields.ListMut[Condition, *ConditionDie, *ConditionDieMut] {
+	return diefields.ListMutOf(d, appStatusFields.Get().Conditions)
 }
 
 func (d *AppStatusDieMut) FriendlyDescription() diefields.ValueMut[string] {
@@ -2268,29 +2268,29 @@ var AppTemplateCueBlank = diebase.Blank[AppTemplateCue, *AppTemplateCueDie, *App
 // +k8s:deepcopy-gen=false
 
 type appTemplateCueFieldsTable struct {
-	Paths            diefields.Field[AppTemplateCue, []string]
-	ValuesFrom       diefields.Field[AppTemplateCue, []AppTemplateValuesSource]
+	Paths            diefields.ListField[AppTemplateCue, string, diefields.Value[string], diefields.ValueMut[string]]
+	ValuesFrom       diefields.ListField[AppTemplateCue, AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut]
 	InputExpression  diefields.Field[AppTemplateCue, string]
 	OutputExpression diefields.Field[AppTemplateCue, string]
 }
 
 var appTemplateCueFields = &diefields.Table[appTemplateCueFieldsTable]{Build: func() (f appTemplateCueFieldsTable) {
 	_ = annotated
-	f.Paths = diefields.NewField[AppTemplateCue, []string]("paths")
-	f.ValuesFrom = diefields.NewItems[AppTemplateCue, []AppTemplateValuesSource, AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut]("valuesFrom")
+	f.Paths = diefields.NewValueList[AppTemplateCue, string]("paths")
+	f.ValuesFrom = diefields.NewList[AppTemplateCue, AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut]("valuesFrom")
 	f.InputExpression = diefields.NewField[AppTemplateCue, string]("inputExpression")
 	f.OutputExpression = diefields.NewField[AppTemplateCue, string]("outputExpression")
 	return
 }}
 
 // Explicit list of files/directories (optional)
-func (d *AppTemplateCueDie) Paths() diefields.Value[[]string] {
-	return diefields.ValueOf(d, appTemplateCueFields.Get().Paths)
+func (d *AppTemplateCueDie) Paths() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, appTemplateCueFields.Get().Paths)
 }
 
 // Provide values (optional)
-func (d *AppTemplateCueDie) ValuesFrom() diefields.Value[[]AppTemplateValuesSource] {
-	return diefields.ValueOf(d, appTemplateCueFields.Get().ValuesFrom)
+func (d *AppTemplateCueDie) ValuesFrom() *diefields.List[AppTemplateValuesSource, *AppTemplateValuesSourceDie] {
+	return diefields.ListOf(d, appTemplateCueFields.Get().ValuesFrom)
 }
 
 // Cue expression for single path component, can be used to unify ValuesFrom into a given field (optional)
@@ -2304,13 +2304,13 @@ func (d *AppTemplateCueDie) OutputExpression() diefields.Value[string] {
 }
 
 // Explicit list of files/directories (optional)
-func (d *AppTemplateCueDieMut) Paths() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, appTemplateCueFields.Get().Paths)
+func (d *AppTemplateCueDieMut) Paths() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, appTemplateCueFields.Get().Paths)
 }
 
 // Provide values (optional)
-func (d *AppTemplateCueDieMut) ValuesFrom() diefields.ValueMut[[]AppTemplateValuesSource] {
-	return diefields.ValueMutOf(d, appTemplateCueFields.Get().ValuesFrom)
+func (d *AppTemplateCueDieMut) ValuesFrom() *diefields.ListMut[AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut] {
+	return diefields.ListMutOf(d, appTemplateCueFields.Get().ValuesFrom)
 }
 
 // Cue expression for single path component, can be used to unify ValuesFrom into a given field (optional)
@@ -2357,7 +2357,7 @@ type appTemplateHelmTemplateFieldsTable struct {
 	Name              diefields.Field[AppTemplateHelmTemplate, string]
 	Namespace         diefields.Field[AppTemplateHelmTemplate, string]
 	Path              diefields.Field[AppTemplateHelmTemplate, string]
-	ValuesFrom        diefields.Field[AppTemplateHelmTemplate, []AppTemplateValuesSource]
+	ValuesFrom        diefields.ListField[AppTemplateHelmTemplate, AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut]
 	KubernetesVersion diefields.Struct[AppTemplateHelmTemplate, Version, *VersionDie, *VersionDieMut]
 	KubernetesAPIs    diefields.Struct[AppTemplateHelmTemplate, KubernetesAPIs, *KubernetesAPIsDie, *KubernetesAPIsDieMut]
 }
@@ -2367,7 +2367,7 @@ var appTemplateHelmTemplateFields = &diefields.Table[appTemplateHelmTemplateFiel
 	f.Name = diefields.NewField[AppTemplateHelmTemplate, string]("name")
 	f.Namespace = diefields.NewField[AppTemplateHelmTemplate, string]("namespace")
 	f.Path = diefields.NewField[AppTemplateHelmTemplate, string]("path")
-	f.ValuesFrom = diefields.NewItems[AppTemplateHelmTemplate, []AppTemplateValuesSource, AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut]("valuesFrom")
+	f.ValuesFrom = diefields.NewList[AppTemplateHelmTemplate, AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut]("valuesFrom")
 	f.KubernetesVersion = diefields.NewStruct[AppTemplateHelmTemplate, Version, *VersionDie, *VersionDieMut]("kubernetesVersion")
 	f.KubernetesAPIs = diefields.NewStruct[AppTemplateHelmTemplate, KubernetesAPIs, *KubernetesAPIsDie, *KubernetesAPIsDieMut]("kubernetesAPIs")
 	return
@@ -2389,8 +2389,8 @@ func (d *AppTemplateHelmTemplateDie) Path() diefields.Value[string] {
 }
 
 // One or more secrets, config maps, paths that provide values (optional)
-func (d *AppTemplateHelmTemplateDie) ValuesFrom() diefields.Value[[]AppTemplateValuesSource] {
-	return diefields.ValueOf(d, appTemplateHelmTemplateFields.Get().ValuesFrom)
+func (d *AppTemplateHelmTemplateDie) ValuesFrom() *diefields.List[AppTemplateValuesSource, *AppTemplateValuesSourceDie] {
+	return diefields.ListOf(d, appTemplateHelmTemplateFields.Get().ValuesFrom)
 }
 
 // Optional: Get Kubernetes version, defaults (empty) to retrieving the version from the cluster.
@@ -2420,8 +2420,8 @@ func (d *AppTemplateHelmTemplateDieMut) Path() diefields.ValueMut[string] {
 }
 
 // One or more secrets, config maps, paths that provide values (optional)
-func (d *AppTemplateHelmTemplateDieMut) ValuesFrom() diefields.ValueMut[[]AppTemplateValuesSource] {
-	return diefields.ValueMutOf(d, appTemplateHelmTemplateFields.Get().ValuesFrom)
+func (d *AppTemplateHelmTemplateDieMut) ValuesFrom() *diefields.ListMut[AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut] {
+	return diefields.ListMutOf(d, appTemplateHelmTemplateFields.Get().ValuesFrom)
 }
 
 // Optional: Get Kubernetes version, defaults (empty) to retrieving the version from the cluster.
@@ -2506,19 +2506,19 @@ var AppTemplateKbldBlank = diebase.Blank[AppTemplateKbld, *AppTemplateKbldDie, *
 // +k8s:deepcopy-gen=false
 
 type appTemplateKbldFieldsTable struct {
-	Paths    diefields.Field[AppTemplateKbld, []string]
+	Paths    diefields.ListField[AppTemplateKbld, string, diefields.Value[string], diefields.ValueMut[string]]
 	Platform diefields.Field[AppTemplateKbld, string]
 }
 
 var appTemplateKbldFields = &diefields.Table[appTemplateKbldFieldsTable]{Build: func() (f appTemplateKbldFieldsTable) {
 	_ = annotated
-	f.Paths = diefields.NewField[AppTemplateKbld, []string]("paths")
+	f.Paths = diefields.NewValueList[AppTemplateKbld, string]("paths")
 	f.Platform = diefields.NewField[AppTemplateKbld, string]("platform")
 	return
 }}
 
-func (d *AppTemplateKbldDie) Paths() diefields.Value[[]string] {
-	return diefields.ValueOf(d, appTemplateKbldFields.Get().Paths)
+func (d *AppTemplateKbldDie) Paths() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, appTemplateKbldFields.Get().Paths)
 }
 
 // Resolve to specific platform for image indexes (optional)
@@ -2526,8 +2526,8 @@ func (d *AppTemplateKbldDie) Platform() diefields.Value[string] {
 	return diefields.ValueOf(d, appTemplateKbldFields.Get().Platform)
 }
 
-func (d *AppTemplateKbldDieMut) Paths() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, appTemplateKbldFields.Get().Paths)
+func (d *AppTemplateKbldDieMut) Paths() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, appTemplateKbldFields.Get().Paths)
 }
 
 // Resolve to specific platform for image indexes (optional)
@@ -2607,14 +2607,14 @@ var AppTemplateSopsBlank = diebase.Blank[AppTemplateSops, *AppTemplateSopsDie, *
 
 type appTemplateSopsFieldsTable struct {
 	PGP   diefields.Struct[AppTemplateSops, AppTemplateSopsPGP, *AppTemplateSopsPGPDie, *AppTemplateSopsPGPDieMut]
-	Paths diefields.Field[AppTemplateSops, []string]
+	Paths diefields.ListField[AppTemplateSops, string, diefields.Value[string], diefields.ValueMut[string]]
 	Age   diefields.Struct[AppTemplateSops, AppTemplateSopsAge, *AppTemplateSopsAgeDie, *AppTemplateSopsAgeDieMut]
 }
 
 var appTemplateSopsFields = &diefields.Table[appTemplateSopsFieldsTable]{Build: func() (f appTemplateSopsFieldsTable) {
 	_ = annotated
 	f.PGP = diefields.NewStruct[AppTemplateSops, AppTemplateSopsPGP, *AppTemplateSopsPGPDie, *AppTemplateSopsPGPDieMut]("pgp")
-	f.Paths = diefields.NewField[AppTemplateSops, []string]("paths")
+	f.Paths = diefields.NewValueList[AppTemplateSops, string]("paths")
 	f.Age = diefields.NewStruct[AppTemplateSops, AppTemplateSopsAge, *AppTemplateSopsAgeDie, *AppTemplateSopsAgeDieMut]("age")
 	return
 }}
@@ -2625,8 +2625,8 @@ func (d *AppTemplateSopsDie) PGP() *AppTemplateSopsPGPDie {
 }
 
 // Lists paths to decrypt explicitly (optional; v0.13.0+)
-func (d *AppTemplateSopsDie) Paths() diefields.Value[[]string] {
-	return diefields.ValueOf(d, appTemplateSopsFields.Get().Paths)
+func (d *AppTemplateSopsDie) Paths() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, appTemplateSopsFields.Get().Paths)
 }
 
 func (d *AppTemplateSopsDie) Age() *AppTemplateSopsAgeDie {
@@ -2639,8 +2639,8 @@ func (d *AppTemplateSopsDieMut) PGP() *AppTemplateSopsPGPDieMut {
 }
 
 // Lists paths to decrypt explicitly (optional; v0.13.0+)
-func (d *AppTemplateSopsDieMut) Paths() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, appTemplateSopsFields.Get().Paths)
+func (d *AppTemplateSopsDieMut) Paths() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, appTemplateSopsFields.Get().Paths)
 }
 
 func (d *AppTemplateSopsDieMut) Age() *AppTemplateSopsAgeDieMut {
@@ -2826,21 +2826,21 @@ var AppTemplateValuesDownwardAPIBlank = diebase.Blank[AppTemplateValuesDownwardA
 // +k8s:deepcopy-gen=false
 
 type appTemplateValuesDownwardAPIFieldsTable struct {
-	Items diefields.Field[AppTemplateValuesDownwardAPI, []AppTemplateValuesDownwardAPIItem]
+	Items diefields.ListField[AppTemplateValuesDownwardAPI, AppTemplateValuesDownwardAPIItem, *AppTemplateValuesDownwardAPIItemDie, *AppTemplateValuesDownwardAPIItemDieMut]
 }
 
 var appTemplateValuesDownwardAPIFields = &diefields.Table[appTemplateValuesDownwardAPIFieldsTable]{Build: func() (f appTemplateValuesDownwardAPIFieldsTable) {
 	_ = annotated
-	f.Items = diefields.NewItems[AppTemplateValuesDownwardAPI, []AppTemplateValuesDownwardAPIItem, AppTemplateValuesDownwardAPIItem, *AppTemplateValuesDownwardAPIItemDie, *AppTemplateValuesDownwardAPIItemDieMut]("items")
+	f.Items = diefields.NewList[AppTemplateValuesDownwardAPI, AppTemplateValuesDownwardAPIItem, *AppTemplateValuesDownwardAPIItemDie, *AppTemplateValuesDownwardAPIItemDieMut]("items")
 	return
 }}
 
-func (d *AppTemplateValuesDownwardAPIDie) Items() diefields.Value[[]AppTemplateValuesDownwardAPIItem] {
-	return diefields.ValueOf(d, appTemplateValuesDownwardAPIFields.Get().Items)
+func (d *AppTemplateValuesDownwardAPIDie) Items() *diefields.List[AppTemplateValuesDownwardAPIItem, *AppTemplateValuesDownwardAPIItemDie] {
+	return diefields.ListOf(d, appTemplateValuesDownwardAPIFields.Get().Items)
 }
 
-func (d *AppTemplateValuesDownwardAPIDieMut) Items() diefields.ValueMut[[]AppTemplateValuesDownwardAPIItem] {
-	return diefields.ValueMutOf(d, appTemplateValuesDownwardAPIFields.Get().Items)
+func (d *AppTemplateValuesDownwardAPIDieMut) Items() *diefields.ListMut[AppTemplateValuesDownwardAPIItem, *AppTemplateValuesDownwardAPIItemDie, *AppTemplateValuesDownwardAPIItemDieMut] {
+	return diefields.ListMutOf(d, appTemplateValuesDownwardAPIFields.Get().Items)
 }
 
 // +kubebuilder:object:generate=false
@@ -3105,9 +3105,9 @@ type appTemplateYttFieldsTable struct {
 	IgnoreUnknownComments diefields.Field[AppTemplateYtt, bool]
 	Strict                diefields.Field[AppTemplateYtt, bool]
 	Inline                diefields.Struct[AppTemplateYtt, AppFetchInline, *AppFetchInlineDie, *AppFetchInlineDieMut]
-	Paths                 diefields.Field[AppTemplateYtt, []string]
-	FileMarks             diefields.Field[AppTemplateYtt, []string]
-	ValuesFrom            diefields.Field[AppTemplateYtt, []AppTemplateValuesSource]
+	Paths                 diefields.ListField[AppTemplateYtt, string, diefields.Value[string], diefields.ValueMut[string]]
+	FileMarks             diefields.ListField[AppTemplateYtt, string, diefields.Value[string], diefields.ValueMut[string]]
+	ValuesFrom            diefields.ListField[AppTemplateYtt, AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut]
 }
 
 var appTemplateYttFields = &diefields.Table[appTemplateYttFieldsTable]{Build: func() (f appTemplateYttFieldsTable) {
@@ -3115,9 +3115,9 @@ var appTemplateYttFields = &diefields.Table[appTemplateYttFieldsTable]{Build: fu
 	f.IgnoreUnknownComments = diefields.NewField[AppTemplateYtt, bool]("ignoreUnknownComments")
 	f.Strict = diefields.NewField[AppTemplateYtt, bool]("strict")
 	f.Inline = diefields.NewStruct[AppTemplateYtt, AppFetchInline, *AppFetchInlineDie, *AppFetchInlineDieMut]("inline")
-	f.Paths = diefields.NewField[AppTemplateYtt, []string]("paths")
-	f.FileMarks = diefields.NewField[AppTemplateYtt, []string]("fileMarks")
-	f.ValuesFrom = diefields.NewItems[AppTemplateYtt, []AppTemplateValuesSource, AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut]("valuesFrom")
+	f.Paths = diefields.NewValueList[AppTemplateYtt, string]("paths")
+	f.FileMarks = diefields.NewValueList[AppTemplateYtt, string]("fileMarks")
+	f.ValuesFrom = diefields.NewList[AppTemplateYtt, AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut]("valuesFrom")
 	return
 }}
 
@@ -3139,19 +3139,19 @@ func (d *AppTemplateYttDie) Inline() *AppFetchInlineDie {
 }
 
 // Lists paths to provide to ytt explicitly (optional)
-func (d *AppTemplateYttDie) Paths() diefields.Value[[]string] {
-	return diefields.ValueOf(d, appTemplateYttFields.Get().Paths)
+func (d *AppTemplateYttDie) Paths() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, appTemplateYttFields.Get().Paths)
 }
 
 // Control metadata about input files passed to ytt (optional; v0.18.0+)
 // see https://carvel.dev/ytt/docs/latest/file-marks/ for more details
-func (d *AppTemplateYttDie) FileMarks() diefields.Value[[]string] {
-	return diefields.ValueOf(d, appTemplateYttFields.Get().FileMarks)
+func (d *AppTemplateYttDie) FileMarks() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, appTemplateYttFields.Get().FileMarks)
 }
 
 // Provide values via ytt's --data-values-file (optional; v0.19.0-alpha.9)
-func (d *AppTemplateYttDie) ValuesFrom() diefields.Value[[]AppTemplateValuesSource] {
-	return diefields.ValueOf(d, appTemplateYttFields.Get().ValuesFrom)
+func (d *AppTemplateYttDie) ValuesFrom() *diefields.List[AppTemplateValuesSource, *AppTemplateValuesSourceDie] {
+	return diefields.ListOf(d, appTemplateYttFields.Get().ValuesFrom)
 }
 
 // Ignores comments that ytt doesn't recognize
@@ -3172,19 +3172,19 @@ func (d *AppTemplateYttDieMut) Inline() *AppFetchInlineDieMut {
 }
 
 // Lists paths to provide to ytt explicitly (optional)
-func (d *AppTemplateYttDieMut) Paths() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, appTemplateYttFields.Get().Paths)
+func (d *AppTemplateYttDieMut) Paths() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, appTemplateYttFields.Get().Paths)
 }
 
 // Control metadata about input files passed to ytt (optional; v0.18.0+)
 // see https://carvel.dev/ytt/docs/latest/file-marks/ for more details
-func (d *AppTemplateYttDieMut) FileMarks() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, appTemplateYttFields.Get().FileMarks)
+func (d *AppTemplateYttDieMut) FileMarks() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, appTemplateYttFields.Get().FileMarks)
 }
 
 // Provide values via ytt's --data-values-file (optional; v0.19.0-alpha.9)
-func (d *AppTemplateYttDieMut) ValuesFrom() diefields.ValueMut[[]AppTemplateValuesSource] {
-	return diefields.ValueMutOf(d, appTemplateYttFields.Get().ValuesFrom)
+func (d *AppTemplateYttDieMut) ValuesFrom() *diefields.ListMut[AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut] {
+	return diefields.ListMutOf(d, appTemplateYttFields.Get().ValuesFrom)
 }
 
 // +kubebuilder:object:generate=false
@@ -3221,15 +3221,15 @@ var AssociatedResourcesBlank = diebase.Blank[AssociatedResources, *AssociatedRes
 
 type associatedResourcesFieldsTable struct {
 	Label      diefields.Field[AssociatedResources, string]
-	Namespaces diefields.Field[AssociatedResources, []string]
-	GroupKinds diefields.Field[AssociatedResources, []diemetav1.GroupKind]
+	Namespaces diefields.ListField[AssociatedResources, string, diefields.Value[string], diefields.ValueMut[string]]
+	GroupKinds diefields.ListField[AssociatedResources, diemetav1.GroupKind, *diemetav1.GroupKindDie, *diemetav1.GroupKindDieMut]
 }
 
 var associatedResourcesFields = &diefields.Table[associatedResourcesFieldsTable]{Build: func() (f associatedResourcesFieldsTable) {
 	_ = annotated
 	f.Label = diefields.NewField[AssociatedResources, string]("label")
-	f.Namespaces = diefields.NewField[AssociatedResources, []string]("namespaces")
-	f.GroupKinds = diefields.NewItems[AssociatedResources, []diemetav1.GroupKind, diemetav1.GroupKind, *diemetav1.GroupKindDie, *diemetav1.GroupKindDieMut]("groupKinds")
+	f.Namespaces = diefields.NewValueList[AssociatedResources, string]("namespaces")
+	f.GroupKinds = diefields.NewList[AssociatedResources, diemetav1.GroupKind, *diemetav1.GroupKindDie, *diemetav1.GroupKindDieMut]("groupKinds")
 	return
 }}
 
@@ -3237,24 +3237,24 @@ func (d *AssociatedResourcesDie) Label() diefields.Value[string] {
 	return diefields.ValueOf(d, associatedResourcesFields.Get().Label)
 }
 
-func (d *AssociatedResourcesDie) Namespaces() diefields.Value[[]string] {
-	return diefields.ValueOf(d, associatedResourcesFields.Get().Namespaces)
+func (d *AssociatedResourcesDie) Namespaces() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, associatedResourcesFields.Get().Namespaces)
 }
 
-func (d *AssociatedResourcesDie) GroupKinds() diefields.Value[[]diemetav1.GroupKind] {
-	return diefields.ValueOf(d, associatedResourcesFields.Get().GroupKinds)
+func (d *AssociatedResourcesDie) GroupKinds() *diefields.List[diemetav1.GroupKind, *diemetav1.GroupKindDie] {
+	return diefields.ListOf(d, associatedResourcesFields.Get().GroupKinds)
 }
 
 func (d *AssociatedResourcesDieMut) Label() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, associatedResourcesFields.Get().Label)
 }
 
-func (d *AssociatedResourcesDieMut) Namespaces() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, associatedResourcesFields.Get().Namespaces)
+func (d *AssociatedResourcesDieMut) Namespaces() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, associatedResourcesFields.Get().Namespaces)
 }
 
-func (d *AssociatedResourcesDieMut) GroupKinds() diefields.ValueMut[[]diemetav1.GroupKind] {
-	return diefields.ValueMutOf(d, associatedResourcesFields.Get().GroupKinds)
+func (d *AssociatedResourcesDieMut) GroupKinds() *diefields.ListMut[diemetav1.GroupKind, *diemetav1.GroupKindDie, *diemetav1.GroupKindDieMut] {
+	return diefields.ListMutOf(d, associatedResourcesFields.Get().GroupKinds)
 }
 
 // +kubebuilder:object:generate=false
@@ -3375,7 +3375,7 @@ var GenericStatusBlank = diebase.Blank[GenericStatus, *GenericStatusDie, *Generi
 
 type genericStatusFieldsTable struct {
 	ObservedGeneration  diefields.Field[GenericStatus, int64]
-	Conditions          diefields.Field[GenericStatus, []Condition]
+	Conditions          diefields.ListField[GenericStatus, Condition, *ConditionDie, *ConditionDieMut]
 	FriendlyDescription diefields.Field[GenericStatus, string]
 	UsefulErrorMessage  diefields.Field[GenericStatus, string]
 }
@@ -3383,7 +3383,7 @@ type genericStatusFieldsTable struct {
 var genericStatusFields = &diefields.Table[genericStatusFieldsTable]{Build: func() (f genericStatusFieldsTable) {
 	_ = annotated
 	f.ObservedGeneration = diefields.NewField[GenericStatus, int64]("observedGeneration")
-	f.Conditions = diefields.NewItems[GenericStatus, []Condition, Condition, *ConditionDie, *ConditionDieMut]("conditions")
+	f.Conditions = diefields.NewList[GenericStatus, Condition, *ConditionDie, *ConditionDieMut]("conditions")
 	f.FriendlyDescription = diefields.NewField[GenericStatus, string]("friendlyDescription")
 	f.UsefulErrorMessage = diefields.NewField[GenericStatus, string]("usefulErrorMessage")
 	return
@@ -3396,8 +3396,8 @@ func (d *GenericStatusDie) ObservedGeneration() diefields.Value[int64] {
 	return diefields.ValueOf(d, genericStatusFields.Get().ObservedGeneration)
 }
 
-func (d *GenericStatusDie) Conditions() diefields.Value[[]Condition] {
-	return diefields.ValueOf(d, genericStatusFields.Get().Conditions)
+func (d *GenericStatusDie) Conditions() *diefields.List[Condition, *ConditionDie] {
+	return diefields.ListOf(d, genericStatusFields.Get().Conditions)
 }
 
 func (d *GenericStatusDie) FriendlyDescription() diefields.Value[string] {
@@ -3415,8 +3415,8 @@ func (d *GenericStatusDieMut) ObservedGeneration() diefields.ValueMut[int64] {
 	return diefields.ValueMutOf(d, genericStatusFields.Get().ObservedGeneration)
 }
 
-func (d *GenericStatusDieMut) Conditions() diefields.ValueMut[[]Condition] {
-	return diefields.ValueMutOf(d, genericStatusFields.Get().Conditions)
+func (d *GenericStatusDieMut) Conditions() *diefields.ListMut[Condition, *ConditionDie, *ConditionDieMut] {
+	return diefields.ListMutOf(d, genericStatusFields.Get().Conditions)
 }
 
 func (d *GenericStatusDieMut) FriendlyDescription() diefields.ValueMut[string] {
@@ -3508,21 +3508,21 @@ var KubernetesAPIsBlank = diebase.Blank[KubernetesAPIs, *KubernetesAPIsDie, *Kub
 // +k8s:deepcopy-gen=false
 
 type kubernetesAPIsFieldsTable struct {
-	GroupVersions diefields.Field[KubernetesAPIs, []string]
+	GroupVersions diefields.ListField[KubernetesAPIs, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var kubernetesAPIsFields = &diefields.Table[kubernetesAPIsFieldsTable]{Build: func() (f kubernetesAPIsFieldsTable) {
 	_ = annotated
-	f.GroupVersions = diefields.NewField[KubernetesAPIs, []string]("groupVersions")
+	f.GroupVersions = diefields.NewValueList[KubernetesAPIs, string]("groupVersions")
 	return
 }}
 
-func (d *KubernetesAPIsDie) GroupVersions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, kubernetesAPIsFields.Get().GroupVersions)
+func (d *KubernetesAPIsDie) GroupVersions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, kubernetesAPIsFields.Get().GroupVersions)
 }
 
-func (d *KubernetesAPIsDieMut) GroupVersions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, kubernetesAPIsFields.Get().GroupVersions)
+func (d *KubernetesAPIsDieMut) GroupVersions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, kubernetesAPIsFields.Get().GroupVersions)
 }
 
 // +kubebuilder:object:generate=false

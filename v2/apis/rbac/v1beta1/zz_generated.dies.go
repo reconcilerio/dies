@@ -104,25 +104,25 @@ func (d *AggregationRuleDieMut) DieStampApplyConfiguration(fn func(ac *Aggregati
 // +k8s:deepcopy-gen=false
 
 type aggregationRuleFieldsTable struct {
-	ClusterRoleSelectors diefields.Field[AggregationRule, []diemetav1.LabelSelector]
+	ClusterRoleSelectors diefields.ListField[AggregationRule, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
 }
 
 var aggregationRuleFields = &diefields.Table[aggregationRuleFieldsTable]{Build: func() (f aggregationRuleFieldsTable) {
 	_ = annotated
-	f.ClusterRoleSelectors = diefields.NewItems[AggregationRule, []diemetav1.LabelSelector, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("clusterRoleSelectors")
+	f.ClusterRoleSelectors = diefields.NewList[AggregationRule, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("clusterRoleSelectors")
 	return
 }}
 
 // clusterRoleSelectors holds a list of selectors which will be used to find ClusterRoles and create the rules.
 // If any of the selectors match, then the ClusterRole's permissions will be added
-func (d *AggregationRuleDie) ClusterRoleSelectors() diefields.Value[[]diemetav1.LabelSelector] {
-	return diefields.ValueOf(d, aggregationRuleFields.Get().ClusterRoleSelectors)
+func (d *AggregationRuleDie) ClusterRoleSelectors() *diefields.List[diemetav1.LabelSelector, *diemetav1.LabelSelectorDie] {
+	return diefields.ListOf(d, aggregationRuleFields.Get().ClusterRoleSelectors)
 }
 
 // clusterRoleSelectors holds a list of selectors which will be used to find ClusterRoles and create the rules.
 // If any of the selectors match, then the ClusterRole's permissions will be added
-func (d *AggregationRuleDieMut) ClusterRoleSelectors() diefields.ValueMut[[]diemetav1.LabelSelector] {
-	return diefields.ValueMutOf(d, aggregationRuleFields.Get().ClusterRoleSelectors)
+func (d *AggregationRuleDieMut) ClusterRoleSelectors() *diefields.ListMut[diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut] {
+	return diefields.ListMutOf(d, aggregationRuleFields.Get().ClusterRoleSelectors)
 }
 
 // +kubebuilder:object:generate=false
@@ -201,7 +201,7 @@ type clusterRoleFieldsTable struct {
 	Kind            diefields.Field[ClusterRole, string]
 	APIVersion      diefields.Field[ClusterRole, string]
 	Metadata        diefields.Struct[ClusterRole, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
-	Rules           diefields.Field[ClusterRole, []PolicyRule]
+	Rules           diefields.ListField[ClusterRole, PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut]
 	AggregationRule diefields.Struct[ClusterRole, AggregationRule, *AggregationRuleDie, *AggregationRuleDieMut]
 }
 
@@ -210,7 +210,7 @@ var clusterRoleFields = &diefields.Table[clusterRoleFieldsTable]{Build: func() (
 	f.Kind = diefields.NewField[ClusterRole, string]("kind")
 	f.APIVersion = diefields.NewField[ClusterRole, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[ClusterRole, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
-	f.Rules = diefields.NewItems[ClusterRole, []PolicyRule, PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut]("rules")
+	f.Rules = diefields.NewList[ClusterRole, PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut]("rules")
 	f.AggregationRule = diefields.NewStruct[ClusterRole, AggregationRule, *AggregationRuleDie, *AggregationRuleDieMut]("aggregationRule")
 	return
 }}
@@ -238,8 +238,8 @@ func (d *ClusterRoleDie) Metadata() *diemetav1.ObjectMetaDie {
 }
 
 // rules holds all the PolicyRules for this ClusterRole
-func (d *ClusterRoleDie) Rules() diefields.Value[[]PolicyRule] {
-	return diefields.ValueOf(d, clusterRoleFields.Get().Rules)
+func (d *ClusterRoleDie) Rules() *diefields.List[PolicyRule, *PolicyRuleDie] {
+	return diefields.ListOf(d, clusterRoleFields.Get().Rules)
 }
 
 // aggregationRule is an optional field that describes how to build the Rules for this ClusterRole.
@@ -272,8 +272,8 @@ func (d *ClusterRoleDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
 }
 
 // rules holds all the PolicyRules for this ClusterRole
-func (d *ClusterRoleDieMut) Rules() diefields.ValueMut[[]PolicyRule] {
-	return diefields.ValueMutOf(d, clusterRoleFields.Get().Rules)
+func (d *ClusterRoleDieMut) Rules() *diefields.ListMut[PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut] {
+	return diefields.ListMutOf(d, clusterRoleFields.Get().Rules)
 }
 
 // aggregationRule is an optional field that describes how to build the Rules for this ClusterRole.
@@ -360,7 +360,7 @@ type clusterRoleBindingFieldsTable struct {
 	Kind       diefields.Field[ClusterRoleBinding, string]
 	APIVersion diefields.Field[ClusterRoleBinding, string]
 	Metadata   diefields.Struct[ClusterRoleBinding, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
-	Subjects   diefields.Field[ClusterRoleBinding, []Subject]
+	Subjects   diefields.ListField[ClusterRoleBinding, Subject, *SubjectDie, *SubjectDieMut]
 	RoleRef    diefields.Struct[ClusterRoleBinding, RoleRef, *RoleRefDie, *RoleRefDieMut]
 }
 
@@ -369,7 +369,7 @@ var clusterRoleBindingFields = &diefields.Table[clusterRoleBindingFieldsTable]{B
 	f.Kind = diefields.NewField[ClusterRoleBinding, string]("kind")
 	f.APIVersion = diefields.NewField[ClusterRoleBinding, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[ClusterRoleBinding, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
-	f.Subjects = diefields.NewItems[ClusterRoleBinding, []Subject, Subject, *SubjectDie, *SubjectDieMut]("subjects")
+	f.Subjects = diefields.NewList[ClusterRoleBinding, Subject, *SubjectDie, *SubjectDieMut]("subjects")
 	f.RoleRef = diefields.NewStruct[ClusterRoleBinding, RoleRef, *RoleRefDie, *RoleRefDieMut]("roleRef")
 	return
 }}
@@ -397,8 +397,8 @@ func (d *ClusterRoleBindingDie) Metadata() *diemetav1.ObjectMetaDie {
 }
 
 // subjects holds references to the objects the role applies to.
-func (d *ClusterRoleBindingDie) Subjects() diefields.Value[[]Subject] {
-	return diefields.ValueOf(d, clusterRoleBindingFields.Get().Subjects)
+func (d *ClusterRoleBindingDie) Subjects() *diefields.List[Subject, *SubjectDie] {
+	return diefields.ListOf(d, clusterRoleBindingFields.Get().Subjects)
 }
 
 // roleRef can only reference a ClusterRole in the global namespace.
@@ -430,8 +430,8 @@ func (d *ClusterRoleBindingDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
 }
 
 // subjects holds references to the objects the role applies to.
-func (d *ClusterRoleBindingDieMut) Subjects() diefields.ValueMut[[]Subject] {
-	return diefields.ValueMutOf(d, clusterRoleBindingFields.Get().Subjects)
+func (d *ClusterRoleBindingDieMut) Subjects() *diefields.ListMut[Subject, *SubjectDie, *SubjectDieMut] {
+	return diefields.ListMutOf(d, clusterRoleBindingFields.Get().Subjects)
 }
 
 // roleRef can only reference a ClusterRole in the global namespace.
@@ -553,79 +553,79 @@ func (d *PolicyRuleDieMut) DieStampApplyConfiguration(fn func(ac *PolicyRuleAppl
 // +k8s:deepcopy-gen=false
 
 type policyRuleFieldsTable struct {
-	Verbs           diefields.Field[PolicyRule, []string]
-	APIGroups       diefields.Field[PolicyRule, []string]
-	Resources       diefields.Field[PolicyRule, []string]
-	ResourceNames   diefields.Field[PolicyRule, []string]
-	NonResourceURLs diefields.Field[PolicyRule, []string]
+	Verbs           diefields.ListField[PolicyRule, string, diefields.Value[string], diefields.ValueMut[string]]
+	APIGroups       diefields.ListField[PolicyRule, string, diefields.Value[string], diefields.ValueMut[string]]
+	Resources       diefields.ListField[PolicyRule, string, diefields.Value[string], diefields.ValueMut[string]]
+	ResourceNames   diefields.ListField[PolicyRule, string, diefields.Value[string], diefields.ValueMut[string]]
+	NonResourceURLs diefields.ListField[PolicyRule, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var policyRuleFields = &diefields.Table[policyRuleFieldsTable]{Build: func() (f policyRuleFieldsTable) {
 	_ = annotated
-	f.Verbs = diefields.NewField[PolicyRule, []string]("verbs")
-	f.APIGroups = diefields.NewField[PolicyRule, []string]("apiGroups")
-	f.Resources = diefields.NewField[PolicyRule, []string]("resources")
-	f.ResourceNames = diefields.NewField[PolicyRule, []string]("resourceNames")
-	f.NonResourceURLs = diefields.NewField[PolicyRule, []string]("nonResourceURLs")
+	f.Verbs = diefields.NewValueList[PolicyRule, string]("verbs")
+	f.APIGroups = diefields.NewValueList[PolicyRule, string]("apiGroups")
+	f.Resources = diefields.NewValueList[PolicyRule, string]("resources")
+	f.ResourceNames = diefields.NewValueList[PolicyRule, string]("resourceNames")
+	f.NonResourceURLs = diefields.NewValueList[PolicyRule, string]("nonResourceURLs")
 	return
 }}
 
 // verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs.
-func (d *PolicyRuleDie) Verbs() diefields.Value[[]string] {
-	return diefields.ValueOf(d, policyRuleFields.Get().Verbs)
+func (d *PolicyRuleDie) Verbs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, policyRuleFields.Get().Verbs)
 }
 
 // apiGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
 // the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
-func (d *PolicyRuleDie) APIGroups() diefields.Value[[]string] {
-	return diefields.ValueOf(d, policyRuleFields.Get().APIGroups)
+func (d *PolicyRuleDie) APIGroups() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, policyRuleFields.Get().APIGroups)
 }
 
 // resources is a list of resources this rule applies to.  '*' represents all resources in the specified apiGroups.
 // '*/foo' represents the subresource 'foo' for all resources in the specified apiGroups.
-func (d *PolicyRuleDie) Resources() diefields.Value[[]string] {
-	return diefields.ValueOf(d, policyRuleFields.Get().Resources)
+func (d *PolicyRuleDie) Resources() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, policyRuleFields.Get().Resources)
 }
 
 // resourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.
-func (d *PolicyRuleDie) ResourceNames() diefields.Value[[]string] {
-	return diefields.ValueOf(d, policyRuleFields.Get().ResourceNames)
+func (d *PolicyRuleDie) ResourceNames() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, policyRuleFields.Get().ResourceNames)
 }
 
 // nonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
 // Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
 // Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
-func (d *PolicyRuleDie) NonResourceURLs() diefields.Value[[]string] {
-	return diefields.ValueOf(d, policyRuleFields.Get().NonResourceURLs)
+func (d *PolicyRuleDie) NonResourceURLs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, policyRuleFields.Get().NonResourceURLs)
 }
 
 // verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs.
-func (d *PolicyRuleDieMut) Verbs() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, policyRuleFields.Get().Verbs)
+func (d *PolicyRuleDieMut) Verbs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, policyRuleFields.Get().Verbs)
 }
 
 // apiGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
 // the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
-func (d *PolicyRuleDieMut) APIGroups() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, policyRuleFields.Get().APIGroups)
+func (d *PolicyRuleDieMut) APIGroups() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, policyRuleFields.Get().APIGroups)
 }
 
 // resources is a list of resources this rule applies to.  '*' represents all resources in the specified apiGroups.
 // '*/foo' represents the subresource 'foo' for all resources in the specified apiGroups.
-func (d *PolicyRuleDieMut) Resources() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, policyRuleFields.Get().Resources)
+func (d *PolicyRuleDieMut) Resources() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, policyRuleFields.Get().Resources)
 }
 
 // resourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.
-func (d *PolicyRuleDieMut) ResourceNames() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, policyRuleFields.Get().ResourceNames)
+func (d *PolicyRuleDieMut) ResourceNames() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, policyRuleFields.Get().ResourceNames)
 }
 
 // nonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
 // Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
 // Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
-func (d *PolicyRuleDieMut) NonResourceURLs() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, policyRuleFields.Get().NonResourceURLs)
+func (d *PolicyRuleDieMut) NonResourceURLs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, policyRuleFields.Get().NonResourceURLs)
 }
 
 // +kubebuilder:object:generate=false
@@ -704,7 +704,7 @@ type roleFieldsTable struct {
 	Kind       diefields.Field[Role, string]
 	APIVersion diefields.Field[Role, string]
 	Metadata   diefields.Struct[Role, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
-	Rules      diefields.Field[Role, []PolicyRule]
+	Rules      diefields.ListField[Role, PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut]
 }
 
 var roleFields = &diefields.Table[roleFieldsTable]{Build: func() (f roleFieldsTable) {
@@ -712,7 +712,7 @@ var roleFields = &diefields.Table[roleFieldsTable]{Build: func() (f roleFieldsTa
 	f.Kind = diefields.NewField[Role, string]("kind")
 	f.APIVersion = diefields.NewField[Role, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[Role, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
-	f.Rules = diefields.NewItems[Role, []PolicyRule, PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut]("rules")
+	f.Rules = diefields.NewList[Role, PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut]("rules")
 	return
 }}
 
@@ -737,8 +737,8 @@ func (d *RoleDie) Metadata() *diemetav1.ObjectMetaDie {
 }
 
 // rules holds all the PolicyRules for this Role
-func (d *RoleDie) Rules() diefields.Value[[]PolicyRule] {
-	return diefields.ValueOf(d, roleFields.Get().Rules)
+func (d *RoleDie) Rules() *diefields.List[PolicyRule, *PolicyRuleDie] {
+	return diefields.ListOf(d, roleFields.Get().Rules)
 }
 
 // Kind is a string value representing the REST resource this object represents.
@@ -764,8 +764,8 @@ func (d *RoleDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
 }
 
 // rules holds all the PolicyRules for this Role
-func (d *RoleDieMut) Rules() diefields.ValueMut[[]PolicyRule] {
-	return diefields.ValueMutOf(d, roleFields.Get().Rules)
+func (d *RoleDieMut) Rules() *diefields.ListMut[PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut] {
+	return diefields.ListMutOf(d, roleFields.Get().Rules)
 }
 
 // +kubebuilder:object:generate=false
@@ -846,7 +846,7 @@ type roleBindingFieldsTable struct {
 	Kind       diefields.Field[RoleBinding, string]
 	APIVersion diefields.Field[RoleBinding, string]
 	Metadata   diefields.Struct[RoleBinding, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
-	Subjects   diefields.Field[RoleBinding, []Subject]
+	Subjects   diefields.ListField[RoleBinding, Subject, *SubjectDie, *SubjectDieMut]
 	RoleRef    diefields.Struct[RoleBinding, RoleRef, *RoleRefDie, *RoleRefDieMut]
 }
 
@@ -855,7 +855,7 @@ var roleBindingFields = &diefields.Table[roleBindingFieldsTable]{Build: func() (
 	f.Kind = diefields.NewField[RoleBinding, string]("kind")
 	f.APIVersion = diefields.NewField[RoleBinding, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[RoleBinding, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
-	f.Subjects = diefields.NewItems[RoleBinding, []Subject, Subject, *SubjectDie, *SubjectDieMut]("subjects")
+	f.Subjects = diefields.NewList[RoleBinding, Subject, *SubjectDie, *SubjectDieMut]("subjects")
 	f.RoleRef = diefields.NewStruct[RoleBinding, RoleRef, *RoleRefDie, *RoleRefDieMut]("roleRef")
 	return
 }}
@@ -883,8 +883,8 @@ func (d *RoleBindingDie) Metadata() *diemetav1.ObjectMetaDie {
 }
 
 // subjects holds references to the objects the role applies to.
-func (d *RoleBindingDie) Subjects() diefields.Value[[]Subject] {
-	return diefields.ValueOf(d, roleBindingFields.Get().Subjects)
+func (d *RoleBindingDie) Subjects() *diefields.List[Subject, *SubjectDie] {
+	return diefields.ListOf(d, roleBindingFields.Get().Subjects)
 }
 
 // roleRef can reference a Role in the current namespace or a ClusterRole in the global namespace.
@@ -916,8 +916,8 @@ func (d *RoleBindingDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
 }
 
 // subjects holds references to the objects the role applies to.
-func (d *RoleBindingDieMut) Subjects() diefields.ValueMut[[]Subject] {
-	return diefields.ValueMutOf(d, roleBindingFields.Get().Subjects)
+func (d *RoleBindingDieMut) Subjects() *diefields.ListMut[Subject, *SubjectDie, *SubjectDieMut] {
+	return diefields.ListMutOf(d, roleBindingFields.Get().Subjects)
 }
 
 // roleRef can reference a Role in the current namespace or a ClusterRole in the global namespace.

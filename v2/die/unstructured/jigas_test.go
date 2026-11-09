@@ -52,7 +52,7 @@ func TestJigAs(t *testing.T) {
 		}
 		// a jig of a list element by its index
 		proxy := unstructured.JigAsMut[*diecorev1.ContainerDieMut](containers.Index(1))
-		dietesting.NoError(t, proxy.Args().Set([]string{"--verbose"}))
+		dietesting.NoError(t, proxy.Args().SetValue([]string{"--verbose"}...))
 	})
 
 	// only what was written is intent, and unknown fields are kept

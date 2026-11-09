@@ -199,7 +199,7 @@ type packageInstallSpecFieldsTable struct {
 	ServiceAccountName diefields.Field[PackageInstallSpec, string]
 	Cluster            diefields.Struct[PackageInstallSpec, kappctrlv1alpha1.AppCluster, *kappctrlv1alpha1.AppClusterDie, *kappctrlv1alpha1.AppClusterDieMut]
 	PackageRef         diefields.Struct[PackageInstallSpec, PackageRef, *PackageRefDie, *PackageRefDieMut]
-	Values             diefields.Field[PackageInstallSpec, []PackageInstallValues]
+	Values             diefields.ListField[PackageInstallSpec, PackageInstallValues, *PackageInstallValuesDie, *PackageInstallValuesDieMut]
 	Paused             diefields.Field[PackageInstallSpec, bool]
 	Canceled           diefields.Field[PackageInstallSpec, bool]
 	SyncPeriod         diefields.Field[PackageInstallSpec, *diemetav1.Duration]
@@ -212,7 +212,7 @@ var packageInstallSpecFields = &diefields.Table[packageInstallSpecFieldsTable]{B
 	f.ServiceAccountName = diefields.NewField[PackageInstallSpec, string]("serviceAccountName")
 	f.Cluster = diefields.NewStruct[PackageInstallSpec, kappctrlv1alpha1.AppCluster, *kappctrlv1alpha1.AppClusterDie, *kappctrlv1alpha1.AppClusterDieMut]("cluster")
 	f.PackageRef = diefields.NewStruct[PackageInstallSpec, PackageRef, *PackageRefDie, *PackageRefDieMut]("packageRef")
-	f.Values = diefields.NewItems[PackageInstallSpec, []PackageInstallValues, PackageInstallValues, *PackageInstallValuesDie, *PackageInstallValuesDieMut]("values")
+	f.Values = diefields.NewList[PackageInstallSpec, PackageInstallValues, *PackageInstallValuesDie, *PackageInstallValuesDieMut]("values")
 	f.Paused = diefields.NewField[PackageInstallSpec, bool]("paused")
 	f.Canceled = diefields.NewField[PackageInstallSpec, bool]("canceled")
 	f.SyncPeriod = diefields.NewField[PackageInstallSpec, *diemetav1.Duration]("syncPeriod")
@@ -239,8 +239,8 @@ func (d *PackageInstallSpecDie) PackageRef() *PackageRefDie {
 
 // Values to be included in package's templating step
 // (currently only included in the first templating step) (optional)
-func (d *PackageInstallSpecDie) Values() diefields.Value[[]PackageInstallValues] {
-	return diefields.ValueOf(d, packageInstallSpecFields.Get().Values)
+func (d *PackageInstallSpecDie) Values() *diefields.List[PackageInstallValues, *PackageInstallValuesDie] {
+	return diefields.ListOf(d, packageInstallSpecFields.Get().Values)
 }
 
 // Paused when set to true will ignore all pending changes,
@@ -292,8 +292,8 @@ func (d *PackageInstallSpecDieMut) PackageRef() *PackageRefDieMut {
 
 // Values to be included in package's templating step
 // (currently only included in the first templating step) (optional)
-func (d *PackageInstallSpecDieMut) Values() diefields.ValueMut[[]PackageInstallValues] {
-	return diefields.ValueMutOf(d, packageInstallSpecFields.Get().Values)
+func (d *PackageInstallSpecDieMut) Values() *diefields.ListMut[PackageInstallValues, *PackageInstallValuesDie, *PackageInstallValuesDieMut] {
+	return diefields.ListMutOf(d, packageInstallSpecFields.Get().Values)
 }
 
 // Paused when set to true will ignore all pending changes,
@@ -359,7 +359,7 @@ var PackageInstallStatusBlank = diebase.Blank[PackageInstallStatus, *PackageInst
 
 type packageInstallStatusFieldsTable struct {
 	ObservedGeneration   diefields.Field[PackageInstallStatus, int64]
-	Conditions           diefields.Field[PackageInstallStatus, []kappctrlv1alpha1.Condition]
+	Conditions           diefields.ListField[PackageInstallStatus, kappctrlv1alpha1.Condition, *kappctrlv1alpha1.ConditionDie, *kappctrlv1alpha1.ConditionDieMut]
 	FriendlyDescription  diefields.Field[PackageInstallStatus, string]
 	UsefulErrorMessage   diefields.Field[PackageInstallStatus, string]
 	Version              diefields.Field[PackageInstallStatus, string]
@@ -369,7 +369,7 @@ type packageInstallStatusFieldsTable struct {
 var packageInstallStatusFields = &diefields.Table[packageInstallStatusFieldsTable]{Build: func() (f packageInstallStatusFieldsTable) {
 	_ = annotated
 	f.ObservedGeneration = diefields.NewField[PackageInstallStatus, int64]("observedGeneration")
-	f.Conditions = diefields.NewItems[PackageInstallStatus, []kappctrlv1alpha1.Condition, kappctrlv1alpha1.Condition, *kappctrlv1alpha1.ConditionDie, *kappctrlv1alpha1.ConditionDieMut]("conditions")
+	f.Conditions = diefields.NewList[PackageInstallStatus, kappctrlv1alpha1.Condition, *kappctrlv1alpha1.ConditionDie, *kappctrlv1alpha1.ConditionDieMut]("conditions")
 	f.FriendlyDescription = diefields.NewField[PackageInstallStatus, string]("friendlyDescription")
 	f.UsefulErrorMessage = diefields.NewField[PackageInstallStatus, string]("usefulErrorMessage")
 	f.Version = diefields.NewField[PackageInstallStatus, string]("version")
@@ -384,8 +384,8 @@ func (d *PackageInstallStatusDie) ObservedGeneration() diefields.Value[int64] {
 	return diefields.ValueOf(d, packageInstallStatusFields.Get().ObservedGeneration)
 }
 
-func (d *PackageInstallStatusDie) Conditions() diefields.Value[[]kappctrlv1alpha1.Condition] {
-	return diefields.ValueOf(d, packageInstallStatusFields.Get().Conditions)
+func (d *PackageInstallStatusDie) Conditions() *diefields.List[kappctrlv1alpha1.Condition, *kappctrlv1alpha1.ConditionDie] {
+	return diefields.ListOf(d, packageInstallStatusFields.Get().Conditions)
 }
 
 func (d *PackageInstallStatusDie) FriendlyDescription() diefields.Value[string] {
@@ -414,8 +414,8 @@ func (d *PackageInstallStatusDieMut) ObservedGeneration() diefields.ValueMut[int
 	return diefields.ValueMutOf(d, packageInstallStatusFields.Get().ObservedGeneration)
 }
 
-func (d *PackageInstallStatusDieMut) Conditions() diefields.ValueMut[[]kappctrlv1alpha1.Condition] {
-	return diefields.ValueMutOf(d, packageInstallStatusFields.Get().Conditions)
+func (d *PackageInstallStatusDieMut) Conditions() *diefields.ListMut[kappctrlv1alpha1.Condition, *kappctrlv1alpha1.ConditionDie, *kappctrlv1alpha1.ConditionDieMut] {
+	return diefields.ListMutOf(d, packageInstallStatusFields.Get().Conditions)
 }
 
 func (d *PackageInstallStatusDieMut) FriendlyDescription() diefields.ValueMut[string] {
@@ -942,7 +942,7 @@ type packageRepositoryStatusFieldsTable struct {
 	ConsecutiveReconcileSuccesses diefields.Field[PackageRepositoryStatus, int]
 	ConsecutiveReconcileFailures  diefields.Field[PackageRepositoryStatus, int]
 	ObservedGeneration            diefields.Field[PackageRepositoryStatus, int64]
-	Conditions                    diefields.Field[PackageRepositoryStatus, []kappctrlv1alpha1.Condition]
+	Conditions                    diefields.ListField[PackageRepositoryStatus, kappctrlv1alpha1.Condition, *kappctrlv1alpha1.ConditionDie, *kappctrlv1alpha1.ConditionDieMut]
 	FriendlyDescription           diefields.Field[PackageRepositoryStatus, string]
 	UsefulErrorMessage            diefields.Field[PackageRepositoryStatus, string]
 }
@@ -955,7 +955,7 @@ var packageRepositoryStatusFields = &diefields.Table[packageRepositoryStatusFiel
 	f.ConsecutiveReconcileSuccesses = diefields.NewField[PackageRepositoryStatus, int]("consecutiveReconcileSuccesses")
 	f.ConsecutiveReconcileFailures = diefields.NewField[PackageRepositoryStatus, int]("consecutiveReconcileFailures")
 	f.ObservedGeneration = diefields.NewField[PackageRepositoryStatus, int64]("observedGeneration")
-	f.Conditions = diefields.NewItems[PackageRepositoryStatus, []kappctrlv1alpha1.Condition, kappctrlv1alpha1.Condition, *kappctrlv1alpha1.ConditionDie, *kappctrlv1alpha1.ConditionDieMut]("conditions")
+	f.Conditions = diefields.NewList[PackageRepositoryStatus, kappctrlv1alpha1.Condition, *kappctrlv1alpha1.ConditionDie, *kappctrlv1alpha1.ConditionDieMut]("conditions")
 	f.FriendlyDescription = diefields.NewField[PackageRepositoryStatus, string]("friendlyDescription")
 	f.UsefulErrorMessage = diefields.NewField[PackageRepositoryStatus, string]("usefulErrorMessage")
 	return
@@ -988,8 +988,8 @@ func (d *PackageRepositoryStatusDie) ObservedGeneration() diefields.Value[int64]
 	return diefields.ValueOf(d, packageRepositoryStatusFields.Get().ObservedGeneration)
 }
 
-func (d *PackageRepositoryStatusDie) Conditions() diefields.Value[[]kappctrlv1alpha1.Condition] {
-	return diefields.ValueOf(d, packageRepositoryStatusFields.Get().Conditions)
+func (d *PackageRepositoryStatusDie) Conditions() *diefields.List[kappctrlv1alpha1.Condition, *kappctrlv1alpha1.ConditionDie] {
+	return diefields.ListOf(d, packageRepositoryStatusFields.Get().Conditions)
 }
 
 func (d *PackageRepositoryStatusDie) FriendlyDescription() diefields.Value[string] {
@@ -1027,8 +1027,8 @@ func (d *PackageRepositoryStatusDieMut) ObservedGeneration() diefields.ValueMut[
 	return diefields.ValueMutOf(d, packageRepositoryStatusFields.Get().ObservedGeneration)
 }
 
-func (d *PackageRepositoryStatusDieMut) Conditions() diefields.ValueMut[[]kappctrlv1alpha1.Condition] {
-	return diefields.ValueMutOf(d, packageRepositoryStatusFields.Get().Conditions)
+func (d *PackageRepositoryStatusDieMut) Conditions() *diefields.ListMut[kappctrlv1alpha1.Condition, *kappctrlv1alpha1.ConditionDie, *kappctrlv1alpha1.ConditionDieMut] {
+	return diefields.ListMutOf(d, packageRepositoryStatusFields.Get().Conditions)
 }
 
 func (d *PackageRepositoryStatusDieMut) FriendlyDescription() diefields.ValueMut[string] {

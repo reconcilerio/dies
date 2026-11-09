@@ -422,13 +422,13 @@ func (d *SchedulingDieMut) DieStampApplyConfiguration(fn func(ac *SchedulingAppl
 
 type schedulingFieldsTable struct {
 	NodeSelector diefields.Field[Scheduling, map[string]string]
-	Tolerations  diefields.Field[Scheduling, []diecorev1.Toleration]
+	Tolerations  diefields.ListField[Scheduling, diecorev1.Toleration, *diecorev1.TolerationDie, *diecorev1.TolerationDieMut]
 }
 
 var schedulingFields = &diefields.Table[schedulingFieldsTable]{Build: func() (f schedulingFieldsTable) {
 	_ = annotated
 	f.NodeSelector = diefields.NewField[Scheduling, map[string]string]("nodeSelector")
-	f.Tolerations = diefields.NewItems[Scheduling, []diecorev1.Toleration, diecorev1.Toleration, *diecorev1.TolerationDie, *diecorev1.TolerationDieMut]("tolerations")
+	f.Tolerations = diefields.NewList[Scheduling, diecorev1.Toleration, *diecorev1.TolerationDie, *diecorev1.TolerationDieMut]("tolerations")
 	return
 }}
 
@@ -444,8 +444,8 @@ func (d *SchedulingDie) NodeSelector() diefields.Value[map[string]string] {
 // tolerations are appended (excluding duplicates) to pods running with this
 // RuntimeClass during admission, effectively unioning the set of nodes
 // tolerated by the pod and the RuntimeClass.
-func (d *SchedulingDie) Tolerations() diefields.Value[[]diecorev1.Toleration] {
-	return diefields.ValueOf(d, schedulingFields.Get().Tolerations)
+func (d *SchedulingDie) Tolerations() *diefields.List[diecorev1.Toleration, *diecorev1.TolerationDie] {
+	return diefields.ListOf(d, schedulingFields.Get().Tolerations)
 }
 
 // nodeSelector lists labels that must be present on nodes that support this
@@ -460,8 +460,8 @@ func (d *SchedulingDieMut) NodeSelector() diefields.ValueMut[map[string]string] 
 // tolerations are appended (excluding duplicates) to pods running with this
 // RuntimeClass during admission, effectively unioning the set of nodes
 // tolerated by the pod and the RuntimeClass.
-func (d *SchedulingDieMut) Tolerations() diefields.ValueMut[[]diecorev1.Toleration] {
-	return diefields.ValueMutOf(d, schedulingFields.Get().Tolerations)
+func (d *SchedulingDieMut) Tolerations() *diefields.ListMut[diecorev1.Toleration, *diecorev1.TolerationDie, *diecorev1.TolerationDieMut] {
+	return diefields.ListMutOf(d, schedulingFields.Get().Tolerations)
 }
 
 // SchemeGroupVersion is the group version of this package's object dies.

@@ -68,14 +68,14 @@ var ConversionRequestBlank = diebase.Blank[ConversionRequest, *ConversionRequest
 type conversionRequestFieldsTable struct {
 	UID               diefields.Field[ConversionRequest, types.UID]
 	DesiredAPIVersion diefields.Field[ConversionRequest, string]
-	Objects           diefields.Field[ConversionRequest, []runtime.RawExtension]
+	Objects           diefields.ListField[ConversionRequest, runtime.RawExtension, diefields.Value[runtime.RawExtension], diefields.ValueMut[runtime.RawExtension]]
 }
 
 var conversionRequestFields = &diefields.Table[conversionRequestFieldsTable]{Build: func() (f conversionRequestFieldsTable) {
 	_ = annotated
 	f.UID = diefields.NewField[ConversionRequest, types.UID]("uid")
 	f.DesiredAPIVersion = diefields.NewField[ConversionRequest, string]("desiredAPIVersion")
-	f.Objects = diefields.NewField[ConversionRequest, []runtime.RawExtension]("objects")
+	f.Objects = diefields.NewValueList[ConversionRequest, runtime.RawExtension]("objects")
 	return
 }}
 
@@ -93,8 +93,8 @@ func (d *ConversionRequestDie) DesiredAPIVersion() diefields.Value[string] {
 }
 
 // objects is the list of custom resource objects to be converted.
-func (d *ConversionRequestDie) Objects() diefields.Value[[]runtime.RawExtension] {
-	return diefields.ValueOf(d, conversionRequestFields.Get().Objects)
+func (d *ConversionRequestDie) Objects() *diefields.List[runtime.RawExtension, diefields.Value[runtime.RawExtension]] {
+	return diefields.ListOf(d, conversionRequestFields.Get().Objects)
 }
 
 // uid is an identifier for the individual request/response. It allows distinguishing instances of requests which are
@@ -111,8 +111,8 @@ func (d *ConversionRequestDieMut) DesiredAPIVersion() diefields.ValueMut[string]
 }
 
 // objects is the list of custom resource objects to be converted.
-func (d *ConversionRequestDieMut) Objects() diefields.ValueMut[[]runtime.RawExtension] {
-	return diefields.ValueMutOf(d, conversionRequestFields.Get().Objects)
+func (d *ConversionRequestDieMut) Objects() *diefields.ListMut[runtime.RawExtension, diefields.Value[runtime.RawExtension], diefields.ValueMut[runtime.RawExtension]] {
+	return diefields.ListMutOf(d, conversionRequestFields.Get().Objects)
 }
 
 // +kubebuilder:object:generate=false
@@ -149,14 +149,14 @@ var ConversionResponseBlank = diebase.Blank[ConversionResponse, *ConversionRespo
 
 type conversionResponseFieldsTable struct {
 	UID              diefields.Field[ConversionResponse, types.UID]
-	ConvertedObjects diefields.Field[ConversionResponse, []runtime.RawExtension]
+	ConvertedObjects diefields.ListField[ConversionResponse, runtime.RawExtension, diefields.Value[runtime.RawExtension], diefields.ValueMut[runtime.RawExtension]]
 	Result           diefields.Struct[ConversionResponse, diemetav1.Status, *diemetav1.StatusDie, *diemetav1.StatusDieMut]
 }
 
 var conversionResponseFields = &diefields.Table[conversionResponseFieldsTable]{Build: func() (f conversionResponseFieldsTable) {
 	_ = annotated
 	f.UID = diefields.NewField[ConversionResponse, types.UID]("uid")
-	f.ConvertedObjects = diefields.NewField[ConversionResponse, []runtime.RawExtension]("convertedObjects")
+	f.ConvertedObjects = diefields.NewValueList[ConversionResponse, runtime.RawExtension]("convertedObjects")
 	f.Result = diefields.NewStruct[ConversionResponse, diemetav1.Status, *diemetav1.StatusDie, *diemetav1.StatusDieMut]("result")
 	return
 }}
@@ -171,8 +171,8 @@ func (d *ConversionResponseDie) UID() diefields.Value[types.UID] {
 // The webhook is expected to set `apiVersion` of these objects to the `request.desiredAPIVersion`. The list
 // must also have the same size as the input list with the same objects in the same order (equal kind, metadata.uid, metadata.name and metadata.namespace).
 // The webhook is allowed to mutate labels and annotations. Any other change to the metadata is silently ignored.
-func (d *ConversionResponseDie) ConvertedObjects() diefields.Value[[]runtime.RawExtension] {
-	return diefields.ValueOf(d, conversionResponseFields.Get().ConvertedObjects)
+func (d *ConversionResponseDie) ConvertedObjects() *diefields.List[runtime.RawExtension, diefields.Value[runtime.RawExtension]] {
+	return diefields.ListOf(d, conversionResponseFields.Get().ConvertedObjects)
 }
 
 // result contains the result of conversion with extra details if the conversion failed. `result.status` determines if
@@ -194,8 +194,8 @@ func (d *ConversionResponseDieMut) UID() diefields.ValueMut[types.UID] {
 // The webhook is expected to set `apiVersion` of these objects to the `request.desiredAPIVersion`. The list
 // must also have the same size as the input list with the same objects in the same order (equal kind, metadata.uid, metadata.name and metadata.namespace).
 // The webhook is allowed to mutate labels and annotations. Any other change to the metadata is silently ignored.
-func (d *ConversionResponseDieMut) ConvertedObjects() diefields.ValueMut[[]runtime.RawExtension] {
-	return diefields.ValueMutOf(d, conversionResponseFields.Get().ConvertedObjects)
+func (d *ConversionResponseDieMut) ConvertedObjects() *diefields.ListMut[runtime.RawExtension, diefields.Value[runtime.RawExtension], diefields.ValueMut[runtime.RawExtension]] {
+	return diefields.ListMutOf(d, conversionResponseFields.Get().ConvertedObjects)
 }
 
 // result contains the result of conversion with extra details if the conversion failed. `result.status` determines if
@@ -988,20 +988,20 @@ func (d *CustomResourceDefinitionNamesDieMut) DieStampApplyConfiguration(fn func
 type customResourceDefinitionNamesFieldsTable struct {
 	Plural     diefields.Field[CustomResourceDefinitionNames, string]
 	Singular   diefields.Field[CustomResourceDefinitionNames, string]
-	ShortNames diefields.Field[CustomResourceDefinitionNames, []string]
+	ShortNames diefields.ListField[CustomResourceDefinitionNames, string, diefields.Value[string], diefields.ValueMut[string]]
 	Kind       diefields.Field[CustomResourceDefinitionNames, string]
 	ListKind   diefields.Field[CustomResourceDefinitionNames, string]
-	Categories diefields.Field[CustomResourceDefinitionNames, []string]
+	Categories diefields.ListField[CustomResourceDefinitionNames, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var customResourceDefinitionNamesFields = &diefields.Table[customResourceDefinitionNamesFieldsTable]{Build: func() (f customResourceDefinitionNamesFieldsTable) {
 	_ = annotated
 	f.Plural = diefields.NewField[CustomResourceDefinitionNames, string]("plural")
 	f.Singular = diefields.NewField[CustomResourceDefinitionNames, string]("singular")
-	f.ShortNames = diefields.NewField[CustomResourceDefinitionNames, []string]("shortNames")
+	f.ShortNames = diefields.NewValueList[CustomResourceDefinitionNames, string]("shortNames")
 	f.Kind = diefields.NewField[CustomResourceDefinitionNames, string]("kind")
 	f.ListKind = diefields.NewField[CustomResourceDefinitionNames, string]("listKind")
-	f.Categories = diefields.NewField[CustomResourceDefinitionNames, []string]("categories")
+	f.Categories = diefields.NewValueList[CustomResourceDefinitionNames, string]("categories")
 	return
 }}
 
@@ -1021,8 +1021,8 @@ func (d *CustomResourceDefinitionNamesDie) Singular() diefields.Value[string] {
 // shortNames are short names for the resource, exposed in API discovery documents,
 // and used by clients to support invocations like `kubectl get <shortname>`.
 // It must be all lowercase.
-func (d *CustomResourceDefinitionNamesDie) ShortNames() diefields.Value[[]string] {
-	return diefields.ValueOf(d, customResourceDefinitionNamesFields.Get().ShortNames)
+func (d *CustomResourceDefinitionNamesDie) ShortNames() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, customResourceDefinitionNamesFields.Get().ShortNames)
 }
 
 // kind is the serialized kind of the resource. It is normally CamelCase and singular.
@@ -1039,8 +1039,8 @@ func (d *CustomResourceDefinitionNamesDie) ListKind() diefields.Value[string] {
 // categories is a list of grouped resources this custom resource belongs to (e.g. 'all').
 // This is published in API discovery documents, and used by clients to support invocations like
 // `kubectl get all`.
-func (d *CustomResourceDefinitionNamesDie) Categories() diefields.Value[[]string] {
-	return diefields.ValueOf(d, customResourceDefinitionNamesFields.Get().Categories)
+func (d *CustomResourceDefinitionNamesDie) Categories() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, customResourceDefinitionNamesFields.Get().Categories)
 }
 
 // plural is the plural name of the resource to serve.
@@ -1059,8 +1059,8 @@ func (d *CustomResourceDefinitionNamesDieMut) Singular() diefields.ValueMut[stri
 // shortNames are short names for the resource, exposed in API discovery documents,
 // and used by clients to support invocations like `kubectl get <shortname>`.
 // It must be all lowercase.
-func (d *CustomResourceDefinitionNamesDieMut) ShortNames() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, customResourceDefinitionNamesFields.Get().ShortNames)
+func (d *CustomResourceDefinitionNamesDieMut) ShortNames() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, customResourceDefinitionNamesFields.Get().ShortNames)
 }
 
 // kind is the serialized kind of the resource. It is normally CamelCase and singular.
@@ -1077,8 +1077,8 @@ func (d *CustomResourceDefinitionNamesDieMut) ListKind() diefields.ValueMut[stri
 // categories is a list of grouped resources this custom resource belongs to (e.g. 'all').
 // This is published in API discovery documents, and used by clients to support invocations like
 // `kubectl get all`.
-func (d *CustomResourceDefinitionNamesDieMut) Categories() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, customResourceDefinitionNamesFields.Get().Categories)
+func (d *CustomResourceDefinitionNamesDieMut) Categories() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, customResourceDefinitionNamesFields.Get().Categories)
 }
 
 // +kubebuilder:object:generate=false
@@ -1156,7 +1156,7 @@ type customResourceDefinitionSpecFieldsTable struct {
 	Group                 diefields.Field[CustomResourceDefinitionSpec, string]
 	Names                 diefields.Struct[CustomResourceDefinitionSpec, CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie, *CustomResourceDefinitionNamesDieMut]
 	Scope                 diefields.Field[CustomResourceDefinitionSpec, ResourceScope]
-	Versions              diefields.Field[CustomResourceDefinitionSpec, []CustomResourceDefinitionVersion]
+	Versions              diefields.ListField[CustomResourceDefinitionSpec, CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie, *CustomResourceDefinitionVersionDieMut]
 	Conversion            diefields.Struct[CustomResourceDefinitionSpec, CustomResourceConversion, *CustomResourceConversionDie, *CustomResourceConversionDieMut]
 	PreserveUnknownFields diefields.Field[CustomResourceDefinitionSpec, bool]
 }
@@ -1166,7 +1166,7 @@ var customResourceDefinitionSpecFields = &diefields.Table[customResourceDefiniti
 	f.Group = diefields.NewField[CustomResourceDefinitionSpec, string]("group")
 	f.Names = diefields.NewStruct[CustomResourceDefinitionSpec, CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie, *CustomResourceDefinitionNamesDieMut]("names")
 	f.Scope = diefields.NewField[CustomResourceDefinitionSpec, ResourceScope]("scope")
-	f.Versions = diefields.NewItems[CustomResourceDefinitionSpec, []CustomResourceDefinitionVersion, CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie, *CustomResourceDefinitionVersionDieMut]("versions")
+	f.Versions = diefields.NewList[CustomResourceDefinitionSpec, CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie, *CustomResourceDefinitionVersionDieMut]("versions")
 	f.Conversion = diefields.NewStruct[CustomResourceDefinitionSpec, CustomResourceConversion, *CustomResourceConversionDie, *CustomResourceConversionDieMut]("conversion")
 	f.PreserveUnknownFields = diefields.NewField[CustomResourceDefinitionSpec, bool]("preserveUnknownFields")
 	return
@@ -1198,8 +1198,8 @@ func (d *CustomResourceDefinitionSpecDie) Scope() diefields.Value[ResourceScope]
 // by GA > beta > alpha (where GA is a version with no suffix such as beta or alpha), and then by comparing
 // major version, then minor version. An example sorted list of versions:
 // v10, v2, v1, v11beta2, v10beta3, v3beta1, v12alpha1, v11alpha2, foo1, foo10.
-func (d *CustomResourceDefinitionSpecDie) Versions() diefields.Value[[]CustomResourceDefinitionVersion] {
-	return diefields.ValueOf(d, customResourceDefinitionSpecFields.Get().Versions)
+func (d *CustomResourceDefinitionSpecDie) Versions() *diefields.List[CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie] {
+	return diefields.ListOf(d, customResourceDefinitionSpecFields.Get().Versions)
 }
 
 // conversion defines conversion settings for the CRD.
@@ -1242,8 +1242,8 @@ func (d *CustomResourceDefinitionSpecDieMut) Scope() diefields.ValueMut[Resource
 // by GA > beta > alpha (where GA is a version with no suffix such as beta or alpha), and then by comparing
 // major version, then minor version. An example sorted list of versions:
 // v10, v2, v1, v11beta2, v10beta3, v3beta1, v12alpha1, v11alpha2, foo1, foo10.
-func (d *CustomResourceDefinitionSpecDieMut) Versions() diefields.ValueMut[[]CustomResourceDefinitionVersion] {
-	return diefields.ValueMutOf(d, customResourceDefinitionSpecFields.Get().Versions)
+func (d *CustomResourceDefinitionSpecDieMut) Versions() *diefields.ListMut[CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie, *CustomResourceDefinitionVersionDieMut] {
+	return diefields.ListMutOf(d, customResourceDefinitionSpecFields.Get().Versions)
 }
 
 // conversion defines conversion settings for the CRD.
@@ -1334,7 +1334,7 @@ func (d *CustomResourceDefinitionStatusDieMut) DieStampApplyConfiguration(fn fun
 type customResourceDefinitionStatusFieldsTable struct {
 	Conditions         diefields.ListMapField[CustomResourceDefinitionStatus, CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, *CustomResourceDefinitionConditionDieMut, CustomResourceDefinitionConditionType]
 	AcceptedNames      diefields.Struct[CustomResourceDefinitionStatus, CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie, *CustomResourceDefinitionNamesDieMut]
-	StoredVersions     diefields.Field[CustomResourceDefinitionStatus, []string]
+	StoredVersions     diefields.ListField[CustomResourceDefinitionStatus, string, diefields.Value[string], diefields.ValueMut[string]]
 	ObservedGeneration diefields.Field[CustomResourceDefinitionStatus, int64]
 }
 
@@ -1342,7 +1342,7 @@ var customResourceDefinitionStatusFields = &diefields.Table[customResourceDefini
 	_ = annotated
 	f.Conditions = diefields.NewListMap[CustomResourceDefinitionStatus, CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, *CustomResourceDefinitionConditionDieMut]("conditions", func(k CustomResourceDefinitionConditionType) []any { return []any{k} }, func(e CustomResourceDefinitionCondition) CustomResourceDefinitionConditionType { return e.Type })
 	f.AcceptedNames = diefields.NewStruct[CustomResourceDefinitionStatus, CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie, *CustomResourceDefinitionNamesDieMut]("acceptedNames")
-	f.StoredVersions = diefields.NewField[CustomResourceDefinitionStatus, []string]("storedVersions")
+	f.StoredVersions = diefields.NewValueList[CustomResourceDefinitionStatus, string]("storedVersions")
 	f.ObservedGeneration = diefields.NewField[CustomResourceDefinitionStatus, int64]("observedGeneration")
 	return
 }}
@@ -1364,8 +1364,8 @@ func (d *CustomResourceDefinitionStatusDie) AcceptedNames() *CustomResourceDefin
 // no old objects are left in storage), and then remove the rest of the
 // versions from this list.
 // Versions may not be removed from `spec.versions` while they exist in this list.
-func (d *CustomResourceDefinitionStatusDie) StoredVersions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, customResourceDefinitionStatusFields.Get().StoredVersions)
+func (d *CustomResourceDefinitionStatusDie) StoredVersions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, customResourceDefinitionStatusFields.Get().StoredVersions)
 }
 
 // The generation observed by the CRD controller.
@@ -1390,8 +1390,8 @@ func (d *CustomResourceDefinitionStatusDieMut) AcceptedNames() *CustomResourceDe
 // no old objects are left in storage), and then remove the rest of the
 // versions from this list.
 // Versions may not be removed from `spec.versions` while they exist in this list.
-func (d *CustomResourceDefinitionStatusDieMut) StoredVersions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, customResourceDefinitionStatusFields.Get().StoredVersions)
+func (d *CustomResourceDefinitionStatusDieMut) StoredVersions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, customResourceDefinitionStatusFields.Get().StoredVersions)
 }
 
 // The generation observed by the CRD controller.
@@ -1478,8 +1478,8 @@ type customResourceDefinitionVersionFieldsTable struct {
 	DeprecationWarning       diefields.Field[CustomResourceDefinitionVersion, *string]
 	Schema                   diefields.Struct[CustomResourceDefinitionVersion, CustomResourceValidation, *CustomResourceValidationDie, *CustomResourceValidationDieMut]
 	Subresources             diefields.Struct[CustomResourceDefinitionVersion, CustomResourceSubresources, *CustomResourceSubresourcesDie, *CustomResourceSubresourcesDieMut]
-	AdditionalPrinterColumns diefields.Field[CustomResourceDefinitionVersion, []CustomResourceColumnDefinition]
-	SelectableFields         diefields.Field[CustomResourceDefinitionVersion, []SelectableField]
+	AdditionalPrinterColumns diefields.ListField[CustomResourceDefinitionVersion, CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie, *CustomResourceColumnDefinitionDieMut]
+	SelectableFields         diefields.ListField[CustomResourceDefinitionVersion, SelectableField, *SelectableFieldDie, *SelectableFieldDieMut]
 }
 
 var customResourceDefinitionVersionFields = &diefields.Table[customResourceDefinitionVersionFieldsTable]{Build: func() (f customResourceDefinitionVersionFieldsTable) {
@@ -1491,8 +1491,8 @@ var customResourceDefinitionVersionFields = &diefields.Table[customResourceDefin
 	f.DeprecationWarning = diefields.NewField[CustomResourceDefinitionVersion, *string]("deprecationWarning")
 	f.Schema = diefields.NewStruct[CustomResourceDefinitionVersion, CustomResourceValidation, *CustomResourceValidationDie, *CustomResourceValidationDieMut]("schema")
 	f.Subresources = diefields.NewStruct[CustomResourceDefinitionVersion, CustomResourceSubresources, *CustomResourceSubresourcesDie, *CustomResourceSubresourcesDieMut]("subresources")
-	f.AdditionalPrinterColumns = diefields.NewItems[CustomResourceDefinitionVersion, []CustomResourceColumnDefinition, CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie, *CustomResourceColumnDefinitionDieMut]("additionalPrinterColumns")
-	f.SelectableFields = diefields.NewItems[CustomResourceDefinitionVersion, []SelectableField, SelectableField, *SelectableFieldDie, *SelectableFieldDieMut]("selectableFields")
+	f.AdditionalPrinterColumns = diefields.NewList[CustomResourceDefinitionVersion, CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie, *CustomResourceColumnDefinitionDieMut]("additionalPrinterColumns")
+	f.SelectableFields = diefields.NewList[CustomResourceDefinitionVersion, SelectableField, *SelectableFieldDie, *SelectableFieldDieMut]("selectableFields")
 	return
 }}
 
@@ -1541,15 +1541,15 @@ func (d *CustomResourceDefinitionVersionDie) Subresources() *CustomResourceSubre
 // additionalPrinterColumns specifies additional columns returned in Table output.
 // See https://kubernetes.io/docs/reference/using-api/api-concepts/#receiving-resources-as-tables for details.
 // If no columns are specified, a single column displaying the age of the custom resource is used.
-func (d *CustomResourceDefinitionVersionDie) AdditionalPrinterColumns() diefields.Value[[]CustomResourceColumnDefinition] {
-	return diefields.ValueOf(d, customResourceDefinitionVersionFields.Get().AdditionalPrinterColumns)
+func (d *CustomResourceDefinitionVersionDie) AdditionalPrinterColumns() *diefields.List[CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie] {
+	return diefields.ListOf(d, customResourceDefinitionVersionFields.Get().AdditionalPrinterColumns)
 }
 
 // selectableFields specifies paths to fields that may be used as field selectors.
 // A maximum of 8 selectable fields are allowed.
 // See https://kubernetes.io/docs/concepts/overview/working-with-objects/field-selectors
-func (d *CustomResourceDefinitionVersionDie) SelectableFields() diefields.Value[[]SelectableField] {
-	return diefields.ValueOf(d, customResourceDefinitionVersionFields.Get().SelectableFields)
+func (d *CustomResourceDefinitionVersionDie) SelectableFields() *diefields.List[SelectableField, *SelectableFieldDie] {
+	return diefields.ListOf(d, customResourceDefinitionVersionFields.Get().SelectableFields)
 }
 
 // name is the version name, e.g. “v1”, “v2beta1”, etc.
@@ -1597,15 +1597,15 @@ func (d *CustomResourceDefinitionVersionDieMut) Subresources() *CustomResourceSu
 // additionalPrinterColumns specifies additional columns returned in Table output.
 // See https://kubernetes.io/docs/reference/using-api/api-concepts/#receiving-resources-as-tables for details.
 // If no columns are specified, a single column displaying the age of the custom resource is used.
-func (d *CustomResourceDefinitionVersionDieMut) AdditionalPrinterColumns() diefields.ValueMut[[]CustomResourceColumnDefinition] {
-	return diefields.ValueMutOf(d, customResourceDefinitionVersionFields.Get().AdditionalPrinterColumns)
+func (d *CustomResourceDefinitionVersionDieMut) AdditionalPrinterColumns() *diefields.ListMut[CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie, *CustomResourceColumnDefinitionDieMut] {
+	return diefields.ListMutOf(d, customResourceDefinitionVersionFields.Get().AdditionalPrinterColumns)
 }
 
 // selectableFields specifies paths to fields that may be used as field selectors.
 // A maximum of 8 selectable fields are allowed.
 // See https://kubernetes.io/docs/concepts/overview/working-with-objects/field-selectors
-func (d *CustomResourceDefinitionVersionDieMut) SelectableFields() diefields.ValueMut[[]SelectableField] {
-	return diefields.ValueMutOf(d, customResourceDefinitionVersionFields.Get().SelectableFields)
+func (d *CustomResourceDefinitionVersionDieMut) SelectableFields() *diefields.ListMut[SelectableField, *SelectableFieldDie, *SelectableFieldDieMut] {
+	return diefields.ListMutOf(d, customResourceDefinitionVersionFields.Get().SelectableFields)
 }
 
 // +kubebuilder:object:generate=false
@@ -2187,14 +2187,14 @@ type jSONSchemaPropsFieldsTable struct {
 	MinItems               diefields.Field[JSONSchemaProps, *int64]
 	UniqueItems            diefields.Field[JSONSchemaProps, bool]
 	MultipleOf             diefields.Field[JSONSchemaProps, *float64]
-	Enum                   diefields.Field[JSONSchemaProps, []JSON]
+	Enum                   diefields.ListField[JSONSchemaProps, JSON, diefields.Value[JSON], diefields.ValueMut[JSON]]
 	MaxProperties          diefields.Field[JSONSchemaProps, *int64]
 	MinProperties          diefields.Field[JSONSchemaProps, *int64]
-	Required               diefields.Field[JSONSchemaProps, []string]
+	Required               diefields.ListField[JSONSchemaProps, string, diefields.Value[string], diefields.ValueMut[string]]
 	Items                  diefields.Field[JSONSchemaProps, *JSONSchemaPropsOrArray]
-	AllOf                  diefields.Field[JSONSchemaProps, []JSONSchemaProps]
-	OneOf                  diefields.Field[JSONSchemaProps, []JSONSchemaProps]
-	AnyOf                  diefields.Field[JSONSchemaProps, []JSONSchemaProps]
+	AllOf                  diefields.ListField[JSONSchemaProps, JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]
+	OneOf                  diefields.ListField[JSONSchemaProps, JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]
+	AnyOf                  diefields.ListField[JSONSchemaProps, JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]
 	Not                    diefields.Struct[JSONSchemaProps, JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]
 	Properties             diefields.Field[JSONSchemaProps, map[string]JSONSchemaProps]
 	AdditionalProperties   diefields.Field[JSONSchemaProps, *JSONSchemaPropsOrBool]
@@ -2208,7 +2208,7 @@ type jSONSchemaPropsFieldsTable struct {
 	XPreserveUnknownFields diefields.Field[JSONSchemaProps, *bool]
 	XEmbeddedResource      diefields.Field[JSONSchemaProps, bool]
 	XIntOrString           diefields.Field[JSONSchemaProps, bool]
-	XListMapKeys           diefields.Field[JSONSchemaProps, []string]
+	XListMapKeys           diefields.ListField[JSONSchemaProps, string, diefields.Value[string], diefields.ValueMut[string]]
 	XListType              diefields.Field[JSONSchemaProps, *string]
 	XMapType               diefields.Field[JSONSchemaProps, *string]
 	XValidations           diefields.ListMapField[JSONSchemaProps, ValidationRule, *ValidationRuleDie, *ValidationRuleDieMut, string]
@@ -2235,14 +2235,14 @@ var jSONSchemaPropsFields = &diefields.Table[jSONSchemaPropsFieldsTable]{Build: 
 	f.MinItems = diefields.NewField[JSONSchemaProps, *int64]("minItems")
 	f.UniqueItems = diefields.NewField[JSONSchemaProps, bool]("uniqueItems")
 	f.MultipleOf = diefields.NewField[JSONSchemaProps, *float64]("multipleOf")
-	f.Enum = diefields.NewField[JSONSchemaProps, []JSON]("enum")
+	f.Enum = diefields.NewValueList[JSONSchemaProps, JSON]("enum")
 	f.MaxProperties = diefields.NewField[JSONSchemaProps, *int64]("maxProperties")
 	f.MinProperties = diefields.NewField[JSONSchemaProps, *int64]("minProperties")
-	f.Required = diefields.NewField[JSONSchemaProps, []string]("required")
+	f.Required = diefields.NewValueList[JSONSchemaProps, string]("required")
 	f.Items = diefields.NewField[JSONSchemaProps, *JSONSchemaPropsOrArray]("items")
-	f.AllOf = diefields.NewItems[JSONSchemaProps, []JSONSchemaProps, JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]("allOf")
-	f.OneOf = diefields.NewItems[JSONSchemaProps, []JSONSchemaProps, JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]("oneOf")
-	f.AnyOf = diefields.NewItems[JSONSchemaProps, []JSONSchemaProps, JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]("anyOf")
+	f.AllOf = diefields.NewList[JSONSchemaProps, JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]("allOf")
+	f.OneOf = diefields.NewList[JSONSchemaProps, JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]("oneOf")
+	f.AnyOf = diefields.NewList[JSONSchemaProps, JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]("anyOf")
 	f.Not = diefields.NewStruct[JSONSchemaProps, JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]("not")
 	f.Properties = diefields.NewField[JSONSchemaProps, map[string]JSONSchemaProps]("properties")
 	f.AdditionalProperties = diefields.NewField[JSONSchemaProps, *JSONSchemaPropsOrBool]("additionalProperties")
@@ -2256,7 +2256,7 @@ var jSONSchemaPropsFields = &diefields.Table[jSONSchemaPropsFieldsTable]{Build: 
 	f.XPreserveUnknownFields = diefields.NewField[JSONSchemaProps, *bool]("x-kubernetes-preserve-unknown-fields")
 	f.XEmbeddedResource = diefields.NewField[JSONSchemaProps, bool]("x-kubernetes-embedded-resource")
 	f.XIntOrString = diefields.NewField[JSONSchemaProps, bool]("x-kubernetes-int-or-string")
-	f.XListMapKeys = diefields.NewField[JSONSchemaProps, []string]("x-kubernetes-list-map-keys")
+	f.XListMapKeys = diefields.NewValueList[JSONSchemaProps, string]("x-kubernetes-list-map-keys")
 	f.XListType = diefields.NewField[JSONSchemaProps, *string]("x-kubernetes-list-type")
 	f.XMapType = diefields.NewField[JSONSchemaProps, *string]("x-kubernetes-map-type")
 	f.XValidations = diefields.NewListMap[JSONSchemaProps, ValidationRule, *ValidationRuleDie, *ValidationRuleDieMut]("x-kubernetes-validations", func(k string) []any { return []any{k} }, func(e ValidationRule) string { return e.Rule })
@@ -2368,8 +2368,8 @@ func (d *JSONSchemaPropsDie) MultipleOf() diefields.Optional[float64] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().MultipleOf)
 }
 
-func (d *JSONSchemaPropsDie) Enum() diefields.Value[[]JSON] {
-	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().Enum)
+func (d *JSONSchemaPropsDie) Enum() *diefields.List[JSON, diefields.Value[JSON]] {
+	return diefields.ListOf(d, jSONSchemaPropsFields.Get().Enum)
 }
 
 func (d *JSONSchemaPropsDie) MaxProperties() diefields.Optional[int64] {
@@ -2380,24 +2380,24 @@ func (d *JSONSchemaPropsDie) MinProperties() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().MinProperties)
 }
 
-func (d *JSONSchemaPropsDie) Required() diefields.Value[[]string] {
-	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().Required)
+func (d *JSONSchemaPropsDie) Required() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, jSONSchemaPropsFields.Get().Required)
 }
 
 func (d *JSONSchemaPropsDie) Items() diefields.Optional[JSONSchemaPropsOrArray] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().Items)
 }
 
-func (d *JSONSchemaPropsDie) AllOf() diefields.Value[[]JSONSchemaProps] {
-	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().AllOf)
+func (d *JSONSchemaPropsDie) AllOf() *diefields.List[JSONSchemaProps, *JSONSchemaPropsDie] {
+	return diefields.ListOf(d, jSONSchemaPropsFields.Get().AllOf)
 }
 
-func (d *JSONSchemaPropsDie) OneOf() diefields.Value[[]JSONSchemaProps] {
-	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().OneOf)
+func (d *JSONSchemaPropsDie) OneOf() *diefields.List[JSONSchemaProps, *JSONSchemaPropsDie] {
+	return diefields.ListOf(d, jSONSchemaPropsFields.Get().OneOf)
 }
 
-func (d *JSONSchemaPropsDie) AnyOf() diefields.Value[[]JSONSchemaProps] {
-	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().AnyOf)
+func (d *JSONSchemaPropsDie) AnyOf() *diefields.List[JSONSchemaProps, *JSONSchemaPropsDie] {
+	return diefields.ListOf(d, jSONSchemaPropsFields.Get().AnyOf)
 }
 
 func (d *JSONSchemaPropsDie) Not() *JSONSchemaPropsDie {
@@ -2488,8 +2488,8 @@ func (d *JSONSchemaPropsDie) XIntOrString() diefields.Value[bool] {
 //
 // The properties specified must either be required or have a default value,
 // to ensure those properties are present for all list items.
-func (d *JSONSchemaPropsDie) XListMapKeys() diefields.Value[[]string] {
-	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().XListMapKeys)
+func (d *JSONSchemaPropsDie) XListMapKeys() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, jSONSchemaPropsFields.Get().XListMapKeys)
 }
 
 // x-kubernetes-list-type annotates an array to further describe its topology.
@@ -2635,8 +2635,8 @@ func (d *JSONSchemaPropsDieMut) MultipleOf() diefields.OptionalMut[float64] {
 	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().MultipleOf)
 }
 
-func (d *JSONSchemaPropsDieMut) Enum() diefields.ValueMut[[]JSON] {
-	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().Enum)
+func (d *JSONSchemaPropsDieMut) Enum() *diefields.ListMut[JSON, diefields.Value[JSON], diefields.ValueMut[JSON]] {
+	return diefields.ListMutOf(d, jSONSchemaPropsFields.Get().Enum)
 }
 
 func (d *JSONSchemaPropsDieMut) MaxProperties() diefields.OptionalMut[int64] {
@@ -2647,24 +2647,24 @@ func (d *JSONSchemaPropsDieMut) MinProperties() diefields.OptionalMut[int64] {
 	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().MinProperties)
 }
 
-func (d *JSONSchemaPropsDieMut) Required() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().Required)
+func (d *JSONSchemaPropsDieMut) Required() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, jSONSchemaPropsFields.Get().Required)
 }
 
 func (d *JSONSchemaPropsDieMut) Items() diefields.OptionalMut[JSONSchemaPropsOrArray] {
 	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().Items)
 }
 
-func (d *JSONSchemaPropsDieMut) AllOf() diefields.ValueMut[[]JSONSchemaProps] {
-	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().AllOf)
+func (d *JSONSchemaPropsDieMut) AllOf() *diefields.ListMut[JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut] {
+	return diefields.ListMutOf(d, jSONSchemaPropsFields.Get().AllOf)
 }
 
-func (d *JSONSchemaPropsDieMut) OneOf() diefields.ValueMut[[]JSONSchemaProps] {
-	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().OneOf)
+func (d *JSONSchemaPropsDieMut) OneOf() *diefields.ListMut[JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut] {
+	return diefields.ListMutOf(d, jSONSchemaPropsFields.Get().OneOf)
 }
 
-func (d *JSONSchemaPropsDieMut) AnyOf() diefields.ValueMut[[]JSONSchemaProps] {
-	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().AnyOf)
+func (d *JSONSchemaPropsDieMut) AnyOf() *diefields.ListMut[JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut] {
+	return diefields.ListMutOf(d, jSONSchemaPropsFields.Get().AnyOf)
 }
 
 func (d *JSONSchemaPropsDieMut) Not() *JSONSchemaPropsDieMut {
@@ -2755,8 +2755,8 @@ func (d *JSONSchemaPropsDieMut) XIntOrString() diefields.ValueMut[bool] {
 //
 // The properties specified must either be required or have a default value,
 // to ensure those properties are present for all list items.
-func (d *JSONSchemaPropsDieMut) XListMapKeys() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().XListMapKeys)
+func (d *JSONSchemaPropsDieMut) XListMapKeys() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, jSONSchemaPropsFields.Get().XListMapKeys)
 }
 
 // x-kubernetes-list-type annotates an array to further describe its topology.
@@ -3638,13 +3638,13 @@ func (d *WebhookConversionDieMut) DieStampApplyConfiguration(fn func(ac *Webhook
 
 type webhookConversionFieldsTable struct {
 	ClientConfig             diefields.Struct[WebhookConversion, WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut]
-	ConversionReviewVersions diefields.Field[WebhookConversion, []string]
+	ConversionReviewVersions diefields.ListField[WebhookConversion, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var webhookConversionFields = &diefields.Table[webhookConversionFieldsTable]{Build: func() (f webhookConversionFieldsTable) {
 	_ = annotated
 	f.ClientConfig = diefields.NewStruct[WebhookConversion, WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut]("clientConfig")
-	f.ConversionReviewVersions = diefields.NewField[WebhookConversion, []string]("conversionReviewVersions")
+	f.ConversionReviewVersions = diefields.NewValueList[WebhookConversion, string]("conversionReviewVersions")
 	return
 }}
 
@@ -3659,8 +3659,8 @@ func (d *WebhookConversionDie) ClientConfig() *WebhookClientConfigDie {
 // are supported by API server, conversion will fail for the custom resource.
 // If a persisted Webhook configuration specifies allowed versions and does not
 // include any versions known to the API Server, calls to the webhook will fail.
-func (d *WebhookConversionDie) ConversionReviewVersions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, webhookConversionFields.Get().ConversionReviewVersions)
+func (d *WebhookConversionDie) ConversionReviewVersions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, webhookConversionFields.Get().ConversionReviewVersions)
 }
 
 // clientConfig is the instructions for how to call the webhook if strategy is `Webhook`.
@@ -3674,8 +3674,8 @@ func (d *WebhookConversionDieMut) ClientConfig() *WebhookClientConfigDieMut {
 // are supported by API server, conversion will fail for the custom resource.
 // If a persisted Webhook configuration specifies allowed versions and does not
 // include any versions known to the API Server, calls to the webhook will fail.
-func (d *WebhookConversionDieMut) ConversionReviewVersions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, webhookConversionFields.Get().ConversionReviewVersions)
+func (d *WebhookConversionDieMut) ConversionReviewVersions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, webhookConversionFields.Get().ConversionReviewVersions)
 }
 
 // SchemeGroupVersion is the group version of this package's object dies.

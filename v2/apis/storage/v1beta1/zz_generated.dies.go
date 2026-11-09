@@ -288,10 +288,10 @@ func (d *CSIDriverSpecDieMut) DieStampApplyConfiguration(fn func(ac *CSIDriverSp
 type cSIDriverSpecFieldsTable struct {
 	AttachRequired                     diefields.Field[CSIDriverSpec, *bool]
 	PodInfoOnMount                     diefields.Field[CSIDriverSpec, *bool]
-	VolumeLifecycleModes               diefields.Field[CSIDriverSpec, []VolumeLifecycleMode]
+	VolumeLifecycleModes               diefields.ListField[CSIDriverSpec, VolumeLifecycleMode, diefields.Value[VolumeLifecycleMode], diefields.ValueMut[VolumeLifecycleMode]]
 	StorageCapacity                    diefields.Field[CSIDriverSpec, *bool]
 	FSGroupPolicy                      diefields.Field[CSIDriverSpec, *FSGroupPolicy]
-	TokenRequests                      diefields.Field[CSIDriverSpec, []TokenRequest]
+	TokenRequests                      diefields.ListField[CSIDriverSpec, TokenRequest, *TokenRequestDie, *TokenRequestDieMut]
 	RequiresRepublish                  diefields.Field[CSIDriverSpec, *bool]
 	SELinuxMount                       diefields.Field[CSIDriverSpec, *bool]
 	NodeAllocatableUpdatePeriodSeconds diefields.Field[CSIDriverSpec, *int64]
@@ -303,10 +303,10 @@ var cSIDriverSpecFields = &diefields.Table[cSIDriverSpecFieldsTable]{Build: func
 	_ = annotated
 	f.AttachRequired = diefields.NewField[CSIDriverSpec, *bool]("attachRequired")
 	f.PodInfoOnMount = diefields.NewField[CSIDriverSpec, *bool]("podInfoOnMount")
-	f.VolumeLifecycleModes = diefields.NewField[CSIDriverSpec, []VolumeLifecycleMode]("volumeLifecycleModes")
+	f.VolumeLifecycleModes = diefields.NewValueList[CSIDriverSpec, VolumeLifecycleMode]("volumeLifecycleModes")
 	f.StorageCapacity = diefields.NewField[CSIDriverSpec, *bool]("storageCapacity")
 	f.FSGroupPolicy = diefields.NewField[CSIDriverSpec, *FSGroupPolicy]("fsGroupPolicy")
-	f.TokenRequests = diefields.NewItems[CSIDriverSpec, []TokenRequest, TokenRequest, *TokenRequestDie, *TokenRequestDieMut]("tokenRequests")
+	f.TokenRequests = diefields.NewList[CSIDriverSpec, TokenRequest, *TokenRequestDie, *TokenRequestDieMut]("tokenRequests")
 	f.RequiresRepublish = diefields.NewField[CSIDriverSpec, *bool]("requiresRepublish")
 	f.SELinuxMount = diefields.NewField[CSIDriverSpec, *bool]("seLinuxMount")
 	f.NodeAllocatableUpdatePeriodSeconds = diefields.NewField[CSIDriverSpec, *int64]("nodeAllocatableUpdatePeriodSeconds")
@@ -374,8 +374,8 @@ func (d *CSIDriverSpecDie) PodInfoOnMount() diefields.Optional[bool] {
 // more modes may be added in the future.
 //
 // This field is immutable.
-func (d *CSIDriverSpecDie) VolumeLifecycleModes() diefields.Value[[]VolumeLifecycleMode] {
-	return diefields.ValueOf(d, cSIDriverSpecFields.Get().VolumeLifecycleModes)
+func (d *CSIDriverSpecDie) VolumeLifecycleModes() *diefields.List[VolumeLifecycleMode, diefields.Value[VolumeLifecycleMode]] {
+	return diefields.ListOf(d, cSIDriverSpecFields.Get().VolumeLifecycleModes)
 }
 
 // storageCapacity indicates that the CSI volume driver wants pod scheduling to consider the storage
@@ -426,8 +426,8 @@ func (d *CSIDriverSpecDie) FSGroupPolicy() diefields.Optional[FSGroupPolicy] {
 // Note: Audience in each TokenRequest should be different and at
 // most one token is empty string. To receive a new token after expiry,
 // RequiresRepublish can be used to trigger NodePublishVolume periodically.
-func (d *CSIDriverSpecDie) TokenRequests() diefields.Value[[]TokenRequest] {
-	return diefields.ValueOf(d, cSIDriverSpecFields.Get().TokenRequests)
+func (d *CSIDriverSpecDie) TokenRequests() *diefields.List[TokenRequest, *TokenRequestDie] {
+	return diefields.ListOf(d, cSIDriverSpecFields.Get().TokenRequests)
 }
 
 // requiresRepublish indicates the CSI driver wants `NodePublishVolume`
@@ -578,8 +578,8 @@ func (d *CSIDriverSpecDieMut) PodInfoOnMount() diefields.OptionalMut[bool] {
 // more modes may be added in the future.
 //
 // This field is immutable.
-func (d *CSIDriverSpecDieMut) VolumeLifecycleModes() diefields.ValueMut[[]VolumeLifecycleMode] {
-	return diefields.ValueMutOf(d, cSIDriverSpecFields.Get().VolumeLifecycleModes)
+func (d *CSIDriverSpecDieMut) VolumeLifecycleModes() *diefields.ListMut[VolumeLifecycleMode, diefields.Value[VolumeLifecycleMode], diefields.ValueMut[VolumeLifecycleMode]] {
+	return diefields.ListMutOf(d, cSIDriverSpecFields.Get().VolumeLifecycleModes)
 }
 
 // storageCapacity indicates that the CSI volume driver wants pod scheduling to consider the storage
@@ -630,8 +630,8 @@ func (d *CSIDriverSpecDieMut) FSGroupPolicy() diefields.OptionalMut[FSGroupPolic
 // Note: Audience in each TokenRequest should be different and at
 // most one token is empty string. To receive a new token after expiry,
 // RequiresRepublish can be used to trigger NodePublishVolume periodically.
-func (d *CSIDriverSpecDieMut) TokenRequests() diefields.ValueMut[[]TokenRequest] {
-	return diefields.ValueMutOf(d, cSIDriverSpecFields.Get().TokenRequests)
+func (d *CSIDriverSpecDieMut) TokenRequests() *diefields.ListMut[TokenRequest, *TokenRequestDie, *TokenRequestDieMut] {
+	return diefields.ListMutOf(d, cSIDriverSpecFields.Get().TokenRequests)
 }
 
 // requiresRepublish indicates the CSI driver wants `NodePublishVolume`
@@ -960,7 +960,7 @@ func (d *CSINodeDriverDieMut) DieStampApplyConfiguration(fn func(ac *CSINodeDriv
 type cSINodeDriverFieldsTable struct {
 	Name         diefields.Field[CSINodeDriver, string]
 	NodeID       diefields.Field[CSINodeDriver, string]
-	TopologyKeys diefields.Field[CSINodeDriver, []string]
+	TopologyKeys diefields.ListField[CSINodeDriver, string, diefields.Value[string], diefields.ValueMut[string]]
 	Allocatable  diefields.Struct[CSINodeDriver, VolumeNodeResources, *VolumeNodeResourcesDie, *VolumeNodeResourcesDieMut]
 }
 
@@ -968,7 +968,7 @@ var cSINodeDriverFields = &diefields.Table[cSINodeDriverFieldsTable]{Build: func
 	_ = annotated
 	f.Name = diefields.NewField[CSINodeDriver, string]("name")
 	f.NodeID = diefields.NewField[CSINodeDriver, string]("nodeID")
-	f.TopologyKeys = diefields.NewField[CSINodeDriver, []string]("topologyKeys")
+	f.TopologyKeys = diefields.NewValueList[CSINodeDriver, string]("topologyKeys")
 	f.Allocatable = diefields.NewStruct[CSINodeDriver, VolumeNodeResources, *VolumeNodeResourcesDie, *VolumeNodeResourcesDieMut]("allocatable")
 	return
 }}
@@ -1003,8 +1003,8 @@ func (d *CSINodeDriverDie) NodeID() diefields.Value[string] {
 // back to the driver.
 // It is possible for different nodes to use different topology keys.
 // This can be empty if driver does not support topology.
-func (d *CSINodeDriverDie) TopologyKeys() diefields.Value[[]string] {
-	return diefields.ValueOf(d, cSINodeDriverFields.Get().TopologyKeys)
+func (d *CSINodeDriverDie) TopologyKeys() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, cSINodeDriverFields.Get().TopologyKeys)
 }
 
 // allocatable represents the volume resources of a node that are available for scheduling.
@@ -1042,8 +1042,8 @@ func (d *CSINodeDriverDieMut) NodeID() diefields.ValueMut[string] {
 // back to the driver.
 // It is possible for different nodes to use different topology keys.
 // This can be empty if driver does not support topology.
-func (d *CSINodeDriverDieMut) TopologyKeys() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, cSINodeDriverFields.Get().TopologyKeys)
+func (d *CSINodeDriverDieMut) TopologyKeys() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, cSINodeDriverFields.Get().TopologyKeys)
 }
 
 // allocatable represents the volume resources of a node that are available for scheduling.
@@ -1621,10 +1621,10 @@ type storageClassFieldsTable struct {
 	Provisioner          diefields.Field[StorageClass, string]
 	Parameters           diefields.MapField[StorageClass, string, string]
 	ReclaimPolicy        diefields.Field[StorageClass, *diecorev1.PersistentVolumeReclaimPolicy]
-	MountOptions         diefields.Field[StorageClass, []string]
+	MountOptions         diefields.ListField[StorageClass, string, diefields.Value[string], diefields.ValueMut[string]]
 	AllowVolumeExpansion diefields.Field[StorageClass, *bool]
 	VolumeBindingMode    diefields.Field[StorageClass, *VolumeBindingMode]
-	AllowedTopologies    diefields.Field[StorageClass, []diecorev1.TopologySelectorTerm]
+	AllowedTopologies    diefields.ListField[StorageClass, diecorev1.TopologySelectorTerm, *diecorev1.TopologySelectorTermDie, *diecorev1.TopologySelectorTermDieMut]
 }
 
 var storageClassFields = &diefields.Table[storageClassFieldsTable]{Build: func() (f storageClassFieldsTable) {
@@ -1635,10 +1635,10 @@ var storageClassFields = &diefields.Table[storageClassFieldsTable]{Build: func()
 	f.Provisioner = diefields.NewField[StorageClass, string]("provisioner")
 	f.Parameters = diefields.NewMap[StorageClass, string, string]("parameters")
 	f.ReclaimPolicy = diefields.NewField[StorageClass, *diecorev1.PersistentVolumeReclaimPolicy]("reclaimPolicy")
-	f.MountOptions = diefields.NewField[StorageClass, []string]("mountOptions")
+	f.MountOptions = diefields.NewValueList[StorageClass, string]("mountOptions")
 	f.AllowVolumeExpansion = diefields.NewField[StorageClass, *bool]("allowVolumeExpansion")
 	f.VolumeBindingMode = diefields.NewField[StorageClass, *VolumeBindingMode]("volumeBindingMode")
-	f.AllowedTopologies = diefields.NewItems[StorageClass, []diecorev1.TopologySelectorTerm, diecorev1.TopologySelectorTerm, *diecorev1.TopologySelectorTermDie, *diecorev1.TopologySelectorTermDieMut]("allowedTopologies")
+	f.AllowedTopologies = diefields.NewList[StorageClass, diecorev1.TopologySelectorTerm, *diecorev1.TopologySelectorTermDie, *diecorev1.TopologySelectorTermDieMut]("allowedTopologies")
 	return
 }}
 
@@ -1685,8 +1685,8 @@ func (d *StorageClassDie) ReclaimPolicy() diefields.Optional[diecorev1.Persisten
 // mountOptions controls the mountOptions for dynamically provisioned PersistentVolumes of this storage class.
 // e.g. ["ro", "soft"]. Not validated -
 // mount of the PVs will simply fail if one is invalid.
-func (d *StorageClassDie) MountOptions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, storageClassFields.Get().MountOptions)
+func (d *StorageClassDie) MountOptions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, storageClassFields.Get().MountOptions)
 }
 
 // allowVolumeExpansion shows whether the storage class allow volume expand
@@ -1705,8 +1705,8 @@ func (d *StorageClassDie) VolumeBindingMode() diefields.Optional[VolumeBindingMo
 // Each volume plugin defines its own supported topology specifications.
 // An empty TopologySelectorTerm list means there is no topology restriction.
 // This field is only honored by servers that enable the VolumeScheduling feature.
-func (d *StorageClassDie) AllowedTopologies() diefields.Value[[]diecorev1.TopologySelectorTerm] {
-	return diefields.ValueOf(d, storageClassFields.Get().AllowedTopologies)
+func (d *StorageClassDie) AllowedTopologies() *diefields.List[diecorev1.TopologySelectorTerm, *diecorev1.TopologySelectorTermDie] {
+	return diefields.ListOf(d, storageClassFields.Get().AllowedTopologies)
 }
 
 // Kind is a string value representing the REST resource this object represents.
@@ -1752,8 +1752,8 @@ func (d *StorageClassDieMut) ReclaimPolicy() diefields.OptionalMut[diecorev1.Per
 // mountOptions controls the mountOptions for dynamically provisioned PersistentVolumes of this storage class.
 // e.g. ["ro", "soft"]. Not validated -
 // mount of the PVs will simply fail if one is invalid.
-func (d *StorageClassDieMut) MountOptions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, storageClassFields.Get().MountOptions)
+func (d *StorageClassDieMut) MountOptions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, storageClassFields.Get().MountOptions)
 }
 
 // allowVolumeExpansion shows whether the storage class allow volume expand
@@ -1772,8 +1772,8 @@ func (d *StorageClassDieMut) VolumeBindingMode() diefields.OptionalMut[VolumeBin
 // Each volume plugin defines its own supported topology specifications.
 // An empty TopologySelectorTerm list means there is no topology restriction.
 // This field is only honored by servers that enable the VolumeScheduling feature.
-func (d *StorageClassDieMut) AllowedTopologies() diefields.ValueMut[[]diecorev1.TopologySelectorTerm] {
-	return diefields.ValueMutOf(d, storageClassFields.Get().AllowedTopologies)
+func (d *StorageClassDieMut) AllowedTopologies() *diefields.ListMut[diecorev1.TopologySelectorTerm, *diecorev1.TopologySelectorTermDie, *diecorev1.TopologySelectorTermDieMut] {
+	return diefields.ListMutOf(d, storageClassFields.Get().AllowedTopologies)
 }
 
 // +kubebuilder:object:generate=false
@@ -1869,13 +1869,13 @@ func (d *StorageHealthDieMut) DieStampApplyConfiguration(fn func(ac *StorageHeal
 
 type storageHealthFieldsTable struct {
 	Name             diefields.Field[StorageHealth, string]
-	HealthConditions diefields.Field[StorageHealth, []StorageHealthCondition]
+	HealthConditions diefields.ListField[StorageHealth, StorageHealthCondition, *StorageHealthConditionDie, *StorageHealthConditionDieMut]
 }
 
 var storageHealthFields = &diefields.Table[storageHealthFieldsTable]{Build: func() (f storageHealthFieldsTable) {
 	_ = annotated
 	f.Name = diefields.NewField[StorageHealth, string]("name")
-	f.HealthConditions = diefields.NewItems[StorageHealth, []StorageHealthCondition, StorageHealthCondition, *StorageHealthConditionDie, *StorageHealthConditionDieMut]("healthConditions")
+	f.HealthConditions = diefields.NewList[StorageHealth, StorageHealthCondition, *StorageHealthConditionDie, *StorageHealthConditionDieMut]("healthConditions")
 	return
 }}
 
@@ -1886,8 +1886,8 @@ func (d *StorageHealthDie) Name() diefields.Value[string] {
 
 // healthConditions are the adverse storage backend conditions reported by the CSI driver.
 // At most 16 conditions may be reported.
-func (d *StorageHealthDie) HealthConditions() diefields.Value[[]StorageHealthCondition] {
-	return diefields.ValueOf(d, storageHealthFields.Get().HealthConditions)
+func (d *StorageHealthDie) HealthConditions() *diefields.List[StorageHealthCondition, *StorageHealthConditionDie] {
+	return diefields.ListOf(d, storageHealthFields.Get().HealthConditions)
 }
 
 // name is the CSI driver name, matching CSINodeDriver.name.
@@ -1897,8 +1897,8 @@ func (d *StorageHealthDieMut) Name() diefields.ValueMut[string] {
 
 // healthConditions are the adverse storage backend conditions reported by the CSI driver.
 // At most 16 conditions may be reported.
-func (d *StorageHealthDieMut) HealthConditions() diefields.ValueMut[[]StorageHealthCondition] {
-	return diefields.ValueMutOf(d, storageHealthFields.Get().HealthConditions)
+func (d *StorageHealthDieMut) HealthConditions() *diefields.ListMut[StorageHealthCondition, *StorageHealthConditionDie, *StorageHealthConditionDieMut] {
+	return diefields.ListMutOf(d, storageHealthFields.Get().HealthConditions)
 }
 
 // +kubebuilder:object:generate=false

@@ -254,7 +254,7 @@ var ConfigurationStatusBlank = diebase.Blank[ConfigurationStatus, *Configuration
 
 type configurationStatusFieldsTable struct {
 	ObservedGeneration        diefields.Field[ConfigurationStatus, int64]
-	Conditions                diefields.Field[ConfigurationStatus, duckv1.Conditions]
+	Conditions                diefields.ListField[ConfigurationStatus, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]
 	Annotations               diefields.MapField[ConfigurationStatus, string, string]
 	LatestReadyRevisionName   diefields.Field[ConfigurationStatus, string]
 	LatestCreatedRevisionName diefields.Field[ConfigurationStatus, string]
@@ -263,7 +263,7 @@ type configurationStatusFieldsTable struct {
 var configurationStatusFields = &diefields.Table[configurationStatusFieldsTable]{Build: func() (f configurationStatusFieldsTable) {
 	_ = annotated
 	f.ObservedGeneration = diefields.NewField[ConfigurationStatus, int64]("observedGeneration")
-	f.Conditions = diefields.NewItems[ConfigurationStatus, duckv1.Conditions, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]("conditions")
+	f.Conditions = diefields.NewList[ConfigurationStatus, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]("conditions")
 	f.Annotations = diefields.NewMap[ConfigurationStatus, string, string]("annotations")
 	f.LatestReadyRevisionName = diefields.NewField[ConfigurationStatus, string]("latestReadyRevisionName")
 	f.LatestCreatedRevisionName = diefields.NewField[ConfigurationStatus, string]("latestCreatedRevisionName")
@@ -277,8 +277,8 @@ func (d *ConfigurationStatusDie) ObservedGeneration() diefields.Value[int64] {
 }
 
 // Conditions the latest available observations of a resource's current state.
-func (d *ConfigurationStatusDie) Conditions() diefields.Value[duckv1.Conditions] {
-	return diefields.ValueOf(d, configurationStatusFields.Get().Conditions)
+func (d *ConfigurationStatusDie) Conditions() *diefields.List[apis.Condition, *apis.ConditionDie] {
+	return diefields.ListOf(d, configurationStatusFields.Get().Conditions)
 }
 
 // Annotations is additional Status fields for the Resource to save some
@@ -308,8 +308,8 @@ func (d *ConfigurationStatusDieMut) ObservedGeneration() diefields.ValueMut[int6
 }
 
 // Conditions the latest available observations of a resource's current state.
-func (d *ConfigurationStatusDieMut) Conditions() diefields.ValueMut[duckv1.Conditions] {
-	return diefields.ValueMutOf(d, configurationStatusFields.Get().Conditions)
+func (d *ConfigurationStatusDieMut) Conditions() *diefields.ListMut[apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut] {
+	return diefields.ListMutOf(d, configurationStatusFields.Get().Conditions)
 }
 
 // Annotations is additional Status fields for the Resource to save some
@@ -646,12 +646,12 @@ type revisionSpecFieldsTable struct {
 	Subdomain                     diefields.Field[RevisionSpec, string]
 	Affinity                      diefields.Struct[RevisionSpec, diecorev1.Affinity, *diecorev1.AffinityDie, *diecorev1.AffinityDieMut]
 	SchedulerName                 diefields.Field[RevisionSpec, string]
-	Tolerations                   diefields.Field[RevisionSpec, []diecorev1.Toleration]
+	Tolerations                   diefields.ListField[RevisionSpec, diecorev1.Toleration, *diecorev1.TolerationDie, *diecorev1.TolerationDieMut]
 	HostAliases                   diefields.ListMapField[RevisionSpec, diecorev1.HostAlias, *diecorev1.HostAliasDie, *diecorev1.HostAliasDieMut, string]
 	PriorityClassName             diefields.Field[RevisionSpec, string]
 	Priority                      diefields.Field[RevisionSpec, *int32]
 	DNSConfig                     diefields.Struct[RevisionSpec, diecorev1.PodDNSConfig, *diecorev1.PodDNSConfigDie, *diecorev1.PodDNSConfigDieMut]
-	ReadinessGates                diefields.Field[RevisionSpec, []diecorev1.PodReadinessGate]
+	ReadinessGates                diefields.ListField[RevisionSpec, diecorev1.PodReadinessGate, *diecorev1.PodReadinessGateDie, *diecorev1.PodReadinessGateDieMut]
 	RuntimeClassName              diefields.Field[RevisionSpec, *string]
 	EnableServiceLinks            diefields.Field[RevisionSpec, *bool]
 	PreemptionPolicy              diefields.Field[RevisionSpec, *diecorev1.PreemptionPolicy]
@@ -697,12 +697,12 @@ var revisionSpecFields = &diefields.Table[revisionSpecFieldsTable]{Build: func()
 	f.Subdomain = diefields.NewField[RevisionSpec, string]("subdomain")
 	f.Affinity = diefields.NewStruct[RevisionSpec, diecorev1.Affinity, *diecorev1.AffinityDie, *diecorev1.AffinityDieMut]("affinity")
 	f.SchedulerName = diefields.NewField[RevisionSpec, string]("schedulerName")
-	f.Tolerations = diefields.NewItems[RevisionSpec, []diecorev1.Toleration, diecorev1.Toleration, *diecorev1.TolerationDie, *diecorev1.TolerationDieMut]("tolerations")
+	f.Tolerations = diefields.NewList[RevisionSpec, diecorev1.Toleration, *diecorev1.TolerationDie, *diecorev1.TolerationDieMut]("tolerations")
 	f.HostAliases = diefields.NewListMap[RevisionSpec, diecorev1.HostAlias, *diecorev1.HostAliasDie, *diecorev1.HostAliasDieMut]("hostAliases", func(k string) []any { return []any{k} }, func(e diecorev1.HostAlias) string { return e.IP })
 	f.PriorityClassName = diefields.NewField[RevisionSpec, string]("priorityClassName")
 	f.Priority = diefields.NewField[RevisionSpec, *int32]("priority")
 	f.DNSConfig = diefields.NewStruct[RevisionSpec, diecorev1.PodDNSConfig, *diecorev1.PodDNSConfigDie, *diecorev1.PodDNSConfigDieMut]("dnsConfig")
-	f.ReadinessGates = diefields.NewItems[RevisionSpec, []diecorev1.PodReadinessGate, diecorev1.PodReadinessGate, *diecorev1.PodReadinessGateDie, *diecorev1.PodReadinessGateDieMut]("readinessGates")
+	f.ReadinessGates = diefields.NewList[RevisionSpec, diecorev1.PodReadinessGate, *diecorev1.PodReadinessGateDie, *diecorev1.PodReadinessGateDieMut]("readinessGates")
 	f.RuntimeClassName = diefields.NewField[RevisionSpec, *string]("runtimeClassName")
 	f.EnableServiceLinks = diefields.NewField[RevisionSpec, *bool]("enableServiceLinks")
 	f.PreemptionPolicy = diefields.NewField[RevisionSpec, *diecorev1.PreemptionPolicy]("preemptionPolicy")
@@ -902,8 +902,8 @@ func (d *RevisionSpecDie) SchedulerName() diefields.Value[string] {
 }
 
 // If specified, the pod's tolerations.
-func (d *RevisionSpecDie) Tolerations() diefields.Value[[]diecorev1.Toleration] {
-	return diefields.ValueOf(d, revisionSpecFields.Get().Tolerations)
+func (d *RevisionSpecDie) Tolerations() *diefields.List[diecorev1.Toleration, *diecorev1.TolerationDie] {
+	return diefields.ListOf(d, revisionSpecFields.Get().Tolerations)
 }
 
 // HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts
@@ -942,8 +942,8 @@ func (d *RevisionSpecDie) DNSConfig() *diecorev1.PodDNSConfigDie {
 // A pod is ready when all its containers are ready AND
 // all conditions specified in the readiness gates have status equal to "True"
 // More info: https://git.k8s.io/enhancements/keps/sig-network/580-pod-readiness-gates
-func (d *RevisionSpecDie) ReadinessGates() diefields.Value[[]diecorev1.PodReadinessGate] {
-	return diefields.ValueOf(d, revisionSpecFields.Get().ReadinessGates)
+func (d *RevisionSpecDie) ReadinessGates() *diefields.List[diecorev1.PodReadinessGate, *diecorev1.PodReadinessGateDie] {
+	return diefields.ListOf(d, revisionSpecFields.Get().ReadinessGates)
 }
 
 // RuntimeClassName refers to a RuntimeClass object in the node.k8s.io group, which should be used
@@ -1335,8 +1335,8 @@ func (d *RevisionSpecDieMut) SchedulerName() diefields.ValueMut[string] {
 }
 
 // If specified, the pod's tolerations.
-func (d *RevisionSpecDieMut) Tolerations() diefields.ValueMut[[]diecorev1.Toleration] {
-	return diefields.ValueMutOf(d, revisionSpecFields.Get().Tolerations)
+func (d *RevisionSpecDieMut) Tolerations() *diefields.ListMut[diecorev1.Toleration, *diecorev1.TolerationDie, *diecorev1.TolerationDieMut] {
+	return diefields.ListMutOf(d, revisionSpecFields.Get().Tolerations)
 }
 
 // HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts
@@ -1375,8 +1375,8 @@ func (d *RevisionSpecDieMut) DNSConfig() *diecorev1.PodDNSConfigDieMut {
 // A pod is ready when all its containers are ready AND
 // all conditions specified in the readiness gates have status equal to "True"
 // More info: https://git.k8s.io/enhancements/keps/sig-network/580-pod-readiness-gates
-func (d *RevisionSpecDieMut) ReadinessGates() diefields.ValueMut[[]diecorev1.PodReadinessGate] {
-	return diefields.ValueMutOf(d, revisionSpecFields.Get().ReadinessGates)
+func (d *RevisionSpecDieMut) ReadinessGates() *diefields.ListMut[diecorev1.PodReadinessGate, *diecorev1.PodReadinessGateDie, *diecorev1.PodReadinessGateDieMut] {
+	return diefields.ListMutOf(d, revisionSpecFields.Get().ReadinessGates)
 }
 
 // RuntimeClassName refers to a RuntimeClass object in the node.k8s.io group, which should be used
@@ -1626,11 +1626,11 @@ var RevisionStatusBlank = diebase.Blank[RevisionStatus, *RevisionStatusDie, *Rev
 
 type revisionStatusFieldsTable struct {
 	ObservedGeneration    diefields.Field[RevisionStatus, int64]
-	Conditions            diefields.Field[RevisionStatus, duckv1.Conditions]
+	Conditions            diefields.ListField[RevisionStatus, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]
 	Annotations           diefields.MapField[RevisionStatus, string, string]
 	LogURL                diefields.Field[RevisionStatus, string]
-	ContainerStatuses     diefields.Field[RevisionStatus, []ContainerStatus]
-	InitContainerStatuses diefields.Field[RevisionStatus, []ContainerStatus]
+	ContainerStatuses     diefields.ListField[RevisionStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]
+	InitContainerStatuses diefields.ListField[RevisionStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]
 	ActualReplicas        diefields.Field[RevisionStatus, *int32]
 	DesiredReplicas       diefields.Field[RevisionStatus, *int32]
 }
@@ -1638,11 +1638,11 @@ type revisionStatusFieldsTable struct {
 var revisionStatusFields = &diefields.Table[revisionStatusFieldsTable]{Build: func() (f revisionStatusFieldsTable) {
 	_ = annotated
 	f.ObservedGeneration = diefields.NewField[RevisionStatus, int64]("observedGeneration")
-	f.Conditions = diefields.NewItems[RevisionStatus, duckv1.Conditions, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]("conditions")
+	f.Conditions = diefields.NewList[RevisionStatus, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]("conditions")
 	f.Annotations = diefields.NewMap[RevisionStatus, string, string]("annotations")
 	f.LogURL = diefields.NewField[RevisionStatus, string]("logUrl")
-	f.ContainerStatuses = diefields.NewItems[RevisionStatus, []ContainerStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]("containerStatuses")
-	f.InitContainerStatuses = diefields.NewItems[RevisionStatus, []ContainerStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]("initContainerStatuses")
+	f.ContainerStatuses = diefields.NewList[RevisionStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]("containerStatuses")
+	f.InitContainerStatuses = diefields.NewList[RevisionStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]("initContainerStatuses")
 	f.ActualReplicas = diefields.NewField[RevisionStatus, *int32]("actualReplicas")
 	f.DesiredReplicas = diefields.NewField[RevisionStatus, *int32]("desiredReplicas")
 	return
@@ -1655,8 +1655,8 @@ func (d *RevisionStatusDie) ObservedGeneration() diefields.Value[int64] {
 }
 
 // Conditions the latest available observations of a resource's current state.
-func (d *RevisionStatusDie) Conditions() diefields.Value[duckv1.Conditions] {
-	return diefields.ValueOf(d, revisionStatusFields.Get().Conditions)
+func (d *RevisionStatusDie) Conditions() *diefields.List[apis.Condition, *apis.ConditionDie] {
+	return diefields.ListOf(d, revisionStatusFields.Get().Conditions)
 }
 
 // Annotations is additional Status fields for the Resource to save some
@@ -1679,8 +1679,8 @@ func (d *RevisionStatusDie) LogURL() diefields.Value[string] {
 // ContainerStatuses holds the container name and image digests
 // for both serving and non serving containers.
 // ref: https://bit.ly/image-digests
-func (d *RevisionStatusDie) ContainerStatuses() diefields.Value[[]ContainerStatus] {
-	return diefields.ValueOf(d, revisionStatusFields.Get().ContainerStatuses)
+func (d *RevisionStatusDie) ContainerStatuses() *diefields.List[ContainerStatus, *ContainerStatusDie] {
+	return diefields.ListOf(d, revisionStatusFields.Get().ContainerStatuses)
 }
 
 // InitContainerStatuses is a slice of images present in .Spec.InitContainer[*].Image
@@ -1689,8 +1689,8 @@ func (d *RevisionStatusDie) ContainerStatuses() diefields.Value[[]ContainerStatu
 // ContainerStatuses holds the container name and image digests
 // for both serving and non serving containers.
 // ref: https://bit.ly/image-digests
-func (d *RevisionStatusDie) InitContainerStatuses() diefields.Value[[]ContainerStatus] {
-	return diefields.ValueOf(d, revisionStatusFields.Get().InitContainerStatuses)
+func (d *RevisionStatusDie) InitContainerStatuses() *diefields.List[ContainerStatus, *ContainerStatusDie] {
+	return diefields.ListOf(d, revisionStatusFields.Get().InitContainerStatuses)
 }
 
 // ActualReplicas reflects the amount of ready pods running this revision.
@@ -1710,8 +1710,8 @@ func (d *RevisionStatusDieMut) ObservedGeneration() diefields.ValueMut[int64] {
 }
 
 // Conditions the latest available observations of a resource's current state.
-func (d *RevisionStatusDieMut) Conditions() diefields.ValueMut[duckv1.Conditions] {
-	return diefields.ValueMutOf(d, revisionStatusFields.Get().Conditions)
+func (d *RevisionStatusDieMut) Conditions() *diefields.ListMut[apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut] {
+	return diefields.ListMutOf(d, revisionStatusFields.Get().Conditions)
 }
 
 // Annotations is additional Status fields for the Resource to save some
@@ -1734,8 +1734,8 @@ func (d *RevisionStatusDieMut) LogURL() diefields.ValueMut[string] {
 // ContainerStatuses holds the container name and image digests
 // for both serving and non serving containers.
 // ref: https://bit.ly/image-digests
-func (d *RevisionStatusDieMut) ContainerStatuses() diefields.ValueMut[[]ContainerStatus] {
-	return diefields.ValueMutOf(d, revisionStatusFields.Get().ContainerStatuses)
+func (d *RevisionStatusDieMut) ContainerStatuses() *diefields.ListMut[ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut] {
+	return diefields.ListMutOf(d, revisionStatusFields.Get().ContainerStatuses)
 }
 
 // InitContainerStatuses is a slice of images present in .Spec.InitContainer[*].Image
@@ -1744,8 +1744,8 @@ func (d *RevisionStatusDieMut) ContainerStatuses() diefields.ValueMut[[]Containe
 // ContainerStatuses holds the container name and image digests
 // for both serving and non serving containers.
 // ref: https://bit.ly/image-digests
-func (d *RevisionStatusDieMut) InitContainerStatuses() diefields.ValueMut[[]ContainerStatus] {
-	return diefields.ValueMutOf(d, revisionStatusFields.Get().InitContainerStatuses)
+func (d *RevisionStatusDieMut) InitContainerStatuses() *diefields.ListMut[ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut] {
+	return diefields.ListMutOf(d, revisionStatusFields.Get().InitContainerStatuses)
 }
 
 // ActualReplicas reflects the amount of ready pods running this revision.
@@ -1981,25 +1981,25 @@ var RouteSpecBlank = diebase.Blank[RouteSpec, *RouteSpecDie, *RouteSpecDieMut]()
 // +k8s:deepcopy-gen=false
 
 type routeSpecFieldsTable struct {
-	Traffic diefields.Field[RouteSpec, []TrafficTarget]
+	Traffic diefields.ListField[RouteSpec, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]
 }
 
 var routeSpecFields = &diefields.Table[routeSpecFieldsTable]{Build: func() (f routeSpecFieldsTable) {
 	_ = annotated
-	f.Traffic = diefields.NewItems[RouteSpec, []TrafficTarget, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]("traffic")
+	f.Traffic = diefields.NewList[RouteSpec, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]("traffic")
 	return
 }}
 
 // Traffic specifies how to distribute traffic over a collection of
 // revisions and configurations.
-func (d *RouteSpecDie) Traffic() diefields.Value[[]TrafficTarget] {
-	return diefields.ValueOf(d, routeSpecFields.Get().Traffic)
+func (d *RouteSpecDie) Traffic() *diefields.List[TrafficTarget, *TrafficTargetDie] {
+	return diefields.ListOf(d, routeSpecFields.Get().Traffic)
 }
 
 // Traffic specifies how to distribute traffic over a collection of
 // revisions and configurations.
-func (d *RouteSpecDieMut) Traffic() diefields.ValueMut[[]TrafficTarget] {
-	return diefields.ValueMutOf(d, routeSpecFields.Get().Traffic)
+func (d *RouteSpecDieMut) Traffic() *diefields.ListMut[TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut] {
+	return diefields.ListMutOf(d, routeSpecFields.Get().Traffic)
 }
 
 // +kubebuilder:object:generate=false
@@ -2036,21 +2036,21 @@ var RouteStatusBlank = diebase.Blank[RouteStatus, *RouteStatusDie, *RouteStatusD
 
 type routeStatusFieldsTable struct {
 	ObservedGeneration diefields.Field[RouteStatus, int64]
-	Conditions         diefields.Field[RouteStatus, duckv1.Conditions]
+	Conditions         diefields.ListField[RouteStatus, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]
 	Annotations        diefields.MapField[RouteStatus, string, string]
 	URL                diefields.Field[RouteStatus, *apis.URL]
 	Address            diefields.Struct[RouteStatus, duckv1.Addressable, *duckv1.AddressableDie, *duckv1.AddressableDieMut]
-	Traffic            diefields.Field[RouteStatus, []TrafficTarget]
+	Traffic            diefields.ListField[RouteStatus, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]
 }
 
 var routeStatusFields = &diefields.Table[routeStatusFieldsTable]{Build: func() (f routeStatusFieldsTable) {
 	_ = annotated
 	f.ObservedGeneration = diefields.NewField[RouteStatus, int64]("observedGeneration")
-	f.Conditions = diefields.NewItems[RouteStatus, duckv1.Conditions, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]("conditions")
+	f.Conditions = diefields.NewList[RouteStatus, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]("conditions")
 	f.Annotations = diefields.NewMap[RouteStatus, string, string]("annotations")
 	f.URL = diefields.NewField[RouteStatus, *apis.URL]("url")
 	f.Address = diefields.NewStruct[RouteStatus, duckv1.Addressable, *duckv1.AddressableDie, *duckv1.AddressableDieMut]("address")
-	f.Traffic = diefields.NewItems[RouteStatus, []TrafficTarget, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]("traffic")
+	f.Traffic = diefields.NewList[RouteStatus, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]("traffic")
 	return
 }}
 
@@ -2061,8 +2061,8 @@ func (d *RouteStatusDie) ObservedGeneration() diefields.Value[int64] {
 }
 
 // Conditions the latest available observations of a resource's current state.
-func (d *RouteStatusDie) Conditions() diefields.Value[duckv1.Conditions] {
-	return diefields.ValueOf(d, routeStatusFields.Get().Conditions)
+func (d *RouteStatusDie) Conditions() *diefields.List[apis.Condition, *apis.ConditionDie] {
+	return diefields.ListOf(d, routeStatusFields.Get().Conditions)
 }
 
 // Annotations is additional Status fields for the Resource to save some
@@ -2088,8 +2088,8 @@ func (d *RouteStatusDie) Address() *duckv1.AddressableDie {
 // These entries will always contain RevisionName references.
 // When ConfigurationName appears in the spec, this will hold the
 // LatestReadyRevisionName that we last observed.
-func (d *RouteStatusDie) Traffic() diefields.Value[[]TrafficTarget] {
-	return diefields.ValueOf(d, routeStatusFields.Get().Traffic)
+func (d *RouteStatusDie) Traffic() *diefields.List[TrafficTarget, *TrafficTargetDie] {
+	return diefields.ListOf(d, routeStatusFields.Get().Traffic)
 }
 
 // ObservedGeneration is the 'Generation' of the Service that
@@ -2099,8 +2099,8 @@ func (d *RouteStatusDieMut) ObservedGeneration() diefields.ValueMut[int64] {
 }
 
 // Conditions the latest available observations of a resource's current state.
-func (d *RouteStatusDieMut) Conditions() diefields.ValueMut[duckv1.Conditions] {
-	return diefields.ValueMutOf(d, routeStatusFields.Get().Conditions)
+func (d *RouteStatusDieMut) Conditions() *diefields.ListMut[apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut] {
+	return diefields.ListMutOf(d, routeStatusFields.Get().Conditions)
 }
 
 // Annotations is additional Status fields for the Resource to save some
@@ -2126,8 +2126,8 @@ func (d *RouteStatusDieMut) Address() *duckv1.AddressableDieMut {
 // These entries will always contain RevisionName references.
 // When ConfigurationName appears in the spec, this will hold the
 // LatestReadyRevisionName that we last observed.
-func (d *RouteStatusDieMut) Traffic() diefields.ValueMut[[]TrafficTarget] {
-	return diefields.ValueMutOf(d, routeStatusFields.Get().Traffic)
+func (d *RouteStatusDieMut) Traffic() *diefields.ListMut[TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut] {
+	return diefields.ListMutOf(d, routeStatusFields.Get().Traffic)
 }
 
 // +kubebuilder:object:generate=false
@@ -2167,14 +2167,14 @@ var RouteStatusFieldsBlank = diebase.Blank[RouteStatusFields, *RouteStatusFields
 type routeStatusFieldsFieldsTable struct {
 	URL     diefields.Field[RouteStatusFields, *apis.URL]
 	Address diefields.Struct[RouteStatusFields, duckv1.Addressable, *duckv1.AddressableDie, *duckv1.AddressableDieMut]
-	Traffic diefields.Field[RouteStatusFields, []TrafficTarget]
+	Traffic diefields.ListField[RouteStatusFields, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]
 }
 
 var routeStatusFieldsFields = &diefields.Table[routeStatusFieldsFieldsTable]{Build: func() (f routeStatusFieldsFieldsTable) {
 	_ = annotated
 	f.URL = diefields.NewField[RouteStatusFields, *apis.URL]("url")
 	f.Address = diefields.NewStruct[RouteStatusFields, duckv1.Addressable, *duckv1.AddressableDie, *duckv1.AddressableDieMut]("address")
-	f.Traffic = diefields.NewItems[RouteStatusFields, []TrafficTarget, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]("traffic")
+	f.Traffic = diefields.NewList[RouteStatusFields, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]("traffic")
 	return
 }}
 
@@ -2193,8 +2193,8 @@ func (d *RouteStatusFieldsDie) Address() *duckv1.AddressableDie {
 // These entries will always contain RevisionName references.
 // When ConfigurationName appears in the spec, this will hold the
 // LatestReadyRevisionName that we last observed.
-func (d *RouteStatusFieldsDie) Traffic() diefields.Value[[]TrafficTarget] {
-	return diefields.ValueOf(d, routeStatusFieldsFields.Get().Traffic)
+func (d *RouteStatusFieldsDie) Traffic() *diefields.List[TrafficTarget, *TrafficTargetDie] {
+	return diefields.ListOf(d, routeStatusFieldsFields.Get().Traffic)
 }
 
 // URL holds the url that will distribute traffic over the provided traffic targets.
@@ -2212,8 +2212,8 @@ func (d *RouteStatusFieldsDieMut) Address() *duckv1.AddressableDieMut {
 // These entries will always contain RevisionName references.
 // When ConfigurationName appears in the spec, this will hold the
 // LatestReadyRevisionName that we last observed.
-func (d *RouteStatusFieldsDieMut) Traffic() diefields.ValueMut[[]TrafficTarget] {
-	return diefields.ValueMutOf(d, routeStatusFieldsFields.Get().Traffic)
+func (d *RouteStatusFieldsDieMut) Traffic() *diefields.ListMut[TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut] {
+	return diefields.ListMutOf(d, routeStatusFieldsFields.Get().Traffic)
 }
 
 // +kubebuilder:object:generate=false
@@ -2391,13 +2391,13 @@ var ServiceSpecBlank = diebase.Blank[ServiceSpec, *ServiceSpecDie, *ServiceSpecD
 
 type serviceSpecFieldsTable struct {
 	Template diefields.Struct[ServiceSpec, RevisionTemplateSpec, *RevisionTemplateSpecDie, *RevisionTemplateSpecDieMut]
-	Traffic  diefields.Field[ServiceSpec, []TrafficTarget]
+	Traffic  diefields.ListField[ServiceSpec, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]
 }
 
 var serviceSpecFields = &diefields.Table[serviceSpecFieldsTable]{Build: func() (f serviceSpecFieldsTable) {
 	_ = annotated
 	f.Template = diefields.NewStruct[ServiceSpec, RevisionTemplateSpec, *RevisionTemplateSpecDie, *RevisionTemplateSpecDieMut]("template")
-	f.Traffic = diefields.NewItems[ServiceSpec, []TrafficTarget, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]("traffic")
+	f.Traffic = diefields.NewList[ServiceSpec, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]("traffic")
 	return
 }}
 
@@ -2408,8 +2408,8 @@ func (d *ServiceSpecDie) Template() *RevisionTemplateSpecDie {
 
 // Traffic specifies how to distribute traffic over a collection of
 // revisions and configurations.
-func (d *ServiceSpecDie) Traffic() diefields.Value[[]TrafficTarget] {
-	return diefields.ValueOf(d, serviceSpecFields.Get().Traffic)
+func (d *ServiceSpecDie) Traffic() *diefields.List[TrafficTarget, *TrafficTargetDie] {
+	return diefields.ListOf(d, serviceSpecFields.Get().Traffic)
 }
 
 // Template holds the latest specification for the Revision to be stamped out.
@@ -2419,8 +2419,8 @@ func (d *ServiceSpecDieMut) Template() *RevisionTemplateSpecDieMut {
 
 // Traffic specifies how to distribute traffic over a collection of
 // revisions and configurations.
-func (d *ServiceSpecDieMut) Traffic() diefields.ValueMut[[]TrafficTarget] {
-	return diefields.ValueMutOf(d, serviceSpecFields.Get().Traffic)
+func (d *ServiceSpecDieMut) Traffic() *diefields.ListMut[TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut] {
+	return diefields.ListMutOf(d, serviceSpecFields.Get().Traffic)
 }
 
 // +kubebuilder:object:generate=false
@@ -2457,25 +2457,25 @@ var ServiceStatusBlank = diebase.Blank[ServiceStatus, *ServiceStatusDie, *Servic
 
 type serviceStatusFieldsTable struct {
 	ObservedGeneration        diefields.Field[ServiceStatus, int64]
-	Conditions                diefields.Field[ServiceStatus, duckv1.Conditions]
+	Conditions                diefields.ListField[ServiceStatus, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]
 	Annotations               diefields.MapField[ServiceStatus, string, string]
 	LatestReadyRevisionName   diefields.Field[ServiceStatus, string]
 	LatestCreatedRevisionName diefields.Field[ServiceStatus, string]
 	URL                       diefields.Field[ServiceStatus, *apis.URL]
 	Address                   diefields.Struct[ServiceStatus, duckv1.Addressable, *duckv1.AddressableDie, *duckv1.AddressableDieMut]
-	Traffic                   diefields.Field[ServiceStatus, []TrafficTarget]
+	Traffic                   diefields.ListField[ServiceStatus, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]
 }
 
 var serviceStatusFields = &diefields.Table[serviceStatusFieldsTable]{Build: func() (f serviceStatusFieldsTable) {
 	_ = annotated
 	f.ObservedGeneration = diefields.NewField[ServiceStatus, int64]("observedGeneration")
-	f.Conditions = diefields.NewItems[ServiceStatus, duckv1.Conditions, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]("conditions")
+	f.Conditions = diefields.NewList[ServiceStatus, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]("conditions")
 	f.Annotations = diefields.NewMap[ServiceStatus, string, string]("annotations")
 	f.LatestReadyRevisionName = diefields.NewField[ServiceStatus, string]("latestReadyRevisionName")
 	f.LatestCreatedRevisionName = diefields.NewField[ServiceStatus, string]("latestCreatedRevisionName")
 	f.URL = diefields.NewField[ServiceStatus, *apis.URL]("url")
 	f.Address = diefields.NewStruct[ServiceStatus, duckv1.Addressable, *duckv1.AddressableDie, *duckv1.AddressableDieMut]("address")
-	f.Traffic = diefields.NewItems[ServiceStatus, []TrafficTarget, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]("traffic")
+	f.Traffic = diefields.NewList[ServiceStatus, TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]("traffic")
 	return
 }}
 
@@ -2486,8 +2486,8 @@ func (d *ServiceStatusDie) ObservedGeneration() diefields.Value[int64] {
 }
 
 // Conditions the latest available observations of a resource's current state.
-func (d *ServiceStatusDie) Conditions() diefields.Value[duckv1.Conditions] {
-	return diefields.ValueOf(d, serviceStatusFields.Get().Conditions)
+func (d *ServiceStatusDie) Conditions() *diefields.List[apis.Condition, *apis.ConditionDie] {
+	return diefields.ListOf(d, serviceStatusFields.Get().Conditions)
 }
 
 // Annotations is additional Status fields for the Resource to save some
@@ -2525,8 +2525,8 @@ func (d *ServiceStatusDie) Address() *duckv1.AddressableDie {
 // These entries will always contain RevisionName references.
 // When ConfigurationName appears in the spec, this will hold the
 // LatestReadyRevisionName that we last observed.
-func (d *ServiceStatusDie) Traffic() diefields.Value[[]TrafficTarget] {
-	return diefields.ValueOf(d, serviceStatusFields.Get().Traffic)
+func (d *ServiceStatusDie) Traffic() *diefields.List[TrafficTarget, *TrafficTargetDie] {
+	return diefields.ListOf(d, serviceStatusFields.Get().Traffic)
 }
 
 // ObservedGeneration is the 'Generation' of the Service that
@@ -2536,8 +2536,8 @@ func (d *ServiceStatusDieMut) ObservedGeneration() diefields.ValueMut[int64] {
 }
 
 // Conditions the latest available observations of a resource's current state.
-func (d *ServiceStatusDieMut) Conditions() diefields.ValueMut[duckv1.Conditions] {
-	return diefields.ValueMutOf(d, serviceStatusFields.Get().Conditions)
+func (d *ServiceStatusDieMut) Conditions() *diefields.ListMut[apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut] {
+	return diefields.ListMutOf(d, serviceStatusFields.Get().Conditions)
 }
 
 // Annotations is additional Status fields for the Resource to save some
@@ -2575,8 +2575,8 @@ func (d *ServiceStatusDieMut) Address() *duckv1.AddressableDieMut {
 // These entries will always contain RevisionName references.
 // When ConfigurationName appears in the spec, this will hold the
 // LatestReadyRevisionName that we last observed.
-func (d *ServiceStatusDieMut) Traffic() diefields.ValueMut[[]TrafficTarget] {
-	return diefields.ValueMutOf(d, serviceStatusFields.Get().Traffic)
+func (d *ServiceStatusDieMut) Traffic() *diefields.ListMut[TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut] {
+	return diefields.ListMutOf(d, serviceStatusFields.Get().Traffic)
 }
 
 // +kubebuilder:object:generate=false

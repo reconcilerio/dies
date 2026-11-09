@@ -494,22 +494,22 @@ func (d *CronJobStatusDieMut) DieStampApplyConfiguration(fn func(ac *CronJobStat
 // +k8s:deepcopy-gen=false
 
 type cronJobStatusFieldsTable struct {
-	Active             diefields.Field[CronJobStatus, []diecorev1.ObjectReference]
+	Active             diefields.ListField[CronJobStatus, diecorev1.ObjectReference, *diecorev1.ObjectReferenceDie, *diecorev1.ObjectReferenceDieMut]
 	LastScheduleTime   diefields.Field[CronJobStatus, *diemetav1.Time]
 	LastSuccessfulTime diefields.Field[CronJobStatus, *diemetav1.Time]
 }
 
 var cronJobStatusFields = &diefields.Table[cronJobStatusFieldsTable]{Build: func() (f cronJobStatusFieldsTable) {
 	_ = annotated
-	f.Active = diefields.NewItems[CronJobStatus, []diecorev1.ObjectReference, diecorev1.ObjectReference, *diecorev1.ObjectReferenceDie, *diecorev1.ObjectReferenceDieMut]("active")
+	f.Active = diefields.NewList[CronJobStatus, diecorev1.ObjectReference, *diecorev1.ObjectReferenceDie, *diecorev1.ObjectReferenceDieMut]("active")
 	f.LastScheduleTime = diefields.NewField[CronJobStatus, *diemetav1.Time]("lastScheduleTime")
 	f.LastSuccessfulTime = diefields.NewField[CronJobStatus, *diemetav1.Time]("lastSuccessfulTime")
 	return
 }}
 
 // A list of pointers to currently running jobs.
-func (d *CronJobStatusDie) Active() diefields.Value[[]diecorev1.ObjectReference] {
-	return diefields.ValueOf(d, cronJobStatusFields.Get().Active)
+func (d *CronJobStatusDie) Active() *diefields.List[diecorev1.ObjectReference, *diecorev1.ObjectReferenceDie] {
+	return diefields.ListOf(d, cronJobStatusFields.Get().Active)
 }
 
 // Information when was the last time the job was successfully scheduled.
@@ -523,8 +523,8 @@ func (d *CronJobStatusDie) LastSuccessfulTime() diefields.Optional[diemetav1.Tim
 }
 
 // A list of pointers to currently running jobs.
-func (d *CronJobStatusDieMut) Active() diefields.ValueMut[[]diecorev1.ObjectReference] {
-	return diefields.ValueMutOf(d, cronJobStatusFields.Get().Active)
+func (d *CronJobStatusDieMut) Active() *diefields.ListMut[diecorev1.ObjectReference, *diecorev1.ObjectReferenceDie, *diecorev1.ObjectReferenceDieMut] {
+	return diefields.ListMutOf(d, cronJobStatusFields.Get().Active)
 }
 
 // Information when was the last time the job was successfully scheduled.

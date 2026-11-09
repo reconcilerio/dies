@@ -55,7 +55,7 @@ func applied(t testing.TB) *dieappsv1.DeploymentDie {
 		dietesting.NoError(t, d.Spec().Template().Spec().Tolerations().Empty())
 		d.Spec().Template().Spec().Containers().At("app").DieStamp(func(c *diecorev1.ContainerDieMut) {
 			dietesting.NoError(t, c.Image().Set("app:1"))
-			dietesting.NoError(t, c.Args().Set([]string{"--verbose"}))
+			dietesting.NoError(t, c.Args().SetValue([]string{"--verbose"}...))
 			dietesting.NoError(t, c.Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("http"))
 			dietesting.NoError(t, c.Env().At("COLOR").ValueFrom().ConfigMapKeyRef().Key().Set("color"))
 		})

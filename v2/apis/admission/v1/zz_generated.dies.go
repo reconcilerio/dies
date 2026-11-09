@@ -352,7 +352,7 @@ type admissionResponseFieldsTable struct {
 	Patch            diefields.Field[AdmissionResponse, []byte]
 	PatchType        diefields.Field[AdmissionResponse, *PatchType]
 	AuditAnnotations diefields.MapField[AdmissionResponse, string, string]
-	Warnings         diefields.Field[AdmissionResponse, []string]
+	Warnings         diefields.ListField[AdmissionResponse, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var admissionResponseFields = &diefields.Table[admissionResponseFieldsTable]{Build: func() (f admissionResponseFieldsTable) {
@@ -363,7 +363,7 @@ var admissionResponseFields = &diefields.Table[admissionResponseFieldsTable]{Bui
 	f.Patch = diefields.NewField[AdmissionResponse, []byte]("patch")
 	f.PatchType = diefields.NewField[AdmissionResponse, *PatchType]("patchType")
 	f.AuditAnnotations = diefields.NewMap[AdmissionResponse, string, string]("auditAnnotations")
-	f.Warnings = diefields.NewField[AdmissionResponse, []string]("warnings")
+	f.Warnings = diefields.NewValueList[AdmissionResponse, string]("warnings")
 	return
 }}
 
@@ -406,8 +406,8 @@ func (d *AdmissionResponseDie) AuditAnnotations() *diefields.Map[string, string]
 // Warning messages describe a problem the client making the API request should correct or be aware of.
 // Limit warnings to 120 characters if possible.
 // Warnings over 256 characters and large numbers of warnings may be truncated.
-func (d *AdmissionResponseDie) Warnings() diefields.Value[[]string] {
-	return diefields.ValueOf(d, admissionResponseFields.Get().Warnings)
+func (d *AdmissionResponseDie) Warnings() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, admissionResponseFields.Get().Warnings)
 }
 
 // uid is an identifier for the individual request/response.
@@ -449,8 +449,8 @@ func (d *AdmissionResponseDieMut) AuditAnnotations() *diefields.MapMut[string, s
 // Warning messages describe a problem the client making the API request should correct or be aware of.
 // Limit warnings to 120 characters if possible.
 // Warnings over 256 characters and large numbers of warnings may be truncated.
-func (d *AdmissionResponseDieMut) Warnings() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, admissionResponseFields.Get().Warnings)
+func (d *AdmissionResponseDieMut) Warnings() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, admissionResponseFields.Get().Warnings)
 }
 
 // +kubebuilder:object:generate=false

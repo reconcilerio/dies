@@ -74,13 +74,13 @@ var FieldSelectorAttributesBlank = diebase.Blank[FieldSelectorAttributes, *Field
 
 type fieldSelectorAttributesFieldsTable struct {
 	RawSelector  diefields.Field[FieldSelectorAttributes, string]
-	Requirements diefields.Field[FieldSelectorAttributes, []diemetav1.FieldSelectorRequirement]
+	Requirements diefields.ListField[FieldSelectorAttributes, diemetav1.FieldSelectorRequirement, *diemetav1.FieldSelectorRequirementDie, *diemetav1.FieldSelectorRequirementDieMut]
 }
 
 var fieldSelectorAttributesFields = &diefields.Table[fieldSelectorAttributesFieldsTable]{Build: func() (f fieldSelectorAttributesFieldsTable) {
 	_ = annotated
 	f.RawSelector = diefields.NewField[FieldSelectorAttributes, string]("rawSelector")
-	f.Requirements = diefields.NewItems[FieldSelectorAttributes, []diemetav1.FieldSelectorRequirement, diemetav1.FieldSelectorRequirement, *diemetav1.FieldSelectorRequirementDie, *diemetav1.FieldSelectorRequirementDieMut]("requirements")
+	f.Requirements = diefields.NewList[FieldSelectorAttributes, diemetav1.FieldSelectorRequirement, *diemetav1.FieldSelectorRequirementDie, *diemetav1.FieldSelectorRequirementDieMut]("requirements")
 	return
 }}
 
@@ -96,8 +96,8 @@ func (d *FieldSelectorAttributesDie) RawSelector() diefields.Value[string] {
 // Webhook implementations should handle requirements, but how to handle them is up to the webhook.
 // Since requirements can only limit the request, it is safe to authorize as unlimited request if the requirements
 // are not understood.
-func (d *FieldSelectorAttributesDie) Requirements() diefields.Value[[]diemetav1.FieldSelectorRequirement] {
-	return diefields.ValueOf(d, fieldSelectorAttributesFields.Get().Requirements)
+func (d *FieldSelectorAttributesDie) Requirements() *diefields.List[diemetav1.FieldSelectorRequirement, *diemetav1.FieldSelectorRequirementDie] {
+	return diefields.ListOf(d, fieldSelectorAttributesFields.Get().Requirements)
 }
 
 // rawSelector is the serialization of a field selector that would be included in a query parameter.
@@ -112,8 +112,8 @@ func (d *FieldSelectorAttributesDieMut) RawSelector() diefields.ValueMut[string]
 // Webhook implementations should handle requirements, but how to handle them is up to the webhook.
 // Since requirements can only limit the request, it is safe to authorize as unlimited request if the requirements
 // are not understood.
-func (d *FieldSelectorAttributesDieMut) Requirements() diefields.ValueMut[[]diemetav1.FieldSelectorRequirement] {
-	return diefields.ValueMutOf(d, fieldSelectorAttributesFields.Get().Requirements)
+func (d *FieldSelectorAttributesDieMut) Requirements() *diefields.ListMut[diemetav1.FieldSelectorRequirement, *diemetav1.FieldSelectorRequirementDie, *diemetav1.FieldSelectorRequirementDieMut] {
+	return diefields.ListMutOf(d, fieldSelectorAttributesFields.Get().Requirements)
 }
 
 // +kubebuilder:object:generate=false
@@ -159,13 +159,13 @@ var LabelSelectorAttributesBlank = diebase.Blank[LabelSelectorAttributes, *Label
 
 type labelSelectorAttributesFieldsTable struct {
 	RawSelector  diefields.Field[LabelSelectorAttributes, string]
-	Requirements diefields.Field[LabelSelectorAttributes, []diemetav1.LabelSelectorRequirement]
+	Requirements diefields.ListField[LabelSelectorAttributes, diemetav1.LabelSelectorRequirement, *diemetav1.LabelSelectorRequirementDie, *diemetav1.LabelSelectorRequirementDieMut]
 }
 
 var labelSelectorAttributesFields = &diefields.Table[labelSelectorAttributesFieldsTable]{Build: func() (f labelSelectorAttributesFieldsTable) {
 	_ = annotated
 	f.RawSelector = diefields.NewField[LabelSelectorAttributes, string]("rawSelector")
-	f.Requirements = diefields.NewItems[LabelSelectorAttributes, []diemetav1.LabelSelectorRequirement, diemetav1.LabelSelectorRequirement, *diemetav1.LabelSelectorRequirementDie, *diemetav1.LabelSelectorRequirementDieMut]("requirements")
+	f.Requirements = diefields.NewList[LabelSelectorAttributes, diemetav1.LabelSelectorRequirement, *diemetav1.LabelSelectorRequirementDie, *diemetav1.LabelSelectorRequirementDieMut]("requirements")
 	return
 }}
 
@@ -181,8 +181,8 @@ func (d *LabelSelectorAttributesDie) RawSelector() diefields.Value[string] {
 // Webhook implementations should handle requirements, but how to handle them is up to the webhook.
 // Since requirements can only limit the request, it is safe to authorize as unlimited request if the requirements
 // are not understood.
-func (d *LabelSelectorAttributesDie) Requirements() diefields.Value[[]diemetav1.LabelSelectorRequirement] {
-	return diefields.ValueOf(d, labelSelectorAttributesFields.Get().Requirements)
+func (d *LabelSelectorAttributesDie) Requirements() *diefields.List[diemetav1.LabelSelectorRequirement, *diemetav1.LabelSelectorRequirementDie] {
+	return diefields.ListOf(d, labelSelectorAttributesFields.Get().Requirements)
 }
 
 // rawSelector is the serialization of a field selector that would be included in a query parameter.
@@ -197,8 +197,8 @@ func (d *LabelSelectorAttributesDieMut) RawSelector() diefields.ValueMut[string]
 // Webhook implementations should handle requirements, but how to handle them is up to the webhook.
 // Since requirements can only limit the request, it is safe to authorize as unlimited request if the requirements
 // are not understood.
-func (d *LabelSelectorAttributesDieMut) Requirements() diefields.ValueMut[[]diemetav1.LabelSelectorRequirement] {
-	return diefields.ValueMutOf(d, labelSelectorAttributesFields.Get().Requirements)
+func (d *LabelSelectorAttributesDieMut) Requirements() *diefields.ListMut[diemetav1.LabelSelectorRequirement, *diemetav1.LabelSelectorRequirementDie, *diemetav1.LabelSelectorRequirementDieMut] {
+	return diefields.ListMutOf(d, labelSelectorAttributesFields.Get().Requirements)
 }
 
 // +kubebuilder:object:generate=false
@@ -418,37 +418,37 @@ var NonResourceRuleBlank = diebase.Blank[NonResourceRule, *NonResourceRuleDie, *
 // +k8s:deepcopy-gen=false
 
 type nonResourceRuleFieldsTable struct {
-	Verbs           diefields.Field[NonResourceRule, []string]
-	NonResourceURLs diefields.Field[NonResourceRule, []string]
+	Verbs           diefields.ListField[NonResourceRule, string, diefields.Value[string], diefields.ValueMut[string]]
+	NonResourceURLs diefields.ListField[NonResourceRule, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var nonResourceRuleFields = &diefields.Table[nonResourceRuleFieldsTable]{Build: func() (f nonResourceRuleFieldsTable) {
 	_ = annotated
-	f.Verbs = diefields.NewField[NonResourceRule, []string]("verbs")
-	f.NonResourceURLs = diefields.NewField[NonResourceRule, []string]("nonResourceURLs")
+	f.Verbs = diefields.NewValueList[NonResourceRule, string]("verbs")
+	f.NonResourceURLs = diefields.NewValueList[NonResourceRule, string]("nonResourceURLs")
 	return
 }}
 
 // verbs is a list of kubernetes non-resource API verbs, like: get, post, put, delete, patch, head, options.  "*" means all.
-func (d *NonResourceRuleDie) Verbs() diefields.Value[[]string] {
-	return diefields.ValueOf(d, nonResourceRuleFields.Get().Verbs)
+func (d *NonResourceRuleDie) Verbs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, nonResourceRuleFields.Get().Verbs)
 }
 
 // nonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full,
 // final step in the path.  "*" means all.
-func (d *NonResourceRuleDie) NonResourceURLs() diefields.Value[[]string] {
-	return diefields.ValueOf(d, nonResourceRuleFields.Get().NonResourceURLs)
+func (d *NonResourceRuleDie) NonResourceURLs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, nonResourceRuleFields.Get().NonResourceURLs)
 }
 
 // verbs is a list of kubernetes non-resource API verbs, like: get, post, put, delete, patch, head, options.  "*" means all.
-func (d *NonResourceRuleDieMut) Verbs() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, nonResourceRuleFields.Get().Verbs)
+func (d *NonResourceRuleDieMut) Verbs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, nonResourceRuleFields.Get().Verbs)
 }
 
 // nonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full,
 // final step in the path.  "*" means all.
-func (d *NonResourceRuleDieMut) NonResourceURLs() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, nonResourceRuleFields.Get().NonResourceURLs)
+func (d *NonResourceRuleDieMut) NonResourceURLs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, nonResourceRuleFields.Get().NonResourceURLs)
 }
 
 // +kubebuilder:object:generate=false
@@ -639,65 +639,65 @@ var ResourceRuleBlank = diebase.Blank[ResourceRule, *ResourceRuleDie, *ResourceR
 // +k8s:deepcopy-gen=false
 
 type resourceRuleFieldsTable struct {
-	Verbs         diefields.Field[ResourceRule, []string]
-	APIGroups     diefields.Field[ResourceRule, []string]
-	Resources     diefields.Field[ResourceRule, []string]
-	ResourceNames diefields.Field[ResourceRule, []string]
+	Verbs         diefields.ListField[ResourceRule, string, diefields.Value[string], diefields.ValueMut[string]]
+	APIGroups     diefields.ListField[ResourceRule, string, diefields.Value[string], diefields.ValueMut[string]]
+	Resources     diefields.ListField[ResourceRule, string, diefields.Value[string], diefields.ValueMut[string]]
+	ResourceNames diefields.ListField[ResourceRule, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var resourceRuleFields = &diefields.Table[resourceRuleFieldsTable]{Build: func() (f resourceRuleFieldsTable) {
 	_ = annotated
-	f.Verbs = diefields.NewField[ResourceRule, []string]("verbs")
-	f.APIGroups = diefields.NewField[ResourceRule, []string]("apiGroups")
-	f.Resources = diefields.NewField[ResourceRule, []string]("resources")
-	f.ResourceNames = diefields.NewField[ResourceRule, []string]("resourceNames")
+	f.Verbs = diefields.NewValueList[ResourceRule, string]("verbs")
+	f.APIGroups = diefields.NewValueList[ResourceRule, string]("apiGroups")
+	f.Resources = diefields.NewValueList[ResourceRule, string]("resources")
+	f.ResourceNames = diefields.NewValueList[ResourceRule, string]("resourceNames")
 	return
 }}
 
 // verbs is a list of kubernetes resource API verbs, like: get, list, watch, create, update, delete, proxy.  "*" means all.
-func (d *ResourceRuleDie) Verbs() diefields.Value[[]string] {
-	return diefields.ValueOf(d, resourceRuleFields.Get().Verbs)
+func (d *ResourceRuleDie) Verbs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, resourceRuleFields.Get().Verbs)
 }
 
 // apiGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
 // the enumerated resources in any API group will be allowed.  "*" means all.
-func (d *ResourceRuleDie) APIGroups() diefields.Value[[]string] {
-	return diefields.ValueOf(d, resourceRuleFields.Get().APIGroups)
+func (d *ResourceRuleDie) APIGroups() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, resourceRuleFields.Get().APIGroups)
 }
 
 // resources is a list of resources this rule applies to.  "*" means all in the specified apiGroups.
 //
 //	"*/foo" represents the subresource 'foo' for all resources in the specified apiGroups.
-func (d *ResourceRuleDie) Resources() diefields.Value[[]string] {
-	return diefields.ValueOf(d, resourceRuleFields.Get().Resources)
+func (d *ResourceRuleDie) Resources() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, resourceRuleFields.Get().Resources)
 }
 
 // resourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.  "*" means all.
-func (d *ResourceRuleDie) ResourceNames() diefields.Value[[]string] {
-	return diefields.ValueOf(d, resourceRuleFields.Get().ResourceNames)
+func (d *ResourceRuleDie) ResourceNames() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, resourceRuleFields.Get().ResourceNames)
 }
 
 // verbs is a list of kubernetes resource API verbs, like: get, list, watch, create, update, delete, proxy.  "*" means all.
-func (d *ResourceRuleDieMut) Verbs() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, resourceRuleFields.Get().Verbs)
+func (d *ResourceRuleDieMut) Verbs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, resourceRuleFields.Get().Verbs)
 }
 
 // apiGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
 // the enumerated resources in any API group will be allowed.  "*" means all.
-func (d *ResourceRuleDieMut) APIGroups() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, resourceRuleFields.Get().APIGroups)
+func (d *ResourceRuleDieMut) APIGroups() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, resourceRuleFields.Get().APIGroups)
 }
 
 // resources is a list of resources this rule applies to.  "*" means all in the specified apiGroups.
 //
 //	"*/foo" represents the subresource 'foo' for all resources in the specified apiGroups.
-func (d *ResourceRuleDieMut) Resources() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, resourceRuleFields.Get().Resources)
+func (d *ResourceRuleDieMut) Resources() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, resourceRuleFields.Get().Resources)
 }
 
 // resourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.  "*" means all.
-func (d *ResourceRuleDieMut) ResourceNames() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, resourceRuleFields.Get().ResourceNames)
+func (d *ResourceRuleDieMut) ResourceNames() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, resourceRuleFields.Get().ResourceNames)
 }
 
 // +kubebuilder:object:generate=false
@@ -1209,7 +1209,7 @@ type subjectAccessReviewSpecFieldsTable struct {
 	ResourceAttributes    diefields.Struct[SubjectAccessReviewSpec, ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut]
 	NonResourceAttributes diefields.Struct[SubjectAccessReviewSpec, NonResourceAttributes, *NonResourceAttributesDie, *NonResourceAttributesDieMut]
 	User                  diefields.Field[SubjectAccessReviewSpec, string]
-	Groups                diefields.Field[SubjectAccessReviewSpec, []string]
+	Groups                diefields.ListField[SubjectAccessReviewSpec, string, diefields.Value[string], diefields.ValueMut[string]]
 	Extra                 diefields.MapField[SubjectAccessReviewSpec, string, ExtraValue]
 	UID                   diefields.Field[SubjectAccessReviewSpec, string]
 }
@@ -1219,7 +1219,7 @@ var subjectAccessReviewSpecFields = &diefields.Table[subjectAccessReviewSpecFiel
 	f.ResourceAttributes = diefields.NewStruct[SubjectAccessReviewSpec, ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut]("resourceAttributes")
 	f.NonResourceAttributes = diefields.NewStruct[SubjectAccessReviewSpec, NonResourceAttributes, *NonResourceAttributesDie, *NonResourceAttributesDieMut]("nonResourceAttributes")
 	f.User = diefields.NewField[SubjectAccessReviewSpec, string]("user")
-	f.Groups = diefields.NewField[SubjectAccessReviewSpec, []string]("groups")
+	f.Groups = diefields.NewValueList[SubjectAccessReviewSpec, string]("groups")
 	f.Extra = diefields.NewMap[SubjectAccessReviewSpec, string, ExtraValue]("extra")
 	f.UID = diefields.NewField[SubjectAccessReviewSpec, string]("uid")
 	return
@@ -1242,8 +1242,8 @@ func (d *SubjectAccessReviewSpecDie) User() diefields.Value[string] {
 }
 
 // groups is the groups you're testing for.
-func (d *SubjectAccessReviewSpecDie) Groups() diefields.Value[[]string] {
-	return diefields.ValueOf(d, subjectAccessReviewSpecFields.Get().Groups)
+func (d *SubjectAccessReviewSpecDie) Groups() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, subjectAccessReviewSpecFields.Get().Groups)
 }
 
 // extra corresponds to the user.Info.GetExtra() method from the authenticator.  Since that is input to the authorizer
@@ -1274,8 +1274,8 @@ func (d *SubjectAccessReviewSpecDieMut) User() diefields.ValueMut[string] {
 }
 
 // groups is the groups you're testing for.
-func (d *SubjectAccessReviewSpecDieMut) Groups() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, subjectAccessReviewSpecFields.Get().Groups)
+func (d *SubjectAccessReviewSpecDieMut) Groups() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, subjectAccessReviewSpecFields.Get().Groups)
 }
 
 // extra corresponds to the user.Info.GetExtra() method from the authenticator.  Since that is input to the authorizer
@@ -1423,16 +1423,16 @@ var SubjectRulesReviewStatusBlank = diebase.Blank[SubjectRulesReviewStatus, *Sub
 // +k8s:deepcopy-gen=false
 
 type subjectRulesReviewStatusFieldsTable struct {
-	ResourceRules    diefields.Field[SubjectRulesReviewStatus, []ResourceRule]
-	NonResourceRules diefields.Field[SubjectRulesReviewStatus, []NonResourceRule]
+	ResourceRules    diefields.ListField[SubjectRulesReviewStatus, ResourceRule, *ResourceRuleDie, *ResourceRuleDieMut]
+	NonResourceRules diefields.ListField[SubjectRulesReviewStatus, NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut]
 	Incomplete       diefields.Field[SubjectRulesReviewStatus, bool]
 	EvaluationError  diefields.Field[SubjectRulesReviewStatus, string]
 }
 
 var subjectRulesReviewStatusFields = &diefields.Table[subjectRulesReviewStatusFieldsTable]{Build: func() (f subjectRulesReviewStatusFieldsTable) {
 	_ = annotated
-	f.ResourceRules = diefields.NewItems[SubjectRulesReviewStatus, []ResourceRule, ResourceRule, *ResourceRuleDie, *ResourceRuleDieMut]("resourceRules")
-	f.NonResourceRules = diefields.NewItems[SubjectRulesReviewStatus, []NonResourceRule, NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut]("nonResourceRules")
+	f.ResourceRules = diefields.NewList[SubjectRulesReviewStatus, ResourceRule, *ResourceRuleDie, *ResourceRuleDieMut]("resourceRules")
+	f.NonResourceRules = diefields.NewList[SubjectRulesReviewStatus, NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut]("nonResourceRules")
 	f.Incomplete = diefields.NewField[SubjectRulesReviewStatus, bool]("incomplete")
 	f.EvaluationError = diefields.NewField[SubjectRulesReviewStatus, string]("evaluationError")
 	return
@@ -1440,14 +1440,14 @@ var subjectRulesReviewStatusFields = &diefields.Table[subjectRulesReviewStatusFi
 
 // resourceRules is the list of actions the subject is allowed to perform on resources.
 // The list ordering isn't significant, may contain duplicates, and possibly be incomplete.
-func (d *SubjectRulesReviewStatusDie) ResourceRules() diefields.Value[[]ResourceRule] {
-	return diefields.ValueOf(d, subjectRulesReviewStatusFields.Get().ResourceRules)
+func (d *SubjectRulesReviewStatusDie) ResourceRules() *diefields.List[ResourceRule, *ResourceRuleDie] {
+	return diefields.ListOf(d, subjectRulesReviewStatusFields.Get().ResourceRules)
 }
 
 // nonResourceRules is the list of actions the subject is allowed to perform on non-resources.
 // The list ordering isn't significant, may contain duplicates, and possibly be incomplete.
-func (d *SubjectRulesReviewStatusDie) NonResourceRules() diefields.Value[[]NonResourceRule] {
-	return diefields.ValueOf(d, subjectRulesReviewStatusFields.Get().NonResourceRules)
+func (d *SubjectRulesReviewStatusDie) NonResourceRules() *diefields.List[NonResourceRule, *NonResourceRuleDie] {
+	return diefields.ListOf(d, subjectRulesReviewStatusFields.Get().NonResourceRules)
 }
 
 // incomplete is true when the rules returned by this call are incomplete. This is most commonly
@@ -1465,14 +1465,14 @@ func (d *SubjectRulesReviewStatusDie) EvaluationError() diefields.Value[string] 
 
 // resourceRules is the list of actions the subject is allowed to perform on resources.
 // The list ordering isn't significant, may contain duplicates, and possibly be incomplete.
-func (d *SubjectRulesReviewStatusDieMut) ResourceRules() diefields.ValueMut[[]ResourceRule] {
-	return diefields.ValueMutOf(d, subjectRulesReviewStatusFields.Get().ResourceRules)
+func (d *SubjectRulesReviewStatusDieMut) ResourceRules() *diefields.ListMut[ResourceRule, *ResourceRuleDie, *ResourceRuleDieMut] {
+	return diefields.ListMutOf(d, subjectRulesReviewStatusFields.Get().ResourceRules)
 }
 
 // nonResourceRules is the list of actions the subject is allowed to perform on non-resources.
 // The list ordering isn't significant, may contain duplicates, and possibly be incomplete.
-func (d *SubjectRulesReviewStatusDieMut) NonResourceRules() diefields.ValueMut[[]NonResourceRule] {
-	return diefields.ValueMutOf(d, subjectRulesReviewStatusFields.Get().NonResourceRules)
+func (d *SubjectRulesReviewStatusDieMut) NonResourceRules() *diefields.ListMut[NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut] {
+	return diefields.ListMutOf(d, subjectRulesReviewStatusFields.Get().NonResourceRules)
 }
 
 // incomplete is true when the rules returned by this call are incomplete. This is most commonly

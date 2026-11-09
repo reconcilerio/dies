@@ -645,25 +645,25 @@ func (d *CompositePodGroupSchedulingConstraintsDieMut) DieStampApplyConfiguratio
 // +k8s:deepcopy-gen=false
 
 type compositePodGroupSchedulingConstraintsFieldsTable struct {
-	Topology diefields.Field[CompositePodGroupSchedulingConstraints, []TopologyConstraint]
+	Topology diefields.ListField[CompositePodGroupSchedulingConstraints, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]
 }
 
 var compositePodGroupSchedulingConstraintsFields = &diefields.Table[compositePodGroupSchedulingConstraintsFieldsTable]{Build: func() (f compositePodGroupSchedulingConstraintsFieldsTable) {
 	_ = annotated
-	f.Topology = diefields.NewItems[CompositePodGroupSchedulingConstraints, []TopologyConstraint, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]("topology")
+	f.Topology = diefields.NewList[CompositePodGroupSchedulingConstraints, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]("topology")
 	return
 }}
 
 // topology defines the topology constraints for the composite pod group.
 // Currently only a single topology constraint can be specified. This may change in the future.
-func (d *CompositePodGroupSchedulingConstraintsDie) Topology() diefields.Value[[]TopologyConstraint] {
-	return diefields.ValueOf(d, compositePodGroupSchedulingConstraintsFields.Get().Topology)
+func (d *CompositePodGroupSchedulingConstraintsDie) Topology() *diefields.List[TopologyConstraint, *TopologyConstraintDie] {
+	return diefields.ListOf(d, compositePodGroupSchedulingConstraintsFields.Get().Topology)
 }
 
 // topology defines the topology constraints for the composite pod group.
 // Currently only a single topology constraint can be specified. This may change in the future.
-func (d *CompositePodGroupSchedulingConstraintsDieMut) Topology() diefields.ValueMut[[]TopologyConstraint] {
-	return diefields.ValueMutOf(d, compositePodGroupSchedulingConstraintsFields.Get().Topology)
+func (d *CompositePodGroupSchedulingConstraintsDieMut) Topology() *diefields.ListMut[TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut] {
+	return diefields.ListMutOf(d, compositePodGroupSchedulingConstraintsFields.Get().Topology)
 }
 
 // +kubebuilder:object:generate=false
@@ -2105,25 +2105,25 @@ func (d *PodGroupSchedulingConstraintsDieMut) DieStampApplyConfiguration(fn func
 // +k8s:deepcopy-gen=false
 
 type podGroupSchedulingConstraintsFieldsTable struct {
-	Topology diefields.Field[PodGroupSchedulingConstraints, []TopologyConstraint]
+	Topology diefields.ListField[PodGroupSchedulingConstraints, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]
 }
 
 var podGroupSchedulingConstraintsFields = &diefields.Table[podGroupSchedulingConstraintsFieldsTable]{Build: func() (f podGroupSchedulingConstraintsFieldsTable) {
 	_ = annotated
-	f.Topology = diefields.NewItems[PodGroupSchedulingConstraints, []TopologyConstraint, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]("topology")
+	f.Topology = diefields.NewList[PodGroupSchedulingConstraints, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]("topology")
 	return
 }}
 
 // topology defines the topology constraints for the pod group.
 // Currently only a single topology constraint can be specified. This may change in the future.
-func (d *PodGroupSchedulingConstraintsDie) Topology() diefields.Value[[]TopologyConstraint] {
-	return diefields.ValueOf(d, podGroupSchedulingConstraintsFields.Get().Topology)
+func (d *PodGroupSchedulingConstraintsDie) Topology() *diefields.List[TopologyConstraint, *TopologyConstraintDie] {
+	return diefields.ListOf(d, podGroupSchedulingConstraintsFields.Get().Topology)
 }
 
 // topology defines the topology constraints for the pod group.
 // Currently only a single topology constraint can be specified. This may change in the future.
-func (d *PodGroupSchedulingConstraintsDieMut) Topology() diefields.ValueMut[[]TopologyConstraint] {
-	return diefields.ValueMutOf(d, podGroupSchedulingConstraintsFields.Get().Topology)
+func (d *PodGroupSchedulingConstraintsDieMut) Topology() *diefields.ListMut[TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut] {
+	return diefields.ListMutOf(d, podGroupSchedulingConstraintsFields.Get().Topology)
 }
 
 // +kubebuilder:object:generate=false
@@ -3597,27 +3597,27 @@ var WorkloadCompositePodGroupSchedulingConstraintsBlank = diebase.Blank[Workload
 // +k8s:deepcopy-gen=false
 
 type workloadCompositePodGroupSchedulingConstraintsFieldsTable struct {
-	Topology diefields.Field[WorkloadCompositePodGroupSchedulingConstraints, []TopologyConstraint]
+	Topology diefields.ListField[WorkloadCompositePodGroupSchedulingConstraints, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]
 }
 
 var workloadCompositePodGroupSchedulingConstraintsFields = &diefields.Table[workloadCompositePodGroupSchedulingConstraintsFieldsTable]{Build: func() (f workloadCompositePodGroupSchedulingConstraintsFieldsTable) {
 	_ = annotated
-	f.Topology = diefields.NewItems[WorkloadCompositePodGroupSchedulingConstraints, []TopologyConstraint, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]("topology")
+	f.Topology = diefields.NewList[WorkloadCompositePodGroupSchedulingConstraints, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]("topology")
 	return
 }}
 
 // topology specifies desired topological placements for all child groups
 // within the composite group.
 // If unset, no topology placement is requested.
-func (d *WorkloadCompositePodGroupSchedulingConstraintsDie) Topology() diefields.Value[[]TopologyConstraint] {
-	return diefields.ValueOf(d, workloadCompositePodGroupSchedulingConstraintsFields.Get().Topology)
+func (d *WorkloadCompositePodGroupSchedulingConstraintsDie) Topology() *diefields.List[TopologyConstraint, *TopologyConstraintDie] {
+	return diefields.ListOf(d, workloadCompositePodGroupSchedulingConstraintsFields.Get().Topology)
 }
 
 // topology specifies desired topological placements for all child groups
 // within the composite group.
 // If unset, no topology placement is requested.
-func (d *WorkloadCompositePodGroupSchedulingConstraintsDieMut) Topology() diefields.ValueMut[[]TopologyConstraint] {
-	return diefields.ValueMutOf(d, workloadCompositePodGroupSchedulingConstraintsFields.Get().Topology)
+func (d *WorkloadCompositePodGroupSchedulingConstraintsDieMut) Topology() *diefields.ListMut[TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut] {
+	return diefields.ListMutOf(d, workloadCompositePodGroupSchedulingConstraintsFields.Get().Topology)
 }
 
 // +kubebuilder:object:generate=false
@@ -4329,27 +4329,27 @@ func (d *WorkloadPodGroupSchedulingConstraintsDieMut) DieStampApplyConfiguration
 // +k8s:deepcopy-gen=false
 
 type workloadPodGroupSchedulingConstraintsFieldsTable struct {
-	Topology diefields.Field[WorkloadPodGroupSchedulingConstraints, []TopologyConstraint]
+	Topology diefields.ListField[WorkloadPodGroupSchedulingConstraints, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]
 }
 
 var workloadPodGroupSchedulingConstraintsFields = &diefields.Table[workloadPodGroupSchedulingConstraintsFieldsTable]{Build: func() (f workloadPodGroupSchedulingConstraintsFieldsTable) {
 	_ = annotated
-	f.Topology = diefields.NewItems[WorkloadPodGroupSchedulingConstraints, []TopologyConstraint, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]("topology")
+	f.Topology = diefields.NewList[WorkloadPodGroupSchedulingConstraints, TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]("topology")
 	return
 }}
 
 // topology specifies desired topological placements for all pods
 // within the pod group.
 // If unset, no topology placement is requested.
-func (d *WorkloadPodGroupSchedulingConstraintsDie) Topology() diefields.Value[[]TopologyConstraint] {
-	return diefields.ValueOf(d, workloadPodGroupSchedulingConstraintsFields.Get().Topology)
+func (d *WorkloadPodGroupSchedulingConstraintsDie) Topology() *diefields.List[TopologyConstraint, *TopologyConstraintDie] {
+	return diefields.ListOf(d, workloadPodGroupSchedulingConstraintsFields.Get().Topology)
 }
 
 // topology specifies desired topological placements for all pods
 // within the pod group.
 // If unset, no topology placement is requested.
-func (d *WorkloadPodGroupSchedulingConstraintsDieMut) Topology() diefields.ValueMut[[]TopologyConstraint] {
-	return diefields.ValueMutOf(d, workloadPodGroupSchedulingConstraintsFields.Get().Topology)
+func (d *WorkloadPodGroupSchedulingConstraintsDieMut) Topology() *diefields.ListMut[TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut] {
+	return diefields.ListMutOf(d, workloadPodGroupSchedulingConstraintsFields.Get().Topology)
 }
 
 // +kubebuilder:object:generate=false

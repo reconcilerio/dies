@@ -45,7 +45,7 @@ var diePackages = map[string]string{}
 func init() {
 	for pkg, names := range map[string][]string{
 		"base":    {"DieBase", "DieObjectBase", "DieTypedBase", "AsObject", "AsTyped", "DieMutBase", "DieObjectMutBase", "DieTypedMutBase", "AsObjectMut", "AsTypedMut", "Blank", "BlankOf", "DieOf", "DieMutOf"},
-		"fields":  {"DieTypedOf", "DieTypedMutOf", "DieObjectOf", "DieObjectMutOf", "Field", "NewField", "NewItems", "Struct", "NewStruct", "ListMapField", "NewListMap", "MapField", "NewMap", "Value", "ValueOf", "ValueMut", "ValueMutOf", "Optional", "OptionalOf", "OptionalMut", "OptionalMutOf", "Child", "ChildMut", "ListMap", "ListMapOf", "ListMapMut", "ListMapMutOf", "Map", "MapOf", "MapMut", "MapMutOf", "Table"},
+		"fields":  {"DieTypedOf", "DieTypedMutOf", "DieObjectOf", "DieObjectMutOf", "Field", "NewField", "Struct", "NewStruct", "ListMapField", "NewListMap", "MapField", "NewMap", "Value", "ValueOf", "ValueMut", "ValueMutOf", "Optional", "OptionalOf", "OptionalMut", "OptionalMutOf", "Child", "ChildMut", "ListMap", "ListMapOf", "ListMapMut", "ListMapMutOf", "Map", "MapOf", "MapMut", "MapMutOf", "ListField", "NewValueList", "ListOf", "ListMut", "ListMutOf", "Table"},
 		"lists":   {"List", "NewList", "DieListOf"},
 		"codegen": {"Register", "Package", "Annotate", "Object", "CheckManaged", "CheckList", "CheckRegistered", "CheckRegisteredCategories", "TypedBlank", "ReleaseApplyConfiguration", "MustReleaseApplyConfiguration", "FeedApplyConfiguration", "StampApplyConfiguration"},
 	} {

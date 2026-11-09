@@ -349,22 +349,22 @@ func (d *ImageReviewSpecDieMut) DieStampApplyConfiguration(fn func(ac *ImageRevi
 // +k8s:deepcopy-gen=false
 
 type imageReviewSpecFieldsTable struct {
-	Containers  diefields.Field[ImageReviewSpec, []ImageReviewContainerSpec]
+	Containers  diefields.ListField[ImageReviewSpec, ImageReviewContainerSpec, *ImageReviewContainerSpecDie, *ImageReviewContainerSpecDieMut]
 	Annotations diefields.MapField[ImageReviewSpec, string, string]
 	Namespace   diefields.Field[ImageReviewSpec, string]
 }
 
 var imageReviewSpecFields = &diefields.Table[imageReviewSpecFieldsTable]{Build: func() (f imageReviewSpecFieldsTable) {
 	_ = annotated
-	f.Containers = diefields.NewItems[ImageReviewSpec, []ImageReviewContainerSpec, ImageReviewContainerSpec, *ImageReviewContainerSpecDie, *ImageReviewContainerSpecDieMut]("containers")
+	f.Containers = diefields.NewList[ImageReviewSpec, ImageReviewContainerSpec, *ImageReviewContainerSpecDie, *ImageReviewContainerSpecDieMut]("containers")
 	f.Annotations = diefields.NewMap[ImageReviewSpec, string, string]("annotations")
 	f.Namespace = diefields.NewField[ImageReviewSpec, string]("namespace")
 	return
 }}
 
 // containers is a list of a subset of the information in each container of the Pod being created.
-func (d *ImageReviewSpecDie) Containers() diefields.Value[[]ImageReviewContainerSpec] {
-	return diefields.ValueOf(d, imageReviewSpecFields.Get().Containers)
+func (d *ImageReviewSpecDie) Containers() *diefields.List[ImageReviewContainerSpec, *ImageReviewContainerSpecDie] {
+	return diefields.ListOf(d, imageReviewSpecFields.Get().Containers)
 }
 
 // annotations is a list of key-value pairs extracted from the Pod's annotations.
@@ -380,8 +380,8 @@ func (d *ImageReviewSpecDie) Namespace() diefields.Value[string] {
 }
 
 // containers is a list of a subset of the information in each container of the Pod being created.
-func (d *ImageReviewSpecDieMut) Containers() diefields.ValueMut[[]ImageReviewContainerSpec] {
-	return diefields.ValueMutOf(d, imageReviewSpecFields.Get().Containers)
+func (d *ImageReviewSpecDieMut) Containers() *diefields.ListMut[ImageReviewContainerSpec, *ImageReviewContainerSpecDie, *ImageReviewContainerSpecDieMut] {
+	return diefields.ListMutOf(d, imageReviewSpecFields.Get().Containers)
 }
 
 // annotations is a list of key-value pairs extracted from the Pod's annotations.

@@ -228,7 +228,7 @@ var FieldErrorBlank = diebase.Blank[FieldError, *FieldErrorDie, *FieldErrorDieMu
 
 type fieldErrorFieldsTable struct {
 	Message diefields.Field[FieldError, string]
-	Paths   diefields.Field[FieldError, []string]
+	Paths   diefields.ListField[FieldError, string, diefields.Value[string], diefields.ValueMut[string]]
 	Level   diefields.Field[FieldError, DiagnosticLevel]
 	Details diefields.Field[FieldError, string]
 }
@@ -236,7 +236,7 @@ type fieldErrorFieldsTable struct {
 var fieldErrorFields = &diefields.Table[fieldErrorFieldsTable]{Build: func() (f fieldErrorFieldsTable) {
 	_ = annotated
 	f.Message = diefields.NewField[FieldError, string]("Message")
-	f.Paths = diefields.NewField[FieldError, []string]("Paths")
+	f.Paths = diefields.NewValueList[FieldError, string]("Paths")
 	f.Level = diefields.NewField[FieldError, DiagnosticLevel]("Level")
 	f.Details = diefields.NewField[FieldError, string]("Details")
 	return
@@ -248,8 +248,8 @@ func (d *FieldErrorDie) Message() diefields.Value[string] {
 }
 
 // Paths holds a list of paths to which this diagnostic pertains
-func (d *FieldErrorDie) Paths() diefields.Value[[]string] {
-	return diefields.ValueOf(d, fieldErrorFields.Get().Paths)
+func (d *FieldErrorDie) Paths() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, fieldErrorFields.Get().Paths)
 }
 
 // Level holds the severity of the diagnostic.
@@ -269,8 +269,8 @@ func (d *FieldErrorDieMut) Message() diefields.ValueMut[string] {
 }
 
 // Paths holds a list of paths to which this diagnostic pertains
-func (d *FieldErrorDieMut) Paths() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, fieldErrorFields.Get().Paths)
+func (d *FieldErrorDieMut) Paths() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, fieldErrorFields.Get().Paths)
 }
 
 // Level holds the severity of the diagnostic.

@@ -667,7 +667,7 @@ type flowSchemaSpecFieldsTable struct {
 	PriorityLevelConfiguration diefields.Struct[FlowSchemaSpec, PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie, *PriorityLevelConfigurationReferenceDieMut]
 	MatchingPrecedence         diefields.Field[FlowSchemaSpec, int32]
 	DistinguisherMethod        diefields.Struct[FlowSchemaSpec, FlowDistinguisherMethod, *FlowDistinguisherMethodDie, *FlowDistinguisherMethodDieMut]
-	Rules                      diefields.Field[FlowSchemaSpec, []PolicyRulesWithSubjects]
+	Rules                      diefields.ListField[FlowSchemaSpec, PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie, *PolicyRulesWithSubjectsDieMut]
 }
 
 var flowSchemaSpecFields = &diefields.Table[flowSchemaSpecFieldsTable]{Build: func() (f flowSchemaSpecFieldsTable) {
@@ -675,7 +675,7 @@ var flowSchemaSpecFields = &diefields.Table[flowSchemaSpecFieldsTable]{Build: fu
 	f.PriorityLevelConfiguration = diefields.NewStruct[FlowSchemaSpec, PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie, *PriorityLevelConfigurationReferenceDieMut]("priorityLevelConfiguration")
 	f.MatchingPrecedence = diefields.NewField[FlowSchemaSpec, int32]("matchingPrecedence")
 	f.DistinguisherMethod = diefields.NewStruct[FlowSchemaSpec, FlowDistinguisherMethod, *FlowDistinguisherMethodDie, *FlowDistinguisherMethodDieMut]("distinguisherMethod")
-	f.Rules = diefields.NewItems[FlowSchemaSpec, []PolicyRulesWithSubjects, PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie, *PolicyRulesWithSubjectsDieMut]("rules")
+	f.Rules = diefields.NewList[FlowSchemaSpec, PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie, *PolicyRulesWithSubjectsDieMut]("rules")
 	return
 }}
 
@@ -703,8 +703,8 @@ func (d *FlowSchemaSpecDie) DistinguisherMethod() *FlowDistinguisherMethodDie {
 // `rules` describes which requests will match this flow schema. This FlowSchema matches a request if and only if
 // at least one member of rules matches the request.
 // if it is an empty slice, there will be no requests matching the FlowSchema.
-func (d *FlowSchemaSpecDie) Rules() diefields.Value[[]PolicyRulesWithSubjects] {
-	return diefields.ValueOf(d, flowSchemaSpecFields.Get().Rules)
+func (d *FlowSchemaSpecDie) Rules() *diefields.List[PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie] {
+	return diefields.ListOf(d, flowSchemaSpecFields.Get().Rules)
 }
 
 // `priorityLevelConfiguration` should reference a PriorityLevelConfiguration in the cluster. If the reference cannot
@@ -731,8 +731,8 @@ func (d *FlowSchemaSpecDieMut) DistinguisherMethod() *FlowDistinguisherMethodDie
 // `rules` describes which requests will match this flow schema. This FlowSchema matches a request if and only if
 // at least one member of rules matches the request.
 // if it is an empty slice, there will be no requests matching the FlowSchema.
-func (d *FlowSchemaSpecDieMut) Rules() diefields.ValueMut[[]PolicyRulesWithSubjects] {
-	return diefields.ValueMutOf(d, flowSchemaSpecFields.Get().Rules)
+func (d *FlowSchemaSpecDieMut) Rules() *diefields.ListMut[PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie, *PolicyRulesWithSubjectsDieMut] {
+	return diefields.ListMutOf(d, flowSchemaSpecFields.Get().Rules)
 }
 
 // +kubebuilder:object:generate=false
@@ -1320,22 +1320,22 @@ func (d *NonResourcePolicyRuleDieMut) DieStampApplyConfiguration(fn func(ac *Non
 // +k8s:deepcopy-gen=false
 
 type nonResourcePolicyRuleFieldsTable struct {
-	Verbs           diefields.Field[NonResourcePolicyRule, []string]
-	NonResourceURLs diefields.Field[NonResourcePolicyRule, []string]
+	Verbs           diefields.ListField[NonResourcePolicyRule, string, diefields.Value[string], diefields.ValueMut[string]]
+	NonResourceURLs diefields.ListField[NonResourcePolicyRule, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var nonResourcePolicyRuleFields = &diefields.Table[nonResourcePolicyRuleFieldsTable]{Build: func() (f nonResourcePolicyRuleFieldsTable) {
 	_ = annotated
-	f.Verbs = diefields.NewField[NonResourcePolicyRule, []string]("verbs")
-	f.NonResourceURLs = diefields.NewField[NonResourcePolicyRule, []string]("nonResourceURLs")
+	f.Verbs = diefields.NewValueList[NonResourcePolicyRule, string]("verbs")
+	f.NonResourceURLs = diefields.NewValueList[NonResourcePolicyRule, string]("nonResourceURLs")
 	return
 }}
 
 // `verbs` is a list of matching verbs and may not be empty.
 // "*" matches all verbs. If it is present, it must be the only entry.
 // Required.
-func (d *NonResourcePolicyRuleDie) Verbs() diefields.Value[[]string] {
-	return diefields.ValueOf(d, nonResourcePolicyRuleFields.Get().Verbs)
+func (d *NonResourcePolicyRuleDie) Verbs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, nonResourcePolicyRuleFields.Get().Verbs)
 }
 
 // `nonResourceURLs` is a set of url prefixes that a user should have access to and may not be empty.
@@ -1348,15 +1348,15 @@ func (d *NonResourcePolicyRuleDie) Verbs() diefields.Value[[]string] {
 //
 // "*" matches all non-resource urls. if it is present, it must be the only entry.
 // Required.
-func (d *NonResourcePolicyRuleDie) NonResourceURLs() diefields.Value[[]string] {
-	return diefields.ValueOf(d, nonResourcePolicyRuleFields.Get().NonResourceURLs)
+func (d *NonResourcePolicyRuleDie) NonResourceURLs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, nonResourcePolicyRuleFields.Get().NonResourceURLs)
 }
 
 // `verbs` is a list of matching verbs and may not be empty.
 // "*" matches all verbs. If it is present, it must be the only entry.
 // Required.
-func (d *NonResourcePolicyRuleDieMut) Verbs() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, nonResourcePolicyRuleFields.Get().Verbs)
+func (d *NonResourcePolicyRuleDieMut) Verbs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, nonResourcePolicyRuleFields.Get().Verbs)
 }
 
 // `nonResourceURLs` is a set of url prefixes that a user should have access to and may not be empty.
@@ -1369,8 +1369,8 @@ func (d *NonResourcePolicyRuleDieMut) Verbs() diefields.ValueMut[[]string] {
 //
 // "*" matches all non-resource urls. if it is present, it must be the only entry.
 // Required.
-func (d *NonResourcePolicyRuleDieMut) NonResourceURLs() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, nonResourcePolicyRuleFields.Get().NonResourceURLs)
+func (d *NonResourcePolicyRuleDieMut) NonResourceURLs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, nonResourcePolicyRuleFields.Get().NonResourceURLs)
 }
 
 // +kubebuilder:object:generate=false
@@ -1448,16 +1448,16 @@ func (d *PolicyRulesWithSubjectsDieMut) DieStampApplyConfiguration(fn func(ac *P
 // +k8s:deepcopy-gen=false
 
 type policyRulesWithSubjectsFieldsTable struct {
-	Subjects         diefields.Field[PolicyRulesWithSubjects, []Subject]
-	ResourceRules    diefields.Field[PolicyRulesWithSubjects, []ResourcePolicyRule]
-	NonResourceRules diefields.Field[PolicyRulesWithSubjects, []NonResourcePolicyRule]
+	Subjects         diefields.ListField[PolicyRulesWithSubjects, Subject, *SubjectDie, *SubjectDieMut]
+	ResourceRules    diefields.ListField[PolicyRulesWithSubjects, ResourcePolicyRule, *ResourcePolicyRuleDie, *ResourcePolicyRuleDieMut]
+	NonResourceRules diefields.ListField[PolicyRulesWithSubjects, NonResourcePolicyRule, *NonResourcePolicyRuleDie, *NonResourcePolicyRuleDieMut]
 }
 
 var policyRulesWithSubjectsFields = &diefields.Table[policyRulesWithSubjectsFieldsTable]{Build: func() (f policyRulesWithSubjectsFieldsTable) {
 	_ = annotated
-	f.Subjects = diefields.NewItems[PolicyRulesWithSubjects, []Subject, Subject, *SubjectDie, *SubjectDieMut]("subjects")
-	f.ResourceRules = diefields.NewItems[PolicyRulesWithSubjects, []ResourcePolicyRule, ResourcePolicyRule, *ResourcePolicyRuleDie, *ResourcePolicyRuleDieMut]("resourceRules")
-	f.NonResourceRules = diefields.NewItems[PolicyRulesWithSubjects, []NonResourcePolicyRule, NonResourcePolicyRule, *NonResourcePolicyRuleDie, *NonResourcePolicyRuleDieMut]("nonResourceRules")
+	f.Subjects = diefields.NewList[PolicyRulesWithSubjects, Subject, *SubjectDie, *SubjectDieMut]("subjects")
+	f.ResourceRules = diefields.NewList[PolicyRulesWithSubjects, ResourcePolicyRule, *ResourcePolicyRuleDie, *ResourcePolicyRuleDieMut]("resourceRules")
+	f.NonResourceRules = diefields.NewList[PolicyRulesWithSubjects, NonResourcePolicyRule, *NonResourcePolicyRuleDie, *NonResourcePolicyRuleDieMut]("nonResourceRules")
 	return
 }}
 
@@ -1465,42 +1465,42 @@ var policyRulesWithSubjectsFields = &diefields.Table[policyRulesWithSubjectsFiel
 // There must be at least one member in this slice.
 // A slice that includes both the system:authenticated and system:unauthenticated user groups matches every request.
 // Required.
-func (d *PolicyRulesWithSubjectsDie) Subjects() diefields.Value[[]Subject] {
-	return diefields.ValueOf(d, policyRulesWithSubjectsFields.Get().Subjects)
+func (d *PolicyRulesWithSubjectsDie) Subjects() *diefields.List[Subject, *SubjectDie] {
+	return diefields.ListOf(d, policyRulesWithSubjectsFields.Get().Subjects)
 }
 
 // `resourceRules` is a slice of ResourcePolicyRules that identify matching requests according to their verb and the
 // target resource.
 // At least one of `resourceRules` and `nonResourceRules` has to be non-empty.
-func (d *PolicyRulesWithSubjectsDie) ResourceRules() diefields.Value[[]ResourcePolicyRule] {
-	return diefields.ValueOf(d, policyRulesWithSubjectsFields.Get().ResourceRules)
+func (d *PolicyRulesWithSubjectsDie) ResourceRules() *diefields.List[ResourcePolicyRule, *ResourcePolicyRuleDie] {
+	return diefields.ListOf(d, policyRulesWithSubjectsFields.Get().ResourceRules)
 }
 
 // `nonResourceRules` is a list of NonResourcePolicyRules that identify matching requests according to their verb
 // and the target non-resource URL.
-func (d *PolicyRulesWithSubjectsDie) NonResourceRules() diefields.Value[[]NonResourcePolicyRule] {
-	return diefields.ValueOf(d, policyRulesWithSubjectsFields.Get().NonResourceRules)
+func (d *PolicyRulesWithSubjectsDie) NonResourceRules() *diefields.List[NonResourcePolicyRule, *NonResourcePolicyRuleDie] {
+	return diefields.ListOf(d, policyRulesWithSubjectsFields.Get().NonResourceRules)
 }
 
 // subjects is the list of normal user, serviceaccount, or group that this rule cares about.
 // There must be at least one member in this slice.
 // A slice that includes both the system:authenticated and system:unauthenticated user groups matches every request.
 // Required.
-func (d *PolicyRulesWithSubjectsDieMut) Subjects() diefields.ValueMut[[]Subject] {
-	return diefields.ValueMutOf(d, policyRulesWithSubjectsFields.Get().Subjects)
+func (d *PolicyRulesWithSubjectsDieMut) Subjects() *diefields.ListMut[Subject, *SubjectDie, *SubjectDieMut] {
+	return diefields.ListMutOf(d, policyRulesWithSubjectsFields.Get().Subjects)
 }
 
 // `resourceRules` is a slice of ResourcePolicyRules that identify matching requests according to their verb and the
 // target resource.
 // At least one of `resourceRules` and `nonResourceRules` has to be non-empty.
-func (d *PolicyRulesWithSubjectsDieMut) ResourceRules() diefields.ValueMut[[]ResourcePolicyRule] {
-	return diefields.ValueMutOf(d, policyRulesWithSubjectsFields.Get().ResourceRules)
+func (d *PolicyRulesWithSubjectsDieMut) ResourceRules() *diefields.ListMut[ResourcePolicyRule, *ResourcePolicyRuleDie, *ResourcePolicyRuleDieMut] {
+	return diefields.ListMutOf(d, policyRulesWithSubjectsFields.Get().ResourceRules)
 }
 
 // `nonResourceRules` is a list of NonResourcePolicyRules that identify matching requests according to their verb
 // and the target non-resource URL.
-func (d *PolicyRulesWithSubjectsDieMut) NonResourceRules() diefields.ValueMut[[]NonResourcePolicyRule] {
-	return diefields.ValueMutOf(d, policyRulesWithSubjectsFields.Get().NonResourceRules)
+func (d *PolicyRulesWithSubjectsDieMut) NonResourceRules() *diefields.ListMut[NonResourcePolicyRule, *NonResourcePolicyRuleDie, *NonResourcePolicyRuleDieMut] {
+	return diefields.ListMutOf(d, policyRulesWithSubjectsFields.Get().NonResourceRules)
 }
 
 // +kubebuilder:object:generate=false
@@ -2381,35 +2381,35 @@ func (d *ResourcePolicyRuleDieMut) DieStampApplyConfiguration(fn func(ac *Resour
 // +k8s:deepcopy-gen=false
 
 type resourcePolicyRuleFieldsTable struct {
-	Verbs        diefields.Field[ResourcePolicyRule, []string]
-	APIGroups    diefields.Field[ResourcePolicyRule, []string]
-	Resources    diefields.Field[ResourcePolicyRule, []string]
+	Verbs        diefields.ListField[ResourcePolicyRule, string, diefields.Value[string], diefields.ValueMut[string]]
+	APIGroups    diefields.ListField[ResourcePolicyRule, string, diefields.Value[string], diefields.ValueMut[string]]
+	Resources    diefields.ListField[ResourcePolicyRule, string, diefields.Value[string], diefields.ValueMut[string]]
 	ClusterScope diefields.Field[ResourcePolicyRule, bool]
-	Namespaces   diefields.Field[ResourcePolicyRule, []string]
+	Namespaces   diefields.ListField[ResourcePolicyRule, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var resourcePolicyRuleFields = &diefields.Table[resourcePolicyRuleFieldsTable]{Build: func() (f resourcePolicyRuleFieldsTable) {
 	_ = annotated
-	f.Verbs = diefields.NewField[ResourcePolicyRule, []string]("verbs")
-	f.APIGroups = diefields.NewField[ResourcePolicyRule, []string]("apiGroups")
-	f.Resources = diefields.NewField[ResourcePolicyRule, []string]("resources")
+	f.Verbs = diefields.NewValueList[ResourcePolicyRule, string]("verbs")
+	f.APIGroups = diefields.NewValueList[ResourcePolicyRule, string]("apiGroups")
+	f.Resources = diefields.NewValueList[ResourcePolicyRule, string]("resources")
 	f.ClusterScope = diefields.NewField[ResourcePolicyRule, bool]("clusterScope")
-	f.Namespaces = diefields.NewField[ResourcePolicyRule, []string]("namespaces")
+	f.Namespaces = diefields.NewValueList[ResourcePolicyRule, string]("namespaces")
 	return
 }}
 
 // `verbs` is a list of matching verbs and may not be empty.
 // "*" matches all verbs and, if present, must be the only entry.
 // Required.
-func (d *ResourcePolicyRuleDie) Verbs() diefields.Value[[]string] {
-	return diefields.ValueOf(d, resourcePolicyRuleFields.Get().Verbs)
+func (d *ResourcePolicyRuleDie) Verbs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, resourcePolicyRuleFields.Get().Verbs)
 }
 
 // `apiGroups` is a list of matching API groups and may not be empty.
 // "*" matches all API groups and, if present, must be the only entry.
 // Required.
-func (d *ResourcePolicyRuleDie) APIGroups() diefields.Value[[]string] {
-	return diefields.ValueOf(d, resourcePolicyRuleFields.Get().APIGroups)
+func (d *ResourcePolicyRuleDie) APIGroups() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, resourcePolicyRuleFields.Get().APIGroups)
 }
 
 // `resources` is a list of matching resources (i.e., lowercase
@@ -2417,8 +2417,8 @@ func (d *ResourcePolicyRuleDie) APIGroups() diefields.Value[[]string] {
 // "services", "nodes/status" ].  This list may not be empty.
 // "*" matches all resources and, if present, must be the only entry.
 // Required.
-func (d *ResourcePolicyRuleDie) Resources() diefields.Value[[]string] {
-	return diefields.ValueOf(d, resourcePolicyRuleFields.Get().Resources)
+func (d *ResourcePolicyRuleDie) Resources() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, resourcePolicyRuleFields.Get().Resources)
 }
 
 // `clusterScope` indicates whether to match requests that do not
@@ -2438,22 +2438,22 @@ func (d *ResourcePolicyRuleDie) ClusterScope() diefields.Value[bool] {
 // not specify_ a namespace (see the `clusterScope` field for
 // that).
 // This list may be empty, but only if `clusterScope` is true.
-func (d *ResourcePolicyRuleDie) Namespaces() diefields.Value[[]string] {
-	return diefields.ValueOf(d, resourcePolicyRuleFields.Get().Namespaces)
+func (d *ResourcePolicyRuleDie) Namespaces() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, resourcePolicyRuleFields.Get().Namespaces)
 }
 
 // `verbs` is a list of matching verbs and may not be empty.
 // "*" matches all verbs and, if present, must be the only entry.
 // Required.
-func (d *ResourcePolicyRuleDieMut) Verbs() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, resourcePolicyRuleFields.Get().Verbs)
+func (d *ResourcePolicyRuleDieMut) Verbs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, resourcePolicyRuleFields.Get().Verbs)
 }
 
 // `apiGroups` is a list of matching API groups and may not be empty.
 // "*" matches all API groups and, if present, must be the only entry.
 // Required.
-func (d *ResourcePolicyRuleDieMut) APIGroups() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, resourcePolicyRuleFields.Get().APIGroups)
+func (d *ResourcePolicyRuleDieMut) APIGroups() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, resourcePolicyRuleFields.Get().APIGroups)
 }
 
 // `resources` is a list of matching resources (i.e., lowercase
@@ -2461,8 +2461,8 @@ func (d *ResourcePolicyRuleDieMut) APIGroups() diefields.ValueMut[[]string] {
 // "services", "nodes/status" ].  This list may not be empty.
 // "*" matches all resources and, if present, must be the only entry.
 // Required.
-func (d *ResourcePolicyRuleDieMut) Resources() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, resourcePolicyRuleFields.Get().Resources)
+func (d *ResourcePolicyRuleDieMut) Resources() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, resourcePolicyRuleFields.Get().Resources)
 }
 
 // `clusterScope` indicates whether to match requests that do not
@@ -2482,8 +2482,8 @@ func (d *ResourcePolicyRuleDieMut) ClusterScope() diefields.ValueMut[bool] {
 // not specify_ a namespace (see the `clusterScope` field for
 // that).
 // This list may be empty, but only if `clusterScope` is true.
-func (d *ResourcePolicyRuleDieMut) Namespaces() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, resourcePolicyRuleFields.Get().Namespaces)
+func (d *ResourcePolicyRuleDieMut) Namespaces() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, resourcePolicyRuleFields.Get().Namespaces)
 }
 
 // +kubebuilder:object:generate=false

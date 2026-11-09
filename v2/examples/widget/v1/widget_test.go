@@ -102,7 +102,7 @@ func TestHandWrittenMethod(t *testing.T) {
 func TestEmbeddedTypeFromAnotherDiePackage(t *testing.T) {
 	w := widgetv1.WidgetBlank.DieStamp(func(d *widgetv1.WidgetDieMut) {
 		dietesting.NoError(t, d.Spec().Gadget().Label().Set("knob"))
-		dietesting.NoError(t, d.Spec().Gadget().Parts().Set([]gadgetv1.GadgetPart{{Name: "a"}, {Name: "b"}}))
+		dietesting.NoError(t, d.Spec().Gadget().Parts().SetValue([]gadgetv1.GadgetPart{{Name: "a"}, {Name: "b"}}...))
 	})
 	for _, f := range base.ManagedFields[widgetv1.WidgetGadget]() {
 		if f.Wire == "parts" && f.Kind != base.FieldValue {

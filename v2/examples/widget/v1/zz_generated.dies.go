@@ -319,13 +319,13 @@ var WidgetGadgetBlank = diebase.Blank[WidgetGadget, *WidgetGadgetDie, *WidgetGad
 
 type widgetGadgetFieldsTable struct {
 	Label diefields.Field[WidgetGadget, string]
-	Parts diefields.Field[WidgetGadget, []gadgetv1.GadgetPart]
+	Parts diefields.ListField[WidgetGadget, gadgetv1.GadgetPart, *gadgetv1.GadgetPartDie, *gadgetv1.GadgetPartDieMut]
 }
 
 var widgetGadgetFields = &diefields.Table[widgetGadgetFieldsTable]{Build: func() (f widgetGadgetFieldsTable) {
 	_ = annotated
 	f.Label = diefields.NewField[WidgetGadget, string]("label")
-	f.Parts = diefields.NewItems[WidgetGadget, []gadgetv1.GadgetPart, gadgetv1.GadgetPart, *gadgetv1.GadgetPartDie, *gadgetv1.GadgetPartDieMut]("parts")
+	f.Parts = diefields.NewList[WidgetGadget, gadgetv1.GadgetPart, *gadgetv1.GadgetPartDie, *gadgetv1.GadgetPartDieMut]("parts")
 	return
 }}
 
@@ -333,16 +333,16 @@ func (d *WidgetGadgetDie) Label() diefields.Value[string] {
 	return diefields.ValueOf(d, widgetGadgetFields.Get().Label)
 }
 
-func (d *WidgetGadgetDie) Parts() diefields.Value[[]gadgetv1.GadgetPart] {
-	return diefields.ValueOf(d, widgetGadgetFields.Get().Parts)
+func (d *WidgetGadgetDie) Parts() *diefields.List[gadgetv1.GadgetPart, *gadgetv1.GadgetPartDie] {
+	return diefields.ListOf(d, widgetGadgetFields.Get().Parts)
 }
 
 func (d *WidgetGadgetDieMut) Label() diefields.ValueMut[string] {
 	return diefields.ValueMutOf(d, widgetGadgetFields.Get().Label)
 }
 
-func (d *WidgetGadgetDieMut) Parts() diefields.ValueMut[[]gadgetv1.GadgetPart] {
-	return diefields.ValueMutOf(d, widgetGadgetFields.Get().Parts)
+func (d *WidgetGadgetDieMut) Parts() *diefields.ListMut[gadgetv1.GadgetPart, *gadgetv1.GadgetPartDie, *gadgetv1.GadgetPartDieMut] {
+	return diefields.ListMutOf(d, widgetGadgetFields.Get().Parts)
 }
 
 // +kubebuilder:object:generate=false

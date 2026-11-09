@@ -262,23 +262,23 @@ func (d *HTTPIngressRuleValueDieMut) DieStampApplyConfiguration(fn func(ac *HTTP
 // +k8s:deepcopy-gen=false
 
 type hTTPIngressRuleValueFieldsTable struct {
-	Paths diefields.Field[HTTPIngressRuleValue, []HTTPIngressPath]
+	Paths diefields.ListField[HTTPIngressRuleValue, HTTPIngressPath, *HTTPIngressPathDie, *HTTPIngressPathDieMut]
 }
 
 var hTTPIngressRuleValueFields = &diefields.Table[hTTPIngressRuleValueFieldsTable]{Build: func() (f hTTPIngressRuleValueFieldsTable) {
 	_ = annotated
-	f.Paths = diefields.NewItems[HTTPIngressRuleValue, []HTTPIngressPath, HTTPIngressPath, *HTTPIngressPathDie, *HTTPIngressPathDieMut]("paths")
+	f.Paths = diefields.NewList[HTTPIngressRuleValue, HTTPIngressPath, *HTTPIngressPathDie, *HTTPIngressPathDieMut]("paths")
 	return
 }}
 
 // paths is a collection of paths that map requests to backends.
-func (d *HTTPIngressRuleValueDie) Paths() diefields.Value[[]HTTPIngressPath] {
-	return diefields.ValueOf(d, hTTPIngressRuleValueFields.Get().Paths)
+func (d *HTTPIngressRuleValueDie) Paths() *diefields.List[HTTPIngressPath, *HTTPIngressPathDie] {
+	return diefields.ListOf(d, hTTPIngressRuleValueFields.Get().Paths)
 }
 
 // paths is a collection of paths that map requests to backends.
-func (d *HTTPIngressRuleValueDieMut) Paths() diefields.ValueMut[[]HTTPIngressPath] {
-	return diefields.ValueMutOf(d, hTTPIngressRuleValueFields.Get().Paths)
+func (d *HTTPIngressRuleValueDieMut) Paths() *diefields.ListMut[HTTPIngressPath, *HTTPIngressPathDie, *HTTPIngressPathDieMut] {
+	return diefields.ListMutOf(d, hTTPIngressRuleValueFields.Get().Paths)
 }
 
 // +kubebuilder:object:generate=false
@@ -618,13 +618,13 @@ func (d *IPBlockDieMut) DieStampApplyConfiguration(fn func(ac *IPBlockApplyConfi
 
 type iPBlockFieldsTable struct {
 	CIDR   diefields.Field[IPBlock, string]
-	Except diefields.Field[IPBlock, []string]
+	Except diefields.ListField[IPBlock, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var iPBlockFields = &diefields.Table[iPBlockFieldsTable]{Build: func() (f iPBlockFieldsTable) {
 	_ = annotated
 	f.CIDR = diefields.NewField[IPBlock, string]("cidr")
-	f.Except = diefields.NewField[IPBlock, []string]("except")
+	f.Except = diefields.NewValueList[IPBlock, string]("except")
 	return
 }}
 
@@ -637,8 +637,8 @@ func (d *IPBlockDie) CIDR() diefields.Value[string] {
 // except is a slice of CIDRs that should not be included within an IPBlock
 // Valid examples are "192.168.1.0/24" or "2001:db8::/64"
 // Except values will be rejected if they are outside the cidr range
-func (d *IPBlockDie) Except() diefields.Value[[]string] {
-	return diefields.ValueOf(d, iPBlockFields.Get().Except)
+func (d *IPBlockDie) Except() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, iPBlockFields.Get().Except)
 }
 
 // cidr is a string representing the IPBlock
@@ -650,8 +650,8 @@ func (d *IPBlockDieMut) CIDR() diefields.ValueMut[string] {
 // except is a slice of CIDRs that should not be included within an IPBlock
 // Valid examples are "192.168.1.0/24" or "2001:db8::/64"
 // Except values will be rejected if they are outside the cidr range
-func (d *IPBlockDieMut) Except() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, iPBlockFields.Get().Except)
+func (d *IPBlockDieMut) Except() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, iPBlockFields.Get().Except)
 }
 
 // +kubebuilder:object:generate=false
@@ -1453,14 +1453,14 @@ func (d *IngressLoadBalancerIngressDieMut) DieStampApplyConfiguration(fn func(ac
 type ingressLoadBalancerIngressFieldsTable struct {
 	IP       diefields.Field[IngressLoadBalancerIngress, string]
 	Hostname diefields.Field[IngressLoadBalancerIngress, string]
-	Ports    diefields.Field[IngressLoadBalancerIngress, []IngressPortStatus]
+	Ports    diefields.ListField[IngressLoadBalancerIngress, IngressPortStatus, *IngressPortStatusDie, *IngressPortStatusDieMut]
 }
 
 var ingressLoadBalancerIngressFields = &diefields.Table[ingressLoadBalancerIngressFieldsTable]{Build: func() (f ingressLoadBalancerIngressFieldsTable) {
 	_ = annotated
 	f.IP = diefields.NewField[IngressLoadBalancerIngress, string]("ip")
 	f.Hostname = diefields.NewField[IngressLoadBalancerIngress, string]("hostname")
-	f.Ports = diefields.NewItems[IngressLoadBalancerIngress, []IngressPortStatus, IngressPortStatus, *IngressPortStatusDie, *IngressPortStatusDieMut]("ports")
+	f.Ports = diefields.NewList[IngressLoadBalancerIngress, IngressPortStatus, *IngressPortStatusDie, *IngressPortStatusDieMut]("ports")
 	return
 }}
 
@@ -1475,8 +1475,8 @@ func (d *IngressLoadBalancerIngressDie) Hostname() diefields.Value[string] {
 }
 
 // ports provides information about the ports exposed by this LoadBalancer.
-func (d *IngressLoadBalancerIngressDie) Ports() diefields.Value[[]IngressPortStatus] {
-	return diefields.ValueOf(d, ingressLoadBalancerIngressFields.Get().Ports)
+func (d *IngressLoadBalancerIngressDie) Ports() *diefields.List[IngressPortStatus, *IngressPortStatusDie] {
+	return diefields.ListOf(d, ingressLoadBalancerIngressFields.Get().Ports)
 }
 
 // ip is set for load-balancer ingress points that are IP based.
@@ -1490,8 +1490,8 @@ func (d *IngressLoadBalancerIngressDieMut) Hostname() diefields.ValueMut[string]
 }
 
 // ports provides information about the ports exposed by this LoadBalancer.
-func (d *IngressLoadBalancerIngressDieMut) Ports() diefields.ValueMut[[]IngressPortStatus] {
-	return diefields.ValueMutOf(d, ingressLoadBalancerIngressFields.Get().Ports)
+func (d *IngressLoadBalancerIngressDieMut) Ports() *diefields.ListMut[IngressPortStatus, *IngressPortStatusDie, *IngressPortStatusDieMut] {
+	return diefields.ListMutOf(d, ingressLoadBalancerIngressFields.Get().Ports)
 }
 
 // +kubebuilder:object:generate=false
@@ -1566,23 +1566,23 @@ func (d *IngressLoadBalancerStatusDieMut) DieStampApplyConfiguration(fn func(ac 
 // +k8s:deepcopy-gen=false
 
 type ingressLoadBalancerStatusFieldsTable struct {
-	Ingress diefields.Field[IngressLoadBalancerStatus, []IngressLoadBalancerIngress]
+	Ingress diefields.ListField[IngressLoadBalancerStatus, IngressLoadBalancerIngress, *IngressLoadBalancerIngressDie, *IngressLoadBalancerIngressDieMut]
 }
 
 var ingressLoadBalancerStatusFields = &diefields.Table[ingressLoadBalancerStatusFieldsTable]{Build: func() (f ingressLoadBalancerStatusFieldsTable) {
 	_ = annotated
-	f.Ingress = diefields.NewItems[IngressLoadBalancerStatus, []IngressLoadBalancerIngress, IngressLoadBalancerIngress, *IngressLoadBalancerIngressDie, *IngressLoadBalancerIngressDieMut]("ingress")
+	f.Ingress = diefields.NewList[IngressLoadBalancerStatus, IngressLoadBalancerIngress, *IngressLoadBalancerIngressDie, *IngressLoadBalancerIngressDieMut]("ingress")
 	return
 }}
 
 // ingress is a list containing ingress points for the load-balancer.
-func (d *IngressLoadBalancerStatusDie) Ingress() diefields.Value[[]IngressLoadBalancerIngress] {
-	return diefields.ValueOf(d, ingressLoadBalancerStatusFields.Get().Ingress)
+func (d *IngressLoadBalancerStatusDie) Ingress() *diefields.List[IngressLoadBalancerIngress, *IngressLoadBalancerIngressDie] {
+	return diefields.ListOf(d, ingressLoadBalancerStatusFields.Get().Ingress)
 }
 
 // ingress is a list containing ingress points for the load-balancer.
-func (d *IngressLoadBalancerStatusDieMut) Ingress() diefields.ValueMut[[]IngressLoadBalancerIngress] {
-	return diefields.ValueMutOf(d, ingressLoadBalancerStatusFields.Get().Ingress)
+func (d *IngressLoadBalancerStatusDieMut) Ingress() *diefields.ListMut[IngressLoadBalancerIngress, *IngressLoadBalancerIngressDie, *IngressLoadBalancerIngressDieMut] {
+	return diefields.ListMutOf(d, ingressLoadBalancerStatusFields.Get().Ingress)
 }
 
 // +kubebuilder:object:generate=false
@@ -2142,16 +2142,16 @@ func (d *IngressSpecDieMut) DieStampApplyConfiguration(fn func(ac *IngressSpecAp
 type ingressSpecFieldsTable struct {
 	IngressClassName diefields.Field[IngressSpec, *string]
 	DefaultBackend   diefields.Struct[IngressSpec, IngressBackend, *IngressBackendDie, *IngressBackendDieMut]
-	TLS              diefields.Field[IngressSpec, []IngressTLS]
-	Rules            diefields.Field[IngressSpec, []IngressRule]
+	TLS              diefields.ListField[IngressSpec, IngressTLS, *IngressTLSDie, *IngressTLSDieMut]
+	Rules            diefields.ListField[IngressSpec, IngressRule, *IngressRuleDie, *IngressRuleDieMut]
 }
 
 var ingressSpecFields = &diefields.Table[ingressSpecFieldsTable]{Build: func() (f ingressSpecFieldsTable) {
 	_ = annotated
 	f.IngressClassName = diefields.NewField[IngressSpec, *string]("ingressClassName")
 	f.DefaultBackend = diefields.NewStruct[IngressSpec, IngressBackend, *IngressBackendDie, *IngressBackendDieMut]("defaultBackend")
-	f.TLS = diefields.NewItems[IngressSpec, []IngressTLS, IngressTLS, *IngressTLSDie, *IngressTLSDieMut]("tls")
-	f.Rules = diefields.NewItems[IngressSpec, []IngressRule, IngressRule, *IngressRuleDie, *IngressRuleDieMut]("rules")
+	f.TLS = diefields.NewList[IngressSpec, IngressTLS, *IngressTLSDie, *IngressTLSDieMut]("tls")
+	f.Rules = diefields.NewList[IngressSpec, IngressRule, *IngressRuleDie, *IngressRuleDieMut]("rules")
 	return
 }}
 
@@ -2182,14 +2182,14 @@ func (d *IngressSpecDie) DefaultBackend() *IngressBackendDie {
 // they will be multiplexed on the same port according to the hostname specified
 // through the SNI TLS extension, if the ingress controller fulfilling the
 // ingress supports SNI.
-func (d *IngressSpecDie) TLS() diefields.Value[[]IngressTLS] {
-	return diefields.ValueOf(d, ingressSpecFields.Get().TLS)
+func (d *IngressSpecDie) TLS() *diefields.List[IngressTLS, *IngressTLSDie] {
+	return diefields.ListOf(d, ingressSpecFields.Get().TLS)
 }
 
 // rules is a list of host rules used to configure the Ingress. If unspecified,
 // or no rule matches, all traffic is sent to the default backend.
-func (d *IngressSpecDie) Rules() diefields.Value[[]IngressRule] {
-	return diefields.ValueOf(d, ingressSpecFields.Get().Rules)
+func (d *IngressSpecDie) Rules() *diefields.List[IngressRule, *IngressRuleDie] {
+	return diefields.ListOf(d, ingressSpecFields.Get().Rules)
 }
 
 // ingressClassName is the name of an IngressClass cluster resource. Ingress
@@ -2219,14 +2219,14 @@ func (d *IngressSpecDieMut) DefaultBackend() *IngressBackendDieMut {
 // they will be multiplexed on the same port according to the hostname specified
 // through the SNI TLS extension, if the ingress controller fulfilling the
 // ingress supports SNI.
-func (d *IngressSpecDieMut) TLS() diefields.ValueMut[[]IngressTLS] {
-	return diefields.ValueMutOf(d, ingressSpecFields.Get().TLS)
+func (d *IngressSpecDieMut) TLS() *diefields.ListMut[IngressTLS, *IngressTLSDie, *IngressTLSDieMut] {
+	return diefields.ListMutOf(d, ingressSpecFields.Get().TLS)
 }
 
 // rules is a list of host rules used to configure the Ingress. If unspecified,
 // or no rule matches, all traffic is sent to the default backend.
-func (d *IngressSpecDieMut) Rules() diefields.ValueMut[[]IngressRule] {
-	return diefields.ValueMutOf(d, ingressSpecFields.Get().Rules)
+func (d *IngressSpecDieMut) Rules() *diefields.ListMut[IngressRule, *IngressRuleDie, *IngressRuleDieMut] {
+	return diefields.ListMutOf(d, ingressSpecFields.Get().Rules)
 }
 
 // +kubebuilder:object:generate=false
@@ -2392,13 +2392,13 @@ func (d *IngressTLSDieMut) DieStampApplyConfiguration(fn func(ac *IngressTLSAppl
 // +k8s:deepcopy-gen=false
 
 type ingressTLSFieldsTable struct {
-	Hosts      diefields.Field[IngressTLS, []string]
+	Hosts      diefields.ListField[IngressTLS, string, diefields.Value[string], diefields.ValueMut[string]]
 	SecretName diefields.Field[IngressTLS, string]
 }
 
 var ingressTLSFields = &diefields.Table[ingressTLSFieldsTable]{Build: func() (f ingressTLSFieldsTable) {
 	_ = annotated
-	f.Hosts = diefields.NewField[IngressTLS, []string]("hosts")
+	f.Hosts = diefields.NewValueList[IngressTLS, string]("hosts")
 	f.SecretName = diefields.NewField[IngressTLS, string]("secretName")
 	return
 }}
@@ -2407,8 +2407,8 @@ var ingressTLSFields = &diefields.Table[ingressTLSFieldsTable]{Build: func() (f 
 // this list must match the name/s used in the tlsSecret. Defaults to the
 // wildcard host setting for the loadbalancer controller fulfilling this
 // Ingress, if left unspecified.
-func (d *IngressTLSDie) Hosts() diefields.Value[[]string] {
-	return diefields.ValueOf(d, ingressTLSFields.Get().Hosts)
+func (d *IngressTLSDie) Hosts() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, ingressTLSFields.Get().Hosts)
 }
 
 // secretName is the name of the secret used to terminate TLS traffic on
@@ -2424,8 +2424,8 @@ func (d *IngressTLSDie) SecretName() diefields.Value[string] {
 // this list must match the name/s used in the tlsSecret. Defaults to the
 // wildcard host setting for the loadbalancer controller fulfilling this
 // Ingress, if left unspecified.
-func (d *IngressTLSDieMut) Hosts() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, ingressTLSFields.Get().Hosts)
+func (d *IngressTLSDieMut) Hosts() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, ingressTLSFields.Get().Hosts)
 }
 
 // secretName is the name of the secret used to terminate TLS traffic on
@@ -2654,14 +2654,14 @@ func (d *NetworkPolicyEgressRuleDieMut) DieStampApplyConfiguration(fn func(ac *N
 // +k8s:deepcopy-gen=false
 
 type networkPolicyEgressRuleFieldsTable struct {
-	Ports diefields.Field[NetworkPolicyEgressRule, []NetworkPolicyPort]
-	To    diefields.Field[NetworkPolicyEgressRule, []NetworkPolicyPeer]
+	Ports diefields.ListField[NetworkPolicyEgressRule, NetworkPolicyPort, *NetworkPolicyPortDie, *NetworkPolicyPortDieMut]
+	To    diefields.ListField[NetworkPolicyEgressRule, NetworkPolicyPeer, *NetworkPolicyPeerDie, *NetworkPolicyPeerDieMut]
 }
 
 var networkPolicyEgressRuleFields = &diefields.Table[networkPolicyEgressRuleFieldsTable]{Build: func() (f networkPolicyEgressRuleFieldsTable) {
 	_ = annotated
-	f.Ports = diefields.NewItems[NetworkPolicyEgressRule, []NetworkPolicyPort, NetworkPolicyPort, *NetworkPolicyPortDie, *NetworkPolicyPortDieMut]("ports")
-	f.To = diefields.NewItems[NetworkPolicyEgressRule, []NetworkPolicyPeer, NetworkPolicyPeer, *NetworkPolicyPeerDie, *NetworkPolicyPeerDieMut]("to")
+	f.Ports = diefields.NewList[NetworkPolicyEgressRule, NetworkPolicyPort, *NetworkPolicyPortDie, *NetworkPolicyPortDieMut]("ports")
+	f.To = diefields.NewList[NetworkPolicyEgressRule, NetworkPolicyPeer, *NetworkPolicyPeerDie, *NetworkPolicyPeerDieMut]("to")
 	return
 }}
 
@@ -2670,8 +2670,8 @@ var networkPolicyEgressRuleFields = &diefields.Table[networkPolicyEgressRuleFiel
 // empty or missing, this rule matches all ports (traffic not restricted by port).
 // If this field is present and contains at least one item, then this rule allows
 // traffic only if the traffic matches at least one port in the list.
-func (d *NetworkPolicyEgressRuleDie) Ports() diefields.Value[[]NetworkPolicyPort] {
-	return diefields.ValueOf(d, networkPolicyEgressRuleFields.Get().Ports)
+func (d *NetworkPolicyEgressRuleDie) Ports() *diefields.List[NetworkPolicyPort, *NetworkPolicyPortDie] {
+	return diefields.ListOf(d, networkPolicyEgressRuleFields.Get().Ports)
 }
 
 // to is a list of destinations for outgoing traffic of pods selected for this rule.
@@ -2679,8 +2679,8 @@ func (d *NetworkPolicyEgressRuleDie) Ports() diefields.Value[[]NetworkPolicyPort
 // empty or missing, this rule matches all destinations (traffic not restricted by
 // destination). If this field is present and contains at least one item, this rule
 // allows traffic only if the traffic matches at least one item in the to list.
-func (d *NetworkPolicyEgressRuleDie) To() diefields.Value[[]NetworkPolicyPeer] {
-	return diefields.ValueOf(d, networkPolicyEgressRuleFields.Get().To)
+func (d *NetworkPolicyEgressRuleDie) To() *diefields.List[NetworkPolicyPeer, *NetworkPolicyPeerDie] {
+	return diefields.ListOf(d, networkPolicyEgressRuleFields.Get().To)
 }
 
 // ports is a list of destination ports for outgoing traffic.
@@ -2688,8 +2688,8 @@ func (d *NetworkPolicyEgressRuleDie) To() diefields.Value[[]NetworkPolicyPeer] {
 // empty or missing, this rule matches all ports (traffic not restricted by port).
 // If this field is present and contains at least one item, then this rule allows
 // traffic only if the traffic matches at least one port in the list.
-func (d *NetworkPolicyEgressRuleDieMut) Ports() diefields.ValueMut[[]NetworkPolicyPort] {
-	return diefields.ValueMutOf(d, networkPolicyEgressRuleFields.Get().Ports)
+func (d *NetworkPolicyEgressRuleDieMut) Ports() *diefields.ListMut[NetworkPolicyPort, *NetworkPolicyPortDie, *NetworkPolicyPortDieMut] {
+	return diefields.ListMutOf(d, networkPolicyEgressRuleFields.Get().Ports)
 }
 
 // to is a list of destinations for outgoing traffic of pods selected for this rule.
@@ -2697,8 +2697,8 @@ func (d *NetworkPolicyEgressRuleDieMut) Ports() diefields.ValueMut[[]NetworkPoli
 // empty or missing, this rule matches all destinations (traffic not restricted by
 // destination). If this field is present and contains at least one item, this rule
 // allows traffic only if the traffic matches at least one item in the to list.
-func (d *NetworkPolicyEgressRuleDieMut) To() diefields.ValueMut[[]NetworkPolicyPeer] {
-	return diefields.ValueMutOf(d, networkPolicyEgressRuleFields.Get().To)
+func (d *NetworkPolicyEgressRuleDieMut) To() *diefields.ListMut[NetworkPolicyPeer, *NetworkPolicyPeerDie, *NetworkPolicyPeerDieMut] {
+	return diefields.ListMutOf(d, networkPolicyEgressRuleFields.Get().To)
 }
 
 // +kubebuilder:object:generate=false
@@ -2774,14 +2774,14 @@ func (d *NetworkPolicyIngressRuleDieMut) DieStampApplyConfiguration(fn func(ac *
 // +k8s:deepcopy-gen=false
 
 type networkPolicyIngressRuleFieldsTable struct {
-	Ports diefields.Field[NetworkPolicyIngressRule, []NetworkPolicyPort]
-	From  diefields.Field[NetworkPolicyIngressRule, []NetworkPolicyPeer]
+	Ports diefields.ListField[NetworkPolicyIngressRule, NetworkPolicyPort, *NetworkPolicyPortDie, *NetworkPolicyPortDieMut]
+	From  diefields.ListField[NetworkPolicyIngressRule, NetworkPolicyPeer, *NetworkPolicyPeerDie, *NetworkPolicyPeerDieMut]
 }
 
 var networkPolicyIngressRuleFields = &diefields.Table[networkPolicyIngressRuleFieldsTable]{Build: func() (f networkPolicyIngressRuleFieldsTable) {
 	_ = annotated
-	f.Ports = diefields.NewItems[NetworkPolicyIngressRule, []NetworkPolicyPort, NetworkPolicyPort, *NetworkPolicyPortDie, *NetworkPolicyPortDieMut]("ports")
-	f.From = diefields.NewItems[NetworkPolicyIngressRule, []NetworkPolicyPeer, NetworkPolicyPeer, *NetworkPolicyPeerDie, *NetworkPolicyPeerDieMut]("from")
+	f.Ports = diefields.NewList[NetworkPolicyIngressRule, NetworkPolicyPort, *NetworkPolicyPortDie, *NetworkPolicyPortDieMut]("ports")
+	f.From = diefields.NewList[NetworkPolicyIngressRule, NetworkPolicyPeer, *NetworkPolicyPeerDie, *NetworkPolicyPeerDieMut]("from")
 	return
 }}
 
@@ -2790,8 +2790,8 @@ var networkPolicyIngressRuleFields = &diefields.Table[networkPolicyIngressRuleFi
 // empty or missing, this rule matches all ports (traffic not restricted by port).
 // If this field is present and contains at least one item, then this rule allows
 // traffic only if the traffic matches at least one port in the list.
-func (d *NetworkPolicyIngressRuleDie) Ports() diefields.Value[[]NetworkPolicyPort] {
-	return diefields.ValueOf(d, networkPolicyIngressRuleFields.Get().Ports)
+func (d *NetworkPolicyIngressRuleDie) Ports() *diefields.List[NetworkPolicyPort, *NetworkPolicyPortDie] {
+	return diefields.ListOf(d, networkPolicyIngressRuleFields.Get().Ports)
 }
 
 // from is a list of sources which should be able to access the pods selected for this rule.
@@ -2799,8 +2799,8 @@ func (d *NetworkPolicyIngressRuleDie) Ports() diefields.Value[[]NetworkPolicyPor
 // empty or missing, this rule matches all sources (traffic not restricted by
 // source). If this field is present and contains at least one item, this rule
 // allows traffic only if the traffic matches at least one item in the from list.
-func (d *NetworkPolicyIngressRuleDie) From() diefields.Value[[]NetworkPolicyPeer] {
-	return diefields.ValueOf(d, networkPolicyIngressRuleFields.Get().From)
+func (d *NetworkPolicyIngressRuleDie) From() *diefields.List[NetworkPolicyPeer, *NetworkPolicyPeerDie] {
+	return diefields.ListOf(d, networkPolicyIngressRuleFields.Get().From)
 }
 
 // ports is a list of ports which should be made accessible on the pods selected for
@@ -2808,8 +2808,8 @@ func (d *NetworkPolicyIngressRuleDie) From() diefields.Value[[]NetworkPolicyPeer
 // empty or missing, this rule matches all ports (traffic not restricted by port).
 // If this field is present and contains at least one item, then this rule allows
 // traffic only if the traffic matches at least one port in the list.
-func (d *NetworkPolicyIngressRuleDieMut) Ports() diefields.ValueMut[[]NetworkPolicyPort] {
-	return diefields.ValueMutOf(d, networkPolicyIngressRuleFields.Get().Ports)
+func (d *NetworkPolicyIngressRuleDieMut) Ports() *diefields.ListMut[NetworkPolicyPort, *NetworkPolicyPortDie, *NetworkPolicyPortDieMut] {
+	return diefields.ListMutOf(d, networkPolicyIngressRuleFields.Get().Ports)
 }
 
 // from is a list of sources which should be able to access the pods selected for this rule.
@@ -2817,8 +2817,8 @@ func (d *NetworkPolicyIngressRuleDieMut) Ports() diefields.ValueMut[[]NetworkPol
 // empty or missing, this rule matches all sources (traffic not restricted by
 // source). If this field is present and contains at least one item, this rule
 // allows traffic only if the traffic matches at least one item in the from list.
-func (d *NetworkPolicyIngressRuleDieMut) From() diefields.ValueMut[[]NetworkPolicyPeer] {
-	return diefields.ValueMutOf(d, networkPolicyIngressRuleFields.Get().From)
+func (d *NetworkPolicyIngressRuleDieMut) From() *diefields.ListMut[NetworkPolicyPeer, *NetworkPolicyPeerDie, *NetworkPolicyPeerDieMut] {
+	return diefields.ListMutOf(d, networkPolicyIngressRuleFields.Get().From)
 }
 
 // +kubebuilder:object:generate=false
@@ -3181,17 +3181,17 @@ func (d *NetworkPolicySpecDieMut) DieStampApplyConfiguration(fn func(ac *Network
 
 type networkPolicySpecFieldsTable struct {
 	PodSelector diefields.Struct[NetworkPolicySpec, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
-	Ingress     diefields.Field[NetworkPolicySpec, []NetworkPolicyIngressRule]
-	Egress      diefields.Field[NetworkPolicySpec, []NetworkPolicyEgressRule]
-	PolicyTypes diefields.Field[NetworkPolicySpec, []PolicyType]
+	Ingress     diefields.ListField[NetworkPolicySpec, NetworkPolicyIngressRule, *NetworkPolicyIngressRuleDie, *NetworkPolicyIngressRuleDieMut]
+	Egress      diefields.ListField[NetworkPolicySpec, NetworkPolicyEgressRule, *NetworkPolicyEgressRuleDie, *NetworkPolicyEgressRuleDieMut]
+	PolicyTypes diefields.ListField[NetworkPolicySpec, PolicyType, diefields.Value[PolicyType], diefields.ValueMut[PolicyType]]
 }
 
 var networkPolicySpecFields = &diefields.Table[networkPolicySpecFieldsTable]{Build: func() (f networkPolicySpecFieldsTable) {
 	_ = annotated
 	f.PodSelector = diefields.NewStruct[NetworkPolicySpec, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("podSelector")
-	f.Ingress = diefields.NewItems[NetworkPolicySpec, []NetworkPolicyIngressRule, NetworkPolicyIngressRule, *NetworkPolicyIngressRuleDie, *NetworkPolicyIngressRuleDieMut]("ingress")
-	f.Egress = diefields.NewItems[NetworkPolicySpec, []NetworkPolicyEgressRule, NetworkPolicyEgressRule, *NetworkPolicyEgressRuleDie, *NetworkPolicyEgressRuleDieMut]("egress")
-	f.PolicyTypes = diefields.NewField[NetworkPolicySpec, []PolicyType]("policyTypes")
+	f.Ingress = diefields.NewList[NetworkPolicySpec, NetworkPolicyIngressRule, *NetworkPolicyIngressRuleDie, *NetworkPolicyIngressRuleDieMut]("ingress")
+	f.Egress = diefields.NewList[NetworkPolicySpec, NetworkPolicyEgressRule, *NetworkPolicyEgressRuleDie, *NetworkPolicyEgressRuleDieMut]("egress")
+	f.PolicyTypes = diefields.NewValueList[NetworkPolicySpec, PolicyType]("policyTypes")
 	return
 }}
 
@@ -3212,8 +3212,8 @@ func (d *NetworkPolicySpecDie) PodSelector() *diemetav1.LabelSelectorDie {
 // across all of the NetworkPolicy objects whose podSelector matches the pod. If
 // this field is empty then this NetworkPolicy does not allow any traffic (and serves
 // solely to ensure that the pods it selects are isolated by default)
-func (d *NetworkPolicySpecDie) Ingress() diefields.Value[[]NetworkPolicyIngressRule] {
-	return diefields.ValueOf(d, networkPolicySpecFields.Get().Ingress)
+func (d *NetworkPolicySpecDie) Ingress() *diefields.List[NetworkPolicyIngressRule, *NetworkPolicyIngressRuleDie] {
+	return diefields.ListOf(d, networkPolicySpecFields.Get().Ingress)
 }
 
 // egress is a list of egress rules to be applied to the selected pods. Outgoing traffic
@@ -3223,8 +3223,8 @@ func (d *NetworkPolicySpecDie) Ingress() diefields.Value[[]NetworkPolicyIngressR
 // this field is empty then this NetworkPolicy limits all outgoing traffic (and serves
 // solely to ensure that the pods it selects are isolated by default).
 // This field is beta-level in 1.8
-func (d *NetworkPolicySpecDie) Egress() diefields.Value[[]NetworkPolicyEgressRule] {
-	return diefields.ValueOf(d, networkPolicySpecFields.Get().Egress)
+func (d *NetworkPolicySpecDie) Egress() *diefields.List[NetworkPolicyEgressRule, *NetworkPolicyEgressRuleDie] {
+	return diefields.ListOf(d, networkPolicySpecFields.Get().Egress)
 }
 
 // policyTypes is a list of rule types that the NetworkPolicy relates to.
@@ -3237,8 +3237,8 @@ func (d *NetworkPolicySpecDie) Egress() diefields.Value[[]NetworkPolicyEgressRul
 // you must specify a policyTypes value that include "Egress" (since such a policy would not include
 // an egress section and would otherwise default to just [ "Ingress" ]).
 // This field is beta-level in 1.8
-func (d *NetworkPolicySpecDie) PolicyTypes() diefields.Value[[]PolicyType] {
-	return diefields.ValueOf(d, networkPolicySpecFields.Get().PolicyTypes)
+func (d *NetworkPolicySpecDie) PolicyTypes() *diefields.List[PolicyType, diefields.Value[PolicyType]] {
+	return diefields.ListOf(d, networkPolicySpecFields.Get().PolicyTypes)
 }
 
 // podSelector selects the pods to which this NetworkPolicy object applies.
@@ -3258,8 +3258,8 @@ func (d *NetworkPolicySpecDieMut) PodSelector() *diemetav1.LabelSelectorDieMut {
 // across all of the NetworkPolicy objects whose podSelector matches the pod. If
 // this field is empty then this NetworkPolicy does not allow any traffic (and serves
 // solely to ensure that the pods it selects are isolated by default)
-func (d *NetworkPolicySpecDieMut) Ingress() diefields.ValueMut[[]NetworkPolicyIngressRule] {
-	return diefields.ValueMutOf(d, networkPolicySpecFields.Get().Ingress)
+func (d *NetworkPolicySpecDieMut) Ingress() *diefields.ListMut[NetworkPolicyIngressRule, *NetworkPolicyIngressRuleDie, *NetworkPolicyIngressRuleDieMut] {
+	return diefields.ListMutOf(d, networkPolicySpecFields.Get().Ingress)
 }
 
 // egress is a list of egress rules to be applied to the selected pods. Outgoing traffic
@@ -3269,8 +3269,8 @@ func (d *NetworkPolicySpecDieMut) Ingress() diefields.ValueMut[[]NetworkPolicyIn
 // this field is empty then this NetworkPolicy limits all outgoing traffic (and serves
 // solely to ensure that the pods it selects are isolated by default).
 // This field is beta-level in 1.8
-func (d *NetworkPolicySpecDieMut) Egress() diefields.ValueMut[[]NetworkPolicyEgressRule] {
-	return diefields.ValueMutOf(d, networkPolicySpecFields.Get().Egress)
+func (d *NetworkPolicySpecDieMut) Egress() *diefields.ListMut[NetworkPolicyEgressRule, *NetworkPolicyEgressRuleDie, *NetworkPolicyEgressRuleDieMut] {
+	return diefields.ListMutOf(d, networkPolicySpecFields.Get().Egress)
 }
 
 // policyTypes is a list of rule types that the NetworkPolicy relates to.
@@ -3283,8 +3283,8 @@ func (d *NetworkPolicySpecDieMut) Egress() diefields.ValueMut[[]NetworkPolicyEgr
 // you must specify a policyTypes value that include "Egress" (since such a policy would not include
 // an egress section and would otherwise default to just [ "Ingress" ]).
 // This field is beta-level in 1.8
-func (d *NetworkPolicySpecDieMut) PolicyTypes() diefields.ValueMut[[]PolicyType] {
-	return diefields.ValueMutOf(d, networkPolicySpecFields.Get().PolicyTypes)
+func (d *NetworkPolicySpecDieMut) PolicyTypes() *diefields.ListMut[PolicyType, diefields.Value[PolicyType], diefields.ValueMut[PolicyType]] {
+	return diefields.ListMutOf(d, networkPolicySpecFields.Get().PolicyTypes)
 }
 
 // +kubebuilder:object:generate=false
@@ -3771,27 +3771,27 @@ func (d *ServiceCIDRSpecDieMut) DieStampApplyConfiguration(fn func(ac *ServiceCI
 // +k8s:deepcopy-gen=false
 
 type serviceCIDRSpecFieldsTable struct {
-	CIDRs diefields.Field[ServiceCIDRSpec, []string]
+	CIDRs diefields.ListField[ServiceCIDRSpec, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var serviceCIDRSpecFields = &diefields.Table[serviceCIDRSpecFieldsTable]{Build: func() (f serviceCIDRSpecFieldsTable) {
 	_ = annotated
-	f.CIDRs = diefields.NewField[ServiceCIDRSpec, []string]("cidrs")
+	f.CIDRs = diefields.NewValueList[ServiceCIDRSpec, string]("cidrs")
 	return
 }}
 
 // cidrs defines the IP blocks in CIDR notation (e.g. "192.168.0.0/24" or "2001:db8::/64")
 // from which to assign service cluster IPs. Max of two CIDRs is allowed, one of each IP family.
 // This field is immutable.
-func (d *ServiceCIDRSpecDie) CIDRs() diefields.Value[[]string] {
-	return diefields.ValueOf(d, serviceCIDRSpecFields.Get().CIDRs)
+func (d *ServiceCIDRSpecDie) CIDRs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, serviceCIDRSpecFields.Get().CIDRs)
 }
 
 // cidrs defines the IP blocks in CIDR notation (e.g. "192.168.0.0/24" or "2001:db8::/64")
 // from which to assign service cluster IPs. Max of two CIDRs is allowed, one of each IP family.
 // This field is immutable.
-func (d *ServiceCIDRSpecDieMut) CIDRs() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, serviceCIDRSpecFields.Get().CIDRs)
+func (d *ServiceCIDRSpecDieMut) CIDRs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, serviceCIDRSpecFields.Get().CIDRs)
 }
 
 // +kubebuilder:object:generate=false

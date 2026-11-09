@@ -801,7 +801,7 @@ func (d *HPAScalingRulesDieMut) DieStampApplyConfiguration(fn func(ac *HPAScalin
 type hPAScalingRulesFieldsTable struct {
 	StabilizationWindowSeconds diefields.Field[HPAScalingRules, *int32]
 	SelectPolicy               diefields.Field[HPAScalingRules, *ScalingPolicySelect]
-	Policies                   diefields.Field[HPAScalingRules, []HPAScalingPolicy]
+	Policies                   diefields.ListField[HPAScalingRules, HPAScalingPolicy, *HPAScalingPolicyDie, *HPAScalingPolicyDieMut]
 	Tolerance                  diefields.Field[HPAScalingRules, *resource.Quantity]
 }
 
@@ -809,7 +809,7 @@ var hPAScalingRulesFields = &diefields.Table[hPAScalingRulesFieldsTable]{Build: 
 	_ = annotated
 	f.StabilizationWindowSeconds = diefields.NewField[HPAScalingRules, *int32]("stabilizationWindowSeconds")
 	f.SelectPolicy = diefields.NewField[HPAScalingRules, *ScalingPolicySelect]("selectPolicy")
-	f.Policies = diefields.NewItems[HPAScalingRules, []HPAScalingPolicy, HPAScalingPolicy, *HPAScalingPolicyDie, *HPAScalingPolicyDieMut]("policies")
+	f.Policies = diefields.NewList[HPAScalingRules, HPAScalingPolicy, *HPAScalingPolicyDie, *HPAScalingPolicyDieMut]("policies")
 	f.Tolerance = diefields.NewField[HPAScalingRules, *resource.Quantity]("tolerance")
 	return
 }}
@@ -834,8 +834,8 @@ func (d *HPAScalingRulesDie) SelectPolicy() diefields.Optional[ScalingPolicySele
 // If not set, use the default values:
 // - For scale up: allow doubling the number of pods, or an absolute change of 4 pods in a 15s window.
 // - For scale down: allow all pods to be removed in a 15s window.
-func (d *HPAScalingRulesDie) Policies() diefields.Value[[]HPAScalingPolicy] {
-	return diefields.ValueOf(d, hPAScalingRulesFields.Get().Policies)
+func (d *HPAScalingRulesDie) Policies() *diefields.List[HPAScalingPolicy, *HPAScalingPolicyDie] {
+	return diefields.ListOf(d, hPAScalingRulesFields.Get().Policies)
 }
 
 // tolerance is the tolerance on the ratio between the current and desired
@@ -870,8 +870,8 @@ func (d *HPAScalingRulesDieMut) SelectPolicy() diefields.OptionalMut[ScalingPoli
 // If not set, use the default values:
 // - For scale up: allow doubling the number of pods, or an absolute change of 4 pods in a 15s window.
 // - For scale down: allow all pods to be removed in a 15s window.
-func (d *HPAScalingRulesDieMut) Policies() diefields.ValueMut[[]HPAScalingPolicy] {
-	return diefields.ValueMutOf(d, hPAScalingRulesFields.Get().Policies)
+func (d *HPAScalingRulesDieMut) Policies() *diefields.ListMut[HPAScalingPolicy, *HPAScalingPolicyDie, *HPAScalingPolicyDieMut] {
+	return diefields.ListMutOf(d, hPAScalingRulesFields.Get().Policies)
 }
 
 // tolerance is the tolerance on the ratio between the current and desired
@@ -1420,7 +1420,7 @@ type horizontalPodAutoscalerSpecFieldsTable struct {
 	ScaleTargetRef diefields.Struct[HorizontalPodAutoscalerSpec, CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]
 	MinReplicas    diefields.Field[HorizontalPodAutoscalerSpec, *int32]
 	MaxReplicas    diefields.Field[HorizontalPodAutoscalerSpec, int32]
-	Metrics        diefields.Field[HorizontalPodAutoscalerSpec, []MetricSpec]
+	Metrics        diefields.ListField[HorizontalPodAutoscalerSpec, MetricSpec, *MetricSpecDie, *MetricSpecDieMut]
 	Behavior       diefields.Struct[HorizontalPodAutoscalerSpec, HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie, *HorizontalPodAutoscalerBehaviorDieMut]
 }
 
@@ -1429,7 +1429,7 @@ var horizontalPodAutoscalerSpecFields = &diefields.Table[horizontalPodAutoscaler
 	f.ScaleTargetRef = diefields.NewStruct[HorizontalPodAutoscalerSpec, CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]("scaleTargetRef")
 	f.MinReplicas = diefields.NewField[HorizontalPodAutoscalerSpec, *int32]("minReplicas")
 	f.MaxReplicas = diefields.NewField[HorizontalPodAutoscalerSpec, int32]("maxReplicas")
-	f.Metrics = diefields.NewItems[HorizontalPodAutoscalerSpec, []MetricSpec, MetricSpec, *MetricSpecDie, *MetricSpecDieMut]("metrics")
+	f.Metrics = diefields.NewList[HorizontalPodAutoscalerSpec, MetricSpec, *MetricSpecDie, *MetricSpecDieMut]("metrics")
 	f.Behavior = diefields.NewStruct[HorizontalPodAutoscalerSpec, HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie, *HorizontalPodAutoscalerBehaviorDieMut]("behavior")
 	return
 }}
@@ -1463,8 +1463,8 @@ func (d *HorizontalPodAutoscalerSpecDie) MaxReplicas() diefields.Value[int32] {
 // increased, and vice-versa.  See the individual metric source types for
 // more information about how each type of metric must respond.
 // If not set, the default metric will be set to 80% average CPU utilization.
-func (d *HorizontalPodAutoscalerSpecDie) Metrics() diefields.Value[[]MetricSpec] {
-	return diefields.ValueOf(d, horizontalPodAutoscalerSpecFields.Get().Metrics)
+func (d *HorizontalPodAutoscalerSpecDie) Metrics() *diefields.List[MetricSpec, *MetricSpecDie] {
+	return diefields.ListOf(d, horizontalPodAutoscalerSpecFields.Get().Metrics)
 }
 
 // behavior configures the scaling behavior of the target
@@ -1503,8 +1503,8 @@ func (d *HorizontalPodAutoscalerSpecDieMut) MaxReplicas() diefields.ValueMut[int
 // increased, and vice-versa.  See the individual metric source types for
 // more information about how each type of metric must respond.
 // If not set, the default metric will be set to 80% average CPU utilization.
-func (d *HorizontalPodAutoscalerSpecDieMut) Metrics() diefields.ValueMut[[]MetricSpec] {
-	return diefields.ValueMutOf(d, horizontalPodAutoscalerSpecFields.Get().Metrics)
+func (d *HorizontalPodAutoscalerSpecDieMut) Metrics() *diefields.ListMut[MetricSpec, *MetricSpecDie, *MetricSpecDieMut] {
+	return diefields.ListMutOf(d, horizontalPodAutoscalerSpecFields.Get().Metrics)
 }
 
 // behavior configures the scaling behavior of the target
@@ -1590,7 +1590,7 @@ type horizontalPodAutoscalerStatusFieldsTable struct {
 	LastScaleTime      diefields.Field[HorizontalPodAutoscalerStatus, *diemetav1.Time]
 	CurrentReplicas    diefields.Field[HorizontalPodAutoscalerStatus, int32]
 	DesiredReplicas    diefields.Field[HorizontalPodAutoscalerStatus, int32]
-	CurrentMetrics     diefields.Field[HorizontalPodAutoscalerStatus, []MetricStatus]
+	CurrentMetrics     diefields.ListField[HorizontalPodAutoscalerStatus, MetricStatus, *MetricStatusDie, *MetricStatusDieMut]
 	Conditions         diefields.ListMapField[HorizontalPodAutoscalerStatus, HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut, HorizontalPodAutoscalerConditionType]
 }
 
@@ -1600,7 +1600,7 @@ var horizontalPodAutoscalerStatusFields = &diefields.Table[horizontalPodAutoscal
 	f.LastScaleTime = diefields.NewField[HorizontalPodAutoscalerStatus, *diemetav1.Time]("lastScaleTime")
 	f.CurrentReplicas = diefields.NewField[HorizontalPodAutoscalerStatus, int32]("currentReplicas")
 	f.DesiredReplicas = diefields.NewField[HorizontalPodAutoscalerStatus, int32]("desiredReplicas")
-	f.CurrentMetrics = diefields.NewItems[HorizontalPodAutoscalerStatus, []MetricStatus, MetricStatus, *MetricStatusDie, *MetricStatusDieMut]("currentMetrics")
+	f.CurrentMetrics = diefields.NewList[HorizontalPodAutoscalerStatus, MetricStatus, *MetricStatusDie, *MetricStatusDieMut]("currentMetrics")
 	f.Conditions = diefields.NewListMap[HorizontalPodAutoscalerStatus, HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]("conditions", func(k HorizontalPodAutoscalerConditionType) []any { return []any{k} }, func(e HorizontalPodAutoscalerCondition) HorizontalPodAutoscalerConditionType { return e.Type })
 	return
 }}
@@ -1629,8 +1629,8 @@ func (d *HorizontalPodAutoscalerStatusDie) DesiredReplicas() diefields.Value[int
 }
 
 // currentMetrics is the last read state of the metrics used by this autoscaler.
-func (d *HorizontalPodAutoscalerStatusDie) CurrentMetrics() diefields.Value[[]MetricStatus] {
-	return diefields.ValueOf(d, horizontalPodAutoscalerStatusFields.Get().CurrentMetrics)
+func (d *HorizontalPodAutoscalerStatusDie) CurrentMetrics() *diefields.List[MetricStatus, *MetricStatusDie] {
+	return diefields.ListOf(d, horizontalPodAutoscalerStatusFields.Get().CurrentMetrics)
 }
 
 // conditions is the set of conditions required for this autoscaler to scale its target,
@@ -1663,8 +1663,8 @@ func (d *HorizontalPodAutoscalerStatusDieMut) DesiredReplicas() diefields.ValueM
 }
 
 // currentMetrics is the last read state of the metrics used by this autoscaler.
-func (d *HorizontalPodAutoscalerStatusDieMut) CurrentMetrics() diefields.ValueMut[[]MetricStatus] {
-	return diefields.ValueMutOf(d, horizontalPodAutoscalerStatusFields.Get().CurrentMetrics)
+func (d *HorizontalPodAutoscalerStatusDieMut) CurrentMetrics() *diefields.ListMut[MetricStatus, *MetricStatusDie, *MetricStatusDieMut] {
+	return diefields.ListMutOf(d, horizontalPodAutoscalerStatusFields.Get().CurrentMetrics)
 }
 
 // conditions is the set of conditions required for this autoscaler to scale its target,

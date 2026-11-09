@@ -71,13 +71,13 @@ var AddressStatusBlank = diebase.Blank[AddressStatus, *AddressStatusDie, *Addres
 
 type addressStatusFieldsTable struct {
 	Address   diefields.Struct[AddressStatus, Addressable, *AddressableDie, *AddressableDieMut]
-	Addresses diefields.Field[AddressStatus, []Addressable]
+	Addresses diefields.ListField[AddressStatus, Addressable, *AddressableDie, *AddressableDieMut]
 }
 
 var addressStatusFields = &diefields.Table[addressStatusFieldsTable]{Build: func() (f addressStatusFieldsTable) {
 	_ = annotated
 	f.Address = diefields.NewStruct[AddressStatus, Addressable, *AddressableDie, *AddressableDieMut]("address")
-	f.Addresses = diefields.NewItems[AddressStatus, []Addressable, Addressable, *AddressableDie, *AddressableDieMut]("addresses")
+	f.Addresses = diefields.NewList[AddressStatus, Addressable, *AddressableDie, *AddressableDieMut]("addresses")
 	return
 }}
 
@@ -89,8 +89,8 @@ func (d *AddressStatusDie) Address() *AddressableDie {
 
 // Addresses is a list of addresses for different protocols (HTTP and HTTPS)
 // If Addresses is present, Address must be ignored by clients.
-func (d *AddressStatusDie) Addresses() diefields.Value[[]Addressable] {
-	return diefields.ValueOf(d, addressStatusFields.Get().Addresses)
+func (d *AddressStatusDie) Addresses() *diefields.List[Addressable, *AddressableDie] {
+	return diefields.ListOf(d, addressStatusFields.Get().Addresses)
 }
 
 // Address is a single Addressable address.
@@ -101,8 +101,8 @@ func (d *AddressStatusDieMut) Address() *AddressableDieMut {
 
 // Addresses is a list of addresses for different protocols (HTTP and HTTPS)
 // If Addresses is present, Address must be ignored by clients.
-func (d *AddressStatusDieMut) Addresses() diefields.ValueMut[[]Addressable] {
-	return diefields.ValueMutOf(d, addressStatusFields.Get().Addresses)
+func (d *AddressStatusDieMut) Addresses() *diefields.ListMut[Addressable, *AddressableDie, *AddressableDieMut] {
+	return diefields.ListMutOf(d, addressStatusFields.Get().Addresses)
 }
 
 // +kubebuilder:object:generate=false
@@ -354,13 +354,13 @@ var AuthStatusBlank = diebase.Blank[AuthStatus, *AuthStatusDie, *AuthStatusDieMu
 
 type authStatusFieldsTable struct {
 	ServiceAccountName  diefields.Field[AuthStatus, *string]
-	ServiceAccountNames diefields.Field[AuthStatus, []string]
+	ServiceAccountNames diefields.ListField[AuthStatus, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var authStatusFields = &diefields.Table[authStatusFieldsTable]{Build: func() (f authStatusFieldsTable) {
 	_ = annotated
 	f.ServiceAccountName = diefields.NewField[AuthStatus, *string]("serviceAccountName")
-	f.ServiceAccountNames = diefields.NewField[AuthStatus, []string]("serviceAccountNames")
+	f.ServiceAccountNames = diefields.NewValueList[AuthStatus, string]("serviceAccountNames")
 	return
 }}
 
@@ -373,8 +373,8 @@ func (d *AuthStatusDie) ServiceAccountName() diefields.Optional[string] {
 // ServiceAccountNames is the list of names of the generated service accounts
 // used for this components OIDC authentication. This list can have len() > 1,
 // when the component uses multiple identities (e.g. in case of a Parallel).
-func (d *AuthStatusDie) ServiceAccountNames() diefields.Value[[]string] {
-	return diefields.ValueOf(d, authStatusFields.Get().ServiceAccountNames)
+func (d *AuthStatusDie) ServiceAccountNames() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, authStatusFields.Get().ServiceAccountNames)
 }
 
 // ServiceAccountName is the name of the generated service account
@@ -386,8 +386,8 @@ func (d *AuthStatusDieMut) ServiceAccountName() diefields.OptionalMut[string] {
 // ServiceAccountNames is the list of names of the generated service accounts
 // used for this components OIDC authentication. This list can have len() > 1,
 // when the component uses multiple identities (e.g. in case of a Parallel).
-func (d *AuthStatusDieMut) ServiceAccountNames() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, authStatusFields.Get().ServiceAccountNames)
+func (d *AuthStatusDieMut) ServiceAccountNames() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, authStatusFields.Get().ServiceAccountNames)
 }
 
 // +kubebuilder:object:generate=false
@@ -1717,10 +1717,10 @@ var SourceStatusBlank = diebase.Blank[SourceStatus, *SourceStatusDie, *SourceSta
 
 type sourceStatusFieldsTable struct {
 	ObservedGeneration   diefields.Field[SourceStatus, int64]
-	Conditions           diefields.Field[SourceStatus, Conditions]
+	Conditions           diefields.ListField[SourceStatus, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]
 	Annotations          diefields.MapField[SourceStatus, string, string]
 	SinkURI              diefields.Field[SourceStatus, *apis.URL]
-	CloudEventAttributes diefields.Field[SourceStatus, []CloudEventAttributes]
+	CloudEventAttributes diefields.ListField[SourceStatus, CloudEventAttributes, *CloudEventAttributesDie, *CloudEventAttributesDieMut]
 	SinkCACerts          diefields.Field[SourceStatus, *string]
 	SinkAudience         diefields.Field[SourceStatus, *string]
 	Auth                 diefields.Struct[SourceStatus, AuthStatus, *AuthStatusDie, *AuthStatusDieMut]
@@ -1729,10 +1729,10 @@ type sourceStatusFieldsTable struct {
 var sourceStatusFields = &diefields.Table[sourceStatusFieldsTable]{Build: func() (f sourceStatusFieldsTable) {
 	_ = annotated
 	f.ObservedGeneration = diefields.NewField[SourceStatus, int64]("observedGeneration")
-	f.Conditions = diefields.NewItems[SourceStatus, Conditions, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]("conditions")
+	f.Conditions = diefields.NewList[SourceStatus, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]("conditions")
 	f.Annotations = diefields.NewMap[SourceStatus, string, string]("annotations")
 	f.SinkURI = diefields.NewField[SourceStatus, *apis.URL]("sinkUri")
-	f.CloudEventAttributes = diefields.NewItems[SourceStatus, []CloudEventAttributes, CloudEventAttributes, *CloudEventAttributesDie, *CloudEventAttributesDieMut]("ceAttributes")
+	f.CloudEventAttributes = diefields.NewList[SourceStatus, CloudEventAttributes, *CloudEventAttributesDie, *CloudEventAttributesDieMut]("ceAttributes")
 	f.SinkCACerts = diefields.NewField[SourceStatus, *string]("sinkCACerts")
 	f.SinkAudience = diefields.NewField[SourceStatus, *string]("sinkAudience")
 	f.Auth = diefields.NewStruct[SourceStatus, AuthStatus, *AuthStatusDie, *AuthStatusDieMut]("auth")
@@ -1746,8 +1746,8 @@ func (d *SourceStatusDie) ObservedGeneration() diefields.Value[int64] {
 }
 
 // Conditions the latest available observations of a resource's current state.
-func (d *SourceStatusDie) Conditions() diefields.Value[Conditions] {
-	return diefields.ValueOf(d, sourceStatusFields.Get().Conditions)
+func (d *SourceStatusDie) Conditions() *diefields.List[apis.Condition, *apis.ConditionDie] {
+	return diefields.ListOf(d, sourceStatusFields.Get().Conditions)
 }
 
 // Annotations is additional Status fields for the Resource to save some
@@ -1766,8 +1766,8 @@ func (d *SourceStatusDie) SinkURI() diefields.Optional[apis.URL] {
 
 // CloudEventAttributes are the specific attributes that the Source uses
 // as part of its CloudEvents.
-func (d *SourceStatusDie) CloudEventAttributes() diefields.Value[[]CloudEventAttributes] {
-	return diefields.ValueOf(d, sourceStatusFields.Get().CloudEventAttributes)
+func (d *SourceStatusDie) CloudEventAttributes() *diefields.List[CloudEventAttributes, *CloudEventAttributesDie] {
+	return diefields.ListOf(d, sourceStatusFields.Get().CloudEventAttributes)
 }
 
 // SinkCACerts are Certification Authority (CA) certificates in PEM format
@@ -1794,8 +1794,8 @@ func (d *SourceStatusDieMut) ObservedGeneration() diefields.ValueMut[int64] {
 }
 
 // Conditions the latest available observations of a resource's current state.
-func (d *SourceStatusDieMut) Conditions() diefields.ValueMut[Conditions] {
-	return diefields.ValueMutOf(d, sourceStatusFields.Get().Conditions)
+func (d *SourceStatusDieMut) Conditions() *diefields.ListMut[apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut] {
+	return diefields.ListMutOf(d, sourceStatusFields.Get().Conditions)
 }
 
 // Annotations is additional Status fields for the Resource to save some
@@ -1814,8 +1814,8 @@ func (d *SourceStatusDieMut) SinkURI() diefields.OptionalMut[apis.URL] {
 
 // CloudEventAttributes are the specific attributes that the Source uses
 // as part of its CloudEvents.
-func (d *SourceStatusDieMut) CloudEventAttributes() diefields.ValueMut[[]CloudEventAttributes] {
-	return diefields.ValueMutOf(d, sourceStatusFields.Get().CloudEventAttributes)
+func (d *SourceStatusDieMut) CloudEventAttributes() *diefields.ListMut[CloudEventAttributes, *CloudEventAttributesDie, *CloudEventAttributesDieMut] {
+	return diefields.ListMutOf(d, sourceStatusFields.Get().CloudEventAttributes)
 }
 
 // SinkCACerts are Certification Authority (CA) certificates in PEM format
@@ -1871,14 +1871,14 @@ var StatusBlank = diebase.Blank[Status, *StatusDie, *StatusDieMut]()
 
 type statusFieldsTable struct {
 	ObservedGeneration diefields.Field[Status, int64]
-	Conditions         diefields.Field[Status, Conditions]
+	Conditions         diefields.ListField[Status, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]
 	Annotations        diefields.MapField[Status, string, string]
 }
 
 var statusFields = &diefields.Table[statusFieldsTable]{Build: func() (f statusFieldsTable) {
 	_ = annotated
 	f.ObservedGeneration = diefields.NewField[Status, int64]("observedGeneration")
-	f.Conditions = diefields.NewItems[Status, Conditions, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]("conditions")
+	f.Conditions = diefields.NewList[Status, apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut]("conditions")
 	f.Annotations = diefields.NewMap[Status, string, string]("annotations")
 	return
 }}
@@ -1890,8 +1890,8 @@ func (d *StatusDie) ObservedGeneration() diefields.Value[int64] {
 }
 
 // Conditions the latest available observations of a resource's current state.
-func (d *StatusDie) Conditions() diefields.Value[Conditions] {
-	return diefields.ValueOf(d, statusFields.Get().Conditions)
+func (d *StatusDie) Conditions() *diefields.List[apis.Condition, *apis.ConditionDie] {
+	return diefields.ListOf(d, statusFields.Get().Conditions)
 }
 
 // Annotations is additional Status fields for the Resource to save some
@@ -1909,8 +1909,8 @@ func (d *StatusDieMut) ObservedGeneration() diefields.ValueMut[int64] {
 }
 
 // Conditions the latest available observations of a resource's current state.
-func (d *StatusDieMut) Conditions() diefields.ValueMut[Conditions] {
-	return diefields.ValueMutOf(d, statusFields.Get().Conditions)
+func (d *StatusDieMut) Conditions() *diefields.ListMut[apis.Condition, *apis.ConditionDie, *apis.ConditionDieMut] {
+	return diefields.ListMutOf(d, statusFields.Get().Conditions)
 }
 
 // Annotations is additional Status fields for the Resource to save some

@@ -67,9 +67,9 @@ type aPIGroupFieldsTable struct {
 	Kind                       diefields.Field[APIGroup, string]
 	APIVersion                 diefields.Field[APIGroup, string]
 	Name                       diefields.Field[APIGroup, string]
-	Versions                   diefields.Field[APIGroup, []GroupVersionForDiscovery]
+	Versions                   diefields.ListField[APIGroup, GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut]
 	PreferredVersion           diefields.Struct[APIGroup, GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut]
-	ServerAddressByClientCIDRs diefields.Field[APIGroup, []ServerAddressByClientCIDR]
+	ServerAddressByClientCIDRs diefields.ListField[APIGroup, ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut]
 }
 
 var aPIGroupFields = &diefields.Table[aPIGroupFieldsTable]{Build: func() (f aPIGroupFieldsTable) {
@@ -77,9 +77,9 @@ var aPIGroupFields = &diefields.Table[aPIGroupFieldsTable]{Build: func() (f aPIG
 	f.Kind = diefields.NewField[APIGroup, string]("kind")
 	f.APIVersion = diefields.NewField[APIGroup, string]("apiVersion")
 	f.Name = diefields.NewField[APIGroup, string]("name")
-	f.Versions = diefields.NewItems[APIGroup, []GroupVersionForDiscovery, GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut]("versions")
+	f.Versions = diefields.NewList[APIGroup, GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut]("versions")
 	f.PreferredVersion = diefields.NewStruct[APIGroup, GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut]("preferredVersion")
-	f.ServerAddressByClientCIDRs = diefields.NewItems[APIGroup, []ServerAddressByClientCIDR, ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut]("serverAddressByClientCIDRs")
+	f.ServerAddressByClientCIDRs = diefields.NewList[APIGroup, ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut]("serverAddressByClientCIDRs")
 	return
 }}
 
@@ -106,8 +106,8 @@ func (d *APIGroupDie) Name() diefields.Value[string] {
 }
 
 // versions are the versions supported in this group.
-func (d *APIGroupDie) Versions() diefields.Value[[]GroupVersionForDiscovery] {
-	return diefields.ValueOf(d, aPIGroupFields.Get().Versions)
+func (d *APIGroupDie) Versions() *diefields.List[GroupVersionForDiscovery, *GroupVersionForDiscoveryDie] {
+	return diefields.ListOf(d, aPIGroupFields.Get().Versions)
 }
 
 // preferredVersion is the version preferred by the API server, which
@@ -123,8 +123,8 @@ func (d *APIGroupDie) PreferredVersion() *GroupVersionForDiscoveryDie {
 // The server returns only those CIDRs that it thinks that the client can match.
 // For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP.
 // Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
-func (d *APIGroupDie) ServerAddressByClientCIDRs() diefields.Value[[]ServerAddressByClientCIDR] {
-	return diefields.ValueOf(d, aPIGroupFields.Get().ServerAddressByClientCIDRs)
+func (d *APIGroupDie) ServerAddressByClientCIDRs() *diefields.List[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie] {
+	return diefields.ListOf(d, aPIGroupFields.Get().ServerAddressByClientCIDRs)
 }
 
 // Kind is a string value representing the REST resource this object represents.
@@ -150,8 +150,8 @@ func (d *APIGroupDieMut) Name() diefields.ValueMut[string] {
 }
 
 // versions are the versions supported in this group.
-func (d *APIGroupDieMut) Versions() diefields.ValueMut[[]GroupVersionForDiscovery] {
-	return diefields.ValueMutOf(d, aPIGroupFields.Get().Versions)
+func (d *APIGroupDieMut) Versions() *diefields.ListMut[GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut] {
+	return diefields.ListMutOf(d, aPIGroupFields.Get().Versions)
 }
 
 // preferredVersion is the version preferred by the API server, which
@@ -167,8 +167,8 @@ func (d *APIGroupDieMut) PreferredVersion() *GroupVersionForDiscoveryDieMut {
 // The server returns only those CIDRs that it thinks that the client can match.
 // For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP.
 // Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
-func (d *APIGroupDieMut) ServerAddressByClientCIDRs() diefields.ValueMut[[]ServerAddressByClientCIDR] {
-	return diefields.ValueMutOf(d, aPIGroupFields.Get().ServerAddressByClientCIDRs)
+func (d *APIGroupDieMut) ServerAddressByClientCIDRs() *diefields.ListMut[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut] {
+	return diefields.ListMutOf(d, aPIGroupFields.Get().ServerAddressByClientCIDRs)
 }
 
 // +kubebuilder:object:generate=false
@@ -207,14 +207,14 @@ var APIGroupListBlank = diebase.Blank[APIGroupList, *APIGroupListDie, *APIGroupL
 type aPIGroupListFieldsTable struct {
 	Kind       diefields.Field[APIGroupList, string]
 	APIVersion diefields.Field[APIGroupList, string]
-	Groups     diefields.Field[APIGroupList, []APIGroup]
+	Groups     diefields.ListField[APIGroupList, APIGroup, *APIGroupDie, *APIGroupDieMut]
 }
 
 var aPIGroupListFields = &diefields.Table[aPIGroupListFieldsTable]{Build: func() (f aPIGroupListFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[APIGroupList, string]("kind")
 	f.APIVersion = diefields.NewField[APIGroupList, string]("apiVersion")
-	f.Groups = diefields.NewItems[APIGroupList, []APIGroup, APIGroup, *APIGroupDie, *APIGroupDieMut]("groups")
+	f.Groups = diefields.NewList[APIGroupList, APIGroup, *APIGroupDie, *APIGroupDieMut]("groups")
 	return
 }}
 
@@ -236,8 +236,8 @@ func (d *APIGroupListDie) APIVersion() diefields.Value[string] {
 }
 
 // groups is a list of APIGroup.
-func (d *APIGroupListDie) Groups() diefields.Value[[]APIGroup] {
-	return diefields.ValueOf(d, aPIGroupListFields.Get().Groups)
+func (d *APIGroupListDie) Groups() *diefields.List[APIGroup, *APIGroupDie] {
+	return diefields.ListOf(d, aPIGroupListFields.Get().Groups)
 }
 
 // Kind is a string value representing the REST resource this object represents.
@@ -258,8 +258,8 @@ func (d *APIGroupListDieMut) APIVersion() diefields.ValueMut[string] {
 }
 
 // groups is a list of APIGroup.
-func (d *APIGroupListDieMut) Groups() diefields.ValueMut[[]APIGroup] {
-	return diefields.ValueMutOf(d, aPIGroupListFields.Get().Groups)
+func (d *APIGroupListDieMut) Groups() *diefields.ListMut[APIGroup, *APIGroupDie, *APIGroupDieMut] {
+	return diefields.ListMutOf(d, aPIGroupListFields.Get().Groups)
 }
 
 // +kubebuilder:object:generate=false
@@ -301,9 +301,9 @@ type aPIResourceFieldsTable struct {
 	Group              diefields.Field[APIResource, string]
 	Version            diefields.Field[APIResource, string]
 	Kind               diefields.Field[APIResource, string]
-	Verbs              diefields.Field[APIResource, Verbs]
-	ShortNames         diefields.Field[APIResource, []string]
-	Categories         diefields.Field[APIResource, []string]
+	Verbs              diefields.ListField[APIResource, string, diefields.Value[string], diefields.ValueMut[string]]
+	ShortNames         diefields.ListField[APIResource, string, diefields.Value[string], diefields.ValueMut[string]]
+	Categories         diefields.ListField[APIResource, string, diefields.Value[string], diefields.ValueMut[string]]
 	StorageVersionHash diefields.Field[APIResource, string]
 }
 
@@ -315,9 +315,9 @@ var aPIResourceFields = &diefields.Table[aPIResourceFieldsTable]{Build: func() (
 	f.Group = diefields.NewField[APIResource, string]("group")
 	f.Version = diefields.NewField[APIResource, string]("version")
 	f.Kind = diefields.NewField[APIResource, string]("kind")
-	f.Verbs = diefields.NewField[APIResource, Verbs]("verbs")
-	f.ShortNames = diefields.NewField[APIResource, []string]("shortNames")
-	f.Categories = diefields.NewField[APIResource, []string]("categories")
+	f.Verbs = diefields.NewValueList[APIResource, string]("verbs")
+	f.ShortNames = diefields.NewValueList[APIResource, string]("shortNames")
+	f.Categories = diefields.NewValueList[APIResource, string]("categories")
 	f.StorageVersionHash = diefields.NewField[APIResource, string]("storageVersionHash")
 	return
 }}
@@ -358,18 +358,18 @@ func (d *APIResourceDie) Kind() diefields.Value[string] {
 
 // verbs is a list of supported kube verbs (this includes get, list, watch, create,
 // update, patch, delete, deletecollection, and proxy)
-func (d *APIResourceDie) Verbs() diefields.Value[Verbs] {
-	return diefields.ValueOf(d, aPIResourceFields.Get().Verbs)
+func (d *APIResourceDie) Verbs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, aPIResourceFields.Get().Verbs)
 }
 
 // shortNames is a list of suggested short names of the resource.
-func (d *APIResourceDie) ShortNames() diefields.Value[[]string] {
-	return diefields.ValueOf(d, aPIResourceFields.Get().ShortNames)
+func (d *APIResourceDie) ShortNames() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, aPIResourceFields.Get().ShortNames)
 }
 
 // categories is a list of the grouped resources this resource belongs to (e.g. 'all')
-func (d *APIResourceDie) Categories() diefields.Value[[]string] {
-	return diefields.ValueOf(d, aPIResourceFields.Get().Categories)
+func (d *APIResourceDie) Categories() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, aPIResourceFields.Get().Categories)
 }
 
 // The hash value of the storage version, the version this resource is
@@ -419,18 +419,18 @@ func (d *APIResourceDieMut) Kind() diefields.ValueMut[string] {
 
 // verbs is a list of supported kube verbs (this includes get, list, watch, create,
 // update, patch, delete, deletecollection, and proxy)
-func (d *APIResourceDieMut) Verbs() diefields.ValueMut[Verbs] {
-	return diefields.ValueMutOf(d, aPIResourceFields.Get().Verbs)
+func (d *APIResourceDieMut) Verbs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, aPIResourceFields.Get().Verbs)
 }
 
 // shortNames is a list of suggested short names of the resource.
-func (d *APIResourceDieMut) ShortNames() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, aPIResourceFields.Get().ShortNames)
+func (d *APIResourceDieMut) ShortNames() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, aPIResourceFields.Get().ShortNames)
 }
 
 // categories is a list of the grouped resources this resource belongs to (e.g. 'all')
-func (d *APIResourceDieMut) Categories() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, aPIResourceFields.Get().Categories)
+func (d *APIResourceDieMut) Categories() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, aPIResourceFields.Get().Categories)
 }
 
 // The hash value of the storage version, the version this resource is
@@ -482,7 +482,7 @@ type aPIResourceListFieldsTable struct {
 	Kind         diefields.Field[APIResourceList, string]
 	APIVersion   diefields.Field[APIResourceList, string]
 	GroupVersion diefields.Field[APIResourceList, string]
-	APIResources diefields.Field[APIResourceList, []APIResource]
+	APIResources diefields.ListField[APIResourceList, APIResource, *APIResourceDie, *APIResourceDieMut]
 }
 
 var aPIResourceListFields = &diefields.Table[aPIResourceListFieldsTable]{Build: func() (f aPIResourceListFieldsTable) {
@@ -490,7 +490,7 @@ var aPIResourceListFields = &diefields.Table[aPIResourceListFieldsTable]{Build: 
 	f.Kind = diefields.NewField[APIResourceList, string]("kind")
 	f.APIVersion = diefields.NewField[APIResourceList, string]("apiVersion")
 	f.GroupVersion = diefields.NewField[APIResourceList, string]("groupVersion")
-	f.APIResources = diefields.NewItems[APIResourceList, []APIResource, APIResource, *APIResourceDie, *APIResourceDieMut]("resources")
+	f.APIResources = diefields.NewList[APIResourceList, APIResource, *APIResourceDie, *APIResourceDieMut]("resources")
 	return
 }}
 
@@ -517,8 +517,8 @@ func (d *APIResourceListDie) GroupVersion() diefields.Value[string] {
 }
 
 // resources contains the name of the resources and if they are namespaced.
-func (d *APIResourceListDie) APIResources() diefields.Value[[]APIResource] {
-	return diefields.ValueOf(d, aPIResourceListFields.Get().APIResources)
+func (d *APIResourceListDie) APIResources() *diefields.List[APIResource, *APIResourceDie] {
+	return diefields.ListOf(d, aPIResourceListFields.Get().APIResources)
 }
 
 // Kind is a string value representing the REST resource this object represents.
@@ -544,8 +544,8 @@ func (d *APIResourceListDieMut) GroupVersion() diefields.ValueMut[string] {
 }
 
 // resources contains the name of the resources and if they are namespaced.
-func (d *APIResourceListDieMut) APIResources() diefields.ValueMut[[]APIResource] {
-	return diefields.ValueMutOf(d, aPIResourceListFields.Get().APIResources)
+func (d *APIResourceListDieMut) APIResources() *diefields.ListMut[APIResource, *APIResourceDie, *APIResourceDieMut] {
+	return diefields.ListMutOf(d, aPIResourceListFields.Get().APIResources)
 }
 
 // +kubebuilder:object:generate=false
@@ -584,16 +584,16 @@ var APIVersionsBlank = diebase.Blank[APIVersions, *APIVersionsDie, *APIVersionsD
 type aPIVersionsFieldsTable struct {
 	Kind                       diefields.Field[APIVersions, string]
 	APIVersion                 diefields.Field[APIVersions, string]
-	Versions                   diefields.Field[APIVersions, []string]
-	ServerAddressByClientCIDRs diefields.Field[APIVersions, []ServerAddressByClientCIDR]
+	Versions                   diefields.ListField[APIVersions, string, diefields.Value[string], diefields.ValueMut[string]]
+	ServerAddressByClientCIDRs diefields.ListField[APIVersions, ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut]
 }
 
 var aPIVersionsFields = &diefields.Table[aPIVersionsFieldsTable]{Build: func() (f aPIVersionsFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[APIVersions, string]("kind")
 	f.APIVersion = diefields.NewField[APIVersions, string]("apiVersion")
-	f.Versions = diefields.NewField[APIVersions, []string]("versions")
-	f.ServerAddressByClientCIDRs = diefields.NewItems[APIVersions, []ServerAddressByClientCIDR, ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut]("serverAddressByClientCIDRs")
+	f.Versions = diefields.NewValueList[APIVersions, string]("versions")
+	f.ServerAddressByClientCIDRs = diefields.NewList[APIVersions, ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut]("serverAddressByClientCIDRs")
 	return
 }}
 
@@ -615,8 +615,8 @@ func (d *APIVersionsDie) APIVersion() diefields.Value[string] {
 }
 
 // versions are the api versions that are available.
-func (d *APIVersionsDie) Versions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, aPIVersionsFields.Get().Versions)
+func (d *APIVersionsDie) Versions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, aPIVersionsFields.Get().Versions)
 }
 
 // a map of client CIDR to server address that is serving this group.
@@ -626,8 +626,8 @@ func (d *APIVersionsDie) Versions() diefields.Value[[]string] {
 // The server returns only those CIDRs that it thinks that the client can match.
 // For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP.
 // Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
-func (d *APIVersionsDie) ServerAddressByClientCIDRs() diefields.Value[[]ServerAddressByClientCIDR] {
-	return diefields.ValueOf(d, aPIVersionsFields.Get().ServerAddressByClientCIDRs)
+func (d *APIVersionsDie) ServerAddressByClientCIDRs() *diefields.List[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie] {
+	return diefields.ListOf(d, aPIVersionsFields.Get().ServerAddressByClientCIDRs)
 }
 
 // Kind is a string value representing the REST resource this object represents.
@@ -648,8 +648,8 @@ func (d *APIVersionsDieMut) APIVersion() diefields.ValueMut[string] {
 }
 
 // versions are the api versions that are available.
-func (d *APIVersionsDieMut) Versions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, aPIVersionsFields.Get().Versions)
+func (d *APIVersionsDieMut) Versions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, aPIVersionsFields.Get().Versions)
 }
 
 // a map of client CIDR to server address that is serving this group.
@@ -659,8 +659,8 @@ func (d *APIVersionsDieMut) Versions() diefields.ValueMut[[]string] {
 // The server returns only those CIDRs that it thinks that the client can match.
 // For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP.
 // Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
-func (d *APIVersionsDieMut) ServerAddressByClientCIDRs() diefields.ValueMut[[]ServerAddressByClientCIDR] {
-	return diefields.ValueMutOf(d, aPIVersionsFields.Get().ServerAddressByClientCIDRs)
+func (d *APIVersionsDieMut) ServerAddressByClientCIDRs() *diefields.ListMut[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut] {
+	return diefields.ListMutOf(d, aPIVersionsFields.Get().ServerAddressByClientCIDRs)
 }
 
 // +kubebuilder:object:generate=false
@@ -701,7 +701,7 @@ var ApplyOptionsBlank = diebase.Blank[ApplyOptions, *ApplyOptionsDie, *ApplyOpti
 type applyOptionsFieldsTable struct {
 	Kind         diefields.Field[ApplyOptions, string]
 	APIVersion   diefields.Field[ApplyOptions, string]
-	DryRun       diefields.Field[ApplyOptions, []string]
+	DryRun       diefields.ListField[ApplyOptions, string, diefields.Value[string], diefields.ValueMut[string]]
 	Force        diefields.Field[ApplyOptions, bool]
 	FieldManager diefields.Field[ApplyOptions, string]
 }
@@ -710,7 +710,7 @@ var applyOptionsFields = &diefields.Table[applyOptionsFieldsTable]{Build: func()
 	_ = annotated
 	f.Kind = diefields.NewField[ApplyOptions, string]("kind")
 	f.APIVersion = diefields.NewField[ApplyOptions, string]("apiVersion")
-	f.DryRun = diefields.NewField[ApplyOptions, []string]("dryRun")
+	f.DryRun = diefields.NewValueList[ApplyOptions, string]("dryRun")
 	f.Force = diefields.NewField[ApplyOptions, bool]("force")
 	f.FieldManager = diefields.NewField[ApplyOptions, string]("fieldManager")
 	return
@@ -738,8 +738,8 @@ func (d *ApplyOptionsDie) APIVersion() diefields.Value[string] {
 // result in an error response and no further processing of the
 // request. Valid values are:
 // - All: all dry run stages will be processed
-func (d *ApplyOptionsDie) DryRun() diefields.Value[[]string] {
-	return diefields.ValueOf(d, applyOptionsFields.Get().DryRun)
+func (d *ApplyOptionsDie) DryRun() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, applyOptionsFields.Get().DryRun)
 }
 
 // Force is going to "force" Apply requests. It means user will
@@ -779,8 +779,8 @@ func (d *ApplyOptionsDieMut) APIVersion() diefields.ValueMut[string] {
 // result in an error response and no further processing of the
 // request. Valid values are:
 // - All: all dry run stages will be processed
-func (d *ApplyOptionsDieMut) DryRun() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, applyOptionsFields.Get().DryRun)
+func (d *ApplyOptionsDieMut) DryRun() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, applyOptionsFields.Get().DryRun)
 }
 
 // Force is going to "force" Apply requests. It means user will
@@ -1081,7 +1081,7 @@ var CreateOptionsBlank = diebase.Blank[CreateOptions, *CreateOptionsDie, *Create
 type createOptionsFieldsTable struct {
 	Kind            diefields.Field[CreateOptions, string]
 	APIVersion      diefields.Field[CreateOptions, string]
-	DryRun          diefields.Field[CreateOptions, []string]
+	DryRun          diefields.ListField[CreateOptions, string, diefields.Value[string], diefields.ValueMut[string]]
 	FieldManager    diefields.Field[CreateOptions, string]
 	FieldValidation diefields.Field[CreateOptions, string]
 }
@@ -1090,7 +1090,7 @@ var createOptionsFields = &diefields.Table[createOptionsFieldsTable]{Build: func
 	_ = annotated
 	f.Kind = diefields.NewField[CreateOptions, string]("kind")
 	f.APIVersion = diefields.NewField[CreateOptions, string]("apiVersion")
-	f.DryRun = diefields.NewField[CreateOptions, []string]("dryRun")
+	f.DryRun = diefields.NewValueList[CreateOptions, string]("dryRun")
 	f.FieldManager = diefields.NewField[CreateOptions, string]("fieldManager")
 	f.FieldValidation = diefields.NewField[CreateOptions, string]("fieldValidation")
 	return
@@ -1118,8 +1118,8 @@ func (d *CreateOptionsDie) APIVersion() diefields.Value[string] {
 // result in an error response and no further processing of the
 // request. Valid values are:
 // - All: all dry run stages will be processed
-func (d *CreateOptionsDie) DryRun() diefields.Value[[]string] {
-	return diefields.ValueOf(d, createOptionsFields.Get().DryRun)
+func (d *CreateOptionsDie) DryRun() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, createOptionsFields.Get().DryRun)
 }
 
 // fieldManager is a name associated with the actor or entity
@@ -1172,8 +1172,8 @@ func (d *CreateOptionsDieMut) APIVersion() diefields.ValueMut[string] {
 // result in an error response and no further processing of the
 // request. Valid values are:
 // - All: all dry run stages will be processed
-func (d *CreateOptionsDieMut) DryRun() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, createOptionsFields.Get().DryRun)
+func (d *CreateOptionsDieMut) DryRun() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, createOptionsFields.Get().DryRun)
 }
 
 // fieldManager is a name associated with the actor or entity
@@ -1282,7 +1282,7 @@ type deleteOptionsFieldsTable struct {
 	Preconditions                                    diefields.Struct[DeleteOptions, Preconditions, *PreconditionsDie, *PreconditionsDieMut]
 	OrphanDependents                                 diefields.Field[DeleteOptions, *bool]
 	PropagationPolicy                                diefields.Field[DeleteOptions, *DeletionPropagation]
-	DryRun                                           diefields.Field[DeleteOptions, []string]
+	DryRun                                           diefields.ListField[DeleteOptions, string, diefields.Value[string], diefields.ValueMut[string]]
 	IgnoreStoreReadErrorWithClusterBreakingPotential diefields.Field[DeleteOptions, *bool]
 }
 
@@ -1294,7 +1294,7 @@ var deleteOptionsFields = &diefields.Table[deleteOptionsFieldsTable]{Build: func
 	f.Preconditions = diefields.NewStruct[DeleteOptions, Preconditions, *PreconditionsDie, *PreconditionsDieMut]("preconditions")
 	f.OrphanDependents = diefields.NewField[DeleteOptions, *bool]("orphanDependents")
 	f.PropagationPolicy = diefields.NewField[DeleteOptions, *DeletionPropagation]("propagationPolicy")
-	f.DryRun = diefields.NewField[DeleteOptions, []string]("dryRun")
+	f.DryRun = diefields.NewValueList[DeleteOptions, string]("dryRun")
 	f.IgnoreStoreReadErrorWithClusterBreakingPotential = diefields.NewField[DeleteOptions, *bool]("ignoreStoreReadErrorWithClusterBreakingPotential")
 	return
 }}
@@ -1355,8 +1355,8 @@ func (d *DeleteOptionsDie) PropagationPolicy() diefields.Optional[DeletionPropag
 // result in an error response and no further processing of the
 // request. Valid values are:
 // - All: all dry run stages will be processed
-func (d *DeleteOptionsDie) DryRun() diefields.Value[[]string] {
-	return diefields.ValueOf(d, deleteOptionsFields.Get().DryRun)
+func (d *DeleteOptionsDie) DryRun() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, deleteOptionsFields.Get().DryRun)
 }
 
 // if set to true, it will trigger an unsafe deletion of the resource in
@@ -1431,8 +1431,8 @@ func (d *DeleteOptionsDieMut) PropagationPolicy() diefields.OptionalMut[Deletion
 // result in an error response and no further processing of the
 // request. Valid values are:
 // - All: all dry run stages will be processed
-func (d *DeleteOptionsDieMut) DryRun() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, deleteOptionsFields.Get().DryRun)
+func (d *DeleteOptionsDieMut) DryRun() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, deleteOptionsFields.Get().DryRun)
 }
 
 // if set to true, it will trigger an unsafe deletion of the resource in
@@ -1487,14 +1487,14 @@ var FieldSelectorRequirementBlank = diebase.Blank[FieldSelectorRequirement, *Fie
 type fieldSelectorRequirementFieldsTable struct {
 	Key      diefields.Field[FieldSelectorRequirement, string]
 	Operator diefields.Field[FieldSelectorRequirement, FieldSelectorOperator]
-	Values   diefields.Field[FieldSelectorRequirement, []string]
+	Values   diefields.ListField[FieldSelectorRequirement, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var fieldSelectorRequirementFields = &diefields.Table[fieldSelectorRequirementFieldsTable]{Build: func() (f fieldSelectorRequirementFieldsTable) {
 	_ = annotated
 	f.Key = diefields.NewField[FieldSelectorRequirement, string]("key")
 	f.Operator = diefields.NewField[FieldSelectorRequirement, FieldSelectorOperator]("operator")
-	f.Values = diefields.NewField[FieldSelectorRequirement, []string]("values")
+	f.Values = diefields.NewValueList[FieldSelectorRequirement, string]("values")
 	return
 }}
 
@@ -1513,8 +1513,8 @@ func (d *FieldSelectorRequirementDie) Operator() diefields.Value[FieldSelectorOp
 // values is an array of string values.
 // If the operator is In or NotIn, the values array must be non-empty.
 // If the operator is Exists or DoesNotExist, the values array must be empty.
-func (d *FieldSelectorRequirementDie) Values() diefields.Value[[]string] {
-	return diefields.ValueOf(d, fieldSelectorRequirementFields.Get().Values)
+func (d *FieldSelectorRequirementDie) Values() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, fieldSelectorRequirementFields.Get().Values)
 }
 
 // key is the field selector key that the requirement applies to.
@@ -1532,8 +1532,8 @@ func (d *FieldSelectorRequirementDieMut) Operator() diefields.ValueMut[FieldSele
 // values is an array of string values.
 // If the operator is In or NotIn, the values array must be non-empty.
 // If the operator is Exists or DoesNotExist, the values array must be empty.
-func (d *FieldSelectorRequirementDieMut) Values() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, fieldSelectorRequirementFields.Get().Values)
+func (d *FieldSelectorRequirementDieMut) Values() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, fieldSelectorRequirementFields.Get().Values)
 }
 
 // +kubebuilder:object:generate=false
@@ -2157,13 +2157,13 @@ func (d *LabelSelectorDieMut) DieStampApplyConfiguration(fn func(ac *LabelSelect
 
 type labelSelectorFieldsTable struct {
 	MatchLabels      diefields.MapField[LabelSelector, string, string]
-	MatchExpressions diefields.Field[LabelSelector, []LabelSelectorRequirement]
+	MatchExpressions diefields.ListField[LabelSelector, LabelSelectorRequirement, *LabelSelectorRequirementDie, *LabelSelectorRequirementDieMut]
 }
 
 var labelSelectorFields = &diefields.Table[labelSelectorFieldsTable]{Build: func() (f labelSelectorFieldsTable) {
 	_ = annotated
 	f.MatchLabels = diefields.NewMap[LabelSelector, string, string]("matchLabels")
-	f.MatchExpressions = diefields.NewItems[LabelSelector, []LabelSelectorRequirement, LabelSelectorRequirement, *LabelSelectorRequirementDie, *LabelSelectorRequirementDieMut]("matchExpressions")
+	f.MatchExpressions = diefields.NewList[LabelSelector, LabelSelectorRequirement, *LabelSelectorRequirementDie, *LabelSelectorRequirementDieMut]("matchExpressions")
 	return
 }}
 
@@ -2175,8 +2175,8 @@ func (d *LabelSelectorDie) MatchLabels() *diefields.Map[string, string] {
 }
 
 // matchExpressions is a list of label selector requirements. The requirements are ANDed.
-func (d *LabelSelectorDie) MatchExpressions() diefields.Value[[]LabelSelectorRequirement] {
-	return diefields.ValueOf(d, labelSelectorFields.Get().MatchExpressions)
+func (d *LabelSelectorDie) MatchExpressions() *diefields.List[LabelSelectorRequirement, *LabelSelectorRequirementDie] {
+	return diefields.ListOf(d, labelSelectorFields.Get().MatchExpressions)
 }
 
 // matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
@@ -2187,8 +2187,8 @@ func (d *LabelSelectorDieMut) MatchLabels() *diefields.MapMut[string, string] {
 }
 
 // matchExpressions is a list of label selector requirements. The requirements are ANDed.
-func (d *LabelSelectorDieMut) MatchExpressions() diefields.ValueMut[[]LabelSelectorRequirement] {
-	return diefields.ValueMutOf(d, labelSelectorFields.Get().MatchExpressions)
+func (d *LabelSelectorDieMut) MatchExpressions() *diefields.ListMut[LabelSelectorRequirement, *LabelSelectorRequirementDie, *LabelSelectorRequirementDieMut] {
+	return diefields.ListMutOf(d, labelSelectorFields.Get().MatchExpressions)
 }
 
 // +kubebuilder:object:generate=false
@@ -2266,14 +2266,14 @@ func (d *LabelSelectorRequirementDieMut) DieStampApplyConfiguration(fn func(ac *
 type labelSelectorRequirementFieldsTable struct {
 	Key      diefields.Field[LabelSelectorRequirement, string]
 	Operator diefields.Field[LabelSelectorRequirement, LabelSelectorOperator]
-	Values   diefields.Field[LabelSelectorRequirement, []string]
+	Values   diefields.ListField[LabelSelectorRequirement, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var labelSelectorRequirementFields = &diefields.Table[labelSelectorRequirementFieldsTable]{Build: func() (f labelSelectorRequirementFieldsTable) {
 	_ = annotated
 	f.Key = diefields.NewField[LabelSelectorRequirement, string]("key")
 	f.Operator = diefields.NewField[LabelSelectorRequirement, LabelSelectorOperator]("operator")
-	f.Values = diefields.NewField[LabelSelectorRequirement, []string]("values")
+	f.Values = diefields.NewValueList[LabelSelectorRequirement, string]("values")
 	return
 }}
 
@@ -2292,8 +2292,8 @@ func (d *LabelSelectorRequirementDie) Operator() diefields.Value[LabelSelectorOp
 // the values array must be non-empty. If the operator is Exists or DoesNotExist,
 // the values array must be empty. This array is replaced during a strategic
 // merge patch.
-func (d *LabelSelectorRequirementDie) Values() diefields.Value[[]string] {
-	return diefields.ValueOf(d, labelSelectorRequirementFields.Get().Values)
+func (d *LabelSelectorRequirementDie) Values() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, labelSelectorRequirementFields.Get().Values)
 }
 
 // key is the label key that the selector applies to.
@@ -2311,8 +2311,8 @@ func (d *LabelSelectorRequirementDieMut) Operator() diefields.ValueMut[LabelSele
 // the values array must be non-empty. If the operator is Exists or DoesNotExist,
 // the values array must be empty. This array is replaced during a strategic
 // merge patch.
-func (d *LabelSelectorRequirementDieMut) Values() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, labelSelectorRequirementFields.Get().Values)
+func (d *LabelSelectorRequirementDieMut) Values() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, labelSelectorRequirementFields.Get().Values)
 }
 
 // +kubebuilder:object:generate=false
@@ -2349,7 +2349,7 @@ type listFieldsTable struct {
 	Kind       diefields.Field[List, string]
 	APIVersion diefields.Field[List, string]
 	Metadata   diefields.Struct[List, ListMeta, *ListMetaDie, *ListMetaDieMut]
-	Items      diefields.Field[List, []runtime.RawExtension]
+	Items      diefields.ListField[List, runtime.RawExtension, diefields.Value[runtime.RawExtension], diefields.ValueMut[runtime.RawExtension]]
 }
 
 var listFields = &diefields.Table[listFieldsTable]{Build: func() (f listFieldsTable) {
@@ -2357,7 +2357,7 @@ var listFields = &diefields.Table[listFieldsTable]{Build: func() (f listFieldsTa
 	f.Kind = diefields.NewField[List, string]("kind")
 	f.APIVersion = diefields.NewField[List, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[List, ListMeta, *ListMetaDie, *ListMetaDieMut]("metadata")
-	f.Items = diefields.NewField[List, []runtime.RawExtension]("items")
+	f.Items = diefields.NewValueList[List, runtime.RawExtension]("items")
 	return
 }}
 
@@ -2381,8 +2381,8 @@ func (d *ListDie) APIVersion() diefields.Value[string] {
 func (d *ListDie) Metadata() *ListMetaDie { return diefields.Child(d, listFields.Get().Metadata) }
 
 // List of objects
-func (d *ListDie) Items() diefields.Value[[]runtime.RawExtension] {
-	return diefields.ValueOf(d, listFields.Get().Items)
+func (d *ListDie) Items() *diefields.List[runtime.RawExtension, diefields.Value[runtime.RawExtension]] {
+	return diefields.ListOf(d, listFields.Get().Items)
 }
 
 // Kind is a string value representing the REST resource this object represents.
@@ -2409,8 +2409,8 @@ func (d *ListDieMut) Metadata() *ListMetaDieMut {
 }
 
 // List of objects
-func (d *ListDieMut) Items() diefields.ValueMut[[]runtime.RawExtension] {
-	return diefields.ValueMutOf(d, listFields.Get().Items)
+func (d *ListDieMut) Items() *diefields.ListMut[runtime.RawExtension, diefields.Value[runtime.RawExtension], diefields.ValueMut[runtime.RawExtension]] {
+	return diefields.ListMutOf(d, listFields.Get().Items)
 }
 
 // +kubebuilder:object:generate=false
@@ -3248,8 +3248,8 @@ type objectMetaFieldsTable struct {
 	Labels                     diefields.MapField[ObjectMeta, string, string]
 	Annotations                diefields.MapField[ObjectMeta, string, string]
 	OwnerReferences            diefields.ListMapField[ObjectMeta, OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut, types.UID]
-	Finalizers                 diefields.Field[ObjectMeta, []string]
-	ManagedFields              diefields.Field[ObjectMeta, []ManagedFieldsEntry]
+	Finalizers                 diefields.ListField[ObjectMeta, string, diefields.Value[string], diefields.ValueMut[string]]
+	ManagedFields              diefields.ListField[ObjectMeta, ManagedFieldsEntry, *ManagedFieldsEntryDie, *ManagedFieldsEntryDieMut]
 }
 
 var objectMetaFields = &diefields.Table[objectMetaFieldsTable]{Build: func() (f objectMetaFieldsTable) {
@@ -3267,8 +3267,8 @@ var objectMetaFields = &diefields.Table[objectMetaFieldsTable]{Build: func() (f 
 	f.Labels = diefields.NewMap[ObjectMeta, string, string]("labels")
 	f.Annotations = diefields.NewMap[ObjectMeta, string, string]("annotations")
 	f.OwnerReferences = diefields.NewListMap[ObjectMeta, OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut]("ownerReferences", func(k types.UID) []any { return []any{k} }, func(e OwnerReference) types.UID { return e.UID })
-	f.Finalizers = diefields.NewField[ObjectMeta, []string]("finalizers")
-	f.ManagedFields = diefields.NewItems[ObjectMeta, []ManagedFieldsEntry, ManagedFieldsEntry, *ManagedFieldsEntryDie, *ManagedFieldsEntryDieMut]("managedFields")
+	f.Finalizers = diefields.NewValueList[ObjectMeta, string]("finalizers")
+	f.ManagedFields = diefields.NewList[ObjectMeta, ManagedFieldsEntry, *ManagedFieldsEntryDie, *ManagedFieldsEntryDieMut]("managedFields")
 	return
 }}
 
@@ -3425,8 +3425,8 @@ func (d *ObjectMetaDie) OwnerReferences() *OwnerReferenceListMap {
 // component responsible for a finalizer later in the list, resulting in a deadlock.
 // Without enforced ordering finalizers are free to order amongst themselves and
 // are not vulnerable to ordering changes in the list.
-func (d *ObjectMetaDie) Finalizers() diefields.Value[[]string] {
-	return diefields.ValueOf(d, objectMetaFields.Get().Finalizers)
+func (d *ObjectMetaDie) Finalizers() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, objectMetaFields.Get().Finalizers)
 }
 
 // ManagedFields maps workflow-id and version to the set of fields
@@ -3436,8 +3436,8 @@ func (d *ObjectMetaDie) Finalizers() diefields.Value[[]string] {
 // controller's name, or the name of a specific apply path like
 // "ci-cd". The set of fields is always in the version that the
 // workflow used when modifying the object.
-func (d *ObjectMetaDie) ManagedFields() diefields.Value[[]ManagedFieldsEntry] {
-	return diefields.ValueOf(d, objectMetaFields.Get().ManagedFields)
+func (d *ObjectMetaDie) ManagedFields() *diefields.List[ManagedFieldsEntry, *ManagedFieldsEntryDie] {
+	return diefields.ListOf(d, objectMetaFields.Get().ManagedFields)
 }
 
 // Name must be unique within a namespace. Is required when creating resources, although
@@ -3593,8 +3593,8 @@ func (d *ObjectMetaDieMut) OwnerReferences() *OwnerReferenceListMapMut {
 // component responsible for a finalizer later in the list, resulting in a deadlock.
 // Without enforced ordering finalizers are free to order amongst themselves and
 // are not vulnerable to ordering changes in the list.
-func (d *ObjectMetaDieMut) Finalizers() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, objectMetaFields.Get().Finalizers)
+func (d *ObjectMetaDieMut) Finalizers() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, objectMetaFields.Get().Finalizers)
 }
 
 // ManagedFields maps workflow-id and version to the set of fields
@@ -3604,8 +3604,8 @@ func (d *ObjectMetaDieMut) Finalizers() diefields.ValueMut[[]string] {
 // controller's name, or the name of a specific apply path like
 // "ci-cd". The set of fields is always in the version that the
 // workflow used when modifying the object.
-func (d *ObjectMetaDieMut) ManagedFields() diefields.ValueMut[[]ManagedFieldsEntry] {
-	return diefields.ValueMutOf(d, objectMetaFields.Get().ManagedFields)
+func (d *ObjectMetaDieMut) ManagedFields() *diefields.ListMut[ManagedFieldsEntry, *ManagedFieldsEntryDie, *ManagedFieldsEntryDieMut] {
+	return diefields.ListMutOf(d, objectMetaFields.Get().ManagedFields)
 }
 
 // +kubebuilder:object:generate=false
@@ -3910,7 +3910,7 @@ type partialObjectMetadataListFieldsTable struct {
 	Kind       diefields.Field[PartialObjectMetadataList, string]
 	APIVersion diefields.Field[PartialObjectMetadataList, string]
 	Metadata   diefields.Struct[PartialObjectMetadataList, ListMeta, *ListMetaDie, *ListMetaDieMut]
-	Items      diefields.Field[PartialObjectMetadataList, []PartialObjectMetadata]
+	Items      diefields.ListField[PartialObjectMetadataList, PartialObjectMetadata, *PartialObjectMetadataDie, *PartialObjectMetadataDieMut]
 }
 
 var partialObjectMetadataListFields = &diefields.Table[partialObjectMetadataListFieldsTable]{Build: func() (f partialObjectMetadataListFieldsTable) {
@@ -3918,7 +3918,7 @@ var partialObjectMetadataListFields = &diefields.Table[partialObjectMetadataList
 	f.Kind = diefields.NewField[PartialObjectMetadataList, string]("kind")
 	f.APIVersion = diefields.NewField[PartialObjectMetadataList, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[PartialObjectMetadataList, ListMeta, *ListMetaDie, *ListMetaDieMut]("metadata")
-	f.Items = diefields.NewItems[PartialObjectMetadataList, []PartialObjectMetadata, PartialObjectMetadata, *PartialObjectMetadataDie, *PartialObjectMetadataDieMut]("items")
+	f.Items = diefields.NewList[PartialObjectMetadataList, PartialObjectMetadata, *PartialObjectMetadataDie, *PartialObjectMetadataDieMut]("items")
 	return
 }}
 
@@ -3946,8 +3946,8 @@ func (d *PartialObjectMetadataListDie) Metadata() *ListMetaDie {
 }
 
 // items contains each of the included items.
-func (d *PartialObjectMetadataListDie) Items() diefields.Value[[]PartialObjectMetadata] {
-	return diefields.ValueOf(d, partialObjectMetadataListFields.Get().Items)
+func (d *PartialObjectMetadataListDie) Items() *diefields.List[PartialObjectMetadata, *PartialObjectMetadataDie] {
+	return diefields.ListOf(d, partialObjectMetadataListFields.Get().Items)
 }
 
 // Kind is a string value representing the REST resource this object represents.
@@ -3974,8 +3974,8 @@ func (d *PartialObjectMetadataListDieMut) Metadata() *ListMetaDieMut {
 }
 
 // items contains each of the included items.
-func (d *PartialObjectMetadataListDieMut) Items() diefields.ValueMut[[]PartialObjectMetadata] {
-	return diefields.ValueMutOf(d, partialObjectMetadataListFields.Get().Items)
+func (d *PartialObjectMetadataListDieMut) Items() *diefields.ListMut[PartialObjectMetadata, *PartialObjectMetadataDie, *PartialObjectMetadataDieMut] {
+	return diefields.ListMutOf(d, partialObjectMetadataListFields.Get().Items)
 }
 
 // +kubebuilder:object:generate=false
@@ -4054,7 +4054,7 @@ var PatchOptionsBlank = diebase.Blank[PatchOptions, *PatchOptionsDie, *PatchOpti
 type patchOptionsFieldsTable struct {
 	Kind            diefields.Field[PatchOptions, string]
 	APIVersion      diefields.Field[PatchOptions, string]
-	DryRun          diefields.Field[PatchOptions, []string]
+	DryRun          diefields.ListField[PatchOptions, string, diefields.Value[string], diefields.ValueMut[string]]
 	Force           diefields.Field[PatchOptions, *bool]
 	FieldManager    diefields.Field[PatchOptions, string]
 	FieldValidation diefields.Field[PatchOptions, string]
@@ -4064,7 +4064,7 @@ var patchOptionsFields = &diefields.Table[patchOptionsFieldsTable]{Build: func()
 	_ = annotated
 	f.Kind = diefields.NewField[PatchOptions, string]("kind")
 	f.APIVersion = diefields.NewField[PatchOptions, string]("apiVersion")
-	f.DryRun = diefields.NewField[PatchOptions, []string]("dryRun")
+	f.DryRun = diefields.NewValueList[PatchOptions, string]("dryRun")
 	f.Force = diefields.NewField[PatchOptions, *bool]("force")
 	f.FieldManager = diefields.NewField[PatchOptions, string]("fieldManager")
 	f.FieldValidation = diefields.NewField[PatchOptions, string]("fieldValidation")
@@ -4093,8 +4093,8 @@ func (d *PatchOptionsDie) APIVersion() diefields.Value[string] {
 // result in an error response and no further processing of the
 // request. Valid values are:
 // - All: all dry run stages will be processed
-func (d *PatchOptionsDie) DryRun() diefields.Value[[]string] {
-	return diefields.ValueOf(d, patchOptionsFields.Get().DryRun)
+func (d *PatchOptionsDie) DryRun() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, patchOptionsFields.Get().DryRun)
 }
 
 // Force is going to "force" Apply requests. It means user will
@@ -4157,8 +4157,8 @@ func (d *PatchOptionsDieMut) APIVersion() diefields.ValueMut[string] {
 // result in an error response and no further processing of the
 // request. Valid values are:
 // - All: all dry run stages will be processed
-func (d *PatchOptionsDieMut) DryRun() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, patchOptionsFields.Get().DryRun)
+func (d *PatchOptionsDieMut) DryRun() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, patchOptionsFields.Get().DryRun)
 }
 
 // Force is going to "force" Apply requests. It means user will
@@ -4336,23 +4336,23 @@ var RootPathsBlank = diebase.Blank[RootPaths, *RootPathsDie, *RootPathsDieMut]()
 // +k8s:deepcopy-gen=false
 
 type rootPathsFieldsTable struct {
-	Paths diefields.Field[RootPaths, []string]
+	Paths diefields.ListField[RootPaths, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var rootPathsFields = &diefields.Table[rootPathsFieldsTable]{Build: func() (f rootPathsFieldsTable) {
 	_ = annotated
-	f.Paths = diefields.NewField[RootPaths, []string]("paths")
+	f.Paths = diefields.NewValueList[RootPaths, string]("paths")
 	return
 }}
 
 // paths are the paths available at root.
-func (d *RootPathsDie) Paths() diefields.Value[[]string] {
-	return diefields.ValueOf(d, rootPathsFields.Get().Paths)
+func (d *RootPathsDie) Paths() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, rootPathsFields.Get().Paths)
 }
 
 // paths are the paths available at root.
-func (d *RootPathsDieMut) Paths() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, rootPathsFields.Get().Paths)
+func (d *RootPathsDieMut) Paths() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, rootPathsFields.Get().Paths)
 }
 
 // +kubebuilder:object:generate=false
@@ -4783,7 +4783,7 @@ type statusDetailsFieldsTable struct {
 	Group             diefields.Field[StatusDetails, string]
 	Kind              diefields.Field[StatusDetails, string]
 	UID               diefields.Field[StatusDetails, types.UID]
-	Causes            diefields.Field[StatusDetails, []StatusCause]
+	Causes            diefields.ListField[StatusDetails, StatusCause, *StatusCauseDie, *StatusCauseDieMut]
 	RetryAfterSeconds diefields.Field[StatusDetails, int32]
 }
 
@@ -4793,7 +4793,7 @@ var statusDetailsFields = &diefields.Table[statusDetailsFieldsTable]{Build: func
 	f.Group = diefields.NewField[StatusDetails, string]("group")
 	f.Kind = diefields.NewField[StatusDetails, string]("kind")
 	f.UID = diefields.NewField[StatusDetails, types.UID]("uid")
-	f.Causes = diefields.NewItems[StatusDetails, []StatusCause, StatusCause, *StatusCauseDie, *StatusCauseDieMut]("causes")
+	f.Causes = diefields.NewList[StatusDetails, StatusCause, *StatusCauseDie, *StatusCauseDieMut]("causes")
 	f.RetryAfterSeconds = diefields.NewField[StatusDetails, int32]("retryAfterSeconds")
 	return
 }}
@@ -4825,8 +4825,8 @@ func (d *StatusDetailsDie) UID() diefields.Value[types.UID] {
 
 // The Causes array includes more details associated with the StatusReason
 // failure. Not all StatusReasons may provide detailed causes.
-func (d *StatusDetailsDie) Causes() diefields.Value[[]StatusCause] {
-	return diefields.ValueOf(d, statusDetailsFields.Get().Causes)
+func (d *StatusDetailsDie) Causes() *diefields.List[StatusCause, *StatusCauseDie] {
+	return diefields.ListOf(d, statusDetailsFields.Get().Causes)
 }
 
 // If specified, the time in seconds before the operation should be retried. Some errors may indicate
@@ -4863,8 +4863,8 @@ func (d *StatusDetailsDieMut) UID() diefields.ValueMut[types.UID] {
 
 // The Causes array includes more details associated with the StatusReason
 // failure. Not all StatusReasons may provide detailed causes.
-func (d *StatusDetailsDieMut) Causes() diefields.ValueMut[[]StatusCause] {
-	return diefields.ValueMutOf(d, statusDetailsFields.Get().Causes)
+func (d *StatusDetailsDieMut) Causes() *diefields.ListMut[StatusCause, *StatusCauseDie, *StatusCauseDieMut] {
+	return diefields.ListMutOf(d, statusDetailsFields.Get().Causes)
 }
 
 // If specified, the time in seconds before the operation should be retried. Some errors may indicate
@@ -4911,8 +4911,8 @@ type tableFieldsTable struct {
 	Kind              diefields.Field[Table, string]
 	APIVersion        diefields.Field[Table, string]
 	Metadata          diefields.Struct[Table, ListMeta, *ListMetaDie, *ListMetaDieMut]
-	ColumnDefinitions diefields.Field[Table, []TableColumnDefinition]
-	Rows              diefields.Field[Table, []TableRow]
+	ColumnDefinitions diefields.ListField[Table, TableColumnDefinition, *TableColumnDefinitionDie, *TableColumnDefinitionDieMut]
+	Rows              diefields.ListField[Table, TableRow, *TableRowDie, *TableRowDieMut]
 }
 
 var tableFields = &diefields.Table[tableFieldsTable]{Build: func() (f tableFieldsTable) {
@@ -4920,8 +4920,8 @@ var tableFields = &diefields.Table[tableFieldsTable]{Build: func() (f tableField
 	f.Kind = diefields.NewField[Table, string]("kind")
 	f.APIVersion = diefields.NewField[Table, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[Table, ListMeta, *ListMetaDie, *ListMetaDieMut]("metadata")
-	f.ColumnDefinitions = diefields.NewItems[Table, []TableColumnDefinition, TableColumnDefinition, *TableColumnDefinitionDie, *TableColumnDefinitionDieMut]("columnDefinitions")
-	f.Rows = diefields.NewItems[Table, []TableRow, TableRow, *TableRowDie, *TableRowDieMut]("rows")
+	f.ColumnDefinitions = diefields.NewList[Table, TableColumnDefinition, *TableColumnDefinitionDie, *TableColumnDefinitionDieMut]("columnDefinitions")
+	f.Rows = diefields.NewList[Table, TableRow, *TableRowDie, *TableRowDieMut]("rows")
 	return
 }}
 
@@ -4948,13 +4948,13 @@ func (d *TableDie) Metadata() *ListMetaDie { return diefields.Child(d, tableFiel
 
 // columnDefinitions describes each column in the returned items array. The number of cells per row
 // will always match the number of column definitions.
-func (d *TableDie) ColumnDefinitions() diefields.Value[[]TableColumnDefinition] {
-	return diefields.ValueOf(d, tableFields.Get().ColumnDefinitions)
+func (d *TableDie) ColumnDefinitions() *diefields.List[TableColumnDefinition, *TableColumnDefinitionDie] {
+	return diefields.ListOf(d, tableFields.Get().ColumnDefinitions)
 }
 
 // rows is the list of items in the table.
-func (d *TableDie) Rows() diefields.Value[[]TableRow] {
-	return diefields.ValueOf(d, tableFields.Get().Rows)
+func (d *TableDie) Rows() *diefields.List[TableRow, *TableRowDie] {
+	return diefields.ListOf(d, tableFields.Get().Rows)
 }
 
 // Kind is a string value representing the REST resource this object represents.
@@ -4982,13 +4982,13 @@ func (d *TableDieMut) Metadata() *ListMetaDieMut {
 
 // columnDefinitions describes each column in the returned items array. The number of cells per row
 // will always match the number of column definitions.
-func (d *TableDieMut) ColumnDefinitions() diefields.ValueMut[[]TableColumnDefinition] {
-	return diefields.ValueMutOf(d, tableFields.Get().ColumnDefinitions)
+func (d *TableDieMut) ColumnDefinitions() *diefields.ListMut[TableColumnDefinition, *TableColumnDefinitionDie, *TableColumnDefinitionDieMut] {
+	return diefields.ListMutOf(d, tableFields.Get().ColumnDefinitions)
 }
 
 // rows is the list of items in the table.
-func (d *TableDieMut) Rows() diefields.ValueMut[[]TableRow] {
-	return diefields.ValueMutOf(d, tableFields.Get().Rows)
+func (d *TableDieMut) Rows() *diefields.ListMut[TableRow, *TableRowDie, *TableRowDieMut] {
+	return diefields.ListMutOf(d, tableFields.Get().Rows)
 }
 
 // +kubebuilder:object:generate=false
@@ -5236,15 +5236,15 @@ var TableRowBlank = diebase.Blank[TableRow, *TableRowDie, *TableRowDieMut]()
 // +k8s:deepcopy-gen=false
 
 type tableRowFieldsTable struct {
-	Cells      diefields.Field[TableRow, []any]
-	Conditions diefields.Field[TableRow, []TableRowCondition]
+	Cells      diefields.ListField[TableRow, any, diefields.Value[any], diefields.ValueMut[any]]
+	Conditions diefields.ListField[TableRow, TableRowCondition, *TableRowConditionDie, *TableRowConditionDieMut]
 	Object     diefields.Field[TableRow, runtime.RawExtension]
 }
 
 var tableRowFields = &diefields.Table[tableRowFieldsTable]{Build: func() (f tableRowFieldsTable) {
 	_ = annotated
-	f.Cells = diefields.NewField[TableRow, []any]("cells")
-	f.Conditions = diefields.NewItems[TableRow, []TableRowCondition, TableRowCondition, *TableRowConditionDie, *TableRowConditionDieMut]("conditions")
+	f.Cells = diefields.NewValueList[TableRow, any]("cells")
+	f.Conditions = diefields.NewList[TableRow, TableRowCondition, *TableRowConditionDie, *TableRowConditionDieMut]("conditions")
 	f.Object = diefields.NewField[TableRow, runtime.RawExtension]("object")
 	return
 }}
@@ -5252,16 +5252,16 @@ var tableRowFields = &diefields.Table[tableRowFieldsTable]{Build: func() (f tabl
 // cells will be as wide as the column definitions array and may contain strings, numbers (float64 or
 // int64), booleans, simple maps, lists, or null. See the type field of the column definition for a
 // more detailed description.
-func (d *TableRowDie) Cells() diefields.Value[[]any] {
-	return diefields.ValueOf(d, tableRowFields.Get().Cells)
+func (d *TableRowDie) Cells() *diefields.List[any, diefields.Value[any]] {
+	return diefields.ListOf(d, tableRowFields.Get().Cells)
 }
 
 // conditions describe additional status of a row that are relevant for a human user. These conditions
 // apply to the row, not to the object, and will be specific to table output. The only defined
 // condition type is 'Completed', for a row that indicates a resource that has run to completion and
 // can be given less visual priority.
-func (d *TableRowDie) Conditions() diefields.Value[[]TableRowCondition] {
-	return diefields.ValueOf(d, tableRowFields.Get().Conditions)
+func (d *TableRowDie) Conditions() *diefields.List[TableRowCondition, *TableRowConditionDie] {
+	return diefields.ListOf(d, tableRowFields.Get().Conditions)
 }
 
 // This field contains the requested additional information about each object based on the includeObject
@@ -5277,16 +5277,16 @@ func (d *TableRowDie) Object() diefields.Value[runtime.RawExtension] {
 // cells will be as wide as the column definitions array and may contain strings, numbers (float64 or
 // int64), booleans, simple maps, lists, or null. See the type field of the column definition for a
 // more detailed description.
-func (d *TableRowDieMut) Cells() diefields.ValueMut[[]any] {
-	return diefields.ValueMutOf(d, tableRowFields.Get().Cells)
+func (d *TableRowDieMut) Cells() *diefields.ListMut[any, diefields.Value[any], diefields.ValueMut[any]] {
+	return diefields.ListMutOf(d, tableRowFields.Get().Cells)
 }
 
 // conditions describe additional status of a row that are relevant for a human user. These conditions
 // apply to the row, not to the object, and will be specific to table output. The only defined
 // condition type is 'Completed', for a row that indicates a resource that has run to completion and
 // can be given less visual priority.
-func (d *TableRowDieMut) Conditions() diefields.ValueMut[[]TableRowCondition] {
-	return diefields.ValueMutOf(d, tableRowFields.Get().Conditions)
+func (d *TableRowDieMut) Conditions() *diefields.ListMut[TableRowCondition, *TableRowConditionDie, *TableRowConditionDieMut] {
+	return diefields.ListMutOf(d, tableRowFields.Get().Conditions)
 }
 
 // This field contains the requested additional information about each object based on the includeObject
@@ -5624,7 +5624,7 @@ var UpdateOptionsBlank = diebase.Blank[UpdateOptions, *UpdateOptionsDie, *Update
 type updateOptionsFieldsTable struct {
 	Kind            diefields.Field[UpdateOptions, string]
 	APIVersion      diefields.Field[UpdateOptions, string]
-	DryRun          diefields.Field[UpdateOptions, []string]
+	DryRun          diefields.ListField[UpdateOptions, string, diefields.Value[string], diefields.ValueMut[string]]
 	FieldManager    diefields.Field[UpdateOptions, string]
 	FieldValidation diefields.Field[UpdateOptions, string]
 }
@@ -5633,7 +5633,7 @@ var updateOptionsFields = &diefields.Table[updateOptionsFieldsTable]{Build: func
 	_ = annotated
 	f.Kind = diefields.NewField[UpdateOptions, string]("kind")
 	f.APIVersion = diefields.NewField[UpdateOptions, string]("apiVersion")
-	f.DryRun = diefields.NewField[UpdateOptions, []string]("dryRun")
+	f.DryRun = diefields.NewValueList[UpdateOptions, string]("dryRun")
 	f.FieldManager = diefields.NewField[UpdateOptions, string]("fieldManager")
 	f.FieldValidation = diefields.NewField[UpdateOptions, string]("fieldValidation")
 	return
@@ -5661,8 +5661,8 @@ func (d *UpdateOptionsDie) APIVersion() diefields.Value[string] {
 // result in an error response and no further processing of the
 // request. Valid values are:
 // - All: all dry run stages will be processed
-func (d *UpdateOptionsDie) DryRun() diefields.Value[[]string] {
-	return diefields.ValueOf(d, updateOptionsFields.Get().DryRun)
+func (d *UpdateOptionsDie) DryRun() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, updateOptionsFields.Get().DryRun)
 }
 
 // fieldManager is a name associated with the actor or entity
@@ -5715,8 +5715,8 @@ func (d *UpdateOptionsDieMut) APIVersion() diefields.ValueMut[string] {
 // result in an error response and no further processing of the
 // request. Valid values are:
 // - All: all dry run stages will be processed
-func (d *UpdateOptionsDieMut) DryRun() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, updateOptionsFields.Get().DryRun)
+func (d *UpdateOptionsDieMut) DryRun() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, updateOptionsFields.Get().DryRun)
 }
 
 // fieldManager is a name associated with the actor or entity

@@ -557,25 +557,25 @@ var AvoidPodsBlank = diebase.Blank[AvoidPods, *AvoidPodsDie, *AvoidPodsDieMut]()
 // +k8s:deepcopy-gen=false
 
 type avoidPodsFieldsTable struct {
-	PreferAvoidPods diefields.Field[AvoidPods, []PreferAvoidPodsEntry]
+	PreferAvoidPods diefields.ListField[AvoidPods, PreferAvoidPodsEntry, *PreferAvoidPodsEntryDie, *PreferAvoidPodsEntryDieMut]
 }
 
 var avoidPodsFields = &diefields.Table[avoidPodsFieldsTable]{Build: func() (f avoidPodsFieldsTable) {
 	_ = annotated
-	f.PreferAvoidPods = diefields.NewItems[AvoidPods, []PreferAvoidPodsEntry, PreferAvoidPodsEntry, *PreferAvoidPodsEntryDie, *PreferAvoidPodsEntryDieMut]("preferAvoidPods")
+	f.PreferAvoidPods = diefields.NewList[AvoidPods, PreferAvoidPodsEntry, *PreferAvoidPodsEntryDie, *PreferAvoidPodsEntryDieMut]("preferAvoidPods")
 	return
 }}
 
 // Bounded-sized list of signatures of pods that should avoid this node, sorted
 // in timestamp order from oldest to newest. Size of the slice is unspecified.
-func (d *AvoidPodsDie) PreferAvoidPods() diefields.Value[[]PreferAvoidPodsEntry] {
-	return diefields.ValueOf(d, avoidPodsFields.Get().PreferAvoidPods)
+func (d *AvoidPodsDie) PreferAvoidPods() *diefields.List[PreferAvoidPodsEntry, *PreferAvoidPodsEntryDie] {
+	return diefields.ListOf(d, avoidPodsFields.Get().PreferAvoidPods)
 }
 
 // Bounded-sized list of signatures of pods that should avoid this node, sorted
 // in timestamp order from oldest to newest. Size of the slice is unspecified.
-func (d *AvoidPodsDieMut) PreferAvoidPods() diefields.ValueMut[[]PreferAvoidPodsEntry] {
-	return diefields.ValueMutOf(d, avoidPodsFields.Get().PreferAvoidPods)
+func (d *AvoidPodsDieMut) PreferAvoidPods() *diefields.ListMut[PreferAvoidPodsEntry, *PreferAvoidPodsEntryDie, *PreferAvoidPodsEntryDieMut] {
+	return diefields.ListMutOf(d, avoidPodsFields.Get().PreferAvoidPods)
 }
 
 // +kubebuilder:object:generate=false
@@ -1565,35 +1565,35 @@ func (d *CapabilitiesDieMut) DieStampApplyConfiguration(fn func(ac *Capabilities
 // +k8s:deepcopy-gen=false
 
 type capabilitiesFieldsTable struct {
-	Add  diefields.Field[Capabilities, []Capability]
-	Drop diefields.Field[Capabilities, []Capability]
+	Add  diefields.ListField[Capabilities, Capability, diefields.Value[Capability], diefields.ValueMut[Capability]]
+	Drop diefields.ListField[Capabilities, Capability, diefields.Value[Capability], diefields.ValueMut[Capability]]
 }
 
 var capabilitiesFields = &diefields.Table[capabilitiesFieldsTable]{Build: func() (f capabilitiesFieldsTable) {
 	_ = annotated
-	f.Add = diefields.NewField[Capabilities, []Capability]("add")
-	f.Drop = diefields.NewField[Capabilities, []Capability]("drop")
+	f.Add = diefields.NewValueList[Capabilities, Capability]("add")
+	f.Drop = diefields.NewValueList[Capabilities, Capability]("drop")
 	return
 }}
 
 // Added capabilities
-func (d *CapabilitiesDie) Add() diefields.Value[[]Capability] {
-	return diefields.ValueOf(d, capabilitiesFields.Get().Add)
+func (d *CapabilitiesDie) Add() *diefields.List[Capability, diefields.Value[Capability]] {
+	return diefields.ListOf(d, capabilitiesFields.Get().Add)
 }
 
 // Removed capabilities
-func (d *CapabilitiesDie) Drop() diefields.Value[[]Capability] {
-	return diefields.ValueOf(d, capabilitiesFields.Get().Drop)
+func (d *CapabilitiesDie) Drop() *diefields.List[Capability, diefields.Value[Capability]] {
+	return diefields.ListOf(d, capabilitiesFields.Get().Drop)
 }
 
 // Added capabilities
-func (d *CapabilitiesDieMut) Add() diefields.ValueMut[[]Capability] {
-	return diefields.ValueMutOf(d, capabilitiesFields.Get().Add)
+func (d *CapabilitiesDieMut) Add() *diefields.ListMut[Capability, diefields.Value[Capability], diefields.ValueMut[Capability]] {
+	return diefields.ListMutOf(d, capabilitiesFields.Get().Add)
 }
 
 // Removed capabilities
-func (d *CapabilitiesDieMut) Drop() diefields.ValueMut[[]Capability] {
-	return diefields.ValueMutOf(d, capabilitiesFields.Get().Drop)
+func (d *CapabilitiesDieMut) Drop() *diefields.ListMut[Capability, diefields.Value[Capability], diefields.ValueMut[Capability]] {
+	return diefields.ListMutOf(d, capabilitiesFields.Get().Drop)
 }
 
 // +kubebuilder:object:generate=false
@@ -1669,7 +1669,7 @@ func (d *CephFSPersistentVolumeSourceDieMut) DieStampApplyConfiguration(fn func(
 // +k8s:deepcopy-gen=false
 
 type cephFSPersistentVolumeSourceFieldsTable struct {
-	Monitors   diefields.Field[CephFSPersistentVolumeSource, []string]
+	Monitors   diefields.ListField[CephFSPersistentVolumeSource, string, diefields.Value[string], diefields.ValueMut[string]]
 	Path       diefields.Field[CephFSPersistentVolumeSource, string]
 	User       diefields.Field[CephFSPersistentVolumeSource, string]
 	SecretFile diefields.Field[CephFSPersistentVolumeSource, string]
@@ -1679,7 +1679,7 @@ type cephFSPersistentVolumeSourceFieldsTable struct {
 
 var cephFSPersistentVolumeSourceFields = &diefields.Table[cephFSPersistentVolumeSourceFieldsTable]{Build: func() (f cephFSPersistentVolumeSourceFieldsTable) {
 	_ = annotated
-	f.Monitors = diefields.NewField[CephFSPersistentVolumeSource, []string]("monitors")
+	f.Monitors = diefields.NewValueList[CephFSPersistentVolumeSource, string]("monitors")
 	f.Path = diefields.NewField[CephFSPersistentVolumeSource, string]("path")
 	f.User = diefields.NewField[CephFSPersistentVolumeSource, string]("user")
 	f.SecretFile = diefields.NewField[CephFSPersistentVolumeSource, string]("secretFile")
@@ -1690,8 +1690,8 @@ var cephFSPersistentVolumeSourceFields = &diefields.Table[cephFSPersistentVolume
 
 // monitors is Required: Monitors is a collection of Ceph monitors
 // More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
-func (d *CephFSPersistentVolumeSourceDie) Monitors() diefields.Value[[]string] {
-	return diefields.ValueOf(d, cephFSPersistentVolumeSourceFields.Get().Monitors)
+func (d *CephFSPersistentVolumeSourceDie) Monitors() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, cephFSPersistentVolumeSourceFields.Get().Monitors)
 }
 
 // path is Optional: Used as the mounted root, rather than the full Ceph tree, default is /
@@ -1726,8 +1726,8 @@ func (d *CephFSPersistentVolumeSourceDie) ReadOnly() diefields.Value[bool] {
 
 // monitors is Required: Monitors is a collection of Ceph monitors
 // More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
-func (d *CephFSPersistentVolumeSourceDieMut) Monitors() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, cephFSPersistentVolumeSourceFields.Get().Monitors)
+func (d *CephFSPersistentVolumeSourceDieMut) Monitors() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, cephFSPersistentVolumeSourceFields.Get().Monitors)
 }
 
 // path is Optional: Used as the mounted root, rather than the full Ceph tree, default is /
@@ -1833,7 +1833,7 @@ func (d *CephFSVolumeSourceDieMut) DieStampApplyConfiguration(fn func(ac *CephFS
 // +k8s:deepcopy-gen=false
 
 type cephFSVolumeSourceFieldsTable struct {
-	Monitors   diefields.Field[CephFSVolumeSource, []string]
+	Monitors   diefields.ListField[CephFSVolumeSource, string, diefields.Value[string], diefields.ValueMut[string]]
 	Path       diefields.Field[CephFSVolumeSource, string]
 	User       diefields.Field[CephFSVolumeSource, string]
 	SecretFile diefields.Field[CephFSVolumeSource, string]
@@ -1843,7 +1843,7 @@ type cephFSVolumeSourceFieldsTable struct {
 
 var cephFSVolumeSourceFields = &diefields.Table[cephFSVolumeSourceFieldsTable]{Build: func() (f cephFSVolumeSourceFieldsTable) {
 	_ = annotated
-	f.Monitors = diefields.NewField[CephFSVolumeSource, []string]("monitors")
+	f.Monitors = diefields.NewValueList[CephFSVolumeSource, string]("monitors")
 	f.Path = diefields.NewField[CephFSVolumeSource, string]("path")
 	f.User = diefields.NewField[CephFSVolumeSource, string]("user")
 	f.SecretFile = diefields.NewField[CephFSVolumeSource, string]("secretFile")
@@ -1854,8 +1854,8 @@ var cephFSVolumeSourceFields = &diefields.Table[cephFSVolumeSourceFieldsTable]{B
 
 // monitors is Required: Monitors is a collection of Ceph monitors
 // More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
-func (d *CephFSVolumeSourceDie) Monitors() diefields.Value[[]string] {
-	return diefields.ValueOf(d, cephFSVolumeSourceFields.Get().Monitors)
+func (d *CephFSVolumeSourceDie) Monitors() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, cephFSVolumeSourceFields.Get().Monitors)
 }
 
 // path is Optional: Used as the mounted root, rather than the full Ceph tree, default is /
@@ -1890,8 +1890,8 @@ func (d *CephFSVolumeSourceDie) ReadOnly() diefields.Value[bool] {
 
 // monitors is Required: Monitors is a collection of Ceph monitors
 // More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
-func (d *CephFSVolumeSourceDieMut) Monitors() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, cephFSVolumeSourceFields.Get().Monitors)
+func (d *CephFSVolumeSourceDieMut) Monitors() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, cephFSVolumeSourceFields.Get().Monitors)
 }
 
 // path is Optional: Used as the mounted root, rather than the full Ceph tree, default is /
@@ -3473,14 +3473,14 @@ func (d *ConfigMapProjectionDieMut) DieStampApplyConfiguration(fn func(ac *Confi
 
 type configMapProjectionFieldsTable struct {
 	Name     diefields.Field[ConfigMapProjection, string]
-	Items    diefields.Field[ConfigMapProjection, []KeyToPath]
+	Items    diefields.ListField[ConfigMapProjection, KeyToPath, *KeyToPathDie, *KeyToPathDieMut]
 	Optional diefields.Field[ConfigMapProjection, *bool]
 }
 
 var configMapProjectionFields = &diefields.Table[configMapProjectionFieldsTable]{Build: func() (f configMapProjectionFieldsTable) {
 	_ = annotated
 	f.Name = diefields.NewField[ConfigMapProjection, string]("name")
-	f.Items = diefields.NewItems[ConfigMapProjection, []KeyToPath, KeyToPath, *KeyToPathDie, *KeyToPathDieMut]("items")
+	f.Items = diefields.NewList[ConfigMapProjection, KeyToPath, *KeyToPathDie, *KeyToPathDieMut]("items")
 	f.Optional = diefields.NewField[ConfigMapProjection, *bool]("optional")
 	return
 }}
@@ -3502,8 +3502,8 @@ func (d *ConfigMapProjectionDie) Name() diefields.Value[string] {
 // present. If a key is specified which is not present in the ConfigMap,
 // the volume setup will error unless it is marked optional. Paths must be
 // relative and may not contain the '..' path or start with '..'.
-func (d *ConfigMapProjectionDie) Items() diefields.Value[[]KeyToPath] {
-	return diefields.ValueOf(d, configMapProjectionFields.Get().Items)
+func (d *ConfigMapProjectionDie) Items() *diefields.List[KeyToPath, *KeyToPathDie] {
+	return diefields.ListOf(d, configMapProjectionFields.Get().Items)
 }
 
 // optional specify whether the ConfigMap or its keys must be defined
@@ -3528,8 +3528,8 @@ func (d *ConfigMapProjectionDieMut) Name() diefields.ValueMut[string] {
 // present. If a key is specified which is not present in the ConfigMap,
 // the volume setup will error unless it is marked optional. Paths must be
 // relative and may not contain the '..' path or start with '..'.
-func (d *ConfigMapProjectionDieMut) Items() diefields.ValueMut[[]KeyToPath] {
-	return diefields.ValueMutOf(d, configMapProjectionFields.Get().Items)
+func (d *ConfigMapProjectionDieMut) Items() *diefields.ListMut[KeyToPath, *KeyToPathDie, *KeyToPathDieMut] {
+	return diefields.ListMutOf(d, configMapProjectionFields.Get().Items)
 }
 
 // optional specify whether the ConfigMap or its keys must be defined
@@ -3615,7 +3615,7 @@ func (d *ConfigMapVolumeSourceDieMut) DieStampApplyConfiguration(fn func(ac *Con
 
 type configMapVolumeSourceFieldsTable struct {
 	Name        diefields.Field[ConfigMapVolumeSource, string]
-	Items       diefields.Field[ConfigMapVolumeSource, []KeyToPath]
+	Items       diefields.ListField[ConfigMapVolumeSource, KeyToPath, *KeyToPathDie, *KeyToPathDieMut]
 	DefaultMode diefields.Field[ConfigMapVolumeSource, *int32]
 	Optional    diefields.Field[ConfigMapVolumeSource, *bool]
 	DefaultUser diefields.Field[ConfigMapVolumeSource, *int64]
@@ -3624,7 +3624,7 @@ type configMapVolumeSourceFieldsTable struct {
 var configMapVolumeSourceFields = &diefields.Table[configMapVolumeSourceFieldsTable]{Build: func() (f configMapVolumeSourceFieldsTable) {
 	_ = annotated
 	f.Name = diefields.NewField[ConfigMapVolumeSource, string]("name")
-	f.Items = diefields.NewItems[ConfigMapVolumeSource, []KeyToPath, KeyToPath, *KeyToPathDie, *KeyToPathDieMut]("items")
+	f.Items = diefields.NewList[ConfigMapVolumeSource, KeyToPath, *KeyToPathDie, *KeyToPathDieMut]("items")
 	f.DefaultMode = diefields.NewField[ConfigMapVolumeSource, *int32]("defaultMode")
 	f.Optional = diefields.NewField[ConfigMapVolumeSource, *bool]("optional")
 	f.DefaultUser = diefields.NewField[ConfigMapVolumeSource, *int64]("defaultUser")
@@ -3648,8 +3648,8 @@ func (d *ConfigMapVolumeSourceDie) Name() diefields.Value[string] {
 // present. If a key is specified which is not present in the ConfigMap,
 // the volume setup will error unless it is marked optional. Paths must be
 // relative and may not contain the '..' path or start with '..'.
-func (d *ConfigMapVolumeSourceDie) Items() diefields.Value[[]KeyToPath] {
-	return diefields.ValueOf(d, configMapVolumeSourceFields.Get().Items)
+func (d *ConfigMapVolumeSourceDie) Items() *diefields.List[KeyToPath, *KeyToPathDie] {
+	return diefields.ListOf(d, configMapVolumeSourceFields.Get().Items)
 }
 
 // defaultMode is optional: mode bits used to set permissions on created files by default.
@@ -3692,8 +3692,8 @@ func (d *ConfigMapVolumeSourceDieMut) Name() diefields.ValueMut[string] {
 // present. If a key is specified which is not present in the ConfigMap,
 // the volume setup will error unless it is marked optional. Paths must be
 // relative and may not contain the '..' path or start with '..'.
-func (d *ConfigMapVolumeSourceDieMut) Items() diefields.ValueMut[[]KeyToPath] {
-	return diefields.ValueMutOf(d, configMapVolumeSourceFields.Get().Items)
+func (d *ConfigMapVolumeSourceDieMut) Items() *diefields.ListMut[KeyToPath, *KeyToPathDie, *KeyToPathDieMut] {
+	return diefields.ListMutOf(d, configMapVolumeSourceFields.Get().Items)
 }
 
 // defaultMode is optional: mode bits used to set permissions on created files by default.
@@ -3793,16 +3793,16 @@ func (d *ContainerDieMut) DieStampApplyConfiguration(fn func(ac *ContainerApplyC
 type containerFieldsTable struct {
 	Name                     diefields.Field[Container, string]
 	Image                    diefields.Field[Container, string]
-	Command                  diefields.Field[Container, []string]
-	Args                     diefields.Field[Container, []string]
+	Command                  diefields.ListField[Container, string, diefields.Value[string], diefields.ValueMut[string]]
+	Args                     diefields.ListField[Container, string, diefields.Value[string], diefields.ValueMut[string]]
 	WorkingDir               diefields.Field[Container, string]
 	Ports                    diefields.ListMapField[Container, ContainerPort, *ContainerPortDie, *ContainerPortDieMut, ContainerPortKey]
-	EnvFrom                  diefields.Field[Container, []EnvFromSource]
+	EnvFrom                  diefields.ListField[Container, EnvFromSource, *EnvFromSourceDie, *EnvFromSourceDieMut]
 	Env                      diefields.ListMapField[Container, EnvVar, *EnvVarDie, *EnvVarDieMut, string]
 	Resources                diefields.Struct[Container, ResourceRequirements, *ResourceRequirementsDie, *ResourceRequirementsDieMut]
-	ResizePolicy             diefields.Field[Container, []ContainerResizePolicy]
+	ResizePolicy             diefields.ListField[Container, ContainerResizePolicy, *ContainerResizePolicyDie, *ContainerResizePolicyDieMut]
 	RestartPolicy            diefields.Field[Container, *ContainerRestartPolicy]
-	RestartPolicyRules       diefields.Field[Container, []ContainerRestartRule]
+	RestartPolicyRules       diefields.ListField[Container, ContainerRestartRule, *ContainerRestartRuleDie, *ContainerRestartRuleDieMut]
 	VolumeMounts             diefields.ListMapField[Container, VolumeMount, *VolumeMountDie, *VolumeMountDieMut, string]
 	VolumeDevices            diefields.ListMapField[Container, VolumeDevice, *VolumeDeviceDie, *VolumeDeviceDieMut, string]
 	LivenessProbe            diefields.Struct[Container, Probe, *ProbeDie, *ProbeDieMut]
@@ -3822,18 +3822,18 @@ var containerFields = &diefields.Table[containerFieldsTable]{Build: func() (f co
 	_ = annotated
 	f.Name = diefields.NewField[Container, string]("name")
 	f.Image = diefields.NewField[Container, string]("image")
-	f.Command = diefields.NewField[Container, []string]("command")
-	f.Args = diefields.NewField[Container, []string]("args")
+	f.Command = diefields.NewValueList[Container, string]("command")
+	f.Args = diefields.NewValueList[Container, string]("args")
 	f.WorkingDir = diefields.NewField[Container, string]("workingDir")
 	f.Ports = diefields.NewListMap[Container, ContainerPort, *ContainerPortDie, *ContainerPortDieMut]("ports", func(k ContainerPortKey) []any { return []any{k.ContainerPort, k.Protocol} }, func(e ContainerPort) ContainerPortKey {
 		return ContainerPortKey{ContainerPort: e.ContainerPort, Protocol: e.Protocol}
 	})
-	f.EnvFrom = diefields.NewItems[Container, []EnvFromSource, EnvFromSource, *EnvFromSourceDie, *EnvFromSourceDieMut]("envFrom")
+	f.EnvFrom = diefields.NewList[Container, EnvFromSource, *EnvFromSourceDie, *EnvFromSourceDieMut]("envFrom")
 	f.Env = diefields.NewListMap[Container, EnvVar, *EnvVarDie, *EnvVarDieMut]("env", func(k string) []any { return []any{k} }, func(e EnvVar) string { return e.Name })
 	f.Resources = diefields.NewStruct[Container, ResourceRequirements, *ResourceRequirementsDie, *ResourceRequirementsDieMut]("resources")
-	f.ResizePolicy = diefields.NewItems[Container, []ContainerResizePolicy, ContainerResizePolicy, *ContainerResizePolicyDie, *ContainerResizePolicyDieMut]("resizePolicy")
+	f.ResizePolicy = diefields.NewList[Container, ContainerResizePolicy, *ContainerResizePolicyDie, *ContainerResizePolicyDieMut]("resizePolicy")
 	f.RestartPolicy = diefields.NewField[Container, *ContainerRestartPolicy]("restartPolicy")
-	f.RestartPolicyRules = diefields.NewItems[Container, []ContainerRestartRule, ContainerRestartRule, *ContainerRestartRuleDie, *ContainerRestartRuleDieMut]("restartPolicyRules")
+	f.RestartPolicyRules = diefields.NewList[Container, ContainerRestartRule, *ContainerRestartRuleDie, *ContainerRestartRuleDieMut]("restartPolicyRules")
 	f.VolumeMounts = diefields.NewListMap[Container, VolumeMount, *VolumeMountDie, *VolumeMountDieMut]("volumeMounts", func(k string) []any { return []any{k} }, func(e VolumeMount) string { return e.MountPath })
 	f.VolumeDevices = diefields.NewListMap[Container, VolumeDevice, *VolumeDeviceDie, *VolumeDeviceDieMut]("volumeDevices", func(k string) []any { return []any{k} }, func(e VolumeDevice) string { return e.DevicePath })
 	f.LivenessProbe = diefields.NewStruct[Container, Probe, *ProbeDie, *ProbeDieMut]("livenessProbe")
@@ -3873,8 +3873,8 @@ func (d *ContainerDie) Image() diefields.Value[string] {
 // produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless
 // of whether the variable exists or not. Cannot be updated.
 // More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
-func (d *ContainerDie) Command() diefields.Value[[]string] {
-	return diefields.ValueOf(d, containerFields.Get().Command)
+func (d *ContainerDie) Command() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, containerFields.Get().Command)
 }
 
 // Arguments to the entrypoint.
@@ -3885,8 +3885,8 @@ func (d *ContainerDie) Command() diefields.Value[[]string] {
 // produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless
 // of whether the variable exists or not. Cannot be updated.
 // More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
-func (d *ContainerDie) Args() diefields.Value[[]string] {
-	return diefields.ValueOf(d, containerFields.Get().Args)
+func (d *ContainerDie) Args() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, containerFields.Get().Args)
 }
 
 // Container's working directory.
@@ -3914,8 +3914,8 @@ func (d *ContainerDie) Ports() *ContainerPortListMap {
 // sources, the value associated with the last source will take precedence.
 // Values defined by an Env with a duplicate key will take precedence.
 // Cannot be updated.
-func (d *ContainerDie) EnvFrom() diefields.Value[[]EnvFromSource] {
-	return diefields.ValueOf(d, containerFields.Get().EnvFrom)
+func (d *ContainerDie) EnvFrom() *diefields.List[EnvFromSource, *EnvFromSourceDie] {
+	return diefields.ListOf(d, containerFields.Get().EnvFrom)
 }
 
 // List of environment variables to set in the container.
@@ -3931,8 +3931,8 @@ func (d *ContainerDie) Resources() *ResourceRequirementsDie {
 
 // Resources resize policy for the container.
 // This field cannot be set on ephemeral containers.
-func (d *ContainerDie) ResizePolicy() diefields.Value[[]ContainerResizePolicy] {
-	return diefields.ValueOf(d, containerFields.Get().ResizePolicy)
+func (d *ContainerDie) ResizePolicy() *diefields.List[ContainerResizePolicy, *ContainerResizePolicyDie] {
+	return diefields.ListOf(d, containerFields.Get().ResizePolicy)
 }
 
 // RestartPolicy defines the restart behavior of individual containers in a pod.
@@ -3965,8 +3965,8 @@ func (d *ContainerDie) RestartPolicy() diefields.Optional[ContainerRestartPolicy
 // - Identical rules are not forbidden in validations.
 // When rules are specified, container MUST set RestartPolicy explicitly
 // even it if matches the Pod's RestartPolicy.
-func (d *ContainerDie) RestartPolicyRules() diefields.Value[[]ContainerRestartRule] {
-	return diefields.ValueOf(d, containerFields.Get().RestartPolicyRules)
+func (d *ContainerDie) RestartPolicyRules() *diefields.List[ContainerRestartRule, *ContainerRestartRuleDie] {
+	return diefields.ListOf(d, containerFields.Get().RestartPolicyRules)
 }
 
 // Pod volumes to mount into the container's filesystem.
@@ -4098,8 +4098,8 @@ func (d *ContainerDieMut) Image() diefields.ValueMut[string] {
 // produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless
 // of whether the variable exists or not. Cannot be updated.
 // More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
-func (d *ContainerDieMut) Command() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, containerFields.Get().Command)
+func (d *ContainerDieMut) Command() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, containerFields.Get().Command)
 }
 
 // Arguments to the entrypoint.
@@ -4110,8 +4110,8 @@ func (d *ContainerDieMut) Command() diefields.ValueMut[[]string] {
 // produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless
 // of whether the variable exists or not. Cannot be updated.
 // More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
-func (d *ContainerDieMut) Args() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, containerFields.Get().Args)
+func (d *ContainerDieMut) Args() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, containerFields.Get().Args)
 }
 
 // Container's working directory.
@@ -4139,8 +4139,8 @@ func (d *ContainerDieMut) Ports() *ContainerPortListMapMut {
 // sources, the value associated with the last source will take precedence.
 // Values defined by an Env with a duplicate key will take precedence.
 // Cannot be updated.
-func (d *ContainerDieMut) EnvFrom() diefields.ValueMut[[]EnvFromSource] {
-	return diefields.ValueMutOf(d, containerFields.Get().EnvFrom)
+func (d *ContainerDieMut) EnvFrom() *diefields.ListMut[EnvFromSource, *EnvFromSourceDie, *EnvFromSourceDieMut] {
+	return diefields.ListMutOf(d, containerFields.Get().EnvFrom)
 }
 
 // List of environment variables to set in the container.
@@ -4158,8 +4158,8 @@ func (d *ContainerDieMut) Resources() *ResourceRequirementsDieMut {
 
 // Resources resize policy for the container.
 // This field cannot be set on ephemeral containers.
-func (d *ContainerDieMut) ResizePolicy() diefields.ValueMut[[]ContainerResizePolicy] {
-	return diefields.ValueMutOf(d, containerFields.Get().ResizePolicy)
+func (d *ContainerDieMut) ResizePolicy() *diefields.ListMut[ContainerResizePolicy, *ContainerResizePolicyDie, *ContainerResizePolicyDieMut] {
+	return diefields.ListMutOf(d, containerFields.Get().ResizePolicy)
 }
 
 // RestartPolicy defines the restart behavior of individual containers in a pod.
@@ -4192,8 +4192,8 @@ func (d *ContainerDieMut) RestartPolicy() diefields.OptionalMut[ContainerRestart
 // - Identical rules are not forbidden in validations.
 // When rules are specified, container MUST set RestartPolicy explicitly
 // even it if matches the Pod's RestartPolicy.
-func (d *ContainerDieMut) RestartPolicyRules() diefields.ValueMut[[]ContainerRestartRule] {
-	return diefields.ValueMutOf(d, containerFields.Get().RestartPolicyRules)
+func (d *ContainerDieMut) RestartPolicyRules() *diefields.ListMut[ContainerRestartRule, *ContainerRestartRuleDie, *ContainerRestartRuleDieMut] {
+	return diefields.ListMutOf(d, containerFields.Get().RestartPolicyRules)
 }
 
 // Pod volumes to mount into the container's filesystem.
@@ -4490,21 +4490,21 @@ func (d *ContainerImageDieMut) DieStampApplyConfiguration(fn func(ac *ContainerI
 // +k8s:deepcopy-gen=false
 
 type containerImageFieldsTable struct {
-	Names     diefields.Field[ContainerImage, []string]
+	Names     diefields.ListField[ContainerImage, string, diefields.Value[string], diefields.ValueMut[string]]
 	SizeBytes diefields.Field[ContainerImage, int64]
 }
 
 var containerImageFields = &diefields.Table[containerImageFieldsTable]{Build: func() (f containerImageFieldsTable) {
 	_ = annotated
-	f.Names = diefields.NewField[ContainerImage, []string]("names")
+	f.Names = diefields.NewValueList[ContainerImage, string]("names")
 	f.SizeBytes = diefields.NewField[ContainerImage, int64]("sizeBytes")
 	return
 }}
 
 // Names by which this image is known.
 // e.g. ["kubernetes.example/hyperkube:v1.0.7", "cloud-vendor.registry.example/cloud-vendor/hyperkube:v1.0.7"]
-func (d *ContainerImageDie) Names() diefields.Value[[]string] {
-	return diefields.ValueOf(d, containerImageFields.Get().Names)
+func (d *ContainerImageDie) Names() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, containerImageFields.Get().Names)
 }
 
 // The size of the image in bytes.
@@ -4514,8 +4514,8 @@ func (d *ContainerImageDie) SizeBytes() diefields.Value[int64] {
 
 // Names by which this image is known.
 // e.g. ["kubernetes.example/hyperkube:v1.0.7", "cloud-vendor.registry.example/cloud-vendor/hyperkube:v1.0.7"]
-func (d *ContainerImageDieMut) Names() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, containerImageFields.Get().Names)
+func (d *ContainerImageDieMut) Names() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, containerImageFields.Get().Names)
 }
 
 // The size of the image in bytes.
@@ -4964,13 +4964,13 @@ func (d *ContainerRestartRuleOnExitCodesDieMut) DieStampApplyConfiguration(fn fu
 
 type containerRestartRuleOnExitCodesFieldsTable struct {
 	Operator diefields.Field[ContainerRestartRuleOnExitCodes, ContainerRestartRuleOnExitCodesOperator]
-	Values   diefields.Field[ContainerRestartRuleOnExitCodes, []int32]
+	Values   diefields.ListField[ContainerRestartRuleOnExitCodes, int32, diefields.Value[int32], diefields.ValueMut[int32]]
 }
 
 var containerRestartRuleOnExitCodesFields = &diefields.Table[containerRestartRuleOnExitCodesFieldsTable]{Build: func() (f containerRestartRuleOnExitCodesFieldsTable) {
 	_ = annotated
 	f.Operator = diefields.NewField[ContainerRestartRuleOnExitCodes, ContainerRestartRuleOnExitCodesOperator]("operator")
-	f.Values = diefields.NewField[ContainerRestartRuleOnExitCodes, []int32]("values")
+	f.Values = diefields.NewValueList[ContainerRestartRuleOnExitCodes, int32]("values")
 	return
 }}
 
@@ -4986,8 +4986,8 @@ func (d *ContainerRestartRuleOnExitCodesDie) Operator() diefields.Value[Containe
 
 // Specifies the set of values to check for container exit codes.
 // At most 255 elements are allowed.
-func (d *ContainerRestartRuleOnExitCodesDie) Values() diefields.Value[[]int32] {
-	return diefields.ValueOf(d, containerRestartRuleOnExitCodesFields.Get().Values)
+func (d *ContainerRestartRuleOnExitCodesDie) Values() *diefields.List[int32, diefields.Value[int32]] {
+	return diefields.ListOf(d, containerRestartRuleOnExitCodesFields.Get().Values)
 }
 
 // Represents the relationship between the container exit code(s) and the
@@ -5002,8 +5002,8 @@ func (d *ContainerRestartRuleOnExitCodesDieMut) Operator() diefields.ValueMut[Co
 
 // Specifies the set of values to check for container exit codes.
 // At most 255 elements are allowed.
-func (d *ContainerRestartRuleOnExitCodesDieMut) Values() diefields.ValueMut[[]int32] {
-	return diefields.ValueMutOf(d, containerRestartRuleOnExitCodesFields.Get().Values)
+func (d *ContainerRestartRuleOnExitCodesDieMut) Values() *diefields.ListMut[int32, diefields.Value[int32], diefields.ValueMut[int32]] {
+	return diefields.ListMutOf(d, containerRestartRuleOnExitCodesFields.Get().Values)
 }
 
 // +kubebuilder:object:generate=false
@@ -6059,23 +6059,23 @@ func (d *DownwardAPIProjectionDieMut) DieStampApplyConfiguration(fn func(ac *Dow
 // +k8s:deepcopy-gen=false
 
 type downwardAPIProjectionFieldsTable struct {
-	Items diefields.Field[DownwardAPIProjection, []DownwardAPIVolumeFile]
+	Items diefields.ListField[DownwardAPIProjection, DownwardAPIVolumeFile, *DownwardAPIVolumeFileDie, *DownwardAPIVolumeFileDieMut]
 }
 
 var downwardAPIProjectionFields = &diefields.Table[downwardAPIProjectionFieldsTable]{Build: func() (f downwardAPIProjectionFieldsTable) {
 	_ = annotated
-	f.Items = diefields.NewItems[DownwardAPIProjection, []DownwardAPIVolumeFile, DownwardAPIVolumeFile, *DownwardAPIVolumeFileDie, *DownwardAPIVolumeFileDieMut]("items")
+	f.Items = diefields.NewList[DownwardAPIProjection, DownwardAPIVolumeFile, *DownwardAPIVolumeFileDie, *DownwardAPIVolumeFileDieMut]("items")
 	return
 }}
 
 // Items is a list of DownwardAPIVolume file
-func (d *DownwardAPIProjectionDie) Items() diefields.Value[[]DownwardAPIVolumeFile] {
-	return diefields.ValueOf(d, downwardAPIProjectionFields.Get().Items)
+func (d *DownwardAPIProjectionDie) Items() *diefields.List[DownwardAPIVolumeFile, *DownwardAPIVolumeFileDie] {
+	return diefields.ListOf(d, downwardAPIProjectionFields.Get().Items)
 }
 
 // Items is a list of DownwardAPIVolume file
-func (d *DownwardAPIProjectionDieMut) Items() diefields.ValueMut[[]DownwardAPIVolumeFile] {
-	return diefields.ValueMutOf(d, downwardAPIProjectionFields.Get().Items)
+func (d *DownwardAPIProjectionDieMut) Items() *diefields.ListMut[DownwardAPIVolumeFile, *DownwardAPIVolumeFileDie, *DownwardAPIVolumeFileDieMut] {
+	return diefields.ListMutOf(d, downwardAPIProjectionFields.Get().Items)
 }
 
 // +kubebuilder:object:generate=false
@@ -6306,22 +6306,22 @@ func (d *DownwardAPIVolumeSourceDieMut) DieStampApplyConfiguration(fn func(ac *D
 // +k8s:deepcopy-gen=false
 
 type downwardAPIVolumeSourceFieldsTable struct {
-	Items       diefields.Field[DownwardAPIVolumeSource, []DownwardAPIVolumeFile]
+	Items       diefields.ListField[DownwardAPIVolumeSource, DownwardAPIVolumeFile, *DownwardAPIVolumeFileDie, *DownwardAPIVolumeFileDieMut]
 	DefaultMode diefields.Field[DownwardAPIVolumeSource, *int32]
 	DefaultUser diefields.Field[DownwardAPIVolumeSource, *int64]
 }
 
 var downwardAPIVolumeSourceFields = &diefields.Table[downwardAPIVolumeSourceFieldsTable]{Build: func() (f downwardAPIVolumeSourceFieldsTable) {
 	_ = annotated
-	f.Items = diefields.NewItems[DownwardAPIVolumeSource, []DownwardAPIVolumeFile, DownwardAPIVolumeFile, *DownwardAPIVolumeFileDie, *DownwardAPIVolumeFileDieMut]("items")
+	f.Items = diefields.NewList[DownwardAPIVolumeSource, DownwardAPIVolumeFile, *DownwardAPIVolumeFileDie, *DownwardAPIVolumeFileDieMut]("items")
 	f.DefaultMode = diefields.NewField[DownwardAPIVolumeSource, *int32]("defaultMode")
 	f.DefaultUser = diefields.NewField[DownwardAPIVolumeSource, *int64]("defaultUser")
 	return
 }}
 
 // Items is a list of downward API volume file
-func (d *DownwardAPIVolumeSourceDie) Items() diefields.Value[[]DownwardAPIVolumeFile] {
-	return diefields.ValueOf(d, downwardAPIVolumeSourceFields.Get().Items)
+func (d *DownwardAPIVolumeSourceDie) Items() *diefields.List[DownwardAPIVolumeFile, *DownwardAPIVolumeFileDie] {
+	return diefields.ListOf(d, downwardAPIVolumeSourceFields.Get().Items)
 }
 
 // Optional: mode bits to use on created files by default. Must be a
@@ -6344,8 +6344,8 @@ func (d *DownwardAPIVolumeSourceDie) DefaultUser() diefields.Optional[int64] {
 }
 
 // Items is a list of downward API volume file
-func (d *DownwardAPIVolumeSourceDieMut) Items() diefields.ValueMut[[]DownwardAPIVolumeFile] {
-	return diefields.ValueMutOf(d, downwardAPIVolumeSourceFields.Get().Items)
+func (d *DownwardAPIVolumeSourceDieMut) Items() *diefields.ListMut[DownwardAPIVolumeFile, *DownwardAPIVolumeFileDie, *DownwardAPIVolumeFileDieMut] {
+	return diefields.ListMutOf(d, downwardAPIVolumeSourceFields.Get().Items)
 }
 
 // Optional: mode bits to use on created files by default. Must be a
@@ -6900,53 +6900,53 @@ func (d *EndpointSubsetDieMut) DieStampApplyConfiguration(fn func(ac *EndpointSu
 // +k8s:deepcopy-gen=false
 
 type endpointSubsetFieldsTable struct {
-	Addresses         diefields.Field[EndpointSubset, []EndpointAddress]
-	NotReadyAddresses diefields.Field[EndpointSubset, []EndpointAddress]
-	Ports             diefields.Field[EndpointSubset, []EndpointPort]
+	Addresses         diefields.ListField[EndpointSubset, EndpointAddress, *EndpointAddressDie, *EndpointAddressDieMut]
+	NotReadyAddresses diefields.ListField[EndpointSubset, EndpointAddress, *EndpointAddressDie, *EndpointAddressDieMut]
+	Ports             diefields.ListField[EndpointSubset, EndpointPort, *EndpointPortDie, *EndpointPortDieMut]
 }
 
 var endpointSubsetFields = &diefields.Table[endpointSubsetFieldsTable]{Build: func() (f endpointSubsetFieldsTable) {
 	_ = annotated
-	f.Addresses = diefields.NewItems[EndpointSubset, []EndpointAddress, EndpointAddress, *EndpointAddressDie, *EndpointAddressDieMut]("addresses")
-	f.NotReadyAddresses = diefields.NewItems[EndpointSubset, []EndpointAddress, EndpointAddress, *EndpointAddressDie, *EndpointAddressDieMut]("notReadyAddresses")
-	f.Ports = diefields.NewItems[EndpointSubset, []EndpointPort, EndpointPort, *EndpointPortDie, *EndpointPortDieMut]("ports")
+	f.Addresses = diefields.NewList[EndpointSubset, EndpointAddress, *EndpointAddressDie, *EndpointAddressDieMut]("addresses")
+	f.NotReadyAddresses = diefields.NewList[EndpointSubset, EndpointAddress, *EndpointAddressDie, *EndpointAddressDieMut]("notReadyAddresses")
+	f.Ports = diefields.NewList[EndpointSubset, EndpointPort, *EndpointPortDie, *EndpointPortDieMut]("ports")
 	return
 }}
 
 // IP addresses which offer the related ports that are marked as ready. These endpoints
 // should be considered safe for load balancers and clients to utilize.
-func (d *EndpointSubsetDie) Addresses() diefields.Value[[]EndpointAddress] {
-	return diefields.ValueOf(d, endpointSubsetFields.Get().Addresses)
+func (d *EndpointSubsetDie) Addresses() *diefields.List[EndpointAddress, *EndpointAddressDie] {
+	return diefields.ListOf(d, endpointSubsetFields.Get().Addresses)
 }
 
 // IP addresses which offer the related ports but are not currently marked as ready
 // because they have not yet finished starting, have recently failed a readiness check,
 // or have recently failed a liveness check.
-func (d *EndpointSubsetDie) NotReadyAddresses() diefields.Value[[]EndpointAddress] {
-	return diefields.ValueOf(d, endpointSubsetFields.Get().NotReadyAddresses)
+func (d *EndpointSubsetDie) NotReadyAddresses() *diefields.List[EndpointAddress, *EndpointAddressDie] {
+	return diefields.ListOf(d, endpointSubsetFields.Get().NotReadyAddresses)
 }
 
 // Port numbers available on the related IP addresses.
-func (d *EndpointSubsetDie) Ports() diefields.Value[[]EndpointPort] {
-	return diefields.ValueOf(d, endpointSubsetFields.Get().Ports)
+func (d *EndpointSubsetDie) Ports() *diefields.List[EndpointPort, *EndpointPortDie] {
+	return diefields.ListOf(d, endpointSubsetFields.Get().Ports)
 }
 
 // IP addresses which offer the related ports that are marked as ready. These endpoints
 // should be considered safe for load balancers and clients to utilize.
-func (d *EndpointSubsetDieMut) Addresses() diefields.ValueMut[[]EndpointAddress] {
-	return diefields.ValueMutOf(d, endpointSubsetFields.Get().Addresses)
+func (d *EndpointSubsetDieMut) Addresses() *diefields.ListMut[EndpointAddress, *EndpointAddressDie, *EndpointAddressDieMut] {
+	return diefields.ListMutOf(d, endpointSubsetFields.Get().Addresses)
 }
 
 // IP addresses which offer the related ports but are not currently marked as ready
 // because they have not yet finished starting, have recently failed a readiness check,
 // or have recently failed a liveness check.
-func (d *EndpointSubsetDieMut) NotReadyAddresses() diefields.ValueMut[[]EndpointAddress] {
-	return diefields.ValueMutOf(d, endpointSubsetFields.Get().NotReadyAddresses)
+func (d *EndpointSubsetDieMut) NotReadyAddresses() *diefields.ListMut[EndpointAddress, *EndpointAddressDie, *EndpointAddressDieMut] {
+	return diefields.ListMutOf(d, endpointSubsetFields.Get().NotReadyAddresses)
 }
 
 // Port numbers available on the related IP addresses.
-func (d *EndpointSubsetDieMut) Ports() diefields.ValueMut[[]EndpointPort] {
-	return diefields.ValueMutOf(d, endpointSubsetFields.Get().Ports)
+func (d *EndpointSubsetDieMut) Ports() *diefields.ListMut[EndpointPort, *EndpointPortDie, *EndpointPortDieMut] {
+	return diefields.ListMutOf(d, endpointSubsetFields.Get().Ports)
 }
 
 // +kubebuilder:object:generate=false
@@ -7044,7 +7044,7 @@ type endpointsFieldsTable struct {
 	Kind       diefields.Field[Endpoints, string]
 	APIVersion diefields.Field[Endpoints, string]
 	Metadata   diefields.Struct[Endpoints, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
-	Subsets    diefields.Field[Endpoints, []EndpointSubset]
+	Subsets    diefields.ListField[Endpoints, EndpointSubset, *EndpointSubsetDie, *EndpointSubsetDieMut]
 }
 
 var endpointsFields = &diefields.Table[endpointsFieldsTable]{Build: func() (f endpointsFieldsTable) {
@@ -7052,7 +7052,7 @@ var endpointsFields = &diefields.Table[endpointsFieldsTable]{Build: func() (f en
 	f.Kind = diefields.NewField[Endpoints, string]("kind")
 	f.APIVersion = diefields.NewField[Endpoints, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[Endpoints, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
-	f.Subsets = diefields.NewItems[Endpoints, []EndpointSubset, EndpointSubset, *EndpointSubsetDie, *EndpointSubsetDieMut]("subsets")
+	f.Subsets = diefields.NewList[Endpoints, EndpointSubset, *EndpointSubsetDie, *EndpointSubsetDieMut]("subsets")
 	return
 }}
 
@@ -7086,8 +7086,8 @@ func (d *EndpointsDie) Metadata() *diemetav1.ObjectMetaDie {
 // subsets for the different ports. No address will appear in both Addresses and
 // NotReadyAddresses in the same subset.
 // Sets of addresses and ports that comprise a service.
-func (d *EndpointsDie) Subsets() diefields.Value[[]EndpointSubset] {
-	return diefields.ValueOf(d, endpointsFields.Get().Subsets)
+func (d *EndpointsDie) Subsets() *diefields.List[EndpointSubset, *EndpointSubsetDie] {
+	return diefields.ListOf(d, endpointsFields.Get().Subsets)
 }
 
 // Kind is a string value representing the REST resource this object represents.
@@ -7120,8 +7120,8 @@ func (d *EndpointsDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
 // subsets for the different ports. No address will appear in both Addresses and
 // NotReadyAddresses in the same subset.
 // Sets of addresses and ports that comprise a service.
-func (d *EndpointsDieMut) Subsets() diefields.ValueMut[[]EndpointSubset] {
-	return diefields.ValueMutOf(d, endpointsFields.Get().Subsets)
+func (d *EndpointsDieMut) Subsets() *diefields.ListMut[EndpointSubset, *EndpointSubsetDie, *EndpointSubsetDieMut] {
+	return diefields.ListMutOf(d, endpointsFields.Get().Subsets)
 }
 
 // +kubebuilder:object:generate=false
@@ -7619,16 +7619,16 @@ func (d *EphemeralContainerDieMut) DieStampApplyConfiguration(fn func(ac *Epheme
 type ephemeralContainerFieldsTable struct {
 	Name                     diefields.Field[EphemeralContainer, string]
 	Image                    diefields.Field[EphemeralContainer, string]
-	Command                  diefields.Field[EphemeralContainer, []string]
-	Args                     diefields.Field[EphemeralContainer, []string]
+	Command                  diefields.ListField[EphemeralContainer, string, diefields.Value[string], diefields.ValueMut[string]]
+	Args                     diefields.ListField[EphemeralContainer, string, diefields.Value[string], diefields.ValueMut[string]]
 	WorkingDir               diefields.Field[EphemeralContainer, string]
 	Ports                    diefields.ListMapField[EphemeralContainer, ContainerPort, *ContainerPortDie, *ContainerPortDieMut, ContainerPortKey]
-	EnvFrom                  diefields.Field[EphemeralContainer, []EnvFromSource]
+	EnvFrom                  diefields.ListField[EphemeralContainer, EnvFromSource, *EnvFromSourceDie, *EnvFromSourceDieMut]
 	Env                      diefields.ListMapField[EphemeralContainer, EnvVar, *EnvVarDie, *EnvVarDieMut, string]
 	Resources                diefields.Struct[EphemeralContainer, ResourceRequirements, *ResourceRequirementsDie, *ResourceRequirementsDieMut]
-	ResizePolicy             diefields.Field[EphemeralContainer, []ContainerResizePolicy]
+	ResizePolicy             diefields.ListField[EphemeralContainer, ContainerResizePolicy, *ContainerResizePolicyDie, *ContainerResizePolicyDieMut]
 	RestartPolicy            diefields.Field[EphemeralContainer, *ContainerRestartPolicy]
-	RestartPolicyRules       diefields.Field[EphemeralContainer, []ContainerRestartRule]
+	RestartPolicyRules       diefields.ListField[EphemeralContainer, ContainerRestartRule, *ContainerRestartRuleDie, *ContainerRestartRuleDieMut]
 	VolumeMounts             diefields.ListMapField[EphemeralContainer, VolumeMount, *VolumeMountDie, *VolumeMountDieMut, string]
 	VolumeDevices            diefields.ListMapField[EphemeralContainer, VolumeDevice, *VolumeDeviceDie, *VolumeDeviceDieMut, string]
 	LivenessProbe            diefields.Struct[EphemeralContainer, Probe, *ProbeDie, *ProbeDieMut]
@@ -7649,18 +7649,18 @@ var ephemeralContainerFields = &diefields.Table[ephemeralContainerFieldsTable]{B
 	_ = annotated
 	f.Name = diefields.NewField[EphemeralContainer, string]("name")
 	f.Image = diefields.NewField[EphemeralContainer, string]("image")
-	f.Command = diefields.NewField[EphemeralContainer, []string]("command")
-	f.Args = diefields.NewField[EphemeralContainer, []string]("args")
+	f.Command = diefields.NewValueList[EphemeralContainer, string]("command")
+	f.Args = diefields.NewValueList[EphemeralContainer, string]("args")
 	f.WorkingDir = diefields.NewField[EphemeralContainer, string]("workingDir")
 	f.Ports = diefields.NewListMap[EphemeralContainer, ContainerPort, *ContainerPortDie, *ContainerPortDieMut]("ports", func(k ContainerPortKey) []any { return []any{k.ContainerPort, k.Protocol} }, func(e ContainerPort) ContainerPortKey {
 		return ContainerPortKey{ContainerPort: e.ContainerPort, Protocol: e.Protocol}
 	})
-	f.EnvFrom = diefields.NewItems[EphemeralContainer, []EnvFromSource, EnvFromSource, *EnvFromSourceDie, *EnvFromSourceDieMut]("envFrom")
+	f.EnvFrom = diefields.NewList[EphemeralContainer, EnvFromSource, *EnvFromSourceDie, *EnvFromSourceDieMut]("envFrom")
 	f.Env = diefields.NewListMap[EphemeralContainer, EnvVar, *EnvVarDie, *EnvVarDieMut]("env", func(k string) []any { return []any{k} }, func(e EnvVar) string { return e.Name })
 	f.Resources = diefields.NewStruct[EphemeralContainer, ResourceRequirements, *ResourceRequirementsDie, *ResourceRequirementsDieMut]("resources")
-	f.ResizePolicy = diefields.NewItems[EphemeralContainer, []ContainerResizePolicy, ContainerResizePolicy, *ContainerResizePolicyDie, *ContainerResizePolicyDieMut]("resizePolicy")
+	f.ResizePolicy = diefields.NewList[EphemeralContainer, ContainerResizePolicy, *ContainerResizePolicyDie, *ContainerResizePolicyDieMut]("resizePolicy")
 	f.RestartPolicy = diefields.NewField[EphemeralContainer, *ContainerRestartPolicy]("restartPolicy")
-	f.RestartPolicyRules = diefields.NewItems[EphemeralContainer, []ContainerRestartRule, ContainerRestartRule, *ContainerRestartRuleDie, *ContainerRestartRuleDieMut]("restartPolicyRules")
+	f.RestartPolicyRules = diefields.NewList[EphemeralContainer, ContainerRestartRule, *ContainerRestartRuleDie, *ContainerRestartRuleDieMut]("restartPolicyRules")
 	f.VolumeMounts = diefields.NewListMap[EphemeralContainer, VolumeMount, *VolumeMountDie, *VolumeMountDieMut]("volumeMounts", func(k string) []any { return []any{k} }, func(e VolumeMount) string { return e.MountPath })
 	f.VolumeDevices = diefields.NewListMap[EphemeralContainer, VolumeDevice, *VolumeDeviceDie, *VolumeDeviceDieMut]("volumeDevices", func(k string) []any { return []any{k} }, func(e VolumeDevice) string { return e.DevicePath })
 	f.LivenessProbe = diefields.NewStruct[EphemeralContainer, Probe, *ProbeDie, *ProbeDieMut]("livenessProbe")
@@ -7698,8 +7698,8 @@ func (d *EphemeralContainerDie) Image() diefields.Value[string] {
 // produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless
 // of whether the variable exists or not. Cannot be updated.
 // More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
-func (d *EphemeralContainerDie) Command() diefields.Value[[]string] {
-	return diefields.ValueOf(d, ephemeralContainerFields.Get().Command)
+func (d *EphemeralContainerDie) Command() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, ephemeralContainerFields.Get().Command)
 }
 
 // Arguments to the entrypoint.
@@ -7710,8 +7710,8 @@ func (d *EphemeralContainerDie) Command() diefields.Value[[]string] {
 // produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless
 // of whether the variable exists or not. Cannot be updated.
 // More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
-func (d *EphemeralContainerDie) Args() diefields.Value[[]string] {
-	return diefields.ValueOf(d, ephemeralContainerFields.Get().Args)
+func (d *EphemeralContainerDie) Args() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, ephemeralContainerFields.Get().Args)
 }
 
 // Container's working directory.
@@ -7733,8 +7733,8 @@ func (d *EphemeralContainerDie) Ports() *ContainerPortListMap {
 // sources, the value associated with the last source will take precedence.
 // Values defined by an Env with a duplicate key will take precedence.
 // Cannot be updated.
-func (d *EphemeralContainerDie) EnvFrom() diefields.Value[[]EnvFromSource] {
-	return diefields.ValueOf(d, ephemeralContainerFields.Get().EnvFrom)
+func (d *EphemeralContainerDie) EnvFrom() *diefields.List[EnvFromSource, *EnvFromSourceDie] {
+	return diefields.ListOf(d, ephemeralContainerFields.Get().EnvFrom)
 }
 
 // List of environment variables to set in the container.
@@ -7750,8 +7750,8 @@ func (d *EphemeralContainerDie) Resources() *ResourceRequirementsDie {
 }
 
 // Resources resize policy for the container.
-func (d *EphemeralContainerDie) ResizePolicy() diefields.Value[[]ContainerResizePolicy] {
-	return diefields.ValueOf(d, ephemeralContainerFields.Get().ResizePolicy)
+func (d *EphemeralContainerDie) ResizePolicy() *diefields.List[ContainerResizePolicy, *ContainerResizePolicyDie] {
+	return diefields.ListOf(d, ephemeralContainerFields.Get().ResizePolicy)
 }
 
 // Restart policy for the container to manage the restart behavior of each
@@ -7764,8 +7764,8 @@ func (d *EphemeralContainerDie) RestartPolicy() diefields.Optional[ContainerRest
 // Represents a list of rules to be checked to determine if the
 // container should be restarted on exit. You cannot set this field on
 // ephemeral containers.
-func (d *EphemeralContainerDie) RestartPolicyRules() diefields.Value[[]ContainerRestartRule] {
-	return diefields.ValueOf(d, ephemeralContainerFields.Get().RestartPolicyRules)
+func (d *EphemeralContainerDie) RestartPolicyRules() *diefields.List[ContainerRestartRule, *ContainerRestartRuleDie] {
+	return diefields.ListOf(d, ephemeralContainerFields.Get().RestartPolicyRules)
 }
 
 // Pod volumes to mount into the container's filesystem. Subpath mounts are not allowed for ephemeral containers.
@@ -7890,8 +7890,8 @@ func (d *EphemeralContainerDieMut) Image() diefields.ValueMut[string] {
 // produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless
 // of whether the variable exists or not. Cannot be updated.
 // More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
-func (d *EphemeralContainerDieMut) Command() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, ephemeralContainerFields.Get().Command)
+func (d *EphemeralContainerDieMut) Command() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, ephemeralContainerFields.Get().Command)
 }
 
 // Arguments to the entrypoint.
@@ -7902,8 +7902,8 @@ func (d *EphemeralContainerDieMut) Command() diefields.ValueMut[[]string] {
 // produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless
 // of whether the variable exists or not. Cannot be updated.
 // More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
-func (d *EphemeralContainerDieMut) Args() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, ephemeralContainerFields.Get().Args)
+func (d *EphemeralContainerDieMut) Args() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, ephemeralContainerFields.Get().Args)
 }
 
 // Container's working directory.
@@ -7925,8 +7925,8 @@ func (d *EphemeralContainerDieMut) Ports() *ContainerPortListMapMut {
 // sources, the value associated with the last source will take precedence.
 // Values defined by an Env with a duplicate key will take precedence.
 // Cannot be updated.
-func (d *EphemeralContainerDieMut) EnvFrom() diefields.ValueMut[[]EnvFromSource] {
-	return diefields.ValueMutOf(d, ephemeralContainerFields.Get().EnvFrom)
+func (d *EphemeralContainerDieMut) EnvFrom() *diefields.ListMut[EnvFromSource, *EnvFromSourceDie, *EnvFromSourceDieMut] {
+	return diefields.ListMutOf(d, ephemeralContainerFields.Get().EnvFrom)
 }
 
 // List of environment variables to set in the container.
@@ -7942,8 +7942,8 @@ func (d *EphemeralContainerDieMut) Resources() *ResourceRequirementsDieMut {
 }
 
 // Resources resize policy for the container.
-func (d *EphemeralContainerDieMut) ResizePolicy() diefields.ValueMut[[]ContainerResizePolicy] {
-	return diefields.ValueMutOf(d, ephemeralContainerFields.Get().ResizePolicy)
+func (d *EphemeralContainerDieMut) ResizePolicy() *diefields.ListMut[ContainerResizePolicy, *ContainerResizePolicyDie, *ContainerResizePolicyDieMut] {
+	return diefields.ListMutOf(d, ephemeralContainerFields.Get().ResizePolicy)
 }
 
 // Restart policy for the container to manage the restart behavior of each
@@ -7956,8 +7956,8 @@ func (d *EphemeralContainerDieMut) RestartPolicy() diefields.OptionalMut[Contain
 // Represents a list of rules to be checked to determine if the
 // container should be restarted on exit. You cannot set this field on
 // ephemeral containers.
-func (d *EphemeralContainerDieMut) RestartPolicyRules() diefields.ValueMut[[]ContainerRestartRule] {
-	return diefields.ValueMutOf(d, ephemeralContainerFields.Get().RestartPolicyRules)
+func (d *EphemeralContainerDieMut) RestartPolicyRules() *diefields.ListMut[ContainerRestartRule, *ContainerRestartRuleDie, *ContainerRestartRuleDieMut] {
+	return diefields.ListMutOf(d, ephemeralContainerFields.Get().RestartPolicyRules)
 }
 
 // Pod volumes to mount into the container's filesystem. Subpath mounts are not allowed for ephemeral containers.
@@ -8139,16 +8139,16 @@ func (d *EphemeralContainerCommonDieMut) DieStampApplyConfiguration(fn func(ac *
 type ephemeralContainerCommonFieldsTable struct {
 	Name                     diefields.Field[EphemeralContainerCommon, string]
 	Image                    diefields.Field[EphemeralContainerCommon, string]
-	Command                  diefields.Field[EphemeralContainerCommon, []string]
-	Args                     diefields.Field[EphemeralContainerCommon, []string]
+	Command                  diefields.ListField[EphemeralContainerCommon, string, diefields.Value[string], diefields.ValueMut[string]]
+	Args                     diefields.ListField[EphemeralContainerCommon, string, diefields.Value[string], diefields.ValueMut[string]]
 	WorkingDir               diefields.Field[EphemeralContainerCommon, string]
 	Ports                    diefields.ListMapField[EphemeralContainerCommon, ContainerPort, *ContainerPortDie, *ContainerPortDieMut, ContainerPortKey]
-	EnvFrom                  diefields.Field[EphemeralContainerCommon, []EnvFromSource]
+	EnvFrom                  diefields.ListField[EphemeralContainerCommon, EnvFromSource, *EnvFromSourceDie, *EnvFromSourceDieMut]
 	Env                      diefields.ListMapField[EphemeralContainerCommon, EnvVar, *EnvVarDie, *EnvVarDieMut, string]
 	Resources                diefields.Struct[EphemeralContainerCommon, ResourceRequirements, *ResourceRequirementsDie, *ResourceRequirementsDieMut]
-	ResizePolicy             diefields.Field[EphemeralContainerCommon, []ContainerResizePolicy]
+	ResizePolicy             diefields.ListField[EphemeralContainerCommon, ContainerResizePolicy, *ContainerResizePolicyDie, *ContainerResizePolicyDieMut]
 	RestartPolicy            diefields.Field[EphemeralContainerCommon, *ContainerRestartPolicy]
-	RestartPolicyRules       diefields.Field[EphemeralContainerCommon, []ContainerRestartRule]
+	RestartPolicyRules       diefields.ListField[EphemeralContainerCommon, ContainerRestartRule, *ContainerRestartRuleDie, *ContainerRestartRuleDieMut]
 	VolumeMounts             diefields.ListMapField[EphemeralContainerCommon, VolumeMount, *VolumeMountDie, *VolumeMountDieMut, string]
 	VolumeDevices            diefields.ListMapField[EphemeralContainerCommon, VolumeDevice, *VolumeDeviceDie, *VolumeDeviceDieMut, string]
 	LivenessProbe            diefields.Struct[EphemeralContainerCommon, Probe, *ProbeDie, *ProbeDieMut]
@@ -8168,18 +8168,18 @@ var ephemeralContainerCommonFields = &diefields.Table[ephemeralContainerCommonFi
 	_ = annotated
 	f.Name = diefields.NewField[EphemeralContainerCommon, string]("name")
 	f.Image = diefields.NewField[EphemeralContainerCommon, string]("image")
-	f.Command = diefields.NewField[EphemeralContainerCommon, []string]("command")
-	f.Args = diefields.NewField[EphemeralContainerCommon, []string]("args")
+	f.Command = diefields.NewValueList[EphemeralContainerCommon, string]("command")
+	f.Args = diefields.NewValueList[EphemeralContainerCommon, string]("args")
 	f.WorkingDir = diefields.NewField[EphemeralContainerCommon, string]("workingDir")
 	f.Ports = diefields.NewListMap[EphemeralContainerCommon, ContainerPort, *ContainerPortDie, *ContainerPortDieMut]("ports", func(k ContainerPortKey) []any { return []any{k.ContainerPort, k.Protocol} }, func(e ContainerPort) ContainerPortKey {
 		return ContainerPortKey{ContainerPort: e.ContainerPort, Protocol: e.Protocol}
 	})
-	f.EnvFrom = diefields.NewItems[EphemeralContainerCommon, []EnvFromSource, EnvFromSource, *EnvFromSourceDie, *EnvFromSourceDieMut]("envFrom")
+	f.EnvFrom = diefields.NewList[EphemeralContainerCommon, EnvFromSource, *EnvFromSourceDie, *EnvFromSourceDieMut]("envFrom")
 	f.Env = diefields.NewListMap[EphemeralContainerCommon, EnvVar, *EnvVarDie, *EnvVarDieMut]("env", func(k string) []any { return []any{k} }, func(e EnvVar) string { return e.Name })
 	f.Resources = diefields.NewStruct[EphemeralContainerCommon, ResourceRequirements, *ResourceRequirementsDie, *ResourceRequirementsDieMut]("resources")
-	f.ResizePolicy = diefields.NewItems[EphemeralContainerCommon, []ContainerResizePolicy, ContainerResizePolicy, *ContainerResizePolicyDie, *ContainerResizePolicyDieMut]("resizePolicy")
+	f.ResizePolicy = diefields.NewList[EphemeralContainerCommon, ContainerResizePolicy, *ContainerResizePolicyDie, *ContainerResizePolicyDieMut]("resizePolicy")
 	f.RestartPolicy = diefields.NewField[EphemeralContainerCommon, *ContainerRestartPolicy]("restartPolicy")
-	f.RestartPolicyRules = diefields.NewItems[EphemeralContainerCommon, []ContainerRestartRule, ContainerRestartRule, *ContainerRestartRuleDie, *ContainerRestartRuleDieMut]("restartPolicyRules")
+	f.RestartPolicyRules = diefields.NewList[EphemeralContainerCommon, ContainerRestartRule, *ContainerRestartRuleDie, *ContainerRestartRuleDieMut]("restartPolicyRules")
 	f.VolumeMounts = diefields.NewListMap[EphemeralContainerCommon, VolumeMount, *VolumeMountDie, *VolumeMountDieMut]("volumeMounts", func(k string) []any { return []any{k} }, func(e VolumeMount) string { return e.MountPath })
 	f.VolumeDevices = diefields.NewListMap[EphemeralContainerCommon, VolumeDevice, *VolumeDeviceDie, *VolumeDeviceDieMut]("volumeDevices", func(k string) []any { return []any{k} }, func(e VolumeDevice) string { return e.DevicePath })
 	f.LivenessProbe = diefields.NewStruct[EphemeralContainerCommon, Probe, *ProbeDie, *ProbeDieMut]("livenessProbe")
@@ -8216,8 +8216,8 @@ func (d *EphemeralContainerCommonDie) Image() diefields.Value[string] {
 // produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless
 // of whether the variable exists or not. Cannot be updated.
 // More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
-func (d *EphemeralContainerCommonDie) Command() diefields.Value[[]string] {
-	return diefields.ValueOf(d, ephemeralContainerCommonFields.Get().Command)
+func (d *EphemeralContainerCommonDie) Command() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, ephemeralContainerCommonFields.Get().Command)
 }
 
 // Arguments to the entrypoint.
@@ -8228,8 +8228,8 @@ func (d *EphemeralContainerCommonDie) Command() diefields.Value[[]string] {
 // produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless
 // of whether the variable exists or not. Cannot be updated.
 // More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
-func (d *EphemeralContainerCommonDie) Args() diefields.Value[[]string] {
-	return diefields.ValueOf(d, ephemeralContainerCommonFields.Get().Args)
+func (d *EphemeralContainerCommonDie) Args() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, ephemeralContainerCommonFields.Get().Args)
 }
 
 // Container's working directory.
@@ -8251,8 +8251,8 @@ func (d *EphemeralContainerCommonDie) Ports() *ContainerPortListMap {
 // sources, the value associated with the last source will take precedence.
 // Values defined by an Env with a duplicate key will take precedence.
 // Cannot be updated.
-func (d *EphemeralContainerCommonDie) EnvFrom() diefields.Value[[]EnvFromSource] {
-	return diefields.ValueOf(d, ephemeralContainerCommonFields.Get().EnvFrom)
+func (d *EphemeralContainerCommonDie) EnvFrom() *diefields.List[EnvFromSource, *EnvFromSourceDie] {
+	return diefields.ListOf(d, ephemeralContainerCommonFields.Get().EnvFrom)
 }
 
 // List of environment variables to set in the container.
@@ -8268,8 +8268,8 @@ func (d *EphemeralContainerCommonDie) Resources() *ResourceRequirementsDie {
 }
 
 // Resources resize policy for the container.
-func (d *EphemeralContainerCommonDie) ResizePolicy() diefields.Value[[]ContainerResizePolicy] {
-	return diefields.ValueOf(d, ephemeralContainerCommonFields.Get().ResizePolicy)
+func (d *EphemeralContainerCommonDie) ResizePolicy() *diefields.List[ContainerResizePolicy, *ContainerResizePolicyDie] {
+	return diefields.ListOf(d, ephemeralContainerCommonFields.Get().ResizePolicy)
 }
 
 // Restart policy for the container to manage the restart behavior of each
@@ -8282,8 +8282,8 @@ func (d *EphemeralContainerCommonDie) RestartPolicy() diefields.Optional[Contain
 // Represents a list of rules to be checked to determine if the
 // container should be restarted on exit. You cannot set this field on
 // ephemeral containers.
-func (d *EphemeralContainerCommonDie) RestartPolicyRules() diefields.Value[[]ContainerRestartRule] {
-	return diefields.ValueOf(d, ephemeralContainerCommonFields.Get().RestartPolicyRules)
+func (d *EphemeralContainerCommonDie) RestartPolicyRules() *diefields.List[ContainerRestartRule, *ContainerRestartRuleDie] {
+	return diefields.ListOf(d, ephemeralContainerCommonFields.Get().RestartPolicyRules)
 }
 
 // Pod volumes to mount into the container's filesystem. Subpath mounts are not allowed for ephemeral containers.
@@ -8398,8 +8398,8 @@ func (d *EphemeralContainerCommonDieMut) Image() diefields.ValueMut[string] {
 // produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless
 // of whether the variable exists or not. Cannot be updated.
 // More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
-func (d *EphemeralContainerCommonDieMut) Command() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, ephemeralContainerCommonFields.Get().Command)
+func (d *EphemeralContainerCommonDieMut) Command() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, ephemeralContainerCommonFields.Get().Command)
 }
 
 // Arguments to the entrypoint.
@@ -8410,8 +8410,8 @@ func (d *EphemeralContainerCommonDieMut) Command() diefields.ValueMut[[]string] 
 // produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless
 // of whether the variable exists or not. Cannot be updated.
 // More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
-func (d *EphemeralContainerCommonDieMut) Args() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, ephemeralContainerCommonFields.Get().Args)
+func (d *EphemeralContainerCommonDieMut) Args() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, ephemeralContainerCommonFields.Get().Args)
 }
 
 // Container's working directory.
@@ -8433,8 +8433,8 @@ func (d *EphemeralContainerCommonDieMut) Ports() *ContainerPortListMapMut {
 // sources, the value associated with the last source will take precedence.
 // Values defined by an Env with a duplicate key will take precedence.
 // Cannot be updated.
-func (d *EphemeralContainerCommonDieMut) EnvFrom() diefields.ValueMut[[]EnvFromSource] {
-	return diefields.ValueMutOf(d, ephemeralContainerCommonFields.Get().EnvFrom)
+func (d *EphemeralContainerCommonDieMut) EnvFrom() *diefields.ListMut[EnvFromSource, *EnvFromSourceDie, *EnvFromSourceDieMut] {
+	return diefields.ListMutOf(d, ephemeralContainerCommonFields.Get().EnvFrom)
 }
 
 // List of environment variables to set in the container.
@@ -8450,8 +8450,8 @@ func (d *EphemeralContainerCommonDieMut) Resources() *ResourceRequirementsDieMut
 }
 
 // Resources resize policy for the container.
-func (d *EphemeralContainerCommonDieMut) ResizePolicy() diefields.ValueMut[[]ContainerResizePolicy] {
-	return diefields.ValueMutOf(d, ephemeralContainerCommonFields.Get().ResizePolicy)
+func (d *EphemeralContainerCommonDieMut) ResizePolicy() *diefields.ListMut[ContainerResizePolicy, *ContainerResizePolicyDie, *ContainerResizePolicyDieMut] {
+	return diefields.ListMutOf(d, ephemeralContainerCommonFields.Get().ResizePolicy)
 }
 
 // Restart policy for the container to manage the restart behavior of each
@@ -8464,8 +8464,8 @@ func (d *EphemeralContainerCommonDieMut) RestartPolicy() diefields.OptionalMut[C
 // Represents a list of rules to be checked to determine if the
 // container should be restarted on exit. You cannot set this field on
 // ephemeral containers.
-func (d *EphemeralContainerCommonDieMut) RestartPolicyRules() diefields.ValueMut[[]ContainerRestartRule] {
-	return diefields.ValueMutOf(d, ephemeralContainerCommonFields.Get().RestartPolicyRules)
+func (d *EphemeralContainerCommonDieMut) RestartPolicyRules() *diefields.ListMut[ContainerRestartRule, *ContainerRestartRuleDie, *ContainerRestartRuleDieMut] {
+	return diefields.ListMutOf(d, ephemeralContainerCommonFields.Get().RestartPolicyRules)
 }
 
 // Pod volumes to mount into the container's filesystem. Subpath mounts are not allowed for ephemeral containers.
@@ -9431,12 +9431,12 @@ func (d *ExecActionDieMut) DieStampApplyConfiguration(fn func(ac *ExecActionAppl
 // +k8s:deepcopy-gen=false
 
 type execActionFieldsTable struct {
-	Command diefields.Field[ExecAction, []string]
+	Command diefields.ListField[ExecAction, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var execActionFields = &diefields.Table[execActionFieldsTable]{Build: func() (f execActionFieldsTable) {
 	_ = annotated
-	f.Command = diefields.NewField[ExecAction, []string]("command")
+	f.Command = diefields.NewValueList[ExecAction, string]("command")
 	return
 }}
 
@@ -9445,8 +9445,8 @@ var execActionFields = &diefields.Table[execActionFieldsTable]{Build: func() (f 
 // not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
 // a shell, you need to explicitly call out to that shell.
 // Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
-func (d *ExecActionDie) Command() diefields.Value[[]string] {
-	return diefields.ValueOf(d, execActionFields.Get().Command)
+func (d *ExecActionDie) Command() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, execActionFields.Get().Command)
 }
 
 // Command is the command line to execute inside the container, the working directory for the
@@ -9454,8 +9454,8 @@ func (d *ExecActionDie) Command() diefields.Value[[]string] {
 // not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
 // a shell, you need to explicitly call out to that shell.
 // Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
-func (d *ExecActionDieMut) Command() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, execActionFields.Get().Command)
+func (d *ExecActionDieMut) Command() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, execActionFields.Get().Command)
 }
 
 // +kubebuilder:object:generate=false
@@ -9532,26 +9532,26 @@ func (d *FCVolumeSourceDieMut) DieStampApplyConfiguration(fn func(ac *FCVolumeSo
 // +k8s:deepcopy-gen=false
 
 type fCVolumeSourceFieldsTable struct {
-	TargetWWNs diefields.Field[FCVolumeSource, []string]
+	TargetWWNs diefields.ListField[FCVolumeSource, string, diefields.Value[string], diefields.ValueMut[string]]
 	Lun        diefields.Field[FCVolumeSource, *int32]
 	FSType     diefields.Field[FCVolumeSource, string]
 	ReadOnly   diefields.Field[FCVolumeSource, bool]
-	WWIDs      diefields.Field[FCVolumeSource, []string]
+	WWIDs      diefields.ListField[FCVolumeSource, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var fCVolumeSourceFields = &diefields.Table[fCVolumeSourceFieldsTable]{Build: func() (f fCVolumeSourceFieldsTable) {
 	_ = annotated
-	f.TargetWWNs = diefields.NewField[FCVolumeSource, []string]("targetWWNs")
+	f.TargetWWNs = diefields.NewValueList[FCVolumeSource, string]("targetWWNs")
 	f.Lun = diefields.NewField[FCVolumeSource, *int32]("lun")
 	f.FSType = diefields.NewField[FCVolumeSource, string]("fsType")
 	f.ReadOnly = diefields.NewField[FCVolumeSource, bool]("readOnly")
-	f.WWIDs = diefields.NewField[FCVolumeSource, []string]("wwids")
+	f.WWIDs = diefields.NewValueList[FCVolumeSource, string]("wwids")
 	return
 }}
 
 // targetWWNs is Optional: FC target worldwide names (WWNs)
-func (d *FCVolumeSourceDie) TargetWWNs() diefields.Value[[]string] {
-	return diefields.ValueOf(d, fCVolumeSourceFields.Get().TargetWWNs)
+func (d *FCVolumeSourceDie) TargetWWNs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, fCVolumeSourceFields.Get().TargetWWNs)
 }
 
 // lun is Optional: FC target lun number
@@ -9575,13 +9575,13 @@ func (d *FCVolumeSourceDie) ReadOnly() diefields.Value[bool] {
 
 // wwids Optional: FC volume world wide identifiers (wwids)
 // Either wwids or combination of targetWWNs and lun must be set, but not both simultaneously.
-func (d *FCVolumeSourceDie) WWIDs() diefields.Value[[]string] {
-	return diefields.ValueOf(d, fCVolumeSourceFields.Get().WWIDs)
+func (d *FCVolumeSourceDie) WWIDs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, fCVolumeSourceFields.Get().WWIDs)
 }
 
 // targetWWNs is Optional: FC target worldwide names (WWNs)
-func (d *FCVolumeSourceDieMut) TargetWWNs() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, fCVolumeSourceFields.Get().TargetWWNs)
+func (d *FCVolumeSourceDieMut) TargetWWNs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, fCVolumeSourceFields.Get().TargetWWNs)
 }
 
 // lun is Optional: FC target lun number
@@ -9605,8 +9605,8 @@ func (d *FCVolumeSourceDieMut) ReadOnly() diefields.ValueMut[bool] {
 
 // wwids Optional: FC volume world wide identifiers (wwids)
 // Either wwids or combination of targetWWNs and lun must be set, but not both simultaneously.
-func (d *FCVolumeSourceDieMut) WWIDs() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, fCVolumeSourceFields.Get().WWIDs)
+func (d *FCVolumeSourceDieMut) WWIDs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, fCVolumeSourceFields.Get().WWIDs)
 }
 
 // +kubebuilder:object:generate=false
@@ -10915,7 +10915,7 @@ type hTTPGetActionFieldsTable struct {
 	Port        diefields.Field[HTTPGetAction, intstr.IntOrString]
 	Host        diefields.Field[HTTPGetAction, string]
 	Scheme      diefields.Field[HTTPGetAction, URIScheme]
-	HTTPHeaders diefields.Field[HTTPGetAction, []HTTPHeader]
+	HTTPHeaders diefields.ListField[HTTPGetAction, HTTPHeader, *HTTPHeaderDie, *HTTPHeaderDieMut]
 	Protocol    diefields.Field[HTTPGetAction, *HTTPProtocol]
 }
 
@@ -10925,7 +10925,7 @@ var hTTPGetActionFields = &diefields.Table[hTTPGetActionFieldsTable]{Build: func
 	f.Port = diefields.NewField[HTTPGetAction, intstr.IntOrString]("port")
 	f.Host = diefields.NewField[HTTPGetAction, string]("host")
 	f.Scheme = diefields.NewField[HTTPGetAction, URIScheme]("scheme")
-	f.HTTPHeaders = diefields.NewItems[HTTPGetAction, []HTTPHeader, HTTPHeader, *HTTPHeaderDie, *HTTPHeaderDieMut]("httpHeaders")
+	f.HTTPHeaders = diefields.NewList[HTTPGetAction, HTTPHeader, *HTTPHeaderDie, *HTTPHeaderDieMut]("httpHeaders")
 	f.Protocol = diefields.NewField[HTTPGetAction, *HTTPProtocol]("protocol")
 	return
 }}
@@ -10955,8 +10955,8 @@ func (d *HTTPGetActionDie) Scheme() diefields.Value[URIScheme] {
 }
 
 // Custom headers to set in the request. HTTP allows repeated headers.
-func (d *HTTPGetActionDie) HTTPHeaders() diefields.Value[[]HTTPHeader] {
-	return diefields.ValueOf(d, hTTPGetActionFields.Get().HTTPHeaders)
+func (d *HTTPGetActionDie) HTTPHeaders() *diefields.List[HTTPHeader, *HTTPHeaderDie] {
+	return diefields.ListOf(d, hTTPGetActionFields.Get().HTTPHeaders)
 }
 
 // Protocol selects the wire protocol for the probe connection.
@@ -10990,8 +10990,8 @@ func (d *HTTPGetActionDieMut) Scheme() diefields.ValueMut[URIScheme] {
 }
 
 // Custom headers to set in the request. HTTP allows repeated headers.
-func (d *HTTPGetActionDieMut) HTTPHeaders() diefields.ValueMut[[]HTTPHeader] {
-	return diefields.ValueMutOf(d, hTTPGetActionFields.Get().HTTPHeaders)
+func (d *HTTPGetActionDieMut) HTTPHeaders() *diefields.ListMut[HTTPHeader, *HTTPHeaderDie, *HTTPHeaderDieMut] {
+	return diefields.ListMutOf(d, hTTPGetActionFields.Get().HTTPHeaders)
 }
 
 // Protocol selects the wire protocol for the probe connection.
@@ -11179,13 +11179,13 @@ func (d *HostAliasDieMut) DieStampApplyConfiguration(fn func(ac *HostAliasApplyC
 
 type hostAliasFieldsTable struct {
 	IP        diefields.Field[HostAlias, string]
-	Hostnames diefields.Field[HostAlias, []string]
+	Hostnames diefields.ListField[HostAlias, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var hostAliasFields = &diefields.Table[hostAliasFieldsTable]{Build: func() (f hostAliasFieldsTable) {
 	_ = annotated
 	f.IP = diefields.NewField[HostAlias, string]("ip")
-	f.Hostnames = diefields.NewField[HostAlias, []string]("hostnames")
+	f.Hostnames = diefields.NewValueList[HostAlias, string]("hostnames")
 	return
 }}
 
@@ -11195,8 +11195,8 @@ func (d *HostAliasDie) IP() diefields.Value[string] {
 }
 
 // Hostnames for the above IP address.
-func (d *HostAliasDie) Hostnames() diefields.Value[[]string] {
-	return diefields.ValueOf(d, hostAliasFields.Get().Hostnames)
+func (d *HostAliasDie) Hostnames() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, hostAliasFields.Get().Hostnames)
 }
 
 // IP address of the host file entry.
@@ -11205,8 +11205,8 @@ func (d *HostAliasDieMut) IP() diefields.ValueMut[string] {
 }
 
 // Hostnames for the above IP address.
-func (d *HostAliasDieMut) Hostnames() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, hostAliasFields.Get().Hostnames)
+func (d *HostAliasDieMut) Hostnames() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, hostAliasFields.Get().Hostnames)
 }
 
 // +kubebuilder:object:generate=false
@@ -11490,7 +11490,7 @@ type iSCSIPersistentVolumeSourceFieldsTable struct {
 	ISCSIInterface    diefields.Field[ISCSIPersistentVolumeSource, string]
 	FSType            diefields.Field[ISCSIPersistentVolumeSource, string]
 	ReadOnly          diefields.Field[ISCSIPersistentVolumeSource, bool]
-	Portals           diefields.Field[ISCSIPersistentVolumeSource, []string]
+	Portals           diefields.ListField[ISCSIPersistentVolumeSource, string, diefields.Value[string], diefields.ValueMut[string]]
 	DiscoveryCHAPAuth diefields.Field[ISCSIPersistentVolumeSource, bool]
 	SessionCHAPAuth   diefields.Field[ISCSIPersistentVolumeSource, bool]
 	SecretRef         diefields.Struct[ISCSIPersistentVolumeSource, SecretReference, *SecretReferenceDie, *SecretReferenceDieMut]
@@ -11505,7 +11505,7 @@ var iSCSIPersistentVolumeSourceFields = &diefields.Table[iSCSIPersistentVolumeSo
 	f.ISCSIInterface = diefields.NewField[ISCSIPersistentVolumeSource, string]("iscsiInterface")
 	f.FSType = diefields.NewField[ISCSIPersistentVolumeSource, string]("fsType")
 	f.ReadOnly = diefields.NewField[ISCSIPersistentVolumeSource, bool]("readOnly")
-	f.Portals = diefields.NewField[ISCSIPersistentVolumeSource, []string]("portals")
+	f.Portals = diefields.NewValueList[ISCSIPersistentVolumeSource, string]("portals")
 	f.DiscoveryCHAPAuth = diefields.NewField[ISCSIPersistentVolumeSource, bool]("chapAuthDiscovery")
 	f.SessionCHAPAuth = diefields.NewField[ISCSIPersistentVolumeSource, bool]("chapAuthSession")
 	f.SecretRef = diefields.NewStruct[ISCSIPersistentVolumeSource, SecretReference, *SecretReferenceDie, *SecretReferenceDieMut]("secretRef")
@@ -11552,8 +11552,8 @@ func (d *ISCSIPersistentVolumeSourceDie) ReadOnly() diefields.Value[bool] {
 
 // portals is the iSCSI Target Portal List. The Portal is either an IP or ip_addr:port if the port
 // is other than default (typically TCP ports 860 and 3260).
-func (d *ISCSIPersistentVolumeSourceDie) Portals() diefields.Value[[]string] {
-	return diefields.ValueOf(d, iSCSIPersistentVolumeSourceFields.Get().Portals)
+func (d *ISCSIPersistentVolumeSourceDie) Portals() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, iSCSIPersistentVolumeSourceFields.Get().Portals)
 }
 
 // chapAuthDiscovery defines whether support iSCSI Discovery CHAP authentication
@@ -11617,8 +11617,8 @@ func (d *ISCSIPersistentVolumeSourceDieMut) ReadOnly() diefields.ValueMut[bool] 
 
 // portals is the iSCSI Target Portal List. The Portal is either an IP or ip_addr:port if the port
 // is other than default (typically TCP ports 860 and 3260).
-func (d *ISCSIPersistentVolumeSourceDieMut) Portals() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, iSCSIPersistentVolumeSourceFields.Get().Portals)
+func (d *ISCSIPersistentVolumeSourceDieMut) Portals() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, iSCSIPersistentVolumeSourceFields.Get().Portals)
 }
 
 // chapAuthDiscovery defines whether support iSCSI Discovery CHAP authentication
@@ -11723,7 +11723,7 @@ type iSCSIVolumeSourceFieldsTable struct {
 	ISCSIInterface    diefields.Field[ISCSIVolumeSource, string]
 	FSType            diefields.Field[ISCSIVolumeSource, string]
 	ReadOnly          diefields.Field[ISCSIVolumeSource, bool]
-	Portals           diefields.Field[ISCSIVolumeSource, []string]
+	Portals           diefields.ListField[ISCSIVolumeSource, string, diefields.Value[string], diefields.ValueMut[string]]
 	DiscoveryCHAPAuth diefields.Field[ISCSIVolumeSource, bool]
 	SessionCHAPAuth   diefields.Field[ISCSIVolumeSource, bool]
 	SecretRef         diefields.Struct[ISCSIVolumeSource, LocalObjectReference, *LocalObjectReferenceDie, *LocalObjectReferenceDieMut]
@@ -11738,7 +11738,7 @@ var iSCSIVolumeSourceFields = &diefields.Table[iSCSIVolumeSourceFieldsTable]{Bui
 	f.ISCSIInterface = diefields.NewField[ISCSIVolumeSource, string]("iscsiInterface")
 	f.FSType = diefields.NewField[ISCSIVolumeSource, string]("fsType")
 	f.ReadOnly = diefields.NewField[ISCSIVolumeSource, bool]("readOnly")
-	f.Portals = diefields.NewField[ISCSIVolumeSource, []string]("portals")
+	f.Portals = diefields.NewValueList[ISCSIVolumeSource, string]("portals")
 	f.DiscoveryCHAPAuth = diefields.NewField[ISCSIVolumeSource, bool]("chapAuthDiscovery")
 	f.SessionCHAPAuth = diefields.NewField[ISCSIVolumeSource, bool]("chapAuthSession")
 	f.SecretRef = diefields.NewStruct[ISCSIVolumeSource, LocalObjectReference, *LocalObjectReferenceDie, *LocalObjectReferenceDieMut]("secretRef")
@@ -11785,8 +11785,8 @@ func (d *ISCSIVolumeSourceDie) ReadOnly() diefields.Value[bool] {
 
 // portals is the iSCSI Target Portal List. The portal is either an IP or ip_addr:port if the port
 // is other than default (typically TCP ports 860 and 3260).
-func (d *ISCSIVolumeSourceDie) Portals() diefields.Value[[]string] {
-	return diefields.ValueOf(d, iSCSIVolumeSourceFields.Get().Portals)
+func (d *ISCSIVolumeSourceDie) Portals() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, iSCSIVolumeSourceFields.Get().Portals)
 }
 
 // chapAuthDiscovery defines whether support iSCSI Discovery CHAP authentication
@@ -11850,8 +11850,8 @@ func (d *ISCSIVolumeSourceDieMut) ReadOnly() diefields.ValueMut[bool] {
 
 // portals is the iSCSI Target Portal List. The portal is either an IP or ip_addr:port if the port
 // is other than default (typically TCP ports 860 and 3260).
-func (d *ISCSIVolumeSourceDieMut) Portals() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, iSCSIVolumeSourceFields.Get().Portals)
+func (d *ISCSIVolumeSourceDieMut) Portals() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, iSCSIVolumeSourceFields.Get().Portals)
 }
 
 // chapAuthDiscovery defines whether support iSCSI Discovery CHAP authentication
@@ -12900,23 +12900,23 @@ func (d *LimitRangeSpecDieMut) DieStampApplyConfiguration(fn func(ac *LimitRange
 // +k8s:deepcopy-gen=false
 
 type limitRangeSpecFieldsTable struct {
-	Limits diefields.Field[LimitRangeSpec, []LimitRangeItem]
+	Limits diefields.ListField[LimitRangeSpec, LimitRangeItem, *LimitRangeItemDie, *LimitRangeItemDieMut]
 }
 
 var limitRangeSpecFields = &diefields.Table[limitRangeSpecFieldsTable]{Build: func() (f limitRangeSpecFieldsTable) {
 	_ = annotated
-	f.Limits = diefields.NewItems[LimitRangeSpec, []LimitRangeItem, LimitRangeItem, *LimitRangeItemDie, *LimitRangeItemDieMut]("limits")
+	f.Limits = diefields.NewList[LimitRangeSpec, LimitRangeItem, *LimitRangeItemDie, *LimitRangeItemDieMut]("limits")
 	return
 }}
 
 // Limits is the list of LimitRangeItem objects that are enforced.
-func (d *LimitRangeSpecDie) Limits() diefields.Value[[]LimitRangeItem] {
-	return diefields.ValueOf(d, limitRangeSpecFields.Get().Limits)
+func (d *LimitRangeSpecDie) Limits() *diefields.List[LimitRangeItem, *LimitRangeItemDie] {
+	return diefields.ListOf(d, limitRangeSpecFields.Get().Limits)
 }
 
 // Limits is the list of LimitRangeItem objects that are enforced.
-func (d *LimitRangeSpecDieMut) Limits() diefields.ValueMut[[]LimitRangeItem] {
-	return diefields.ValueMutOf(d, limitRangeSpecFields.Get().Limits)
+func (d *LimitRangeSpecDieMut) Limits() *diefields.ListMut[LimitRangeItem, *LimitRangeItemDie, *LimitRangeItemDieMut] {
+	return diefields.ListMutOf(d, limitRangeSpecFields.Get().Limits)
 }
 
 // +kubebuilder:object:generate=false
@@ -12993,14 +12993,14 @@ func (d *LinuxContainerUserDieMut) DieStampApplyConfiguration(fn func(ac *LinuxC
 type linuxContainerUserFieldsTable struct {
 	UID                diefields.Field[LinuxContainerUser, int64]
 	GID                diefields.Field[LinuxContainerUser, int64]
-	SupplementalGroups diefields.Field[LinuxContainerUser, []int64]
+	SupplementalGroups diefields.ListField[LinuxContainerUser, int64, diefields.Value[int64], diefields.ValueMut[int64]]
 }
 
 var linuxContainerUserFields = &diefields.Table[linuxContainerUserFieldsTable]{Build: func() (f linuxContainerUserFieldsTable) {
 	_ = annotated
 	f.UID = diefields.NewField[LinuxContainerUser, int64]("uid")
 	f.GID = diefields.NewField[LinuxContainerUser, int64]("gid")
-	f.SupplementalGroups = diefields.NewField[LinuxContainerUser, []int64]("supplementalGroups")
+	f.SupplementalGroups = diefields.NewValueList[LinuxContainerUser, int64]("supplementalGroups")
 	return
 }}
 
@@ -13015,8 +13015,8 @@ func (d *LinuxContainerUserDie) GID() diefields.Value[int64] {
 }
 
 // SupplementalGroups are the supplemental groups initially attached to the first process in the container
-func (d *LinuxContainerUserDie) SupplementalGroups() diefields.Value[[]int64] {
-	return diefields.ValueOf(d, linuxContainerUserFields.Get().SupplementalGroups)
+func (d *LinuxContainerUserDie) SupplementalGroups() *diefields.List[int64, diefields.Value[int64]] {
+	return diefields.ListOf(d, linuxContainerUserFields.Get().SupplementalGroups)
 }
 
 // UID is the primary uid initially attached to the first process in the container
@@ -13030,8 +13030,8 @@ func (d *LinuxContainerUserDieMut) GID() diefields.ValueMut[int64] {
 }
 
 // SupplementalGroups are the supplemental groups initially attached to the first process in the container
-func (d *LinuxContainerUserDieMut) SupplementalGroups() diefields.ValueMut[[]int64] {
-	return diefields.ValueMutOf(d, linuxContainerUserFields.Get().SupplementalGroups)
+func (d *LinuxContainerUserDieMut) SupplementalGroups() *diefields.ListMut[int64, diefields.Value[int64], diefields.ValueMut[int64]] {
+	return diefields.ListMutOf(d, linuxContainerUserFields.Get().SupplementalGroups)
 }
 
 // +kubebuilder:object:generate=false
@@ -13070,7 +13070,7 @@ type listFieldsTable struct {
 	Kind       diefields.Field[List, string]
 	APIVersion diefields.Field[List, string]
 	Metadata   diefields.Struct[List, diemetav1.ListMeta, *diemetav1.ListMetaDie, *diemetav1.ListMetaDieMut]
-	Items      diefields.Field[List, []runtime.RawExtension]
+	Items      diefields.ListField[List, runtime.RawExtension, diefields.Value[runtime.RawExtension], diefields.ValueMut[runtime.RawExtension]]
 }
 
 var listFields = &diefields.Table[listFieldsTable]{Build: func() (f listFieldsTable) {
@@ -13078,7 +13078,7 @@ var listFields = &diefields.Table[listFieldsTable]{Build: func() (f listFieldsTa
 	f.Kind = diefields.NewField[List, string]("kind")
 	f.APIVersion = diefields.NewField[List, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[List, diemetav1.ListMeta, *diemetav1.ListMetaDie, *diemetav1.ListMetaDieMut]("metadata")
-	f.Items = diefields.NewField[List, []runtime.RawExtension]("items")
+	f.Items = diefields.NewValueList[List, runtime.RawExtension]("items")
 	return
 }}
 
@@ -13104,8 +13104,8 @@ func (d *ListDie) Metadata() *diemetav1.ListMetaDie {
 }
 
 // List of objects
-func (d *ListDie) Items() diefields.Value[[]runtime.RawExtension] {
-	return diefields.ValueOf(d, listFields.Get().Items)
+func (d *ListDie) Items() *diefields.List[runtime.RawExtension, diefields.Value[runtime.RawExtension]] {
+	return diefields.ListOf(d, listFields.Get().Items)
 }
 
 // Kind is a string value representing the REST resource this object represents.
@@ -13132,8 +13132,8 @@ func (d *ListDieMut) Metadata() *diemetav1.ListMetaDieMut {
 }
 
 // List of objects
-func (d *ListDieMut) Items() diefields.ValueMut[[]runtime.RawExtension] {
-	return diefields.ValueMutOf(d, listFields.Get().Items)
+func (d *ListDieMut) Items() *diefields.ListMut[runtime.RawExtension, diefields.Value[runtime.RawExtension], diefields.ValueMut[runtime.RawExtension]] {
+	return diefields.ListMutOf(d, listFields.Get().Items)
 }
 
 // +kubebuilder:object:generate=false
@@ -13212,7 +13212,7 @@ type loadBalancerIngressFieldsTable struct {
 	IP       diefields.Field[LoadBalancerIngress, string]
 	Hostname diefields.Field[LoadBalancerIngress, string]
 	IPMode   diefields.Field[LoadBalancerIngress, *LoadBalancerIPMode]
-	Ports    diefields.Field[LoadBalancerIngress, []PortStatus]
+	Ports    diefields.ListField[LoadBalancerIngress, PortStatus, *PortStatusDie, *PortStatusDieMut]
 }
 
 var loadBalancerIngressFields = &diefields.Table[loadBalancerIngressFieldsTable]{Build: func() (f loadBalancerIngressFieldsTable) {
@@ -13220,7 +13220,7 @@ var loadBalancerIngressFields = &diefields.Table[loadBalancerIngressFieldsTable]
 	f.IP = diefields.NewField[LoadBalancerIngress, string]("ip")
 	f.Hostname = diefields.NewField[LoadBalancerIngress, string]("hostname")
 	f.IPMode = diefields.NewField[LoadBalancerIngress, *LoadBalancerIPMode]("ipMode")
-	f.Ports = diefields.NewItems[LoadBalancerIngress, []PortStatus, PortStatus, *PortStatusDie, *PortStatusDieMut]("ports")
+	f.Ports = diefields.NewList[LoadBalancerIngress, PortStatus, *PortStatusDie, *PortStatusDieMut]("ports")
 	return
 }}
 
@@ -13248,8 +13248,8 @@ func (d *LoadBalancerIngressDie) IPMode() diefields.Optional[LoadBalancerIPMode]
 
 // Ports is a list of records of service ports
 // If used, every port defined in the service should have an entry in it
-func (d *LoadBalancerIngressDie) Ports() diefields.Value[[]PortStatus] {
-	return diefields.ValueOf(d, loadBalancerIngressFields.Get().Ports)
+func (d *LoadBalancerIngressDie) Ports() *diefields.List[PortStatus, *PortStatusDie] {
+	return diefields.ListOf(d, loadBalancerIngressFields.Get().Ports)
 }
 
 // IP is set for load-balancer ingress points that are IP based
@@ -13276,8 +13276,8 @@ func (d *LoadBalancerIngressDieMut) IPMode() diefields.OptionalMut[LoadBalancerI
 
 // Ports is a list of records of service ports
 // If used, every port defined in the service should have an entry in it
-func (d *LoadBalancerIngressDieMut) Ports() diefields.ValueMut[[]PortStatus] {
-	return diefields.ValueMutOf(d, loadBalancerIngressFields.Get().Ports)
+func (d *LoadBalancerIngressDieMut) Ports() *diefields.ListMut[PortStatus, *PortStatusDie, *PortStatusDieMut] {
+	return diefields.ListMutOf(d, loadBalancerIngressFields.Get().Ports)
 }
 
 // +kubebuilder:object:generate=false
@@ -13352,25 +13352,25 @@ func (d *LoadBalancerStatusDieMut) DieStampApplyConfiguration(fn func(ac *LoadBa
 // +k8s:deepcopy-gen=false
 
 type loadBalancerStatusFieldsTable struct {
-	Ingress diefields.Field[LoadBalancerStatus, []LoadBalancerIngress]
+	Ingress diefields.ListField[LoadBalancerStatus, LoadBalancerIngress, *LoadBalancerIngressDie, *LoadBalancerIngressDieMut]
 }
 
 var loadBalancerStatusFields = &diefields.Table[loadBalancerStatusFieldsTable]{Build: func() (f loadBalancerStatusFieldsTable) {
 	_ = annotated
-	f.Ingress = diefields.NewItems[LoadBalancerStatus, []LoadBalancerIngress, LoadBalancerIngress, *LoadBalancerIngressDie, *LoadBalancerIngressDieMut]("ingress")
+	f.Ingress = diefields.NewList[LoadBalancerStatus, LoadBalancerIngress, *LoadBalancerIngressDie, *LoadBalancerIngressDieMut]("ingress")
 	return
 }}
 
 // Ingress is a list containing ingress points for the load-balancer.
 // Traffic intended for the service should be sent to these ingress points.
-func (d *LoadBalancerStatusDie) Ingress() diefields.Value[[]LoadBalancerIngress] {
-	return diefields.ValueOf(d, loadBalancerStatusFields.Get().Ingress)
+func (d *LoadBalancerStatusDie) Ingress() *diefields.List[LoadBalancerIngress, *LoadBalancerIngressDie] {
+	return diefields.ListOf(d, loadBalancerStatusFields.Get().Ingress)
 }
 
 // Ingress is a list containing ingress points for the load-balancer.
 // Traffic intended for the service should be sent to these ingress points.
-func (d *LoadBalancerStatusDieMut) Ingress() diefields.ValueMut[[]LoadBalancerIngress] {
-	return diefields.ValueMutOf(d, loadBalancerStatusFields.Get().Ingress)
+func (d *LoadBalancerStatusDieMut) Ingress() *diefields.ListMut[LoadBalancerIngress, *LoadBalancerIngressDie, *LoadBalancerIngressDieMut] {
+	return diefields.ListMutOf(d, loadBalancerStatusFields.Get().Ingress)
 }
 
 // +kubebuilder:object:generate=false
@@ -14233,25 +14233,25 @@ func (d *NamespaceSpecDieMut) DieStampApplyConfiguration(fn func(ac *NamespaceSp
 // +k8s:deepcopy-gen=false
 
 type namespaceSpecFieldsTable struct {
-	Finalizers diefields.Field[NamespaceSpec, []FinalizerName]
+	Finalizers diefields.ListField[NamespaceSpec, FinalizerName, diefields.Value[FinalizerName], diefields.ValueMut[FinalizerName]]
 }
 
 var namespaceSpecFields = &diefields.Table[namespaceSpecFieldsTable]{Build: func() (f namespaceSpecFieldsTable) {
 	_ = annotated
-	f.Finalizers = diefields.NewField[NamespaceSpec, []FinalizerName]("finalizers")
+	f.Finalizers = diefields.NewValueList[NamespaceSpec, FinalizerName]("finalizers")
 	return
 }}
 
 // Finalizers is an opaque list of values that must be empty to permanently remove object from storage.
 // More info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/
-func (d *NamespaceSpecDie) Finalizers() diefields.Value[[]FinalizerName] {
-	return diefields.ValueOf(d, namespaceSpecFields.Get().Finalizers)
+func (d *NamespaceSpecDie) Finalizers() *diefields.List[FinalizerName, diefields.Value[FinalizerName]] {
+	return diefields.ListOf(d, namespaceSpecFields.Get().Finalizers)
 }
 
 // Finalizers is an opaque list of values that must be empty to permanently remove object from storage.
 // More info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/
-func (d *NamespaceSpecDieMut) Finalizers() diefields.ValueMut[[]FinalizerName] {
-	return diefields.ValueMutOf(d, namespaceSpecFields.Get().Finalizers)
+func (d *NamespaceSpecDieMut) Finalizers() *diefields.ListMut[FinalizerName, diefields.Value[FinalizerName], diefields.ValueMut[FinalizerName]] {
+	return diefields.ListMutOf(d, namespaceSpecFields.Get().Finalizers)
 }
 
 // +kubebuilder:object:generate=false
@@ -14691,13 +14691,13 @@ func (d *NodeAffinityDieMut) DieStampApplyConfiguration(fn func(ac *NodeAffinity
 
 type nodeAffinityFieldsTable struct {
 	RequiredDuringSchedulingIgnoredDuringExecution  diefields.Struct[NodeAffinity, NodeSelector, *NodeSelectorDie, *NodeSelectorDieMut]
-	PreferredDuringSchedulingIgnoredDuringExecution diefields.Field[NodeAffinity, []PreferredSchedulingTerm]
+	PreferredDuringSchedulingIgnoredDuringExecution diefields.ListField[NodeAffinity, PreferredSchedulingTerm, *PreferredSchedulingTermDie, *PreferredSchedulingTermDieMut]
 }
 
 var nodeAffinityFields = &diefields.Table[nodeAffinityFieldsTable]{Build: func() (f nodeAffinityFieldsTable) {
 	_ = annotated
 	f.RequiredDuringSchedulingIgnoredDuringExecution = diefields.NewStruct[NodeAffinity, NodeSelector, *NodeSelectorDie, *NodeSelectorDieMut]("requiredDuringSchedulingIgnoredDuringExecution")
-	f.PreferredDuringSchedulingIgnoredDuringExecution = diefields.NewItems[NodeAffinity, []PreferredSchedulingTerm, PreferredSchedulingTerm, *PreferredSchedulingTermDie, *PreferredSchedulingTermDieMut]("preferredDuringSchedulingIgnoredDuringExecution")
+	f.PreferredDuringSchedulingIgnoredDuringExecution = diefields.NewList[NodeAffinity, PreferredSchedulingTerm, *PreferredSchedulingTermDie, *PreferredSchedulingTermDieMut]("preferredDuringSchedulingIgnoredDuringExecution")
 	return
 }}
 
@@ -14719,8 +14719,8 @@ func (d *NodeAffinityDie) RequiredDuringSchedulingIgnoredDuringExecution() *Node
 // compute a sum by iterating through the elements of this field and adding
 // "weight" to the sum if the node matches the corresponding matchExpressions; the
 // node(s) with the highest sum are the most preferred.
-func (d *NodeAffinityDie) PreferredDuringSchedulingIgnoredDuringExecution() diefields.Value[[]PreferredSchedulingTerm] {
-	return diefields.ValueOf(d, nodeAffinityFields.Get().PreferredDuringSchedulingIgnoredDuringExecution)
+func (d *NodeAffinityDie) PreferredDuringSchedulingIgnoredDuringExecution() *diefields.List[PreferredSchedulingTerm, *PreferredSchedulingTermDie] {
+	return diefields.ListOf(d, nodeAffinityFields.Get().PreferredDuringSchedulingIgnoredDuringExecution)
 }
 
 // If the affinity requirements specified by this field are not met at
@@ -14741,8 +14741,8 @@ func (d *NodeAffinityDieMut) RequiredDuringSchedulingIgnoredDuringExecution() *N
 // compute a sum by iterating through the elements of this field and adding
 // "weight" to the sum if the node matches the corresponding matchExpressions; the
 // node(s) with the highest sum are the most preferred.
-func (d *NodeAffinityDieMut) PreferredDuringSchedulingIgnoredDuringExecution() diefields.ValueMut[[]PreferredSchedulingTerm] {
-	return diefields.ValueMutOf(d, nodeAffinityFields.Get().PreferredDuringSchedulingIgnoredDuringExecution)
+func (d *NodeAffinityDieMut) PreferredDuringSchedulingIgnoredDuringExecution() *diefields.ListMut[PreferredSchedulingTerm, *PreferredSchedulingTermDie, *PreferredSchedulingTermDieMut] {
+	return diefields.ListMutOf(d, nodeAffinityFields.Get().PreferredDuringSchedulingIgnoredDuringExecution)
 }
 
 // +kubebuilder:object:generate=false
@@ -15060,7 +15060,7 @@ func (d *NodeAllocatableResourceClaimStatusDieMut) DieStampApplyConfiguration(fn
 
 type nodeAllocatableResourceClaimStatusFieldsTable struct {
 	ResourceClaimName diefields.Field[NodeAllocatableResourceClaimStatus, string]
-	Containers        diefields.Field[NodeAllocatableResourceClaimStatus, []string]
+	Containers        diefields.ListField[NodeAllocatableResourceClaimStatus, string, diefields.Value[string], diefields.ValueMut[string]]
 	Mapping           diefields.ListMapField[NodeAllocatableResourceClaimStatus, NodeAllocatableMappedResources, *NodeAllocatableMappedResourcesDie, *NodeAllocatableMappedResourcesDieMut, ResourceName]
 	Overhead          diefields.ListMapField[NodeAllocatableResourceClaimStatus, NodeAllocatableOverheadResources, *NodeAllocatableOverheadResourcesDie, *NodeAllocatableOverheadResourcesDieMut, ResourceName]
 }
@@ -15068,7 +15068,7 @@ type nodeAllocatableResourceClaimStatusFieldsTable struct {
 var nodeAllocatableResourceClaimStatusFields = &diefields.Table[nodeAllocatableResourceClaimStatusFieldsTable]{Build: func() (f nodeAllocatableResourceClaimStatusFieldsTable) {
 	_ = annotated
 	f.ResourceClaimName = diefields.NewField[NodeAllocatableResourceClaimStatus, string]("resourceClaimName")
-	f.Containers = diefields.NewField[NodeAllocatableResourceClaimStatus, []string]("containers")
+	f.Containers = diefields.NewValueList[NodeAllocatableResourceClaimStatus, string]("containers")
 	f.Mapping = diefields.NewListMap[NodeAllocatableResourceClaimStatus, NodeAllocatableMappedResources, *NodeAllocatableMappedResourcesDie, *NodeAllocatableMappedResourcesDieMut]("mapping", func(k ResourceName) []any { return []any{k} }, func(e NodeAllocatableMappedResources) ResourceName { return e.Name })
 	f.Overhead = diefields.NewListMap[NodeAllocatableResourceClaimStatus, NodeAllocatableOverheadResources, *NodeAllocatableOverheadResourcesDie, *NodeAllocatableOverheadResourcesDieMut]("overhead", func(k ResourceName) []any { return []any{k} }, func(e NodeAllocatableOverheadResources) ResourceName { return e.Name })
 	return
@@ -15080,8 +15080,8 @@ func (d *NodeAllocatableResourceClaimStatusDie) ResourceClaimName() diefields.Va
 }
 
 // Containers lists the names of all containers in this pod that reference the claim.
-func (d *NodeAllocatableResourceClaimStatusDie) Containers() diefields.Value[[]string] {
-	return diefields.ValueOf(d, nodeAllocatableResourceClaimStatusFields.Get().Containers)
+func (d *NodeAllocatableResourceClaimStatusDie) Containers() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, nodeAllocatableResourceClaimStatusFields.Get().Containers)
 }
 
 // Mapping contains allocations through devices mapped in the device spec's `nodeAllocatableResources[...].mapping` field.
@@ -15102,8 +15102,8 @@ func (d *NodeAllocatableResourceClaimStatusDieMut) ResourceClaimName() diefields
 }
 
 // Containers lists the names of all containers in this pod that reference the claim.
-func (d *NodeAllocatableResourceClaimStatusDieMut) Containers() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, nodeAllocatableResourceClaimStatusFields.Get().Containers)
+func (d *NodeAllocatableResourceClaimStatusDieMut) Containers() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, nodeAllocatableResourceClaimStatusFields.Get().Containers)
 }
 
 // Mapping contains allocations through devices mapped in the device spec's `nodeAllocatableResources[...].mapping` field.
@@ -15824,12 +15824,12 @@ func (d *NodePodPreemptionPolicyDieMut) DieStampApplyConfiguration(fn func(ac *N
 // +k8s:deepcopy-gen=false
 
 type nodePodPreemptionPolicyFieldsTable struct {
-	DisableResizePreemption diefields.Field[NodePodPreemptionPolicy, []string]
+	DisableResizePreemption diefields.ListField[NodePodPreemptionPolicy, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var nodePodPreemptionPolicyFields = &diefields.Table[nodePodPreemptionPolicyFieldsTable]{Build: func() (f nodePodPreemptionPolicyFieldsTable) {
 	_ = annotated
-	f.DisableResizePreemption = diefields.NewField[NodePodPreemptionPolicy, []string]("disableResizePreemption")
+	f.DisableResizePreemption = diefields.NewValueList[NodePodPreemptionPolicy, string]("disableResizePreemption")
 	return
 }}
 
@@ -15837,16 +15837,16 @@ var nodePodPreemptionPolicyFields = &diefields.Table[nodePodPreemptionPolicyFiel
 // that have requested to disable scheduler and Kubelet preemption for in-place pod resize on this node.
 // If this list is non-empty, resize-induced preemption is disabled on this node.
 // This is an alpha field and requires enabling the InPlacePodVerticalScalingSchedulerPreemption feature gate.
-func (d *NodePodPreemptionPolicyDie) DisableResizePreemption() diefields.Value[[]string] {
-	return diefields.ValueOf(d, nodePodPreemptionPolicyFields.Get().DisableResizePreemption)
+func (d *NodePodPreemptionPolicyDie) DisableResizePreemption() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, nodePodPreemptionPolicyFields.Get().DisableResizePreemption)
 }
 
 // DisableResizePreemption lists the owners (e.g., autoscalers, operators, administrators)
 // that have requested to disable scheduler and Kubelet preemption for in-place pod resize on this node.
 // If this list is non-empty, resize-induced preemption is disabled on this node.
 // This is an alpha field and requires enabling the InPlacePodVerticalScalingSchedulerPreemption feature gate.
-func (d *NodePodPreemptionPolicyDieMut) DisableResizePreemption() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, nodePodPreemptionPolicyFields.Get().DisableResizePreemption)
+func (d *NodePodPreemptionPolicyDieMut) DisableResizePreemption() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, nodePodPreemptionPolicyFields.Get().DisableResizePreemption)
 }
 
 // +kubebuilder:object:generate=false
@@ -16221,23 +16221,23 @@ func (d *NodeSelectorDieMut) DieStampApplyConfiguration(fn func(ac *NodeSelector
 // +k8s:deepcopy-gen=false
 
 type nodeSelectorFieldsTable struct {
-	NodeSelectorTerms diefields.Field[NodeSelector, []NodeSelectorTerm]
+	NodeSelectorTerms diefields.ListField[NodeSelector, NodeSelectorTerm, *NodeSelectorTermDie, *NodeSelectorTermDieMut]
 }
 
 var nodeSelectorFields = &diefields.Table[nodeSelectorFieldsTable]{Build: func() (f nodeSelectorFieldsTable) {
 	_ = annotated
-	f.NodeSelectorTerms = diefields.NewItems[NodeSelector, []NodeSelectorTerm, NodeSelectorTerm, *NodeSelectorTermDie, *NodeSelectorTermDieMut]("nodeSelectorTerms")
+	f.NodeSelectorTerms = diefields.NewList[NodeSelector, NodeSelectorTerm, *NodeSelectorTermDie, *NodeSelectorTermDieMut]("nodeSelectorTerms")
 	return
 }}
 
 // Required. A list of node selector terms. The terms are ORed.
-func (d *NodeSelectorDie) NodeSelectorTerms() diefields.Value[[]NodeSelectorTerm] {
-	return diefields.ValueOf(d, nodeSelectorFields.Get().NodeSelectorTerms)
+func (d *NodeSelectorDie) NodeSelectorTerms() *diefields.List[NodeSelectorTerm, *NodeSelectorTermDie] {
+	return diefields.ListOf(d, nodeSelectorFields.Get().NodeSelectorTerms)
 }
 
 // Required. A list of node selector terms. The terms are ORed.
-func (d *NodeSelectorDieMut) NodeSelectorTerms() diefields.ValueMut[[]NodeSelectorTerm] {
-	return diefields.ValueMutOf(d, nodeSelectorFields.Get().NodeSelectorTerms)
+func (d *NodeSelectorDieMut) NodeSelectorTerms() *diefields.ListMut[NodeSelectorTerm, *NodeSelectorTermDie, *NodeSelectorTermDieMut] {
+	return diefields.ListMutOf(d, nodeSelectorFields.Get().NodeSelectorTerms)
 }
 
 // +kubebuilder:object:generate=false
@@ -16315,14 +16315,14 @@ func (d *NodeSelectorRequirementDieMut) DieStampApplyConfiguration(fn func(ac *N
 type nodeSelectorRequirementFieldsTable struct {
 	Key      diefields.Field[NodeSelectorRequirement, string]
 	Operator diefields.Field[NodeSelectorRequirement, NodeSelectorOperator]
-	Values   diefields.Field[NodeSelectorRequirement, []string]
+	Values   diefields.ListField[NodeSelectorRequirement, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var nodeSelectorRequirementFields = &diefields.Table[nodeSelectorRequirementFieldsTable]{Build: func() (f nodeSelectorRequirementFieldsTable) {
 	_ = annotated
 	f.Key = diefields.NewField[NodeSelectorRequirement, string]("key")
 	f.Operator = diefields.NewField[NodeSelectorRequirement, NodeSelectorOperator]("operator")
-	f.Values = diefields.NewField[NodeSelectorRequirement, []string]("values")
+	f.Values = diefields.NewValueList[NodeSelectorRequirement, string]("values")
 	return
 }}
 
@@ -16342,8 +16342,8 @@ func (d *NodeSelectorRequirementDie) Operator() diefields.Value[NodeSelectorOper
 // the values array must be empty. If the operator is Gt or Lt, the values
 // array must have a single element, which will be interpreted as an integer.
 // This array is replaced during a strategic merge patch.
-func (d *NodeSelectorRequirementDie) Values() diefields.Value[[]string] {
-	return diefields.ValueOf(d, nodeSelectorRequirementFields.Get().Values)
+func (d *NodeSelectorRequirementDie) Values() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, nodeSelectorRequirementFields.Get().Values)
 }
 
 // The label key that the selector applies to.
@@ -16362,8 +16362,8 @@ func (d *NodeSelectorRequirementDieMut) Operator() diefields.ValueMut[NodeSelect
 // the values array must be empty. If the operator is Gt or Lt, the values
 // array must have a single element, which will be interpreted as an integer.
 // This array is replaced during a strategic merge patch.
-func (d *NodeSelectorRequirementDieMut) Values() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, nodeSelectorRequirementFields.Get().Values)
+func (d *NodeSelectorRequirementDieMut) Values() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, nodeSelectorRequirementFields.Get().Values)
 }
 
 // +kubebuilder:object:generate=false
@@ -16440,35 +16440,35 @@ func (d *NodeSelectorTermDieMut) DieStampApplyConfiguration(fn func(ac *NodeSele
 // +k8s:deepcopy-gen=false
 
 type nodeSelectorTermFieldsTable struct {
-	MatchExpressions diefields.Field[NodeSelectorTerm, []NodeSelectorRequirement]
-	MatchFields      diefields.Field[NodeSelectorTerm, []NodeSelectorRequirement]
+	MatchExpressions diefields.ListField[NodeSelectorTerm, NodeSelectorRequirement, *NodeSelectorRequirementDie, *NodeSelectorRequirementDieMut]
+	MatchFields      diefields.ListField[NodeSelectorTerm, NodeSelectorRequirement, *NodeSelectorRequirementDie, *NodeSelectorRequirementDieMut]
 }
 
 var nodeSelectorTermFields = &diefields.Table[nodeSelectorTermFieldsTable]{Build: func() (f nodeSelectorTermFieldsTable) {
 	_ = annotated
-	f.MatchExpressions = diefields.NewItems[NodeSelectorTerm, []NodeSelectorRequirement, NodeSelectorRequirement, *NodeSelectorRequirementDie, *NodeSelectorRequirementDieMut]("matchExpressions")
-	f.MatchFields = diefields.NewItems[NodeSelectorTerm, []NodeSelectorRequirement, NodeSelectorRequirement, *NodeSelectorRequirementDie, *NodeSelectorRequirementDieMut]("matchFields")
+	f.MatchExpressions = diefields.NewList[NodeSelectorTerm, NodeSelectorRequirement, *NodeSelectorRequirementDie, *NodeSelectorRequirementDieMut]("matchExpressions")
+	f.MatchFields = diefields.NewList[NodeSelectorTerm, NodeSelectorRequirement, *NodeSelectorRequirementDie, *NodeSelectorRequirementDieMut]("matchFields")
 	return
 }}
 
 // A list of node selector requirements by node's labels.
-func (d *NodeSelectorTermDie) MatchExpressions() diefields.Value[[]NodeSelectorRequirement] {
-	return diefields.ValueOf(d, nodeSelectorTermFields.Get().MatchExpressions)
+func (d *NodeSelectorTermDie) MatchExpressions() *diefields.List[NodeSelectorRequirement, *NodeSelectorRequirementDie] {
+	return diefields.ListOf(d, nodeSelectorTermFields.Get().MatchExpressions)
 }
 
 // A list of node selector requirements by node's fields.
-func (d *NodeSelectorTermDie) MatchFields() diefields.Value[[]NodeSelectorRequirement] {
-	return diefields.ValueOf(d, nodeSelectorTermFields.Get().MatchFields)
+func (d *NodeSelectorTermDie) MatchFields() *diefields.List[NodeSelectorRequirement, *NodeSelectorRequirementDie] {
+	return diefields.ListOf(d, nodeSelectorTermFields.Get().MatchFields)
 }
 
 // A list of node selector requirements by node's labels.
-func (d *NodeSelectorTermDieMut) MatchExpressions() diefields.ValueMut[[]NodeSelectorRequirement] {
-	return diefields.ValueMutOf(d, nodeSelectorTermFields.Get().MatchExpressions)
+func (d *NodeSelectorTermDieMut) MatchExpressions() *diefields.ListMut[NodeSelectorRequirement, *NodeSelectorRequirementDie, *NodeSelectorRequirementDieMut] {
+	return diefields.ListMutOf(d, nodeSelectorTermFields.Get().MatchExpressions)
 }
 
 // A list of node selector requirements by node's fields.
-func (d *NodeSelectorTermDieMut) MatchFields() diefields.ValueMut[[]NodeSelectorRequirement] {
-	return diefields.ValueMutOf(d, nodeSelectorTermFields.Get().MatchFields)
+func (d *NodeSelectorTermDieMut) MatchFields() *diefields.ListMut[NodeSelectorRequirement, *NodeSelectorRequirementDie, *NodeSelectorRequirementDieMut] {
+	return diefields.ListMutOf(d, nodeSelectorTermFields.Get().MatchFields)
 }
 
 // +kubebuilder:object:generate=false
@@ -16544,10 +16544,10 @@ func (d *NodeSpecDieMut) DieStampApplyConfiguration(fn func(ac *NodeSpecApplyCon
 
 type nodeSpecFieldsTable struct {
 	PodCIDR             diefields.Field[NodeSpec, string]
-	PodCIDRs            diefields.Field[NodeSpec, []string]
+	PodCIDRs            diefields.ListField[NodeSpec, string, diefields.Value[string], diefields.ValueMut[string]]
 	ProviderID          diefields.Field[NodeSpec, string]
 	Unschedulable       diefields.Field[NodeSpec, bool]
-	Taints              diefields.Field[NodeSpec, []Taint]
+	Taints              diefields.ListField[NodeSpec, Taint, *TaintDie, *TaintDieMut]
 	ConfigSource        diefields.Struct[NodeSpec, NodeConfigSource, *NodeConfigSourceDie, *NodeConfigSourceDieMut]
 	DoNotUseExternalID  diefields.Field[NodeSpec, string]
 	PodPreemptionPolicy diefields.Struct[NodeSpec, NodePodPreemptionPolicy, *NodePodPreemptionPolicyDie, *NodePodPreemptionPolicyDieMut]
@@ -16556,10 +16556,10 @@ type nodeSpecFieldsTable struct {
 var nodeSpecFields = &diefields.Table[nodeSpecFieldsTable]{Build: func() (f nodeSpecFieldsTable) {
 	_ = annotated
 	f.PodCIDR = diefields.NewField[NodeSpec, string]("podCIDR")
-	f.PodCIDRs = diefields.NewField[NodeSpec, []string]("podCIDRs")
+	f.PodCIDRs = diefields.NewValueList[NodeSpec, string]("podCIDRs")
 	f.ProviderID = diefields.NewField[NodeSpec, string]("providerID")
 	f.Unschedulable = diefields.NewField[NodeSpec, bool]("unschedulable")
-	f.Taints = diefields.NewItems[NodeSpec, []Taint, Taint, *TaintDie, *TaintDieMut]("taints")
+	f.Taints = diefields.NewList[NodeSpec, Taint, *TaintDie, *TaintDieMut]("taints")
 	f.ConfigSource = diefields.NewStruct[NodeSpec, NodeConfigSource, *NodeConfigSourceDie, *NodeConfigSourceDieMut]("configSource")
 	f.DoNotUseExternalID = diefields.NewField[NodeSpec, string]("externalID")
 	f.PodPreemptionPolicy = diefields.NewStruct[NodeSpec, NodePodPreemptionPolicy, *NodePodPreemptionPolicyDie, *NodePodPreemptionPolicyDieMut]("podPreemptionPolicy")
@@ -16574,8 +16574,8 @@ func (d *NodeSpecDie) PodCIDR() diefields.Value[string] {
 // podCIDRs represents the IP ranges assigned to the node for usage by Pods on that node. If this
 // field is specified, the 0th entry must match the podCIDR field. It may contain at most 1 value for
 // each of IPv4 and IPv6.
-func (d *NodeSpecDie) PodCIDRs() diefields.Value[[]string] {
-	return diefields.ValueOf(d, nodeSpecFields.Get().PodCIDRs)
+func (d *NodeSpecDie) PodCIDRs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, nodeSpecFields.Get().PodCIDRs)
 }
 
 // ID of the node assigned by the cloud provider in the format: <ProviderName>://<ProviderSpecificNodeID>
@@ -16590,8 +16590,8 @@ func (d *NodeSpecDie) Unschedulable() diefields.Value[bool] {
 }
 
 // If specified, the node's taints.
-func (d *NodeSpecDie) Taints() diefields.Value[[]Taint] {
-	return diefields.ValueOf(d, nodeSpecFields.Get().Taints)
+func (d *NodeSpecDie) Taints() *diefields.List[Taint, *TaintDie] {
+	return diefields.ListOf(d, nodeSpecFields.Get().Taints)
 }
 
 // Deprecated: Previously used to specify the source of the node's configuration for the DynamicKubeletConfig feature. This feature is removed.
@@ -16619,8 +16619,8 @@ func (d *NodeSpecDieMut) PodCIDR() diefields.ValueMut[string] {
 // podCIDRs represents the IP ranges assigned to the node for usage by Pods on that node. If this
 // field is specified, the 0th entry must match the podCIDR field. It may contain at most 1 value for
 // each of IPv4 and IPv6.
-func (d *NodeSpecDieMut) PodCIDRs() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, nodeSpecFields.Get().PodCIDRs)
+func (d *NodeSpecDieMut) PodCIDRs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, nodeSpecFields.Get().PodCIDRs)
 }
 
 // ID of the node assigned by the cloud provider in the format: <ProviderName>://<ProviderSpecificNodeID>
@@ -16635,8 +16635,8 @@ func (d *NodeSpecDieMut) Unschedulable() diefields.ValueMut[bool] {
 }
 
 // If specified, the node's taints.
-func (d *NodeSpecDieMut) Taints() diefields.ValueMut[[]Taint] {
-	return diefields.ValueMutOf(d, nodeSpecFields.Get().Taints)
+func (d *NodeSpecDieMut) Taints() *diefields.ListMut[Taint, *TaintDie, *TaintDieMut] {
+	return diefields.ListMutOf(d, nodeSpecFields.Get().Taints)
 }
 
 // Deprecated: Previously used to specify the source of the node's configuration for the DynamicKubeletConfig feature. This feature is removed.
@@ -16735,13 +16735,13 @@ type nodeStatusFieldsTable struct {
 	Addresses        diefields.ListMapField[NodeStatus, NodeAddress, *NodeAddressDie, *NodeAddressDieMut, NodeAddressType]
 	DaemonEndpoints  diefields.Struct[NodeStatus, NodeDaemonEndpoints, *NodeDaemonEndpointsDie, *NodeDaemonEndpointsDieMut]
 	NodeInfo         diefields.Struct[NodeStatus, NodeSystemInfo, *NodeSystemInfoDie, *NodeSystemInfoDieMut]
-	Images           diefields.Field[NodeStatus, []ContainerImage]
-	VolumesInUse     diefields.Field[NodeStatus, []UniqueVolumeName]
-	VolumesAttached  diefields.Field[NodeStatus, []AttachedVolume]
+	Images           diefields.ListField[NodeStatus, ContainerImage, *ContainerImageDie, *ContainerImageDieMut]
+	VolumesInUse     diefields.ListField[NodeStatus, UniqueVolumeName, diefields.Value[UniqueVolumeName], diefields.ValueMut[UniqueVolumeName]]
+	VolumesAttached  diefields.ListField[NodeStatus, AttachedVolume, *AttachedVolumeDie, *AttachedVolumeDieMut]
 	Config           diefields.Struct[NodeStatus, NodeConfigStatus, *NodeConfigStatusDie, *NodeConfigStatusDieMut]
-	RuntimeHandlers  diefields.Field[NodeStatus, []NodeRuntimeHandler]
+	RuntimeHandlers  diefields.ListField[NodeStatus, NodeRuntimeHandler, *NodeRuntimeHandlerDie, *NodeRuntimeHandlerDieMut]
 	Features         diefields.Struct[NodeStatus, NodeFeatures, *NodeFeaturesDie, *NodeFeaturesDieMut]
-	DeclaredFeatures diefields.Field[NodeStatus, []string]
+	DeclaredFeatures diefields.ListField[NodeStatus, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var nodeStatusFields = &diefields.Table[nodeStatusFieldsTable]{Build: func() (f nodeStatusFieldsTable) {
@@ -16753,13 +16753,13 @@ var nodeStatusFields = &diefields.Table[nodeStatusFieldsTable]{Build: func() (f 
 	f.Addresses = diefields.NewListMap[NodeStatus, NodeAddress, *NodeAddressDie, *NodeAddressDieMut]("addresses", func(k NodeAddressType) []any { return []any{k} }, func(e NodeAddress) NodeAddressType { return e.Type })
 	f.DaemonEndpoints = diefields.NewStruct[NodeStatus, NodeDaemonEndpoints, *NodeDaemonEndpointsDie, *NodeDaemonEndpointsDieMut]("daemonEndpoints")
 	f.NodeInfo = diefields.NewStruct[NodeStatus, NodeSystemInfo, *NodeSystemInfoDie, *NodeSystemInfoDieMut]("nodeInfo")
-	f.Images = diefields.NewItems[NodeStatus, []ContainerImage, ContainerImage, *ContainerImageDie, *ContainerImageDieMut]("images")
-	f.VolumesInUse = diefields.NewField[NodeStatus, []UniqueVolumeName]("volumesInUse")
-	f.VolumesAttached = diefields.NewItems[NodeStatus, []AttachedVolume, AttachedVolume, *AttachedVolumeDie, *AttachedVolumeDieMut]("volumesAttached")
+	f.Images = diefields.NewList[NodeStatus, ContainerImage, *ContainerImageDie, *ContainerImageDieMut]("images")
+	f.VolumesInUse = diefields.NewValueList[NodeStatus, UniqueVolumeName]("volumesInUse")
+	f.VolumesAttached = diefields.NewList[NodeStatus, AttachedVolume, *AttachedVolumeDie, *AttachedVolumeDieMut]("volumesAttached")
 	f.Config = diefields.NewStruct[NodeStatus, NodeConfigStatus, *NodeConfigStatusDie, *NodeConfigStatusDieMut]("config")
-	f.RuntimeHandlers = diefields.NewItems[NodeStatus, []NodeRuntimeHandler, NodeRuntimeHandler, *NodeRuntimeHandlerDie, *NodeRuntimeHandlerDieMut]("runtimeHandlers")
+	f.RuntimeHandlers = diefields.NewList[NodeStatus, NodeRuntimeHandler, *NodeRuntimeHandlerDie, *NodeRuntimeHandlerDieMut]("runtimeHandlers")
 	f.Features = diefields.NewStruct[NodeStatus, NodeFeatures, *NodeFeaturesDie, *NodeFeaturesDieMut]("features")
-	f.DeclaredFeatures = diefields.NewField[NodeStatus, []string]("declaredFeatures")
+	f.DeclaredFeatures = diefields.NewValueList[NodeStatus, string]("declaredFeatures")
 	return
 }}
 
@@ -16814,18 +16814,18 @@ func (d *NodeStatusDie) NodeInfo() *NodeSystemInfoDie {
 }
 
 // List of container images on this node
-func (d *NodeStatusDie) Images() diefields.Value[[]ContainerImage] {
-	return diefields.ValueOf(d, nodeStatusFields.Get().Images)
+func (d *NodeStatusDie) Images() *diefields.List[ContainerImage, *ContainerImageDie] {
+	return diefields.ListOf(d, nodeStatusFields.Get().Images)
 }
 
 // List of attachable volumes in use (mounted) by the node.
-func (d *NodeStatusDie) VolumesInUse() diefields.Value[[]UniqueVolumeName] {
-	return diefields.ValueOf(d, nodeStatusFields.Get().VolumesInUse)
+func (d *NodeStatusDie) VolumesInUse() *diefields.List[UniqueVolumeName, diefields.Value[UniqueVolumeName]] {
+	return diefields.ListOf(d, nodeStatusFields.Get().VolumesInUse)
 }
 
 // List of volumes that are attached to the node.
-func (d *NodeStatusDie) VolumesAttached() diefields.Value[[]AttachedVolume] {
-	return diefields.ValueOf(d, nodeStatusFields.Get().VolumesAttached)
+func (d *NodeStatusDie) VolumesAttached() *diefields.List[AttachedVolume, *AttachedVolumeDie] {
+	return diefields.ListOf(d, nodeStatusFields.Get().VolumesAttached)
 }
 
 // Status of the config assigned to the node via the dynamic Kubelet config feature.
@@ -16834,8 +16834,8 @@ func (d *NodeStatusDie) Config() *NodeConfigStatusDie {
 }
 
 // The available runtime handlers.
-func (d *NodeStatusDie) RuntimeHandlers() diefields.Value[[]NodeRuntimeHandler] {
-	return diefields.ValueOf(d, nodeStatusFields.Get().RuntimeHandlers)
+func (d *NodeStatusDie) RuntimeHandlers() *diefields.List[NodeRuntimeHandler, *NodeRuntimeHandlerDie] {
+	return diefields.ListOf(d, nodeStatusFields.Get().RuntimeHandlers)
 }
 
 // Features describes the set of features implemented by the CRI implementation.
@@ -16844,8 +16844,8 @@ func (d *NodeStatusDie) Features() *NodeFeaturesDie {
 }
 
 // DeclaredFeatures represents the features related to feature gates that are declared by the node.
-func (d *NodeStatusDie) DeclaredFeatures() diefields.Value[[]string] {
-	return diefields.ValueOf(d, nodeStatusFields.Get().DeclaredFeatures)
+func (d *NodeStatusDie) DeclaredFeatures() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, nodeStatusFields.Get().DeclaredFeatures)
 }
 
 // Capacity represents the total resources of a node.
@@ -16899,18 +16899,18 @@ func (d *NodeStatusDieMut) NodeInfo() *NodeSystemInfoDieMut {
 }
 
 // List of container images on this node
-func (d *NodeStatusDieMut) Images() diefields.ValueMut[[]ContainerImage] {
-	return diefields.ValueMutOf(d, nodeStatusFields.Get().Images)
+func (d *NodeStatusDieMut) Images() *diefields.ListMut[ContainerImage, *ContainerImageDie, *ContainerImageDieMut] {
+	return diefields.ListMutOf(d, nodeStatusFields.Get().Images)
 }
 
 // List of attachable volumes in use (mounted) by the node.
-func (d *NodeStatusDieMut) VolumesInUse() diefields.ValueMut[[]UniqueVolumeName] {
-	return diefields.ValueMutOf(d, nodeStatusFields.Get().VolumesInUse)
+func (d *NodeStatusDieMut) VolumesInUse() *diefields.ListMut[UniqueVolumeName, diefields.Value[UniqueVolumeName], diefields.ValueMut[UniqueVolumeName]] {
+	return diefields.ListMutOf(d, nodeStatusFields.Get().VolumesInUse)
 }
 
 // List of volumes that are attached to the node.
-func (d *NodeStatusDieMut) VolumesAttached() diefields.ValueMut[[]AttachedVolume] {
-	return diefields.ValueMutOf(d, nodeStatusFields.Get().VolumesAttached)
+func (d *NodeStatusDieMut) VolumesAttached() *diefields.ListMut[AttachedVolume, *AttachedVolumeDie, *AttachedVolumeDieMut] {
+	return diefields.ListMutOf(d, nodeStatusFields.Get().VolumesAttached)
 }
 
 // Status of the config assigned to the node via the dynamic Kubelet config feature.
@@ -16919,8 +16919,8 @@ func (d *NodeStatusDieMut) Config() *NodeConfigStatusDieMut {
 }
 
 // The available runtime handlers.
-func (d *NodeStatusDieMut) RuntimeHandlers() diefields.ValueMut[[]NodeRuntimeHandler] {
-	return diefields.ValueMutOf(d, nodeStatusFields.Get().RuntimeHandlers)
+func (d *NodeStatusDieMut) RuntimeHandlers() *diefields.ListMut[NodeRuntimeHandler, *NodeRuntimeHandlerDie, *NodeRuntimeHandlerDieMut] {
+	return diefields.ListMutOf(d, nodeStatusFields.Get().RuntimeHandlers)
 }
 
 // Features describes the set of features implemented by the CRI implementation.
@@ -16929,8 +16929,8 @@ func (d *NodeStatusDieMut) Features() *NodeFeaturesDieMut {
 }
 
 // DeclaredFeatures represents the features related to feature gates that are declared by the node.
-func (d *NodeStatusDieMut) DeclaredFeatures() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, nodeStatusFields.Get().DeclaredFeatures)
+func (d *NodeStatusDieMut) DeclaredFeatures() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, nodeStatusFields.Get().DeclaredFeatures)
 }
 
 // +kubebuilder:object:generate=false
@@ -18142,7 +18142,7 @@ func (d *PersistentVolumeClaimSpecDieMut) DieStampApplyConfiguration(fn func(ac 
 // +k8s:deepcopy-gen=false
 
 type persistentVolumeClaimSpecFieldsTable struct {
-	AccessModes               diefields.Field[PersistentVolumeClaimSpec, []PersistentVolumeAccessMode]
+	AccessModes               diefields.ListField[PersistentVolumeClaimSpec, PersistentVolumeAccessMode, diefields.Value[PersistentVolumeAccessMode], diefields.ValueMut[PersistentVolumeAccessMode]]
 	Selector                  diefields.Struct[PersistentVolumeClaimSpec, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
 	Resources                 diefields.Struct[PersistentVolumeClaimSpec, VolumeResourceRequirements, *VolumeResourceRequirementsDie, *VolumeResourceRequirementsDieMut]
 	VolumeName                diefields.Field[PersistentVolumeClaimSpec, string]
@@ -18155,7 +18155,7 @@ type persistentVolumeClaimSpecFieldsTable struct {
 
 var persistentVolumeClaimSpecFields = &diefields.Table[persistentVolumeClaimSpecFieldsTable]{Build: func() (f persistentVolumeClaimSpecFieldsTable) {
 	_ = annotated
-	f.AccessModes = diefields.NewField[PersistentVolumeClaimSpec, []PersistentVolumeAccessMode]("accessModes")
+	f.AccessModes = diefields.NewValueList[PersistentVolumeClaimSpec, PersistentVolumeAccessMode]("accessModes")
 	f.Selector = diefields.NewStruct[PersistentVolumeClaimSpec, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("selector")
 	f.Resources = diefields.NewStruct[PersistentVolumeClaimSpec, VolumeResourceRequirements, *VolumeResourceRequirementsDie, *VolumeResourceRequirementsDieMut]("resources")
 	f.VolumeName = diefields.NewField[PersistentVolumeClaimSpec, string]("volumeName")
@@ -18169,8 +18169,8 @@ var persistentVolumeClaimSpecFields = &diefields.Table[persistentVolumeClaimSpec
 
 // accessModes contains the desired access modes the volume should have.
 // More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
-func (d *PersistentVolumeClaimSpecDie) AccessModes() diefields.Value[[]PersistentVolumeAccessMode] {
-	return diefields.ValueOf(d, persistentVolumeClaimSpecFields.Get().AccessModes)
+func (d *PersistentVolumeClaimSpecDie) AccessModes() *diefields.List[PersistentVolumeAccessMode, diefields.Value[PersistentVolumeAccessMode]] {
+	return diefields.ListOf(d, persistentVolumeClaimSpecFields.Get().AccessModes)
 }
 
 // selector is a label query over volumes to consider for binding.
@@ -18259,8 +18259,8 @@ func (d *PersistentVolumeClaimSpecDie) VolumeAttributesClassName() diefields.Opt
 
 // accessModes contains the desired access modes the volume should have.
 // More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
-func (d *PersistentVolumeClaimSpecDieMut) AccessModes() diefields.ValueMut[[]PersistentVolumeAccessMode] {
-	return diefields.ValueMutOf(d, persistentVolumeClaimSpecFields.Get().AccessModes)
+func (d *PersistentVolumeClaimSpecDieMut) AccessModes() *diefields.ListMut[PersistentVolumeAccessMode, diefields.Value[PersistentVolumeAccessMode], diefields.ValueMut[PersistentVolumeAccessMode]] {
+	return diefields.ListMutOf(d, persistentVolumeClaimSpecFields.Get().AccessModes)
 }
 
 // selector is a label query over volumes to consider for binding.
@@ -18420,7 +18420,7 @@ func (d *PersistentVolumeClaimStatusDieMut) DieStampApplyConfiguration(fn func(a
 
 type persistentVolumeClaimStatusFieldsTable struct {
 	Phase                            diefields.Field[PersistentVolumeClaimStatus, PersistentVolumeClaimPhase]
-	AccessModes                      diefields.Field[PersistentVolumeClaimStatus, []PersistentVolumeAccessMode]
+	AccessModes                      diefields.ListField[PersistentVolumeClaimStatus, PersistentVolumeAccessMode, diefields.Value[PersistentVolumeAccessMode], diefields.ValueMut[PersistentVolumeAccessMode]]
 	Capacity                         diefields.MapField[PersistentVolumeClaimStatus, ResourceName, resource.Quantity]
 	Conditions                       diefields.ListMapField[PersistentVolumeClaimStatus, PersistentVolumeClaimCondition, *PersistentVolumeClaimConditionDie, *PersistentVolumeClaimConditionDieMut, PersistentVolumeClaimConditionType]
 	AllocatedResources               diefields.MapField[PersistentVolumeClaimStatus, ResourceName, resource.Quantity]
@@ -18433,7 +18433,7 @@ type persistentVolumeClaimStatusFieldsTable struct {
 var persistentVolumeClaimStatusFields = &diefields.Table[persistentVolumeClaimStatusFieldsTable]{Build: func() (f persistentVolumeClaimStatusFieldsTable) {
 	_ = annotated
 	f.Phase = diefields.NewField[PersistentVolumeClaimStatus, PersistentVolumeClaimPhase]("phase")
-	f.AccessModes = diefields.NewField[PersistentVolumeClaimStatus, []PersistentVolumeAccessMode]("accessModes")
+	f.AccessModes = diefields.NewValueList[PersistentVolumeClaimStatus, PersistentVolumeAccessMode]("accessModes")
 	f.Capacity = diefields.NewMap[PersistentVolumeClaimStatus, ResourceName, resource.Quantity]("capacity")
 	f.Conditions = diefields.NewListMap[PersistentVolumeClaimStatus, PersistentVolumeClaimCondition, *PersistentVolumeClaimConditionDie, *PersistentVolumeClaimConditionDieMut]("conditions", func(k PersistentVolumeClaimConditionType) []any { return []any{k} }, func(e PersistentVolumeClaimCondition) PersistentVolumeClaimConditionType { return e.Type })
 	f.AllocatedResources = diefields.NewMap[PersistentVolumeClaimStatus, ResourceName, resource.Quantity]("allocatedResources")
@@ -18451,8 +18451,8 @@ func (d *PersistentVolumeClaimStatusDie) Phase() diefields.Value[PersistentVolum
 
 // accessModes contains the actual access modes the volume backing the PVC has.
 // More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
-func (d *PersistentVolumeClaimStatusDie) AccessModes() diefields.Value[[]PersistentVolumeAccessMode] {
-	return diefields.ValueOf(d, persistentVolumeClaimStatusFields.Get().AccessModes)
+func (d *PersistentVolumeClaimStatusDie) AccessModes() *diefields.List[PersistentVolumeAccessMode, diefields.Value[PersistentVolumeAccessMode]] {
+	return diefields.ListOf(d, persistentVolumeClaimStatusFields.Get().AccessModes)
 }
 
 // capacity represents the actual resources of the underlying volume.
@@ -18556,8 +18556,8 @@ func (d *PersistentVolumeClaimStatusDieMut) Phase() diefields.ValueMut[Persisten
 
 // accessModes contains the actual access modes the volume backing the PVC has.
 // More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
-func (d *PersistentVolumeClaimStatusDieMut) AccessModes() diefields.ValueMut[[]PersistentVolumeAccessMode] {
-	return diefields.ValueMutOf(d, persistentVolumeClaimStatusFields.Get().AccessModes)
+func (d *PersistentVolumeClaimStatusDieMut) AccessModes() *diefields.ListMut[PersistentVolumeAccessMode, diefields.Value[PersistentVolumeAccessMode], diefields.ValueMut[PersistentVolumeAccessMode]] {
+	return diefields.ListMutOf(d, persistentVolumeClaimStatusFields.Get().AccessModes)
 }
 
 // capacity represents the actual resources of the underlying volume.
@@ -19415,11 +19415,11 @@ type persistentVolumeSpecFieldsTable struct {
 	Local                         diefields.Struct[PersistentVolumeSpec, LocalVolumeSource, *LocalVolumeSourceDie, *LocalVolumeSourceDieMut]
 	StorageOS                     diefields.Struct[PersistentVolumeSpec, StorageOSPersistentVolumeSource, *StorageOSPersistentVolumeSourceDie, *StorageOSPersistentVolumeSourceDieMut]
 	CSI                           diefields.Struct[PersistentVolumeSpec, CSIPersistentVolumeSource, *CSIPersistentVolumeSourceDie, *CSIPersistentVolumeSourceDieMut]
-	AccessModes                   diefields.Field[PersistentVolumeSpec, []PersistentVolumeAccessMode]
+	AccessModes                   diefields.ListField[PersistentVolumeSpec, PersistentVolumeAccessMode, diefields.Value[PersistentVolumeAccessMode], diefields.ValueMut[PersistentVolumeAccessMode]]
 	ClaimRef                      diefields.Struct[PersistentVolumeSpec, ObjectReference, *ObjectReferenceDie, *ObjectReferenceDieMut]
 	PersistentVolumeReclaimPolicy diefields.Field[PersistentVolumeSpec, PersistentVolumeReclaimPolicy]
 	StorageClassName              diefields.Field[PersistentVolumeSpec, string]
-	MountOptions                  diefields.Field[PersistentVolumeSpec, []string]
+	MountOptions                  diefields.ListField[PersistentVolumeSpec, string, diefields.Value[string], diefields.ValueMut[string]]
 	VolumeMode                    diefields.Field[PersistentVolumeSpec, *PersistentVolumeMode]
 	NodeAffinity                  diefields.Struct[PersistentVolumeSpec, VolumeNodeAffinity, *VolumeNodeAffinityDie, *VolumeNodeAffinityDieMut]
 	VolumeAttributesClassName     diefields.Field[PersistentVolumeSpec, *string]
@@ -19450,11 +19450,11 @@ var persistentVolumeSpecFields = &diefields.Table[persistentVolumeSpecFieldsTabl
 	f.Local = diefields.NewStruct[PersistentVolumeSpec, LocalVolumeSource, *LocalVolumeSourceDie, *LocalVolumeSourceDieMut]("local")
 	f.StorageOS = diefields.NewStruct[PersistentVolumeSpec, StorageOSPersistentVolumeSource, *StorageOSPersistentVolumeSourceDie, *StorageOSPersistentVolumeSourceDieMut]("storageos")
 	f.CSI = diefields.NewStruct[PersistentVolumeSpec, CSIPersistentVolumeSource, *CSIPersistentVolumeSourceDie, *CSIPersistentVolumeSourceDieMut]("csi")
-	f.AccessModes = diefields.NewField[PersistentVolumeSpec, []PersistentVolumeAccessMode]("accessModes")
+	f.AccessModes = diefields.NewValueList[PersistentVolumeSpec, PersistentVolumeAccessMode]("accessModes")
 	f.ClaimRef = diefields.NewStruct[PersistentVolumeSpec, ObjectReference, *ObjectReferenceDie, *ObjectReferenceDieMut]("claimRef")
 	f.PersistentVolumeReclaimPolicy = diefields.NewField[PersistentVolumeSpec, PersistentVolumeReclaimPolicy]("persistentVolumeReclaimPolicy")
 	f.StorageClassName = diefields.NewField[PersistentVolumeSpec, string]("storageClassName")
-	f.MountOptions = diefields.NewField[PersistentVolumeSpec, []string]("mountOptions")
+	f.MountOptions = diefields.NewValueList[PersistentVolumeSpec, string]("mountOptions")
 	f.VolumeMode = diefields.NewField[PersistentVolumeSpec, *PersistentVolumeMode]("volumeMode")
 	f.NodeAffinity = diefields.NewStruct[PersistentVolumeSpec, VolumeNodeAffinity, *VolumeNodeAffinityDie, *VolumeNodeAffinityDieMut]("nodeAffinity")
 	f.VolumeAttributesClassName = diefields.NewField[PersistentVolumeSpec, *string]("volumeAttributesClassName")
@@ -19618,8 +19618,8 @@ func (d *PersistentVolumeSpecDie) CSI() *CSIPersistentVolumeSourceDie {
 
 // accessModes contains all ways the volume can be mounted.
 // More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes
-func (d *PersistentVolumeSpecDie) AccessModes() diefields.Value[[]PersistentVolumeAccessMode] {
-	return diefields.ValueOf(d, persistentVolumeSpecFields.Get().AccessModes)
+func (d *PersistentVolumeSpecDie) AccessModes() *diefields.List[PersistentVolumeAccessMode, diefields.Value[PersistentVolumeAccessMode]] {
+	return diefields.ListOf(d, persistentVolumeSpecFields.Get().AccessModes)
 }
 
 // claimRef is part of a bi-directional binding between PersistentVolume and PersistentVolumeClaim.
@@ -19648,8 +19648,8 @@ func (d *PersistentVolumeSpecDie) StorageClassName() diefields.Value[string] {
 // mountOptions is the list of mount options, e.g. ["ro", "soft"]. Not validated - mount will
 // simply fail if one is invalid.
 // More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#mount-options
-func (d *PersistentVolumeSpecDie) MountOptions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, persistentVolumeSpecFields.Get().MountOptions)
+func (d *PersistentVolumeSpecDie) MountOptions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, persistentVolumeSpecFields.Get().MountOptions)
 }
 
 // volumeMode defines if a volume is intended to be used with a formatted filesystem
@@ -19832,8 +19832,8 @@ func (d *PersistentVolumeSpecDieMut) CSI() *CSIPersistentVolumeSourceDieMut {
 
 // accessModes contains all ways the volume can be mounted.
 // More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes
-func (d *PersistentVolumeSpecDieMut) AccessModes() diefields.ValueMut[[]PersistentVolumeAccessMode] {
-	return diefields.ValueMutOf(d, persistentVolumeSpecFields.Get().AccessModes)
+func (d *PersistentVolumeSpecDieMut) AccessModes() *diefields.ListMut[PersistentVolumeAccessMode, diefields.Value[PersistentVolumeAccessMode], diefields.ValueMut[PersistentVolumeAccessMode]] {
+	return diefields.ListMutOf(d, persistentVolumeSpecFields.Get().AccessModes)
 }
 
 // claimRef is part of a bi-directional binding between PersistentVolume and PersistentVolumeClaim.
@@ -19862,8 +19862,8 @@ func (d *PersistentVolumeSpecDieMut) StorageClassName() diefields.ValueMut[strin
 // mountOptions is the list of mount options, e.g. ["ro", "soft"]. Not validated - mount will
 // simply fail if one is invalid.
 // More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#mount-options
-func (d *PersistentVolumeSpecDieMut) MountOptions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, persistentVolumeSpecFields.Get().MountOptions)
+func (d *PersistentVolumeSpecDieMut) MountOptions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, persistentVolumeSpecFields.Get().MountOptions)
 }
 
 // volumeMode defines if a volume is intended to be used with a formatted filesystem
@@ -20357,14 +20357,14 @@ func (d *PodAffinityDieMut) DieStampApplyConfiguration(fn func(ac *PodAffinityAp
 // +k8s:deepcopy-gen=false
 
 type podAffinityFieldsTable struct {
-	RequiredDuringSchedulingIgnoredDuringExecution  diefields.Field[PodAffinity, []PodAffinityTerm]
-	PreferredDuringSchedulingIgnoredDuringExecution diefields.Field[PodAffinity, []WeightedPodAffinityTerm]
+	RequiredDuringSchedulingIgnoredDuringExecution  diefields.ListField[PodAffinity, PodAffinityTerm, *PodAffinityTermDie, *PodAffinityTermDieMut]
+	PreferredDuringSchedulingIgnoredDuringExecution diefields.ListField[PodAffinity, WeightedPodAffinityTerm, *WeightedPodAffinityTermDie, *WeightedPodAffinityTermDieMut]
 }
 
 var podAffinityFields = &diefields.Table[podAffinityFieldsTable]{Build: func() (f podAffinityFieldsTable) {
 	_ = annotated
-	f.RequiredDuringSchedulingIgnoredDuringExecution = diefields.NewItems[PodAffinity, []PodAffinityTerm, PodAffinityTerm, *PodAffinityTermDie, *PodAffinityTermDieMut]("requiredDuringSchedulingIgnoredDuringExecution")
-	f.PreferredDuringSchedulingIgnoredDuringExecution = diefields.NewItems[PodAffinity, []WeightedPodAffinityTerm, WeightedPodAffinityTerm, *WeightedPodAffinityTermDie, *WeightedPodAffinityTermDieMut]("preferredDuringSchedulingIgnoredDuringExecution")
+	f.RequiredDuringSchedulingIgnoredDuringExecution = diefields.NewList[PodAffinity, PodAffinityTerm, *PodAffinityTermDie, *PodAffinityTermDieMut]("requiredDuringSchedulingIgnoredDuringExecution")
+	f.PreferredDuringSchedulingIgnoredDuringExecution = diefields.NewList[PodAffinity, WeightedPodAffinityTerm, *WeightedPodAffinityTermDie, *WeightedPodAffinityTermDieMut]("preferredDuringSchedulingIgnoredDuringExecution")
 	return
 }}
 
@@ -20375,8 +20375,8 @@ var podAffinityFields = &diefields.Table[podAffinityFieldsTable]{Build: func() (
 // system may or may not try to eventually evict the pod from its node.
 // When there are multiple elements, the lists of nodes corresponding to each
 // podAffinityTerm are intersected, i.e. all terms must be satisfied.
-func (d *PodAffinityDie) RequiredDuringSchedulingIgnoredDuringExecution() diefields.Value[[]PodAffinityTerm] {
-	return diefields.ValueOf(d, podAffinityFields.Get().RequiredDuringSchedulingIgnoredDuringExecution)
+func (d *PodAffinityDie) RequiredDuringSchedulingIgnoredDuringExecution() *diefields.List[PodAffinityTerm, *PodAffinityTermDie] {
+	return diefields.ListOf(d, podAffinityFields.Get().RequiredDuringSchedulingIgnoredDuringExecution)
 }
 
 // The scheduler will prefer to schedule pods to nodes that satisfy
@@ -20388,8 +20388,8 @@ func (d *PodAffinityDie) RequiredDuringSchedulingIgnoredDuringExecution() diefie
 // compute a sum by iterating through the elements of this field and adding
 // "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
 // node(s) with the highest sum are the most preferred.
-func (d *PodAffinityDie) PreferredDuringSchedulingIgnoredDuringExecution() diefields.Value[[]WeightedPodAffinityTerm] {
-	return diefields.ValueOf(d, podAffinityFields.Get().PreferredDuringSchedulingIgnoredDuringExecution)
+func (d *PodAffinityDie) PreferredDuringSchedulingIgnoredDuringExecution() *diefields.List[WeightedPodAffinityTerm, *WeightedPodAffinityTermDie] {
+	return diefields.ListOf(d, podAffinityFields.Get().PreferredDuringSchedulingIgnoredDuringExecution)
 }
 
 // If the affinity requirements specified by this field are not met at
@@ -20399,8 +20399,8 @@ func (d *PodAffinityDie) PreferredDuringSchedulingIgnoredDuringExecution() diefi
 // system may or may not try to eventually evict the pod from its node.
 // When there are multiple elements, the lists of nodes corresponding to each
 // podAffinityTerm are intersected, i.e. all terms must be satisfied.
-func (d *PodAffinityDieMut) RequiredDuringSchedulingIgnoredDuringExecution() diefields.ValueMut[[]PodAffinityTerm] {
-	return diefields.ValueMutOf(d, podAffinityFields.Get().RequiredDuringSchedulingIgnoredDuringExecution)
+func (d *PodAffinityDieMut) RequiredDuringSchedulingIgnoredDuringExecution() *diefields.ListMut[PodAffinityTerm, *PodAffinityTermDie, *PodAffinityTermDieMut] {
+	return diefields.ListMutOf(d, podAffinityFields.Get().RequiredDuringSchedulingIgnoredDuringExecution)
 }
 
 // The scheduler will prefer to schedule pods to nodes that satisfy
@@ -20412,8 +20412,8 @@ func (d *PodAffinityDieMut) RequiredDuringSchedulingIgnoredDuringExecution() die
 // compute a sum by iterating through the elements of this field and adding
 // "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
 // node(s) with the highest sum are the most preferred.
-func (d *PodAffinityDieMut) PreferredDuringSchedulingIgnoredDuringExecution() diefields.ValueMut[[]WeightedPodAffinityTerm] {
-	return diefields.ValueMutOf(d, podAffinityFields.Get().PreferredDuringSchedulingIgnoredDuringExecution)
+func (d *PodAffinityDieMut) PreferredDuringSchedulingIgnoredDuringExecution() *diefields.ListMut[WeightedPodAffinityTerm, *WeightedPodAffinityTermDie, *WeightedPodAffinityTermDieMut] {
+	return diefields.ListMutOf(d, podAffinityFields.Get().PreferredDuringSchedulingIgnoredDuringExecution)
 }
 
 // +kubebuilder:object:generate=false
@@ -20494,21 +20494,21 @@ func (d *PodAffinityTermDieMut) DieStampApplyConfiguration(fn func(ac *PodAffini
 
 type podAffinityTermFieldsTable struct {
 	LabelSelector     diefields.Struct[PodAffinityTerm, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
-	Namespaces        diefields.Field[PodAffinityTerm, []string]
+	Namespaces        diefields.ListField[PodAffinityTerm, string, diefields.Value[string], diefields.ValueMut[string]]
 	TopologyKey       diefields.Field[PodAffinityTerm, string]
 	NamespaceSelector diefields.Struct[PodAffinityTerm, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
-	MatchLabelKeys    diefields.Field[PodAffinityTerm, []string]
-	MismatchLabelKeys diefields.Field[PodAffinityTerm, []string]
+	MatchLabelKeys    diefields.ListField[PodAffinityTerm, string, diefields.Value[string], diefields.ValueMut[string]]
+	MismatchLabelKeys diefields.ListField[PodAffinityTerm, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var podAffinityTermFields = &diefields.Table[podAffinityTermFieldsTable]{Build: func() (f podAffinityTermFieldsTable) {
 	_ = annotated
 	f.LabelSelector = diefields.NewStruct[PodAffinityTerm, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("labelSelector")
-	f.Namespaces = diefields.NewField[PodAffinityTerm, []string]("namespaces")
+	f.Namespaces = diefields.NewValueList[PodAffinityTerm, string]("namespaces")
 	f.TopologyKey = diefields.NewField[PodAffinityTerm, string]("topologyKey")
 	f.NamespaceSelector = diefields.NewStruct[PodAffinityTerm, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("namespaceSelector")
-	f.MatchLabelKeys = diefields.NewField[PodAffinityTerm, []string]("matchLabelKeys")
-	f.MismatchLabelKeys = diefields.NewField[PodAffinityTerm, []string]("mismatchLabelKeys")
+	f.MatchLabelKeys = diefields.NewValueList[PodAffinityTerm, string]("matchLabelKeys")
+	f.MismatchLabelKeys = diefields.NewValueList[PodAffinityTerm, string]("mismatchLabelKeys")
 	return
 }}
 
@@ -20522,8 +20522,8 @@ func (d *PodAffinityTermDie) LabelSelector() *diemetav1.LabelSelectorDie {
 // The term is applied to the union of the namespaces listed in this field
 // and the ones selected by namespaceSelector.
 // null or empty namespaces list and null namespaceSelector means "this pod's namespace".
-func (d *PodAffinityTermDie) Namespaces() diefields.Value[[]string] {
-	return diefields.ValueOf(d, podAffinityTermFields.Get().Namespaces)
+func (d *PodAffinityTermDie) Namespaces() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, podAffinityTermFields.Get().Namespaces)
 }
 
 // This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching
@@ -20552,8 +20552,8 @@ func (d *PodAffinityTermDie) NamespaceSelector() *diemetav1.LabelSelectorDie {
 // pod labels will be ignored. The default value is empty.
 // The same key is forbidden to exist in both matchLabelKeys and labelSelector.
 // Also, matchLabelKeys cannot be set when labelSelector isn't set.
-func (d *PodAffinityTermDie) MatchLabelKeys() diefields.Value[[]string] {
-	return diefields.ValueOf(d, podAffinityTermFields.Get().MatchLabelKeys)
+func (d *PodAffinityTermDie) MatchLabelKeys() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, podAffinityTermFields.Get().MatchLabelKeys)
 }
 
 // MismatchLabelKeys is a set of pod label keys to select which pods will
@@ -20564,8 +20564,8 @@ func (d *PodAffinityTermDie) MatchLabelKeys() diefields.Value[[]string] {
 // pod labels will be ignored. The default value is empty.
 // The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
 // Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-func (d *PodAffinityTermDie) MismatchLabelKeys() diefields.Value[[]string] {
-	return diefields.ValueOf(d, podAffinityTermFields.Get().MismatchLabelKeys)
+func (d *PodAffinityTermDie) MismatchLabelKeys() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, podAffinityTermFields.Get().MismatchLabelKeys)
 }
 
 // A label query over a set of resources, in this case pods.
@@ -20578,8 +20578,8 @@ func (d *PodAffinityTermDieMut) LabelSelector() *diemetav1.LabelSelectorDieMut {
 // The term is applied to the union of the namespaces listed in this field
 // and the ones selected by namespaceSelector.
 // null or empty namespaces list and null namespaceSelector means "this pod's namespace".
-func (d *PodAffinityTermDieMut) Namespaces() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, podAffinityTermFields.Get().Namespaces)
+func (d *PodAffinityTermDieMut) Namespaces() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, podAffinityTermFields.Get().Namespaces)
 }
 
 // This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching
@@ -20608,8 +20608,8 @@ func (d *PodAffinityTermDieMut) NamespaceSelector() *diemetav1.LabelSelectorDieM
 // pod labels will be ignored. The default value is empty.
 // The same key is forbidden to exist in both matchLabelKeys and labelSelector.
 // Also, matchLabelKeys cannot be set when labelSelector isn't set.
-func (d *PodAffinityTermDieMut) MatchLabelKeys() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, podAffinityTermFields.Get().MatchLabelKeys)
+func (d *PodAffinityTermDieMut) MatchLabelKeys() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, podAffinityTermFields.Get().MatchLabelKeys)
 }
 
 // MismatchLabelKeys is a set of pod label keys to select which pods will
@@ -20620,8 +20620,8 @@ func (d *PodAffinityTermDieMut) MatchLabelKeys() diefields.ValueMut[[]string] {
 // pod labels will be ignored. The default value is empty.
 // The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
 // Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-func (d *PodAffinityTermDieMut) MismatchLabelKeys() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, podAffinityTermFields.Get().MismatchLabelKeys)
+func (d *PodAffinityTermDieMut) MismatchLabelKeys() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, podAffinityTermFields.Get().MismatchLabelKeys)
 }
 
 // +kubebuilder:object:generate=false
@@ -20696,14 +20696,14 @@ func (d *PodAntiAffinityDieMut) DieStampApplyConfiguration(fn func(ac *PodAntiAf
 // +k8s:deepcopy-gen=false
 
 type podAntiAffinityFieldsTable struct {
-	RequiredDuringSchedulingIgnoredDuringExecution  diefields.Field[PodAntiAffinity, []PodAffinityTerm]
-	PreferredDuringSchedulingIgnoredDuringExecution diefields.Field[PodAntiAffinity, []WeightedPodAffinityTerm]
+	RequiredDuringSchedulingIgnoredDuringExecution  diefields.ListField[PodAntiAffinity, PodAffinityTerm, *PodAffinityTermDie, *PodAffinityTermDieMut]
+	PreferredDuringSchedulingIgnoredDuringExecution diefields.ListField[PodAntiAffinity, WeightedPodAffinityTerm, *WeightedPodAffinityTermDie, *WeightedPodAffinityTermDieMut]
 }
 
 var podAntiAffinityFields = &diefields.Table[podAntiAffinityFieldsTable]{Build: func() (f podAntiAffinityFieldsTable) {
 	_ = annotated
-	f.RequiredDuringSchedulingIgnoredDuringExecution = diefields.NewItems[PodAntiAffinity, []PodAffinityTerm, PodAffinityTerm, *PodAffinityTermDie, *PodAffinityTermDieMut]("requiredDuringSchedulingIgnoredDuringExecution")
-	f.PreferredDuringSchedulingIgnoredDuringExecution = diefields.NewItems[PodAntiAffinity, []WeightedPodAffinityTerm, WeightedPodAffinityTerm, *WeightedPodAffinityTermDie, *WeightedPodAffinityTermDieMut]("preferredDuringSchedulingIgnoredDuringExecution")
+	f.RequiredDuringSchedulingIgnoredDuringExecution = diefields.NewList[PodAntiAffinity, PodAffinityTerm, *PodAffinityTermDie, *PodAffinityTermDieMut]("requiredDuringSchedulingIgnoredDuringExecution")
+	f.PreferredDuringSchedulingIgnoredDuringExecution = diefields.NewList[PodAntiAffinity, WeightedPodAffinityTerm, *WeightedPodAffinityTermDie, *WeightedPodAffinityTermDieMut]("preferredDuringSchedulingIgnoredDuringExecution")
 	return
 }}
 
@@ -20714,8 +20714,8 @@ var podAntiAffinityFields = &diefields.Table[podAntiAffinityFieldsTable]{Build: 
 // system may or may not try to eventually evict the pod from its node.
 // When there are multiple elements, the lists of nodes corresponding to each
 // podAffinityTerm are intersected, i.e. all terms must be satisfied.
-func (d *PodAntiAffinityDie) RequiredDuringSchedulingIgnoredDuringExecution() diefields.Value[[]PodAffinityTerm] {
-	return diefields.ValueOf(d, podAntiAffinityFields.Get().RequiredDuringSchedulingIgnoredDuringExecution)
+func (d *PodAntiAffinityDie) RequiredDuringSchedulingIgnoredDuringExecution() *diefields.List[PodAffinityTerm, *PodAffinityTermDie] {
+	return diefields.ListOf(d, podAntiAffinityFields.Get().RequiredDuringSchedulingIgnoredDuringExecution)
 }
 
 // The scheduler will prefer to schedule pods to nodes that satisfy
@@ -20727,8 +20727,8 @@ func (d *PodAntiAffinityDie) RequiredDuringSchedulingIgnoredDuringExecution() di
 // compute a sum by iterating through the elements of this field and subtracting
 // "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
 // node(s) with the highest sum are the most preferred.
-func (d *PodAntiAffinityDie) PreferredDuringSchedulingIgnoredDuringExecution() diefields.Value[[]WeightedPodAffinityTerm] {
-	return diefields.ValueOf(d, podAntiAffinityFields.Get().PreferredDuringSchedulingIgnoredDuringExecution)
+func (d *PodAntiAffinityDie) PreferredDuringSchedulingIgnoredDuringExecution() *diefields.List[WeightedPodAffinityTerm, *WeightedPodAffinityTermDie] {
+	return diefields.ListOf(d, podAntiAffinityFields.Get().PreferredDuringSchedulingIgnoredDuringExecution)
 }
 
 // If the anti-affinity requirements specified by this field are not met at
@@ -20738,8 +20738,8 @@ func (d *PodAntiAffinityDie) PreferredDuringSchedulingIgnoredDuringExecution() d
 // system may or may not try to eventually evict the pod from its node.
 // When there are multiple elements, the lists of nodes corresponding to each
 // podAffinityTerm are intersected, i.e. all terms must be satisfied.
-func (d *PodAntiAffinityDieMut) RequiredDuringSchedulingIgnoredDuringExecution() diefields.ValueMut[[]PodAffinityTerm] {
-	return diefields.ValueMutOf(d, podAntiAffinityFields.Get().RequiredDuringSchedulingIgnoredDuringExecution)
+func (d *PodAntiAffinityDieMut) RequiredDuringSchedulingIgnoredDuringExecution() *diefields.ListMut[PodAffinityTerm, *PodAffinityTermDie, *PodAffinityTermDieMut] {
+	return diefields.ListMutOf(d, podAntiAffinityFields.Get().RequiredDuringSchedulingIgnoredDuringExecution)
 }
 
 // The scheduler will prefer to schedule pods to nodes that satisfy
@@ -20751,8 +20751,8 @@ func (d *PodAntiAffinityDieMut) RequiredDuringSchedulingIgnoredDuringExecution()
 // compute a sum by iterating through the elements of this field and subtracting
 // "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
 // node(s) with the highest sum are the most preferred.
-func (d *PodAntiAffinityDieMut) PreferredDuringSchedulingIgnoredDuringExecution() diefields.ValueMut[[]WeightedPodAffinityTerm] {
-	return diefields.ValueMutOf(d, podAntiAffinityFields.Get().PreferredDuringSchedulingIgnoredDuringExecution)
+func (d *PodAntiAffinityDieMut) PreferredDuringSchedulingIgnoredDuringExecution() *diefields.ListMut[WeightedPodAffinityTerm, *WeightedPodAffinityTermDie, *WeightedPodAffinityTermDieMut] {
+	return diefields.ListMutOf(d, podAntiAffinityFields.Get().PreferredDuringSchedulingIgnoredDuringExecution)
 }
 
 // +kubebuilder:object:generate=false
@@ -21434,61 +21434,61 @@ func (d *PodDNSConfigDieMut) DieStampApplyConfiguration(fn func(ac *PodDNSConfig
 // +k8s:deepcopy-gen=false
 
 type podDNSConfigFieldsTable struct {
-	Nameservers diefields.Field[PodDNSConfig, []string]
-	Searches    diefields.Field[PodDNSConfig, []string]
-	Options     diefields.Field[PodDNSConfig, []PodDNSConfigOption]
+	Nameservers diefields.ListField[PodDNSConfig, string, diefields.Value[string], diefields.ValueMut[string]]
+	Searches    diefields.ListField[PodDNSConfig, string, diefields.Value[string], diefields.ValueMut[string]]
+	Options     diefields.ListField[PodDNSConfig, PodDNSConfigOption, *PodDNSConfigOptionDie, *PodDNSConfigOptionDieMut]
 }
 
 var podDNSConfigFields = &diefields.Table[podDNSConfigFieldsTable]{Build: func() (f podDNSConfigFieldsTable) {
 	_ = annotated
-	f.Nameservers = diefields.NewField[PodDNSConfig, []string]("nameservers")
-	f.Searches = diefields.NewField[PodDNSConfig, []string]("searches")
-	f.Options = diefields.NewItems[PodDNSConfig, []PodDNSConfigOption, PodDNSConfigOption, *PodDNSConfigOptionDie, *PodDNSConfigOptionDieMut]("options")
+	f.Nameservers = diefields.NewValueList[PodDNSConfig, string]("nameservers")
+	f.Searches = diefields.NewValueList[PodDNSConfig, string]("searches")
+	f.Options = diefields.NewList[PodDNSConfig, PodDNSConfigOption, *PodDNSConfigOptionDie, *PodDNSConfigOptionDieMut]("options")
 	return
 }}
 
 // A list of DNS name server IP addresses.
 // This will be appended to the base nameservers generated from DNSPolicy.
 // Duplicated nameservers will be removed.
-func (d *PodDNSConfigDie) Nameservers() diefields.Value[[]string] {
-	return diefields.ValueOf(d, podDNSConfigFields.Get().Nameservers)
+func (d *PodDNSConfigDie) Nameservers() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, podDNSConfigFields.Get().Nameservers)
 }
 
 // A list of DNS search domains for host-name lookup.
 // This will be appended to the base search paths generated from DNSPolicy.
 // Duplicated search paths will be removed.
-func (d *PodDNSConfigDie) Searches() diefields.Value[[]string] {
-	return diefields.ValueOf(d, podDNSConfigFields.Get().Searches)
+func (d *PodDNSConfigDie) Searches() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, podDNSConfigFields.Get().Searches)
 }
 
 // A list of DNS resolver options.
 // This will be merged with the base options generated from DNSPolicy.
 // Duplicated entries will be removed. Resolution options given in Options
 // will override those that appear in the base DNSPolicy.
-func (d *PodDNSConfigDie) Options() diefields.Value[[]PodDNSConfigOption] {
-	return diefields.ValueOf(d, podDNSConfigFields.Get().Options)
+func (d *PodDNSConfigDie) Options() *diefields.List[PodDNSConfigOption, *PodDNSConfigOptionDie] {
+	return diefields.ListOf(d, podDNSConfigFields.Get().Options)
 }
 
 // A list of DNS name server IP addresses.
 // This will be appended to the base nameservers generated from DNSPolicy.
 // Duplicated nameservers will be removed.
-func (d *PodDNSConfigDieMut) Nameservers() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, podDNSConfigFields.Get().Nameservers)
+func (d *PodDNSConfigDieMut) Nameservers() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, podDNSConfigFields.Get().Nameservers)
 }
 
 // A list of DNS search domains for host-name lookup.
 // This will be appended to the base search paths generated from DNSPolicy.
 // Duplicated search paths will be removed.
-func (d *PodDNSConfigDieMut) Searches() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, podDNSConfigFields.Get().Searches)
+func (d *PodDNSConfigDieMut) Searches() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, podDNSConfigFields.Get().Searches)
 }
 
 // A list of DNS resolver options.
 // This will be merged with the base options generated from DNSPolicy.
 // Duplicated entries will be removed. Resolution options given in Options
 // will override those that appear in the base DNSPolicy.
-func (d *PodDNSConfigDieMut) Options() diefields.ValueMut[[]PodDNSConfigOption] {
-	return diefields.ValueMutOf(d, podDNSConfigFields.Get().Options)
+func (d *PodDNSConfigDieMut) Options() *diefields.ListMut[PodDNSConfigOption, *PodDNSConfigOptionDie, *PodDNSConfigOptionDieMut] {
+	return diefields.ListMutOf(d, podDNSConfigFields.Get().Options)
 }
 
 // +kubebuilder:object:generate=false
@@ -21639,7 +21639,7 @@ type podExecOptionsFieldsTable struct {
 	Stderr     diefields.Field[PodExecOptions, bool]
 	TTY        diefields.Field[PodExecOptions, bool]
 	Container  diefields.Field[PodExecOptions, string]
-	Command    diefields.Field[PodExecOptions, []string]
+	Command    diefields.ListField[PodExecOptions, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var podExecOptionsFields = &diefields.Table[podExecOptionsFieldsTable]{Build: func() (f podExecOptionsFieldsTable) {
@@ -21651,7 +21651,7 @@ var podExecOptionsFields = &diefields.Table[podExecOptionsFieldsTable]{Build: fu
 	f.Stderr = diefields.NewField[PodExecOptions, bool]("stderr")
 	f.TTY = diefields.NewField[PodExecOptions, bool]("tty")
 	f.Container = diefields.NewField[PodExecOptions, string]("container")
-	f.Command = diefields.NewField[PodExecOptions, []string]("command")
+	f.Command = diefields.NewValueList[PodExecOptions, string]("command")
 	return
 }}
 
@@ -21701,8 +21701,8 @@ func (d *PodExecOptionsDie) Container() diefields.Value[string] {
 }
 
 // Command is the remote command to execute. argv array. Not executed within a shell.
-func (d *PodExecOptionsDie) Command() diefields.Value[[]string] {
-	return diefields.ValueOf(d, podExecOptionsFields.Get().Command)
+func (d *PodExecOptionsDie) Command() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, podExecOptionsFields.Get().Command)
 }
 
 // Kind is a string value representing the REST resource this object represents.
@@ -21751,8 +21751,8 @@ func (d *PodExecOptionsDieMut) Container() diefields.ValueMut[string] {
 }
 
 // Command is the remote command to execute. argv array. Not executed within a shell.
-func (d *PodExecOptionsDieMut) Command() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, podExecOptionsFields.Get().Command)
+func (d *PodExecOptionsDieMut) Command() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, podExecOptionsFields.Get().Command)
 }
 
 // +kubebuilder:object:generate=false
@@ -21829,21 +21829,21 @@ func (d *PodExtendedResourceClaimStatusDieMut) DieStampApplyConfiguration(fn fun
 // +k8s:deepcopy-gen=false
 
 type podExtendedResourceClaimStatusFieldsTable struct {
-	RequestMappings   diefields.Field[PodExtendedResourceClaimStatus, []ContainerExtendedResourceRequest]
+	RequestMappings   diefields.ListField[PodExtendedResourceClaimStatus, ContainerExtendedResourceRequest, *ContainerExtendedResourceRequestDie, *ContainerExtendedResourceRequestDieMut]
 	ResourceClaimName diefields.Field[PodExtendedResourceClaimStatus, string]
 }
 
 var podExtendedResourceClaimStatusFields = &diefields.Table[podExtendedResourceClaimStatusFieldsTable]{Build: func() (f podExtendedResourceClaimStatusFieldsTable) {
 	_ = annotated
-	f.RequestMappings = diefields.NewItems[PodExtendedResourceClaimStatus, []ContainerExtendedResourceRequest, ContainerExtendedResourceRequest, *ContainerExtendedResourceRequestDie, *ContainerExtendedResourceRequestDieMut]("requestMappings")
+	f.RequestMappings = diefields.NewList[PodExtendedResourceClaimStatus, ContainerExtendedResourceRequest, *ContainerExtendedResourceRequestDie, *ContainerExtendedResourceRequestDieMut]("requestMappings")
 	f.ResourceClaimName = diefields.NewField[PodExtendedResourceClaimStatus, string]("resourceClaimName")
 	return
 }}
 
 // RequestMappings identifies the mapping of <container, extended resource backed by DRA> to  device request
 // in the generated ResourceClaim.
-func (d *PodExtendedResourceClaimStatusDie) RequestMappings() diefields.Value[[]ContainerExtendedResourceRequest] {
-	return diefields.ValueOf(d, podExtendedResourceClaimStatusFields.Get().RequestMappings)
+func (d *PodExtendedResourceClaimStatusDie) RequestMappings() *diefields.List[ContainerExtendedResourceRequest, *ContainerExtendedResourceRequestDie] {
+	return diefields.ListOf(d, podExtendedResourceClaimStatusFields.Get().RequestMappings)
 }
 
 // ResourceClaimName is the name of the ResourceClaim that was
@@ -21854,8 +21854,8 @@ func (d *PodExtendedResourceClaimStatusDie) ResourceClaimName() diefields.Value[
 
 // RequestMappings identifies the mapping of <container, extended resource backed by DRA> to  device request
 // in the generated ResourceClaim.
-func (d *PodExtendedResourceClaimStatusDieMut) RequestMappings() diefields.ValueMut[[]ContainerExtendedResourceRequest] {
-	return diefields.ValueMutOf(d, podExtendedResourceClaimStatusFields.Get().RequestMappings)
+func (d *PodExtendedResourceClaimStatusDieMut) RequestMappings() *diefields.ListMut[ContainerExtendedResourceRequest, *ContainerExtendedResourceRequestDie, *ContainerExtendedResourceRequestDieMut] {
+	return diefields.ListMutOf(d, podExtendedResourceClaimStatusFields.Get().RequestMappings)
 }
 
 // ResourceClaimName is the name of the ResourceClaim that was
@@ -22344,14 +22344,14 @@ var PodPortForwardOptionsBlank = diebase.BlankOf[PodPortForwardOptions, *PodPort
 type podPortForwardOptionsFieldsTable struct {
 	Kind       diefields.Field[PodPortForwardOptions, string]
 	APIVersion diefields.Field[PodPortForwardOptions, string]
-	Ports      diefields.Field[PodPortForwardOptions, []int32]
+	Ports      diefields.ListField[PodPortForwardOptions, int32, diefields.Value[int32], diefields.ValueMut[int32]]
 }
 
 var podPortForwardOptionsFields = &diefields.Table[podPortForwardOptionsFieldsTable]{Build: func() (f podPortForwardOptionsFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[PodPortForwardOptions, string]("kind")
 	f.APIVersion = diefields.NewField[PodPortForwardOptions, string]("apiVersion")
-	f.Ports = diefields.NewField[PodPortForwardOptions, []int32]("ports")
+	f.Ports = diefields.NewValueList[PodPortForwardOptions, int32]("ports")
 	return
 }}
 
@@ -22374,8 +22374,8 @@ func (d *PodPortForwardOptionsDie) APIVersion() diefields.Value[string] {
 
 // List of ports to forward
 // Required when using WebSockets
-func (d *PodPortForwardOptionsDie) Ports() diefields.Value[[]int32] {
-	return diefields.ValueOf(d, podPortForwardOptionsFields.Get().Ports)
+func (d *PodPortForwardOptionsDie) Ports() *diefields.List[int32, diefields.Value[int32]] {
+	return diefields.ListOf(d, podPortForwardOptionsFields.Get().Ports)
 }
 
 // Kind is a string value representing the REST resource this object represents.
@@ -22397,8 +22397,8 @@ func (d *PodPortForwardOptionsDieMut) APIVersion() diefields.ValueMut[string] {
 
 // List of ports to forward
 // Required when using WebSockets
-func (d *PodPortForwardOptionsDieMut) Ports() diefields.ValueMut[[]int32] {
-	return diefields.ValueMutOf(d, podPortForwardOptionsFields.Get().Ports)
+func (d *PodPortForwardOptionsDieMut) Ports() *diefields.ListMut[int32, diefields.Value[int32], diefields.ValueMut[int32]] {
+	return diefields.ListMutOf(d, podPortForwardOptionsFields.Get().Ports)
 }
 
 // +kubebuilder:object:generate=false
@@ -23166,10 +23166,10 @@ type podSecurityContextFieldsTable struct {
 	RunAsUser                diefields.Field[PodSecurityContext, *int64]
 	RunAsGroup               diefields.Field[PodSecurityContext, *int64]
 	RunAsNonRoot             diefields.Field[PodSecurityContext, *bool]
-	SupplementalGroups       diefields.Field[PodSecurityContext, []int64]
+	SupplementalGroups       diefields.ListField[PodSecurityContext, int64, diefields.Value[int64], diefields.ValueMut[int64]]
 	SupplementalGroupsPolicy diefields.Field[PodSecurityContext, *SupplementalGroupsPolicy]
 	FSGroup                  diefields.Field[PodSecurityContext, *int64]
-	Sysctls                  diefields.Field[PodSecurityContext, []Sysctl]
+	Sysctls                  diefields.ListField[PodSecurityContext, Sysctl, *SysctlDie, *SysctlDieMut]
 	FSGroupChangePolicy      diefields.Field[PodSecurityContext, *PodFSGroupChangePolicy]
 	SeccompProfile           diefields.Struct[PodSecurityContext, SeccompProfile, *SeccompProfileDie, *SeccompProfileDieMut]
 	AppArmorProfile          diefields.Struct[PodSecurityContext, AppArmorProfile, *AppArmorProfileDie, *AppArmorProfileDieMut]
@@ -23183,10 +23183,10 @@ var podSecurityContextFields = &diefields.Table[podSecurityContextFieldsTable]{B
 	f.RunAsUser = diefields.NewField[PodSecurityContext, *int64]("runAsUser")
 	f.RunAsGroup = diefields.NewField[PodSecurityContext, *int64]("runAsGroup")
 	f.RunAsNonRoot = diefields.NewField[PodSecurityContext, *bool]("runAsNonRoot")
-	f.SupplementalGroups = diefields.NewField[PodSecurityContext, []int64]("supplementalGroups")
+	f.SupplementalGroups = diefields.NewValueList[PodSecurityContext, int64]("supplementalGroups")
 	f.SupplementalGroupsPolicy = diefields.NewField[PodSecurityContext, *SupplementalGroupsPolicy]("supplementalGroupsPolicy")
 	f.FSGroup = diefields.NewField[PodSecurityContext, *int64]("fsGroup")
-	f.Sysctls = diefields.NewItems[PodSecurityContext, []Sysctl, Sysctl, *SysctlDie, *SysctlDieMut]("sysctls")
+	f.Sysctls = diefields.NewList[PodSecurityContext, Sysctl, *SysctlDie, *SysctlDieMut]("sysctls")
 	f.FSGroupChangePolicy = diefields.NewField[PodSecurityContext, *PodFSGroupChangePolicy]("fsGroupChangePolicy")
 	f.SeccompProfile = diefields.NewStruct[PodSecurityContext, SeccompProfile, *SeccompProfileDie, *SeccompProfileDieMut]("seccompProfile")
 	f.AppArmorProfile = diefields.NewStruct[PodSecurityContext, AppArmorProfile, *AppArmorProfileDie, *AppArmorProfileDieMut]("appArmorProfile")
@@ -23251,8 +23251,8 @@ func (d *PodSecurityContextDie) RunAsNonRoot() diefields.Optional[bool] {
 // defined in the container image may still be used, depending on the
 // supplementalGroupsPolicy field.
 // Note that this field cannot be set when spec.os.name is windows.
-func (d *PodSecurityContextDie) SupplementalGroups() diefields.Value[[]int64] {
-	return diefields.ValueOf(d, podSecurityContextFields.Get().SupplementalGroups)
+func (d *PodSecurityContextDie) SupplementalGroups() *diefields.List[int64, diefields.Value[int64]] {
+	return diefields.ListOf(d, podSecurityContextFields.Get().SupplementalGroups)
 }
 
 // Defines how supplemental groups of the first container processes are calculated.
@@ -23282,8 +23282,8 @@ func (d *PodSecurityContextDie) FSGroup() diefields.Optional[int64] {
 // Sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported
 // sysctls (by the container runtime) might fail to launch.
 // Note that this field cannot be set when spec.os.name is windows.
-func (d *PodSecurityContextDie) Sysctls() diefields.Value[[]Sysctl] {
-	return diefields.ValueOf(d, podSecurityContextFields.Get().Sysctls)
+func (d *PodSecurityContextDie) Sysctls() *diefields.List[Sysctl, *SysctlDie] {
+	return diefields.ListOf(d, podSecurityContextFields.Get().Sysctls)
 }
 
 // fsGroupChangePolicy defines behavior of changing ownership and permission of the volume
@@ -23390,8 +23390,8 @@ func (d *PodSecurityContextDieMut) RunAsNonRoot() diefields.OptionalMut[bool] {
 // defined in the container image may still be used, depending on the
 // supplementalGroupsPolicy field.
 // Note that this field cannot be set when spec.os.name is windows.
-func (d *PodSecurityContextDieMut) SupplementalGroups() diefields.ValueMut[[]int64] {
-	return diefields.ValueMutOf(d, podSecurityContextFields.Get().SupplementalGroups)
+func (d *PodSecurityContextDieMut) SupplementalGroups() *diefields.ListMut[int64, diefields.Value[int64], diefields.ValueMut[int64]] {
+	return diefields.ListMutOf(d, podSecurityContextFields.Get().SupplementalGroups)
 }
 
 // Defines how supplemental groups of the first container processes are calculated.
@@ -23421,8 +23421,8 @@ func (d *PodSecurityContextDieMut) FSGroup() diefields.OptionalMut[int64] {
 // Sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported
 // sysctls (by the container runtime) might fail to launch.
 // Note that this field cannot be set when spec.os.name is windows.
-func (d *PodSecurityContextDieMut) Sysctls() diefields.ValueMut[[]Sysctl] {
-	return diefields.ValueMutOf(d, podSecurityContextFields.Get().Sysctls)
+func (d *PodSecurityContextDieMut) Sysctls() *diefields.ListMut[Sysctl, *SysctlDie, *SysctlDieMut] {
+	return diefields.ListMutOf(d, podSecurityContextFields.Get().Sysctls)
 }
 
 // fsGroupChangePolicy defines behavior of changing ownership and permission of the volume
@@ -23620,12 +23620,12 @@ type podSpecFieldsTable struct {
 	Subdomain                     diefields.Field[PodSpec, string]
 	Affinity                      diefields.Struct[PodSpec, Affinity, *AffinityDie, *AffinityDieMut]
 	SchedulerName                 diefields.Field[PodSpec, string]
-	Tolerations                   diefields.Field[PodSpec, []Toleration]
+	Tolerations                   diefields.ListField[PodSpec, Toleration, *TolerationDie, *TolerationDieMut]
 	HostAliases                   diefields.ListMapField[PodSpec, HostAlias, *HostAliasDie, *HostAliasDieMut, string]
 	PriorityClassName             diefields.Field[PodSpec, string]
 	Priority                      diefields.Field[PodSpec, *int32]
 	DNSConfig                     diefields.Struct[PodSpec, PodDNSConfig, *PodDNSConfigDie, *PodDNSConfigDieMut]
-	ReadinessGates                diefields.Field[PodSpec, []PodReadinessGate]
+	ReadinessGates                diefields.ListField[PodSpec, PodReadinessGate, *PodReadinessGateDie, *PodReadinessGateDieMut]
 	RuntimeClassName              diefields.Field[PodSpec, *string]
 	EnableServiceLinks            diefields.Field[PodSpec, *bool]
 	PreemptionPolicy              diefields.Field[PodSpec, *PreemptionPolicy]
@@ -23667,12 +23667,12 @@ var podSpecFields = &diefields.Table[podSpecFieldsTable]{Build: func() (f podSpe
 	f.Subdomain = diefields.NewField[PodSpec, string]("subdomain")
 	f.Affinity = diefields.NewStruct[PodSpec, Affinity, *AffinityDie, *AffinityDieMut]("affinity")
 	f.SchedulerName = diefields.NewField[PodSpec, string]("schedulerName")
-	f.Tolerations = diefields.NewItems[PodSpec, []Toleration, Toleration, *TolerationDie, *TolerationDieMut]("tolerations")
+	f.Tolerations = diefields.NewList[PodSpec, Toleration, *TolerationDie, *TolerationDieMut]("tolerations")
 	f.HostAliases = diefields.NewListMap[PodSpec, HostAlias, *HostAliasDie, *HostAliasDieMut]("hostAliases", func(k string) []any { return []any{k} }, func(e HostAlias) string { return e.IP })
 	f.PriorityClassName = diefields.NewField[PodSpec, string]("priorityClassName")
 	f.Priority = diefields.NewField[PodSpec, *int32]("priority")
 	f.DNSConfig = diefields.NewStruct[PodSpec, PodDNSConfig, *PodDNSConfigDie, *PodDNSConfigDieMut]("dnsConfig")
-	f.ReadinessGates = diefields.NewItems[PodSpec, []PodReadinessGate, PodReadinessGate, *PodReadinessGateDie, *PodReadinessGateDieMut]("readinessGates")
+	f.ReadinessGates = diefields.NewList[PodSpec, PodReadinessGate, *PodReadinessGateDie, *PodReadinessGateDieMut]("readinessGates")
 	f.RuntimeClassName = diefields.NewField[PodSpec, *string]("runtimeClassName")
 	f.EnableServiceLinks = diefields.NewField[PodSpec, *bool]("enableServiceLinks")
 	f.PreemptionPolicy = diefields.NewField[PodSpec, *PreemptionPolicy]("preemptionPolicy")
@@ -23866,8 +23866,8 @@ func (d *PodSpecDie) SchedulerName() diefields.Value[string] {
 }
 
 // If specified, the pod's tolerations.
-func (d *PodSpecDie) Tolerations() diefields.Value[[]Toleration] {
-	return diefields.ValueOf(d, podSpecFields.Get().Tolerations)
+func (d *PodSpecDie) Tolerations() *diefields.List[Toleration, *TolerationDie] {
+	return diefields.ListOf(d, podSpecFields.Get().Tolerations)
 }
 
 // HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts
@@ -23906,8 +23906,8 @@ func (d *PodSpecDie) DNSConfig() *PodDNSConfigDie {
 // A pod is ready when all its containers are ready AND
 // all conditions specified in the readiness gates have status equal to "True"
 // More info: https://git.k8s.io/enhancements/keps/sig-network/580-pod-readiness-gates
-func (d *PodSpecDie) ReadinessGates() diefields.Value[[]PodReadinessGate] {
-	return diefields.ValueOf(d, podSpecFields.Get().ReadinessGates)
+func (d *PodSpecDie) ReadinessGates() *diefields.List[PodReadinessGate, *PodReadinessGateDie] {
+	return diefields.ListOf(d, podSpecFields.Get().ReadinessGates)
 }
 
 // RuntimeClassName refers to a RuntimeClass object in the node.k8s.io group, which should be used
@@ -24268,8 +24268,8 @@ func (d *PodSpecDieMut) SchedulerName() diefields.ValueMut[string] {
 }
 
 // If specified, the pod's tolerations.
-func (d *PodSpecDieMut) Tolerations() diefields.ValueMut[[]Toleration] {
-	return diefields.ValueMutOf(d, podSpecFields.Get().Tolerations)
+func (d *PodSpecDieMut) Tolerations() *diefields.ListMut[Toleration, *TolerationDie, *TolerationDieMut] {
+	return diefields.ListMutOf(d, podSpecFields.Get().Tolerations)
 }
 
 // HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts
@@ -24308,8 +24308,8 @@ func (d *PodSpecDieMut) DNSConfig() *PodDNSConfigDieMut {
 // A pod is ready when all its containers are ready AND
 // all conditions specified in the readiness gates have status equal to "True"
 // More info: https://git.k8s.io/enhancements/keps/sig-network/580-pod-readiness-gates
-func (d *PodSpecDieMut) ReadinessGates() diefields.ValueMut[[]PodReadinessGate] {
-	return diefields.ValueMutOf(d, podSpecFields.Get().ReadinessGates)
+func (d *PodSpecDieMut) ReadinessGates() *diefields.ListMut[PodReadinessGate, *PodReadinessGateDie, *PodReadinessGateDieMut] {
+	return diefields.ListMutOf(d, podSpecFields.Get().ReadinessGates)
 }
 
 // RuntimeClassName refers to a RuntimeClass object in the node.k8s.io group, which should be used
@@ -24575,14 +24575,14 @@ type podStatusFieldsTable struct {
 	Reason                               diefields.Field[PodStatus, string]
 	NominatedNodeName                    diefields.Field[PodStatus, string]
 	HostIP                               diefields.Field[PodStatus, string]
-	HostIPs                              diefields.Field[PodStatus, []HostIP]
+	HostIPs                              diefields.ListField[PodStatus, HostIP, *HostIPDie, *HostIPDieMut]
 	PodIP                                diefields.Field[PodStatus, string]
 	PodIPs                               diefields.ListMapField[PodStatus, PodIP, *PodIPDie, *PodIPDieMut, string]
 	StartTime                            diefields.Field[PodStatus, *diemetav1.Time]
-	InitContainerStatuses                diefields.Field[PodStatus, []ContainerStatus]
-	ContainerStatuses                    diefields.Field[PodStatus, []ContainerStatus]
+	InitContainerStatuses                diefields.ListField[PodStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]
+	ContainerStatuses                    diefields.ListField[PodStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]
 	QOSClass                             diefields.Field[PodStatus, PodQOSClass]
-	EphemeralContainerStatuses           diefields.Field[PodStatus, []ContainerStatus]
+	EphemeralContainerStatuses           diefields.ListField[PodStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]
 	Resize                               diefields.Field[PodStatus, PodResizeStatus]
 	ResourceClaimStatuses                diefields.ListMapField[PodStatus, PodResourceClaimStatus, *PodResourceClaimStatusDie, *PodResourceClaimStatusDieMut, string]
 	ExtendedResourceClaimStatus          diefields.Struct[PodStatus, PodExtendedResourceClaimStatus, *PodExtendedResourceClaimStatusDie, *PodExtendedResourceClaimStatusDieMut]
@@ -24601,14 +24601,14 @@ var podStatusFields = &diefields.Table[podStatusFieldsTable]{Build: func() (f po
 	f.Reason = diefields.NewField[PodStatus, string]("reason")
 	f.NominatedNodeName = diefields.NewField[PodStatus, string]("nominatedNodeName")
 	f.HostIP = diefields.NewField[PodStatus, string]("hostIP")
-	f.HostIPs = diefields.NewItems[PodStatus, []HostIP, HostIP, *HostIPDie, *HostIPDieMut]("hostIPs")
+	f.HostIPs = diefields.NewList[PodStatus, HostIP, *HostIPDie, *HostIPDieMut]("hostIPs")
 	f.PodIP = diefields.NewField[PodStatus, string]("podIP")
 	f.PodIPs = diefields.NewListMap[PodStatus, PodIP, *PodIPDie, *PodIPDieMut]("podIPs", func(k string) []any { return []any{k} }, func(e PodIP) string { return e.IP })
 	f.StartTime = diefields.NewField[PodStatus, *diemetav1.Time]("startTime")
-	f.InitContainerStatuses = diefields.NewItems[PodStatus, []ContainerStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]("initContainerStatuses")
-	f.ContainerStatuses = diefields.NewItems[PodStatus, []ContainerStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]("containerStatuses")
+	f.InitContainerStatuses = diefields.NewList[PodStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]("initContainerStatuses")
+	f.ContainerStatuses = diefields.NewList[PodStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]("containerStatuses")
 	f.QOSClass = diefields.NewField[PodStatus, PodQOSClass]("qosClass")
-	f.EphemeralContainerStatuses = diefields.NewItems[PodStatus, []ContainerStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]("ephemeralContainerStatuses")
+	f.EphemeralContainerStatuses = diefields.NewList[PodStatus, ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]("ephemeralContainerStatuses")
 	f.Resize = diefields.NewField[PodStatus, PodResizeStatus]("resize")
 	f.ResourceClaimStatuses = diefields.NewListMap[PodStatus, PodResourceClaimStatus, *PodResourceClaimStatusDie, *PodResourceClaimStatusDieMut]("resourceClaimStatuses", func(k string) []any { return []any{k} }, func(e PodResourceClaimStatus) string { return e.Name })
 	f.ExtendedResourceClaimStatus = diefields.NewStruct[PodStatus, PodExtendedResourceClaimStatus, *PodExtendedResourceClaimStatusDie, *PodExtendedResourceClaimStatusDieMut]("extendedResourceClaimStatus")
@@ -24686,8 +24686,8 @@ func (d *PodStatusDie) HostIP() diefields.Value[string] {
 // match the hostIP field. This list is empty if the pod has not started yet.
 // A pod can be assigned to a node that has a problem in kubelet which in turns means that HostIPs will
 // not be updated even if there is a node is assigned to this pod.
-func (d *PodStatusDie) HostIPs() diefields.Value[[]HostIP] {
-	return diefields.ValueOf(d, podStatusFields.Get().HostIPs)
+func (d *PodStatusDie) HostIPs() *diefields.List[HostIP, *HostIPDie] {
+	return diefields.ListOf(d, podStatusFields.Get().HostIPs)
 }
 
 // podIP address allocated to the pod. Routable at least within the cluster.
@@ -24719,8 +24719,8 @@ func (d *PodStatusDie) StartTime() diefields.Optional[diemetav1.Time] {
 // the behavior of various Kubernetes components is not defined and those statuses might be
 // ignored.
 // More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-and-container-status
-func (d *PodStatusDie) InitContainerStatuses() diefields.Value[[]ContainerStatus] {
-	return diefields.ValueOf(d, podStatusFields.Get().InitContainerStatuses)
+func (d *PodStatusDie) InitContainerStatuses() *diefields.List[ContainerStatus, *ContainerStatusDie] {
+	return diefields.ListOf(d, podStatusFields.Get().InitContainerStatuses)
 }
 
 // Statuses of containers in this pod.
@@ -24731,8 +24731,8 @@ func (d *PodStatusDie) InitContainerStatuses() diefields.Value[[]ContainerStatus
 // the behavior of various Kubernetes components is not defined and those statuses might be
 // ignored.
 // More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
-func (d *PodStatusDie) ContainerStatuses() diefields.Value[[]ContainerStatus] {
-	return diefields.ValueOf(d, podStatusFields.Get().ContainerStatuses)
+func (d *PodStatusDie) ContainerStatuses() *diefields.List[ContainerStatus, *ContainerStatusDie] {
+	return diefields.ListOf(d, podStatusFields.Get().ContainerStatuses)
 }
 
 // The Quality of Service (QOS) classification assigned to the pod based on resource requirements
@@ -24750,8 +24750,8 @@ func (d *PodStatusDie) QOSClass() diefields.Value[PodQOSClass] {
 // the behavior of various Kubernetes components is not defined and those statuses might be
 // ignored.
 // More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
-func (d *PodStatusDie) EphemeralContainerStatuses() diefields.Value[[]ContainerStatus] {
-	return diefields.ValueOf(d, podStatusFields.Get().EphemeralContainerStatuses)
+func (d *PodStatusDie) EphemeralContainerStatuses() *diefields.List[ContainerStatus, *ContainerStatusDie] {
+	return diefields.ListOf(d, podStatusFields.Get().EphemeralContainerStatuses)
 }
 
 // Status of resources resize desired for pod's containers.
@@ -24870,8 +24870,8 @@ func (d *PodStatusDieMut) HostIP() diefields.ValueMut[string] {
 // match the hostIP field. This list is empty if the pod has not started yet.
 // A pod can be assigned to a node that has a problem in kubelet which in turns means that HostIPs will
 // not be updated even if there is a node is assigned to this pod.
-func (d *PodStatusDieMut) HostIPs() diefields.ValueMut[[]HostIP] {
-	return diefields.ValueMutOf(d, podStatusFields.Get().HostIPs)
+func (d *PodStatusDieMut) HostIPs() *diefields.ListMut[HostIP, *HostIPDie, *HostIPDieMut] {
+	return diefields.ListMutOf(d, podStatusFields.Get().HostIPs)
 }
 
 // podIP address allocated to the pod. Routable at least within the cluster.
@@ -24903,8 +24903,8 @@ func (d *PodStatusDieMut) StartTime() diefields.OptionalMut[diemetav1.Time] {
 // the behavior of various Kubernetes components is not defined and those statuses might be
 // ignored.
 // More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-and-container-status
-func (d *PodStatusDieMut) InitContainerStatuses() diefields.ValueMut[[]ContainerStatus] {
-	return diefields.ValueMutOf(d, podStatusFields.Get().InitContainerStatuses)
+func (d *PodStatusDieMut) InitContainerStatuses() *diefields.ListMut[ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut] {
+	return diefields.ListMutOf(d, podStatusFields.Get().InitContainerStatuses)
 }
 
 // Statuses of containers in this pod.
@@ -24915,8 +24915,8 @@ func (d *PodStatusDieMut) InitContainerStatuses() diefields.ValueMut[[]Container
 // the behavior of various Kubernetes components is not defined and those statuses might be
 // ignored.
 // More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
-func (d *PodStatusDieMut) ContainerStatuses() diefields.ValueMut[[]ContainerStatus] {
-	return diefields.ValueMutOf(d, podStatusFields.Get().ContainerStatuses)
+func (d *PodStatusDieMut) ContainerStatuses() *diefields.ListMut[ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut] {
+	return diefields.ListMutOf(d, podStatusFields.Get().ContainerStatuses)
 }
 
 // The Quality of Service (QOS) classification assigned to the pod based on resource requirements
@@ -24934,8 +24934,8 @@ func (d *PodStatusDieMut) QOSClass() diefields.ValueMut[PodQOSClass] {
 // the behavior of various Kubernetes components is not defined and those statuses might be
 // ignored.
 // More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
-func (d *PodStatusDieMut) EphemeralContainerStatuses() diefields.ValueMut[[]ContainerStatus] {
-	return diefields.ValueMutOf(d, podStatusFields.Get().EphemeralContainerStatuses)
+func (d *PodStatusDieMut) EphemeralContainerStatuses() *diefields.ListMut[ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut] {
+	return diefields.ListMutOf(d, podStatusFields.Get().EphemeralContainerStatuses)
 }
 
 // Status of resources resize desired for pod's containers.
@@ -26297,14 +26297,14 @@ func (d *ProjectedVolumeSourceDieMut) DieStampApplyConfiguration(fn func(ac *Pro
 // +k8s:deepcopy-gen=false
 
 type projectedVolumeSourceFieldsTable struct {
-	Sources     diefields.Field[ProjectedVolumeSource, []VolumeProjection]
+	Sources     diefields.ListField[ProjectedVolumeSource, VolumeProjection, *VolumeProjectionDie, *VolumeProjectionDieMut]
 	DefaultMode diefields.Field[ProjectedVolumeSource, *int32]
 	DefaultUser diefields.Field[ProjectedVolumeSource, *int64]
 }
 
 var projectedVolumeSourceFields = &diefields.Table[projectedVolumeSourceFieldsTable]{Build: func() (f projectedVolumeSourceFieldsTable) {
 	_ = annotated
-	f.Sources = diefields.NewItems[ProjectedVolumeSource, []VolumeProjection, VolumeProjection, *VolumeProjectionDie, *VolumeProjectionDieMut]("sources")
+	f.Sources = diefields.NewList[ProjectedVolumeSource, VolumeProjection, *VolumeProjectionDie, *VolumeProjectionDieMut]("sources")
 	f.DefaultMode = diefields.NewField[ProjectedVolumeSource, *int32]("defaultMode")
 	f.DefaultUser = diefields.NewField[ProjectedVolumeSource, *int64]("defaultUser")
 	return
@@ -26312,8 +26312,8 @@ var projectedVolumeSourceFields = &diefields.Table[projectedVolumeSourceFieldsTa
 
 // sources is the list of volume projections. Each entry in this list
 // handles one source.
-func (d *ProjectedVolumeSourceDie) Sources() diefields.Value[[]VolumeProjection] {
-	return diefields.ValueOf(d, projectedVolumeSourceFields.Get().Sources)
+func (d *ProjectedVolumeSourceDie) Sources() *diefields.List[VolumeProjection, *VolumeProjectionDie] {
+	return diefields.ListOf(d, projectedVolumeSourceFields.Get().Sources)
 }
 
 // defaultMode are the mode bits used to set permissions on created files by default.
@@ -26335,8 +26335,8 @@ func (d *ProjectedVolumeSourceDie) DefaultUser() diefields.Optional[int64] {
 
 // sources is the list of volume projections. Each entry in this list
 // handles one source.
-func (d *ProjectedVolumeSourceDieMut) Sources() diefields.ValueMut[[]VolumeProjection] {
-	return diefields.ValueMutOf(d, projectedVolumeSourceFields.Get().Sources)
+func (d *ProjectedVolumeSourceDieMut) Sources() *diefields.ListMut[VolumeProjection, *VolumeProjectionDie, *VolumeProjectionDieMut] {
+	return diefields.ListMutOf(d, projectedVolumeSourceFields.Get().Sources)
 }
 
 // defaultMode are the mode bits used to set permissions on created files by default.
@@ -26593,7 +26593,7 @@ func (d *RBDPersistentVolumeSourceDieMut) DieStampApplyConfiguration(fn func(ac 
 // +k8s:deepcopy-gen=false
 
 type rBDPersistentVolumeSourceFieldsTable struct {
-	CephMonitors diefields.Field[RBDPersistentVolumeSource, []string]
+	CephMonitors diefields.ListField[RBDPersistentVolumeSource, string, diefields.Value[string], diefields.ValueMut[string]]
 	RBDImage     diefields.Field[RBDPersistentVolumeSource, string]
 	FSType       diefields.Field[RBDPersistentVolumeSource, string]
 	RBDPool      diefields.Field[RBDPersistentVolumeSource, string]
@@ -26605,7 +26605,7 @@ type rBDPersistentVolumeSourceFieldsTable struct {
 
 var rBDPersistentVolumeSourceFields = &diefields.Table[rBDPersistentVolumeSourceFieldsTable]{Build: func() (f rBDPersistentVolumeSourceFieldsTable) {
 	_ = annotated
-	f.CephMonitors = diefields.NewField[RBDPersistentVolumeSource, []string]("monitors")
+	f.CephMonitors = diefields.NewValueList[RBDPersistentVolumeSource, string]("monitors")
 	f.RBDImage = diefields.NewField[RBDPersistentVolumeSource, string]("image")
 	f.FSType = diefields.NewField[RBDPersistentVolumeSource, string]("fsType")
 	f.RBDPool = diefields.NewField[RBDPersistentVolumeSource, string]("pool")
@@ -26618,8 +26618,8 @@ var rBDPersistentVolumeSourceFields = &diefields.Table[rBDPersistentVolumeSource
 
 // monitors is a collection of Ceph monitors.
 // More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
-func (d *RBDPersistentVolumeSourceDie) CephMonitors() diefields.Value[[]string] {
-	return diefields.ValueOf(d, rBDPersistentVolumeSourceFields.Get().CephMonitors)
+func (d *RBDPersistentVolumeSourceDie) CephMonitors() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, rBDPersistentVolumeSourceFields.Get().CephMonitors)
 }
 
 // image is the rados image name.
@@ -26675,8 +26675,8 @@ func (d *RBDPersistentVolumeSourceDie) ReadOnly() diefields.Value[bool] {
 
 // monitors is a collection of Ceph monitors.
 // More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
-func (d *RBDPersistentVolumeSourceDieMut) CephMonitors() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, rBDPersistentVolumeSourceFields.Get().CephMonitors)
+func (d *RBDPersistentVolumeSourceDieMut) CephMonitors() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, rBDPersistentVolumeSourceFields.Get().CephMonitors)
 }
 
 // image is the rados image name.
@@ -26803,7 +26803,7 @@ func (d *RBDVolumeSourceDieMut) DieStampApplyConfiguration(fn func(ac *RBDVolume
 // +k8s:deepcopy-gen=false
 
 type rBDVolumeSourceFieldsTable struct {
-	CephMonitors diefields.Field[RBDVolumeSource, []string]
+	CephMonitors diefields.ListField[RBDVolumeSource, string, diefields.Value[string], diefields.ValueMut[string]]
 	RBDImage     diefields.Field[RBDVolumeSource, string]
 	FSType       diefields.Field[RBDVolumeSource, string]
 	RBDPool      diefields.Field[RBDVolumeSource, string]
@@ -26815,7 +26815,7 @@ type rBDVolumeSourceFieldsTable struct {
 
 var rBDVolumeSourceFields = &diefields.Table[rBDVolumeSourceFieldsTable]{Build: func() (f rBDVolumeSourceFieldsTable) {
 	_ = annotated
-	f.CephMonitors = diefields.NewField[RBDVolumeSource, []string]("monitors")
+	f.CephMonitors = diefields.NewValueList[RBDVolumeSource, string]("monitors")
 	f.RBDImage = diefields.NewField[RBDVolumeSource, string]("image")
 	f.FSType = diefields.NewField[RBDVolumeSource, string]("fsType")
 	f.RBDPool = diefields.NewField[RBDVolumeSource, string]("pool")
@@ -26828,8 +26828,8 @@ var rBDVolumeSourceFields = &diefields.Table[rBDVolumeSourceFieldsTable]{Build: 
 
 // monitors is a collection of Ceph monitors.
 // More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
-func (d *RBDVolumeSourceDie) CephMonitors() diefields.Value[[]string] {
-	return diefields.ValueOf(d, rBDVolumeSourceFields.Get().CephMonitors)
+func (d *RBDVolumeSourceDie) CephMonitors() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, rBDVolumeSourceFields.Get().CephMonitors)
 }
 
 // image is the rados image name.
@@ -26885,8 +26885,8 @@ func (d *RBDVolumeSourceDie) ReadOnly() diefields.Value[bool] {
 
 // monitors is a collection of Ceph monitors.
 // More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
-func (d *RBDVolumeSourceDieMut) CephMonitors() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, rBDVolumeSourceFields.Get().CephMonitors)
+func (d *RBDVolumeSourceDieMut) CephMonitors() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, rBDVolumeSourceFields.Get().CephMonitors)
 }
 
 // image is the rados image name.
@@ -28301,14 +28301,14 @@ func (d *ResourceQuotaSpecDieMut) DieStampApplyConfiguration(fn func(ac *Resourc
 
 type resourceQuotaSpecFieldsTable struct {
 	Hard          diefields.MapField[ResourceQuotaSpec, ResourceName, resource.Quantity]
-	Scopes        diefields.Field[ResourceQuotaSpec, []ResourceQuotaScope]
+	Scopes        diefields.ListField[ResourceQuotaSpec, ResourceQuotaScope, diefields.Value[ResourceQuotaScope], diefields.ValueMut[ResourceQuotaScope]]
 	ScopeSelector diefields.Struct[ResourceQuotaSpec, ScopeSelector, *ScopeSelectorDie, *ScopeSelectorDieMut]
 }
 
 var resourceQuotaSpecFields = &diefields.Table[resourceQuotaSpecFieldsTable]{Build: func() (f resourceQuotaSpecFieldsTable) {
 	_ = annotated
 	f.Hard = diefields.NewMap[ResourceQuotaSpec, ResourceName, resource.Quantity]("hard")
-	f.Scopes = diefields.NewField[ResourceQuotaSpec, []ResourceQuotaScope]("scopes")
+	f.Scopes = diefields.NewValueList[ResourceQuotaSpec, ResourceQuotaScope]("scopes")
 	f.ScopeSelector = diefields.NewStruct[ResourceQuotaSpec, ScopeSelector, *ScopeSelectorDie, *ScopeSelectorDieMut]("scopeSelector")
 	return
 }}
@@ -28321,8 +28321,8 @@ func (d *ResourceQuotaSpecDie) Hard() *diefields.Map[ResourceName, resource.Quan
 
 // A collection of filters that must match each object tracked by a quota.
 // If not specified, the quota matches all objects.
-func (d *ResourceQuotaSpecDie) Scopes() diefields.Value[[]ResourceQuotaScope] {
-	return diefields.ValueOf(d, resourceQuotaSpecFields.Get().Scopes)
+func (d *ResourceQuotaSpecDie) Scopes() *diefields.List[ResourceQuotaScope, diefields.Value[ResourceQuotaScope]] {
+	return diefields.ListOf(d, resourceQuotaSpecFields.Get().Scopes)
 }
 
 // scopeSelector is also a collection of filters like scopes that must match each object tracked by a quota
@@ -28340,8 +28340,8 @@ func (d *ResourceQuotaSpecDieMut) Hard() *diefields.MapMut[ResourceName, resourc
 
 // A collection of filters that must match each object tracked by a quota.
 // If not specified, the quota matches all objects.
-func (d *ResourceQuotaSpecDieMut) Scopes() diefields.ValueMut[[]ResourceQuotaScope] {
-	return diefields.ValueMutOf(d, resourceQuotaSpecFields.Get().Scopes)
+func (d *ResourceQuotaSpecDieMut) Scopes() *diefields.ListMut[ResourceQuotaScope, diefields.Value[ResourceQuotaScope], diefields.ValueMut[ResourceQuotaScope]] {
+	return diefields.ListMutOf(d, resourceQuotaSpecFields.Get().Scopes)
 }
 
 // scopeSelector is also a collection of filters like scopes that must match each object tracked by a quota
@@ -29340,23 +29340,23 @@ func (d *ScopeSelectorDieMut) DieStampApplyConfiguration(fn func(ac *ScopeSelect
 // +k8s:deepcopy-gen=false
 
 type scopeSelectorFieldsTable struct {
-	MatchExpressions diefields.Field[ScopeSelector, []ScopedResourceSelectorRequirement]
+	MatchExpressions diefields.ListField[ScopeSelector, ScopedResourceSelectorRequirement, *ScopedResourceSelectorRequirementDie, *ScopedResourceSelectorRequirementDieMut]
 }
 
 var scopeSelectorFields = &diefields.Table[scopeSelectorFieldsTable]{Build: func() (f scopeSelectorFieldsTable) {
 	_ = annotated
-	f.MatchExpressions = diefields.NewItems[ScopeSelector, []ScopedResourceSelectorRequirement, ScopedResourceSelectorRequirement, *ScopedResourceSelectorRequirementDie, *ScopedResourceSelectorRequirementDieMut]("matchExpressions")
+	f.MatchExpressions = diefields.NewList[ScopeSelector, ScopedResourceSelectorRequirement, *ScopedResourceSelectorRequirementDie, *ScopedResourceSelectorRequirementDieMut]("matchExpressions")
 	return
 }}
 
 // A list of scope selector requirements by scope of the resources.
-func (d *ScopeSelectorDie) MatchExpressions() diefields.Value[[]ScopedResourceSelectorRequirement] {
-	return diefields.ValueOf(d, scopeSelectorFields.Get().MatchExpressions)
+func (d *ScopeSelectorDie) MatchExpressions() *diefields.List[ScopedResourceSelectorRequirement, *ScopedResourceSelectorRequirementDie] {
+	return diefields.ListOf(d, scopeSelectorFields.Get().MatchExpressions)
 }
 
 // A list of scope selector requirements by scope of the resources.
-func (d *ScopeSelectorDieMut) MatchExpressions() diefields.ValueMut[[]ScopedResourceSelectorRequirement] {
-	return diefields.ValueMutOf(d, scopeSelectorFields.Get().MatchExpressions)
+func (d *ScopeSelectorDieMut) MatchExpressions() *diefields.ListMut[ScopedResourceSelectorRequirement, *ScopedResourceSelectorRequirementDie, *ScopedResourceSelectorRequirementDieMut] {
+	return diefields.ListMutOf(d, scopeSelectorFields.Get().MatchExpressions)
 }
 
 // +kubebuilder:object:generate=false
@@ -29434,14 +29434,14 @@ func (d *ScopedResourceSelectorRequirementDieMut) DieStampApplyConfiguration(fn 
 type scopedResourceSelectorRequirementFieldsTable struct {
 	ScopeName diefields.Field[ScopedResourceSelectorRequirement, ResourceQuotaScope]
 	Operator  diefields.Field[ScopedResourceSelectorRequirement, ScopeSelectorOperator]
-	Values    diefields.Field[ScopedResourceSelectorRequirement, []string]
+	Values    diefields.ListField[ScopedResourceSelectorRequirement, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var scopedResourceSelectorRequirementFields = &diefields.Table[scopedResourceSelectorRequirementFieldsTable]{Build: func() (f scopedResourceSelectorRequirementFieldsTable) {
 	_ = annotated
 	f.ScopeName = diefields.NewField[ScopedResourceSelectorRequirement, ResourceQuotaScope]("scopeName")
 	f.Operator = diefields.NewField[ScopedResourceSelectorRequirement, ScopeSelectorOperator]("operator")
-	f.Values = diefields.NewField[ScopedResourceSelectorRequirement, []string]("values")
+	f.Values = diefields.NewValueList[ScopedResourceSelectorRequirement, string]("values")
 	return
 }}
 
@@ -29460,8 +29460,8 @@ func (d *ScopedResourceSelectorRequirementDie) Operator() diefields.Value[ScopeS
 // the values array must be non-empty. If the operator is Exists or DoesNotExist,
 // the values array must be empty.
 // This array is replaced during a strategic merge patch.
-func (d *ScopedResourceSelectorRequirementDie) Values() diefields.Value[[]string] {
-	return diefields.ValueOf(d, scopedResourceSelectorRequirementFields.Get().Values)
+func (d *ScopedResourceSelectorRequirementDie) Values() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, scopedResourceSelectorRequirementFields.Get().Values)
 }
 
 // The name of the scope that the selector applies to.
@@ -29479,8 +29479,8 @@ func (d *ScopedResourceSelectorRequirementDieMut) Operator() diefields.ValueMut[
 // the values array must be non-empty. If the operator is Exists or DoesNotExist,
 // the values array must be empty.
 // This array is replaced during a strategic merge patch.
-func (d *ScopedResourceSelectorRequirementDieMut) Values() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, scopedResourceSelectorRequirementFields.Get().Values)
+func (d *ScopedResourceSelectorRequirementDieMut) Values() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, scopedResourceSelectorRequirementFields.Get().Values)
 }
 
 // +kubebuilder:object:generate=false
@@ -30141,14 +30141,14 @@ func (d *SecretProjectionDieMut) DieStampApplyConfiguration(fn func(ac *SecretPr
 
 type secretProjectionFieldsTable struct {
 	Name     diefields.Field[SecretProjection, string]
-	Items    diefields.Field[SecretProjection, []KeyToPath]
+	Items    diefields.ListField[SecretProjection, KeyToPath, *KeyToPathDie, *KeyToPathDieMut]
 	Optional diefields.Field[SecretProjection, *bool]
 }
 
 var secretProjectionFields = &diefields.Table[secretProjectionFieldsTable]{Build: func() (f secretProjectionFieldsTable) {
 	_ = annotated
 	f.Name = diefields.NewField[SecretProjection, string]("name")
-	f.Items = diefields.NewItems[SecretProjection, []KeyToPath, KeyToPath, *KeyToPathDie, *KeyToPathDieMut]("items")
+	f.Items = diefields.NewList[SecretProjection, KeyToPath, *KeyToPathDie, *KeyToPathDieMut]("items")
 	f.Optional = diefields.NewField[SecretProjection, *bool]("optional")
 	return
 }}
@@ -30170,8 +30170,8 @@ func (d *SecretProjectionDie) Name() diefields.Value[string] {
 // present. If a key is specified which is not present in the Secret,
 // the volume setup will error unless it is marked optional. Paths must be
 // relative and may not contain the '..' path or start with '..'.
-func (d *SecretProjectionDie) Items() diefields.Value[[]KeyToPath] {
-	return diefields.ValueOf(d, secretProjectionFields.Get().Items)
+func (d *SecretProjectionDie) Items() *diefields.List[KeyToPath, *KeyToPathDie] {
+	return diefields.ListOf(d, secretProjectionFields.Get().Items)
 }
 
 // optional field specify whether the Secret or its key must be defined
@@ -30196,8 +30196,8 @@ func (d *SecretProjectionDieMut) Name() diefields.ValueMut[string] {
 // present. If a key is specified which is not present in the Secret,
 // the volume setup will error unless it is marked optional. Paths must be
 // relative and may not contain the '..' path or start with '..'.
-func (d *SecretProjectionDieMut) Items() diefields.ValueMut[[]KeyToPath] {
-	return diefields.ValueMutOf(d, secretProjectionFields.Get().Items)
+func (d *SecretProjectionDieMut) Items() *diefields.ListMut[KeyToPath, *KeyToPathDie, *KeyToPathDieMut] {
+	return diefields.ListMutOf(d, secretProjectionFields.Get().Items)
 }
 
 // optional field specify whether the Secret or its key must be defined
@@ -30386,7 +30386,7 @@ func (d *SecretVolumeSourceDieMut) DieStampApplyConfiguration(fn func(ac *Secret
 
 type secretVolumeSourceFieldsTable struct {
 	SecretName  diefields.Field[SecretVolumeSource, string]
-	Items       diefields.Field[SecretVolumeSource, []KeyToPath]
+	Items       diefields.ListField[SecretVolumeSource, KeyToPath, *KeyToPathDie, *KeyToPathDieMut]
 	DefaultMode diefields.Field[SecretVolumeSource, *int32]
 	Optional    diefields.Field[SecretVolumeSource, *bool]
 	DefaultUser diefields.Field[SecretVolumeSource, *int64]
@@ -30395,7 +30395,7 @@ type secretVolumeSourceFieldsTable struct {
 var secretVolumeSourceFields = &diefields.Table[secretVolumeSourceFieldsTable]{Build: func() (f secretVolumeSourceFieldsTable) {
 	_ = annotated
 	f.SecretName = diefields.NewField[SecretVolumeSource, string]("secretName")
-	f.Items = diefields.NewItems[SecretVolumeSource, []KeyToPath, KeyToPath, *KeyToPathDie, *KeyToPathDieMut]("items")
+	f.Items = diefields.NewList[SecretVolumeSource, KeyToPath, *KeyToPathDie, *KeyToPathDieMut]("items")
 	f.DefaultMode = diefields.NewField[SecretVolumeSource, *int32]("defaultMode")
 	f.Optional = diefields.NewField[SecretVolumeSource, *bool]("optional")
 	f.DefaultUser = diefields.NewField[SecretVolumeSource, *int64]("defaultUser")
@@ -30415,8 +30415,8 @@ func (d *SecretVolumeSourceDie) SecretName() diefields.Value[string] {
 // present. If a key is specified which is not present in the Secret,
 // the volume setup will error unless it is marked optional. Paths must be
 // relative and may not contain the '..' path or start with '..'.
-func (d *SecretVolumeSourceDie) Items() diefields.Value[[]KeyToPath] {
-	return diefields.ValueOf(d, secretVolumeSourceFields.Get().Items)
+func (d *SecretVolumeSourceDie) Items() *diefields.List[KeyToPath, *KeyToPathDie] {
+	return diefields.ListOf(d, secretVolumeSourceFields.Get().Items)
 }
 
 // defaultMode is Optional: mode bits used to set permissions on created files by default.
@@ -30455,8 +30455,8 @@ func (d *SecretVolumeSourceDieMut) SecretName() diefields.ValueMut[string] {
 // present. If a key is specified which is not present in the Secret,
 // the volume setup will error unless it is marked optional. Paths must be
 // relative and may not contain the '..' path or start with '..'.
-func (d *SecretVolumeSourceDieMut) Items() diefields.ValueMut[[]KeyToPath] {
-	return diefields.ValueMutOf(d, secretVolumeSourceFields.Get().Items)
+func (d *SecretVolumeSourceDieMut) Items() *diefields.ListMut[KeyToPath, *KeyToPathDie, *KeyToPathDieMut] {
+	return diefields.ListMutOf(d, secretVolumeSourceFields.Get().Items)
 }
 
 // defaultMode is Optional: mode bits used to set permissions on created files by default.
@@ -31121,7 +31121,7 @@ type serviceAccountFieldsTable struct {
 	APIVersion                   diefields.Field[ServiceAccount, string]
 	Metadata                     diefields.Struct[ServiceAccount, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
 	Secrets                      diefields.ListMapField[ServiceAccount, ObjectReference, *ObjectReferenceDie, *ObjectReferenceDieMut, string]
-	ImagePullSecrets             diefields.Field[ServiceAccount, []LocalObjectReference]
+	ImagePullSecrets             diefields.ListField[ServiceAccount, LocalObjectReference, *LocalObjectReferenceDie, *LocalObjectReferenceDieMut]
 	AutomountServiceAccountToken diefields.Field[ServiceAccount, *bool]
 }
 
@@ -31131,7 +31131,7 @@ var serviceAccountFields = &diefields.Table[serviceAccountFieldsTable]{Build: fu
 	f.APIVersion = diefields.NewField[ServiceAccount, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[ServiceAccount, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
 	f.Secrets = diefields.NewListMap[ServiceAccount, ObjectReference, *ObjectReferenceDie, *ObjectReferenceDieMut]("secrets", func(k string) []any { return []any{k} }, func(e ObjectReference) string { return e.Name })
-	f.ImagePullSecrets = diefields.NewItems[ServiceAccount, []LocalObjectReference, LocalObjectReference, *LocalObjectReferenceDie, *LocalObjectReferenceDieMut]("imagePullSecrets")
+	f.ImagePullSecrets = diefields.NewList[ServiceAccount, LocalObjectReference, *LocalObjectReferenceDie, *LocalObjectReferenceDieMut]("imagePullSecrets")
 	f.AutomountServiceAccountToken = diefields.NewField[ServiceAccount, *bool]("automountServiceAccountToken")
 	return
 }}
@@ -31174,8 +31174,8 @@ func (d *ServiceAccountDie) Secrets() *ObjectReferenceListMap {
 // in pods that reference this ServiceAccount. ImagePullSecrets are distinct from Secrets because Secrets
 // can be mounted in the pod, but ImagePullSecrets are only accessed by the kubelet.
 // More info: https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
-func (d *ServiceAccountDie) ImagePullSecrets() diefields.Value[[]LocalObjectReference] {
-	return diefields.ValueOf(d, serviceAccountFields.Get().ImagePullSecrets)
+func (d *ServiceAccountDie) ImagePullSecrets() *diefields.List[LocalObjectReference, *LocalObjectReferenceDie] {
+	return diefields.ListOf(d, serviceAccountFields.Get().ImagePullSecrets)
 }
 
 // AutomountServiceAccountToken indicates whether pods running as this service account should have an API token automatically mounted.
@@ -31222,8 +31222,8 @@ func (d *ServiceAccountDieMut) Secrets() *ObjectReferenceListMapMut {
 // in pods that reference this ServiceAccount. ImagePullSecrets are distinct from Secrets because Secrets
 // can be mounted in the pod, but ImagePullSecrets are only accessed by the kubelet.
 // More info: https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
-func (d *ServiceAccountDieMut) ImagePullSecrets() diefields.ValueMut[[]LocalObjectReference] {
-	return diefields.ValueMutOf(d, serviceAccountFields.Get().ImagePullSecrets)
+func (d *ServiceAccountDieMut) ImagePullSecrets() *diefields.ListMut[LocalObjectReference, *LocalObjectReferenceDie, *LocalObjectReferenceDieMut] {
+	return diefields.ListMutOf(d, serviceAccountFields.Get().ImagePullSecrets)
 }
 
 // AutomountServiceAccountToken indicates whether pods running as this service account should have an API token automatically mounted.
@@ -31814,18 +31814,18 @@ type serviceSpecFieldsTable struct {
 	Ports                         diefields.ListMapField[ServiceSpec, ServicePort, *ServicePortDie, *ServicePortDieMut, ServicePortKey]
 	Selector                      diefields.Field[ServiceSpec, map[string]string]
 	ClusterIP                     diefields.Field[ServiceSpec, string]
-	ClusterIPs                    diefields.Field[ServiceSpec, []string]
+	ClusterIPs                    diefields.ListField[ServiceSpec, string, diefields.Value[string], diefields.ValueMut[string]]
 	Type                          diefields.Field[ServiceSpec, ServiceType]
-	ExternalIPs                   diefields.Field[ServiceSpec, []string]
+	ExternalIPs                   diefields.ListField[ServiceSpec, string, diefields.Value[string], diefields.ValueMut[string]]
 	SessionAffinity               diefields.Field[ServiceSpec, ServiceAffinity]
 	LoadBalancerIP                diefields.Field[ServiceSpec, string]
-	LoadBalancerSourceRanges      diefields.Field[ServiceSpec, []string]
+	LoadBalancerSourceRanges      diefields.ListField[ServiceSpec, string, diefields.Value[string], diefields.ValueMut[string]]
 	ExternalName                  diefields.Field[ServiceSpec, string]
 	ExternalTrafficPolicy         diefields.Field[ServiceSpec, ServiceExternalTrafficPolicy]
 	HealthCheckNodePort           diefields.Field[ServiceSpec, int32]
 	PublishNotReadyAddresses      diefields.Field[ServiceSpec, bool]
 	SessionAffinityConfig         diefields.Struct[ServiceSpec, SessionAffinityConfig, *SessionAffinityConfigDie, *SessionAffinityConfigDieMut]
-	IPFamilies                    diefields.Field[ServiceSpec, []IPFamily]
+	IPFamilies                    diefields.ListField[ServiceSpec, IPFamily, diefields.Value[IPFamily], diefields.ValueMut[IPFamily]]
 	IPFamilyPolicy                diefields.Field[ServiceSpec, *IPFamilyPolicy]
 	AllocateLoadBalancerNodePorts diefields.Field[ServiceSpec, *bool]
 	LoadBalancerClass             diefields.Field[ServiceSpec, *string]
@@ -31838,18 +31838,18 @@ var serviceSpecFields = &diefields.Table[serviceSpecFieldsTable]{Build: func() (
 	f.Ports = diefields.NewListMap[ServiceSpec, ServicePort, *ServicePortDie, *ServicePortDieMut]("ports", func(k ServicePortKey) []any { return []any{k.Port, k.Protocol} }, func(e ServicePort) ServicePortKey { return ServicePortKey{Port: e.Port, Protocol: e.Protocol} })
 	f.Selector = diefields.NewField[ServiceSpec, map[string]string]("selector")
 	f.ClusterIP = diefields.NewField[ServiceSpec, string]("clusterIP")
-	f.ClusterIPs = diefields.NewField[ServiceSpec, []string]("clusterIPs")
+	f.ClusterIPs = diefields.NewValueList[ServiceSpec, string]("clusterIPs")
 	f.Type = diefields.NewField[ServiceSpec, ServiceType]("type")
-	f.ExternalIPs = diefields.NewField[ServiceSpec, []string]("externalIPs")
+	f.ExternalIPs = diefields.NewValueList[ServiceSpec, string]("externalIPs")
 	f.SessionAffinity = diefields.NewField[ServiceSpec, ServiceAffinity]("sessionAffinity")
 	f.LoadBalancerIP = diefields.NewField[ServiceSpec, string]("loadBalancerIP")
-	f.LoadBalancerSourceRanges = diefields.NewField[ServiceSpec, []string]("loadBalancerSourceRanges")
+	f.LoadBalancerSourceRanges = diefields.NewValueList[ServiceSpec, string]("loadBalancerSourceRanges")
 	f.ExternalName = diefields.NewField[ServiceSpec, string]("externalName")
 	f.ExternalTrafficPolicy = diefields.NewField[ServiceSpec, ServiceExternalTrafficPolicy]("externalTrafficPolicy")
 	f.HealthCheckNodePort = diefields.NewField[ServiceSpec, int32]("healthCheckNodePort")
 	f.PublishNotReadyAddresses = diefields.NewField[ServiceSpec, bool]("publishNotReadyAddresses")
 	f.SessionAffinityConfig = diefields.NewStruct[ServiceSpec, SessionAffinityConfig, *SessionAffinityConfigDie, *SessionAffinityConfigDieMut]("sessionAffinityConfig")
-	f.IPFamilies = diefields.NewField[ServiceSpec, []IPFamily]("ipFamilies")
+	f.IPFamilies = diefields.NewValueList[ServiceSpec, IPFamily]("ipFamilies")
 	f.IPFamilyPolicy = diefields.NewField[ServiceSpec, *IPFamilyPolicy]("ipFamilyPolicy")
 	f.AllocateLoadBalancerNodePorts = diefields.NewField[ServiceSpec, *bool]("allocateLoadBalancerNodePorts")
 	f.LoadBalancerClass = diefields.NewField[ServiceSpec, *string]("loadBalancerClass")
@@ -31916,8 +31916,8 @@ func (d *ServiceSpecDie) ClusterIP() diefields.Value[string] {
 // These IPs must correspond to the values of the ipFamilies field. Both
 // clusterIPs and ipFamilies are governed by the ipFamilyPolicy field.
 // More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
-func (d *ServiceSpecDie) ClusterIPs() diefields.Value[[]string] {
-	return diefields.ValueOf(d, serviceSpecFields.Get().ClusterIPs)
+func (d *ServiceSpecDie) ClusterIPs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, serviceSpecFields.Get().ClusterIPs)
 }
 
 // type determines how the Service is exposed. Defaults to ClusterIP. Valid
@@ -31945,8 +31945,8 @@ func (d *ServiceSpecDie) Type() diefields.Value[ServiceType] {
 // Kubernetes.  The user is responsible for ensuring that traffic arrives
 // at a node with this IP.  A common example is external load-balancers
 // that are not part of the Kubernetes system.
-func (d *ServiceSpecDie) ExternalIPs() diefields.Value[[]string] {
-	return diefields.ValueOf(d, serviceSpecFields.Get().ExternalIPs)
+func (d *ServiceSpecDie) ExternalIPs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, serviceSpecFields.Get().ExternalIPs)
 }
 
 // Supports "ClientIP" and "None". Used to maintain session affinity.
@@ -31973,8 +31973,8 @@ func (d *ServiceSpecDie) LoadBalancerIP() diefields.Value[string] {
 // load-balancer will be restricted to the specified client IPs. This field will be ignored if the
 // cloud-provider does not support the feature."
 // More info: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/
-func (d *ServiceSpecDie) LoadBalancerSourceRanges() diefields.Value[[]string] {
-	return diefields.ValueOf(d, serviceSpecFields.Get().LoadBalancerSourceRanges)
+func (d *ServiceSpecDie) LoadBalancerSourceRanges() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, serviceSpecFields.Get().LoadBalancerSourceRanges)
 }
 
 // externalName is the external reference that discovery mechanisms will
@@ -32049,8 +32049,8 @@ func (d *ServiceSpecDie) SessionAffinityConfig() *SessionAffinityConfigDie {
 // either order).  These families must correspond to the values of the
 // clusterIPs field, if specified. Both clusterIPs and ipFamilies are
 // governed by the ipFamilyPolicy field.
-func (d *ServiceSpecDie) IPFamilies() diefields.Value[[]IPFamily] {
-	return diefields.ValueOf(d, serviceSpecFields.Get().IPFamilies)
+func (d *ServiceSpecDie) IPFamilies() *diefields.List[IPFamily, diefields.Value[IPFamily]] {
+	return diefields.ListOf(d, serviceSpecFields.Get().IPFamilies)
 }
 
 // IPFamilyPolicy represents the dual-stack-ness requested or required by
@@ -32168,8 +32168,8 @@ func (d *ServiceSpecDieMut) ClusterIP() diefields.ValueMut[string] {
 // These IPs must correspond to the values of the ipFamilies field. Both
 // clusterIPs and ipFamilies are governed by the ipFamilyPolicy field.
 // More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
-func (d *ServiceSpecDieMut) ClusterIPs() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, serviceSpecFields.Get().ClusterIPs)
+func (d *ServiceSpecDieMut) ClusterIPs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, serviceSpecFields.Get().ClusterIPs)
 }
 
 // type determines how the Service is exposed. Defaults to ClusterIP. Valid
@@ -32197,8 +32197,8 @@ func (d *ServiceSpecDieMut) Type() diefields.ValueMut[ServiceType] {
 // Kubernetes.  The user is responsible for ensuring that traffic arrives
 // at a node with this IP.  A common example is external load-balancers
 // that are not part of the Kubernetes system.
-func (d *ServiceSpecDieMut) ExternalIPs() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, serviceSpecFields.Get().ExternalIPs)
+func (d *ServiceSpecDieMut) ExternalIPs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, serviceSpecFields.Get().ExternalIPs)
 }
 
 // Supports "ClientIP" and "None". Used to maintain session affinity.
@@ -32225,8 +32225,8 @@ func (d *ServiceSpecDieMut) LoadBalancerIP() diefields.ValueMut[string] {
 // load-balancer will be restricted to the specified client IPs. This field will be ignored if the
 // cloud-provider does not support the feature."
 // More info: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/
-func (d *ServiceSpecDieMut) LoadBalancerSourceRanges() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, serviceSpecFields.Get().LoadBalancerSourceRanges)
+func (d *ServiceSpecDieMut) LoadBalancerSourceRanges() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, serviceSpecFields.Get().LoadBalancerSourceRanges)
 }
 
 // externalName is the external reference that discovery mechanisms will
@@ -32301,8 +32301,8 @@ func (d *ServiceSpecDieMut) SessionAffinityConfig() *SessionAffinityConfigDieMut
 // either order).  These families must correspond to the values of the
 // clusterIPs field, if specified. Both clusterIPs and ipFamilies are
 // governed by the ipFamilyPolicy field.
-func (d *ServiceSpecDieMut) IPFamilies() diefields.ValueMut[[]IPFamily] {
-	return diefields.ValueMutOf(d, serviceSpecFields.Get().IPFamilies)
+func (d *ServiceSpecDieMut) IPFamilies() *diefields.ListMut[IPFamily, diefields.Value[IPFamily], diefields.ValueMut[IPFamily]] {
+	return diefields.ListMutOf(d, serviceSpecFields.Get().IPFamilies)
 }
 
 // IPFamilyPolicy represents the dual-stack-ness requested or required by
@@ -33541,13 +33541,13 @@ func (d *TopologySelectorLabelRequirementDieMut) DieStampApplyConfiguration(fn f
 
 type topologySelectorLabelRequirementFieldsTable struct {
 	Key    diefields.Field[TopologySelectorLabelRequirement, string]
-	Values diefields.Field[TopologySelectorLabelRequirement, []string]
+	Values diefields.ListField[TopologySelectorLabelRequirement, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var topologySelectorLabelRequirementFields = &diefields.Table[topologySelectorLabelRequirementFieldsTable]{Build: func() (f topologySelectorLabelRequirementFieldsTable) {
 	_ = annotated
 	f.Key = diefields.NewField[TopologySelectorLabelRequirement, string]("key")
-	f.Values = diefields.NewField[TopologySelectorLabelRequirement, []string]("values")
+	f.Values = diefields.NewValueList[TopologySelectorLabelRequirement, string]("values")
 	return
 }}
 
@@ -33558,8 +33558,8 @@ func (d *TopologySelectorLabelRequirementDie) Key() diefields.Value[string] {
 
 // An array of string values. One value must match the label to be selected.
 // Each entry in Values is ORed.
-func (d *TopologySelectorLabelRequirementDie) Values() diefields.Value[[]string] {
-	return diefields.ValueOf(d, topologySelectorLabelRequirementFields.Get().Values)
+func (d *TopologySelectorLabelRequirementDie) Values() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, topologySelectorLabelRequirementFields.Get().Values)
 }
 
 // The label key that the selector applies to.
@@ -33569,8 +33569,8 @@ func (d *TopologySelectorLabelRequirementDieMut) Key() diefields.ValueMut[string
 
 // An array of string values. One value must match the label to be selected.
 // Each entry in Values is ORed.
-func (d *TopologySelectorLabelRequirementDieMut) Values() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, topologySelectorLabelRequirementFields.Get().Values)
+func (d *TopologySelectorLabelRequirementDieMut) Values() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, topologySelectorLabelRequirementFields.Get().Values)
 }
 
 // +kubebuilder:object:generate=false
@@ -33649,23 +33649,23 @@ func (d *TopologySelectorTermDieMut) DieStampApplyConfiguration(fn func(ac *Topo
 // +k8s:deepcopy-gen=false
 
 type topologySelectorTermFieldsTable struct {
-	MatchLabelExpressions diefields.Field[TopologySelectorTerm, []TopologySelectorLabelRequirement]
+	MatchLabelExpressions diefields.ListField[TopologySelectorTerm, TopologySelectorLabelRequirement, *TopologySelectorLabelRequirementDie, *TopologySelectorLabelRequirementDieMut]
 }
 
 var topologySelectorTermFields = &diefields.Table[topologySelectorTermFieldsTable]{Build: func() (f topologySelectorTermFieldsTable) {
 	_ = annotated
-	f.MatchLabelExpressions = diefields.NewItems[TopologySelectorTerm, []TopologySelectorLabelRequirement, TopologySelectorLabelRequirement, *TopologySelectorLabelRequirementDie, *TopologySelectorLabelRequirementDieMut]("matchLabelExpressions")
+	f.MatchLabelExpressions = diefields.NewList[TopologySelectorTerm, TopologySelectorLabelRequirement, *TopologySelectorLabelRequirementDie, *TopologySelectorLabelRequirementDieMut]("matchLabelExpressions")
 	return
 }}
 
 // A list of topology selector requirements by labels.
-func (d *TopologySelectorTermDie) MatchLabelExpressions() diefields.Value[[]TopologySelectorLabelRequirement] {
-	return diefields.ValueOf(d, topologySelectorTermFields.Get().MatchLabelExpressions)
+func (d *TopologySelectorTermDie) MatchLabelExpressions() *diefields.List[TopologySelectorLabelRequirement, *TopologySelectorLabelRequirementDie] {
+	return diefields.ListOf(d, topologySelectorTermFields.Get().MatchLabelExpressions)
 }
 
 // A list of topology selector requirements by labels.
-func (d *TopologySelectorTermDieMut) MatchLabelExpressions() diefields.ValueMut[[]TopologySelectorLabelRequirement] {
-	return diefields.ValueMutOf(d, topologySelectorTermFields.Get().MatchLabelExpressions)
+func (d *TopologySelectorTermDieMut) MatchLabelExpressions() *diefields.ListMut[TopologySelectorLabelRequirement, *TopologySelectorLabelRequirementDie, *TopologySelectorLabelRequirementDieMut] {
+	return diefields.ListMutOf(d, topologySelectorTermFields.Get().MatchLabelExpressions)
 }
 
 // +kubebuilder:object:generate=false
@@ -33747,7 +33747,7 @@ type topologySpreadConstraintFieldsTable struct {
 	MinDomains         diefields.Field[TopologySpreadConstraint, *int32]
 	NodeAffinityPolicy diefields.Field[TopologySpreadConstraint, *NodeInclusionPolicy]
 	NodeTaintsPolicy   diefields.Field[TopologySpreadConstraint, *NodeInclusionPolicy]
-	MatchLabelKeys     diefields.Field[TopologySpreadConstraint, []string]
+	MatchLabelKeys     diefields.ListField[TopologySpreadConstraint, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var topologySpreadConstraintFields = &diefields.Table[topologySpreadConstraintFieldsTable]{Build: func() (f topologySpreadConstraintFieldsTable) {
@@ -33759,7 +33759,7 @@ var topologySpreadConstraintFields = &diefields.Table[topologySpreadConstraintFi
 	f.MinDomains = diefields.NewField[TopologySpreadConstraint, *int32]("minDomains")
 	f.NodeAffinityPolicy = diefields.NewField[TopologySpreadConstraint, *NodeInclusionPolicy]("nodeAffinityPolicy")
 	f.NodeTaintsPolicy = diefields.NewField[TopologySpreadConstraint, *NodeInclusionPolicy]("nodeTaintsPolicy")
-	f.MatchLabelKeys = diefields.NewField[TopologySpreadConstraint, []string]("matchLabelKeys")
+	f.MatchLabelKeys = diefields.NewValueList[TopologySpreadConstraint, string]("matchLabelKeys")
 	return
 }}
 
@@ -33882,8 +33882,8 @@ func (d *TopologySpreadConstraintDie) NodeTaintsPolicy() diefields.Optional[Node
 // be ignored. A null or empty list means only match against labelSelector.
 //
 // This is a beta field and requires the MatchLabelKeysInPodTopologySpread feature gate to be enabled (enabled by default).
-func (d *TopologySpreadConstraintDie) MatchLabelKeys() diefields.Value[[]string] {
-	return diefields.ValueOf(d, topologySpreadConstraintFields.Get().MatchLabelKeys)
+func (d *TopologySpreadConstraintDie) MatchLabelKeys() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, topologySpreadConstraintFields.Get().MatchLabelKeys)
 }
 
 // MaxSkew describes the degree to which pods may be unevenly distributed.
@@ -34005,8 +34005,8 @@ func (d *TopologySpreadConstraintDieMut) NodeTaintsPolicy() diefields.OptionalMu
 // be ignored. A null or empty list means only match against labelSelector.
 //
 // This is a beta field and requires the MatchLabelKeysInPodTopologySpread feature gate to be enabled (enabled by default).
-func (d *TopologySpreadConstraintDieMut) MatchLabelKeys() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, topologySpreadConstraintFields.Get().MatchLabelKeys)
+func (d *TopologySpreadConstraintDieMut) MatchLabelKeys() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, topologySpreadConstraintFields.Get().MatchLabelKeys)
 }
 
 // +kubebuilder:object:generate=false
@@ -35316,7 +35316,7 @@ type volumeMountFieldsTable struct {
 	SubPath           diefields.Field[VolumeMount, string]
 	MountPropagation  diefields.Field[VolumeMount, *MountPropagationMode]
 	SubPathExpr       diefields.Field[VolumeMount, string]
-	BindMountOptions  diefields.Field[VolumeMount, []string]
+	BindMountOptions  diefields.ListField[VolumeMount, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var volumeMountFields = &diefields.Table[volumeMountFieldsTable]{Build: func() (f volumeMountFieldsTable) {
@@ -35328,7 +35328,7 @@ var volumeMountFields = &diefields.Table[volumeMountFieldsTable]{Build: func() (
 	f.SubPath = diefields.NewField[VolumeMount, string]("subPath")
 	f.MountPropagation = diefields.NewField[VolumeMount, *MountPropagationMode]("mountPropagation")
 	f.SubPathExpr = diefields.NewField[VolumeMount, string]("subPathExpr")
-	f.BindMountOptions = diefields.NewField[VolumeMount, []string]("bindMountOptions")
+	f.BindMountOptions = diefields.NewValueList[VolumeMount, string]("bindMountOptions")
 	return
 }}
 
@@ -35398,8 +35398,8 @@ func (d *VolumeMountDie) SubPathExpr() diefields.Value[string] {
 // Windows nodes.
 // This field is not supported with image volumes.
 // This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
-func (d *VolumeMountDie) BindMountOptions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, volumeMountFields.Get().BindMountOptions)
+func (d *VolumeMountDie) BindMountOptions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, volumeMountFields.Get().BindMountOptions)
 }
 
 // This must match the Name of a Volume.
@@ -35468,8 +35468,8 @@ func (d *VolumeMountDieMut) SubPathExpr() diefields.ValueMut[string] {
 // Windows nodes.
 // This field is not supported with image volumes.
 // This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
-func (d *VolumeMountDieMut) BindMountOptions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, volumeMountFields.Get().BindMountOptions)
+func (d *VolumeMountDieMut) BindMountOptions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, volumeMountFields.Get().BindMountOptions)
 }
 
 // +kubebuilder:object:generate=false

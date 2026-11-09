@@ -24,6 +24,7 @@ import (
 	"testing"
 
 	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -92,7 +93,7 @@ func TestMapReplace(t *testing.T) {
 func TestDieReplace(t *testing.T) {
 	selector := diemetav1.LabelSelector{MatchLabels: map[string]string{"aggregate": "true"}}
 	desired := dierbacv1.ClusterRoleBlank.DieStamp(func(d *dierbacv1.ClusterRoleDieMut) {
-		dietesting.NoError(t, d.AggregationRule().ClusterRoleSelectors().Set([]diemetav1.LabelSelector{selector}))
+		dietesting.NoError(t, d.AggregationRule().ClusterRoleSelectors().SetValue([]diemetav1.LabelSelector{selector}...))
 	})
 	c := dierbacv1.ClusterRoleBlank.DieMutable()
 	dietesting.NoError(t, c.AggregationRule().DieReplace(desired.AggregationRule()))
@@ -226,7 +227,7 @@ func TestReplaceIsDecoupledFromItsSource(t *testing.T) {
 	src := dierbacv1.ClusterRoleBlank.DieMutable()
 	dietesting.NoError(t, errors.Join(
 		src.Metadata().Labels().Set("app", "web"),
-		src.AggregationRule().ClusterRoleSelectors().Set([]diemetav1.LabelSelector{{MatchLabels: map[string]string{"aggregate": "true"}}}),
+		src.AggregationRule().ClusterRoleSelectors().SetValue([]diemetav1.LabelSelector{{MatchLabels: map[string]string{"aggregate": "true"}}}...),
 	))
 	dst := dierbacv1.ClusterRoleBlank.DieMutable()
 	dietesting.NoError(t, errors.Join(
@@ -269,5 +270,84 @@ func TestReplaceIsDecoupledFromItsSource(t *testing.T) {
 	}))
 	if got := frozen.AggregationRule().ClusterRoleSelectors().Get()[0].MatchLabels["aggregate"]; got != "changed" {
 		t.Errorf("a write to the destination is seen by an immutable source: %q", got)
+	}
+}
+
+// A map entry's handle reads, writes and replaces the key's value.
+func TestMapEntry(t *testing.T) {
+	c := current(t)
+	labels := c.Metadata().Labels()
+	if e := labels.DieReadOnly().Entry("app"); !e.Has() || e.Get() != "web" {
+		t.Errorf("app: has %v, %q", e.Has(), e.Get())
+	}
+	if e := labels.DieReadOnly().Entry("missing"); e.Has() || e.Get() != "" {
+		t.Errorf("missing: has %v, %q", e.Has(), e.Get())
+	}
+	desired := dieappsv1.DeploymentBlank.DieStamp(func(d *dieappsv1.DeploymentDieMut) {
+		dietesting.NoError(t, d.Metadata().Labels().Set("tier", "frontend"))
+	})
+	dietesting.NoError(t, errors.Join(
+		labels.Entry("tier").Replace(desired.Metadata().Labels().Entry("tier")),
+		labels.Entry("stale").Clear(),
+		labels.Entry("app").Set("api"),
+	))
+	want := strings.Join([]string{
+		`set .metadata.labels["tier"] = "frontend"`,
+		`clear .metadata.labels["stale"]`,
+		`set .metadata.labels["app"] = "api"`,
+	}, "\n")
+	if got := c.DieIntent(); got != want {
+		t.Errorf("intent:\n%s\nwant:\n%s", got, want)
+	}
+}
+
+// Setting an element of a list map appends it when the list doesn't have
+// its key, and replaces it, by what differs, when it does.
+func TestListMapSet(t *testing.T) {
+	c := current(t)
+	containers := c.Spec().Template().Spec().Containers()
+	dietesting.NoError(t, errors.Join(
+		// app has image app:1 and port 80; the port is the same, and so isn't
+		// written
+		containers.Set(corev1.Container{Name: "app", Image: "app:2", Ports: []corev1.ContainerPort{{ContainerPort: 80}}}),
+		containers.Set(corev1.Container{Name: "sidecar", Image: "proxy:1"}),
+	))
+	if got, want := containers.DieReadOnly().Keys(), []string{"app", "sidecar"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("keys %v, want %v", got, want)
+	}
+	want := strings.Join([]string{
+		`set .spec.template.spec.containers[name=app].image = "app:2"`,
+		`set .spec.template.spec.containers[name=sidecar] = {"name":"sidecar","image":"proxy:1","resources":{}}`,
+	}, "\n")
+	if got := c.DieIntent(); got != want {
+		t.Errorf("intent:\n%s\nwant:\n%s", got, want)
+	}
+
+	// a field the element doesn't have is cleared; the same element writes
+	// nothing more
+	dietesting.NoError(t, containers.Set(corev1.Container{Name: "app", Image: "app:2"}))
+	if containers.At("app").Ports().DieReadOnly().Len() != 0 {
+		t.Errorf("ports %v, want none", containers.At("app").Ports().DieReadOnly().Keys())
+	}
+	before := c.DieIntent()
+	dietesting.NoError(t, containers.Set(corev1.Container{Name: "app", Image: "app:2"}))
+	if got := c.DieIntent(); got != before {
+		t.Errorf("setting the same element wrote:\n%s\nwas:\n%s", got, before)
+	}
+
+	// keyed with its key fields' defaults, as the list keys it
+	ports := containers.At("app").Ports()
+	dietesting.NoError(t, ports.Set(corev1.ContainerPort{ContainerPort: 8080, Name: "http"}))
+	dietesting.NoError(t, ports.Set(corev1.ContainerPort{ContainerPort: 8080, Protocol: corev1.ProtocolTCP, Name: "web"}))
+	if got := ports.DieReadOnly().Keys(); len(got) != 1 || ports.At(got[0]).Name().Get() != "web" {
+		t.Errorf("ports %v, want one, web", got)
+	}
+
+	// the element is a copy
+	e := corev1.Container{Name: "copy", Args: []string{"a"}}
+	dietesting.NoError(t, containers.Set(e))
+	e.Args[0] = "changed"
+	if got := containers.At("copy").Args().Get(); got[0] != "a" {
+		t.Errorf("args %v, want [a]", got)
 	}
 }

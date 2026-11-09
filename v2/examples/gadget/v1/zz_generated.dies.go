@@ -109,21 +109,21 @@ var GadgetSpecBlank = diebase.Blank[GadgetSpec, *GadgetSpecDie, *GadgetSpecDieMu
 // +k8s:deepcopy-gen=false
 
 type gadgetSpecFieldsTable struct {
-	Parts diefields.Field[GadgetSpec, []GadgetPart]
+	Parts diefields.ListField[GadgetSpec, GadgetPart, *GadgetPartDie, *GadgetPartDieMut]
 }
 
 var gadgetSpecFields = &diefields.Table[gadgetSpecFieldsTable]{Build: func() (f gadgetSpecFieldsTable) {
 	_ = annotated
-	f.Parts = diefields.NewItems[GadgetSpec, []GadgetPart, GadgetPart, *GadgetPartDie, *GadgetPartDieMut]("parts")
+	f.Parts = diefields.NewList[GadgetSpec, GadgetPart, *GadgetPartDie, *GadgetPartDieMut]("parts")
 	return
 }}
 
-func (d *GadgetSpecDie) Parts() diefields.Value[[]GadgetPart] {
-	return diefields.ValueOf(d, gadgetSpecFields.Get().Parts)
+func (d *GadgetSpecDie) Parts() *diefields.List[GadgetPart, *GadgetPartDie] {
+	return diefields.ListOf(d, gadgetSpecFields.Get().Parts)
 }
 
-func (d *GadgetSpecDieMut) Parts() diefields.ValueMut[[]GadgetPart] {
-	return diefields.ValueMutOf(d, gadgetSpecFields.Get().Parts)
+func (d *GadgetSpecDieMut) Parts() *diefields.ListMut[GadgetPart, *GadgetPartDie, *GadgetPartDieMut] {
+	return diefields.ListMutOf(d, gadgetSpecFields.Get().Parts)
 }
 
 // SchemeBuilder registers this package's objects and lists, of which it

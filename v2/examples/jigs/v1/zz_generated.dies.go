@@ -63,25 +63,25 @@ var BatchBlank = diebase.Blank[Batch, *BatchDie, *BatchDieMut]()
 // +k8s:deepcopy-gen=false
 
 type batchFieldsTable struct {
-	Containers diefields.Field[Batch, []diecorev1.Container]
+	Containers diefields.ListField[Batch, diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut]
 	Init       diefields.Struct[Batch, diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut]
 }
 
 var batchFields = &diefields.Table[batchFieldsTable]{Build: func() (f batchFieldsTable) {
 	_ = annotated
-	f.Containers = diefields.NewItems[Batch, []diecorev1.Container, diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut]("containers")
+	f.Containers = diefields.NewList[Batch, diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut]("containers")
 	f.Init = diefields.NewStruct[Batch, diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut]("init")
 	return
 }}
 
-func (d *BatchDie) Containers() diefields.Value[[]diecorev1.Container] {
-	return diefields.ValueOf(d, batchFields.Get().Containers)
+func (d *BatchDie) Containers() *diefields.List[diecorev1.Container, *diecorev1.ContainerDie] {
+	return diefields.ListOf(d, batchFields.Get().Containers)
 }
 
 func (d *BatchDie) Init() *diecorev1.ContainerDie { return diefields.Child(d, batchFields.Get().Init) }
 
-func (d *BatchDieMut) Containers() diefields.ValueMut[[]diecorev1.Container] {
-	return diefields.ValueMutOf(d, batchFields.Get().Containers)
+func (d *BatchDieMut) Containers() *diefields.ListMut[diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut] {
+	return diefields.ListMutOf(d, batchFields.Get().Containers)
 }
 
 func (d *BatchDieMut) Init() *diecorev1.ContainerDieMut {

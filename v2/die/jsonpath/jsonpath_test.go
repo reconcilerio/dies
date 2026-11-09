@@ -62,7 +62,7 @@ func web(t testing.TB) *dieappsv1.DeploymentDie {
 		spec := d.Spec().Template().Spec()
 		dietesting.NoError(t, spec.Containers().At("app").Image().Set("app:1"))
 		dietesting.NoError(t, spec.Containers().At("proxy").Image().Set("proxy:1"))
-		dietesting.NoError(t, spec.Tolerations().Set([]upstreamcorev1.Toleration{{Key: "a"}, {Key: "b"}}))
+		dietesting.NoError(t, spec.Tolerations().SetValue([]upstreamcorev1.Toleration{{Key: "a"}, {Key: "b"}}...))
 	}).DieTare()
 }
 
@@ -161,7 +161,7 @@ func TestWritesThroughMatches(t *testing.T) {
 		if err != nil || len(containers) != 2 {
 			t.Fatalf("containers %v, %v", containers, err)
 		}
-		dietesting.NoError(t, containers[1].Args().Set([]string{"--verbose"}))
+		dietesting.NoError(t, containers[1].Args().SetValue([]string{"--verbose"}...))
 	})
 	got, err := die.ReleaseApplyPatch(d)
 	assertJSON(t, got, err, `{
@@ -301,7 +301,7 @@ func TestValidatingInTheContextOfTheObject(t *testing.T) {
 	}
 	binding := dierbacv1.RoleBindingBlank.DieStamp(func(d *dierbacv1.RoleBindingDieMut) {
 		dietesting.NoError(t, d.Metadata().Namespace().Set("prod"))
-		dietesting.NoError(t, d.Subjects().Set(subjects))
+		dietesting.NoError(t, d.Subjects().SetValue(subjects...))
 	}).DieMutable()
 	if err := validateSubjects(binding); err != nil {
 		t.Errorf("unexpected error: %v", err)
@@ -318,7 +318,7 @@ func TestValidatingInTheContextOfTheObject(t *testing.T) {
 
 	// a cluster role binding has no namespace, and constrains none
 	cluster := dierbacv1.ClusterRoleBindingBlank.DieStamp(func(d *dierbacv1.ClusterRoleBindingDieMut) {
-		dietesting.NoError(t, d.Subjects().Set(subjects))
+		dietesting.NoError(t, d.Subjects().SetValue(subjects...))
 	}).DieMutable()
 	if err := validateSubjects(cluster); err != nil {
 		t.Errorf("unexpected error: %v", err)
@@ -333,7 +333,7 @@ func TestValidatingInTheContextOfTheObject(t *testing.T) {
 func TestValuesOutsideTheDie(t *testing.T) {
 	binding := dierbacv1.RoleBindingBlank.DieStamp(func(d *dierbacv1.RoleBindingDieMut) {
 		dietesting.NoError(t, d.Metadata().Namespace().Set("prod"))
-		dietesting.NoError(t, d.Subjects().Set([]upstreamrbacv1.Subject{{Kind: dierbacv1.ServiceAccountKind, Name: "builder"}}))
+		dietesting.NoError(t, d.Subjects().SetValue([]upstreamrbacv1.Subject{{Kind: dierbacv1.ServiceAccountKind, Name: "builder"}}...))
 	})
 	subjects, err := jsonpath.FindDies[*dierbacv1.SubjectDie](binding, "$.subjects[*]")
 	if err != nil {

@@ -915,8 +915,8 @@ func (d *MatchResourcesDieMut) DieStampApplyConfiguration(fn func(ac *MatchResou
 type matchResourcesFieldsTable struct {
 	NamespaceSelector    diefields.Struct[MatchResources, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
 	ObjectSelector       diefields.Struct[MatchResources, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
-	ResourceRules        diefields.Field[MatchResources, []NamedRuleWithOperations]
-	ExcludeResourceRules diefields.Field[MatchResources, []NamedRuleWithOperations]
+	ResourceRules        diefields.ListField[MatchResources, NamedRuleWithOperations, *NamedRuleWithOperationsDie, *NamedRuleWithOperationsDieMut]
+	ExcludeResourceRules diefields.ListField[MatchResources, NamedRuleWithOperations, *NamedRuleWithOperationsDie, *NamedRuleWithOperationsDieMut]
 	MatchPolicy          diefields.Field[MatchResources, *MatchPolicyType]
 }
 
@@ -924,8 +924,8 @@ var matchResourcesFields = &diefields.Table[matchResourcesFieldsTable]{Build: fu
 	_ = annotated
 	f.NamespaceSelector = diefields.NewStruct[MatchResources, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("namespaceSelector")
 	f.ObjectSelector = diefields.NewStruct[MatchResources, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("objectSelector")
-	f.ResourceRules = diefields.NewItems[MatchResources, []NamedRuleWithOperations, NamedRuleWithOperations, *NamedRuleWithOperationsDie, *NamedRuleWithOperationsDieMut]("resourceRules")
-	f.ExcludeResourceRules = diefields.NewItems[MatchResources, []NamedRuleWithOperations, NamedRuleWithOperations, *NamedRuleWithOperationsDie, *NamedRuleWithOperationsDieMut]("excludeResourceRules")
+	f.ResourceRules = diefields.NewList[MatchResources, NamedRuleWithOperations, *NamedRuleWithOperationsDie, *NamedRuleWithOperationsDieMut]("resourceRules")
+	f.ExcludeResourceRules = diefields.NewList[MatchResources, NamedRuleWithOperations, *NamedRuleWithOperationsDie, *NamedRuleWithOperationsDieMut]("excludeResourceRules")
 	f.MatchPolicy = diefields.NewField[MatchResources, *MatchPolicyType]("matchPolicy")
 	return
 }}
@@ -996,14 +996,14 @@ func (d *MatchResourcesDie) ObjectSelector() *diemetav1.LabelSelectorDie {
 
 // resourceRules describes what operations on what resources/subresources the ValidatingAdmissionPolicy matches.
 // The policy cares about an operation if it matches _any_ Rule.
-func (d *MatchResourcesDie) ResourceRules() diefields.Value[[]NamedRuleWithOperations] {
-	return diefields.ValueOf(d, matchResourcesFields.Get().ResourceRules)
+func (d *MatchResourcesDie) ResourceRules() *diefields.List[NamedRuleWithOperations, *NamedRuleWithOperationsDie] {
+	return diefields.ListOf(d, matchResourcesFields.Get().ResourceRules)
 }
 
 // excludeResourceRules describes what operations on what resources/subresources the ValidatingAdmissionPolicy should not care about.
 // The exclude rules take precedence over include rules (if a resource matches both, it is excluded)
-func (d *MatchResourcesDie) ExcludeResourceRules() diefields.Value[[]NamedRuleWithOperations] {
-	return diefields.ValueOf(d, matchResourcesFields.Get().ExcludeResourceRules)
+func (d *MatchResourcesDie) ExcludeResourceRules() *diefields.List[NamedRuleWithOperations, *NamedRuleWithOperationsDie] {
+	return diefields.ListOf(d, matchResourcesFields.Get().ExcludeResourceRules)
 }
 
 // matchPolicy defines how the "MatchResources" list is used to match incoming requests.
@@ -1090,14 +1090,14 @@ func (d *MatchResourcesDieMut) ObjectSelector() *diemetav1.LabelSelectorDieMut {
 
 // resourceRules describes what operations on what resources/subresources the ValidatingAdmissionPolicy matches.
 // The policy cares about an operation if it matches _any_ Rule.
-func (d *MatchResourcesDieMut) ResourceRules() diefields.ValueMut[[]NamedRuleWithOperations] {
-	return diefields.ValueMutOf(d, matchResourcesFields.Get().ResourceRules)
+func (d *MatchResourcesDieMut) ResourceRules() *diefields.ListMut[NamedRuleWithOperations, *NamedRuleWithOperationsDie, *NamedRuleWithOperationsDieMut] {
+	return diefields.ListMutOf(d, matchResourcesFields.Get().ResourceRules)
 }
 
 // excludeResourceRules describes what operations on what resources/subresources the ValidatingAdmissionPolicy should not care about.
 // The exclude rules take precedence over include rules (if a resource matches both, it is excluded)
-func (d *MatchResourcesDieMut) ExcludeResourceRules() diefields.ValueMut[[]NamedRuleWithOperations] {
-	return diefields.ValueMutOf(d, matchResourcesFields.Get().ExcludeResourceRules)
+func (d *MatchResourcesDieMut) ExcludeResourceRules() *diefields.ListMut[NamedRuleWithOperations, *NamedRuleWithOperationsDie, *NamedRuleWithOperationsDieMut] {
+	return diefields.ListMutOf(d, matchResourcesFields.Get().ExcludeResourceRules)
 }
 
 // matchPolicy defines how the "MatchResources" list is used to match incoming requests.
@@ -1665,8 +1665,8 @@ func (d *MutatingAdmissionPolicySpecDieMut) DieStampApplyConfiguration(fn func(a
 type mutatingAdmissionPolicySpecFieldsTable struct {
 	ParamKind          diefields.Struct[MutatingAdmissionPolicySpec, ParamKind, *ParamKindDie, *ParamKindDieMut]
 	MatchConstraints   diefields.Struct[MutatingAdmissionPolicySpec, MatchResources, *MatchResourcesDie, *MatchResourcesDieMut]
-	Variables          diefields.Field[MutatingAdmissionPolicySpec, []Variable]
-	Mutations          diefields.Field[MutatingAdmissionPolicySpec, []Mutation]
+	Variables          diefields.ListField[MutatingAdmissionPolicySpec, Variable, *VariableDie, *VariableDieMut]
+	Mutations          diefields.ListField[MutatingAdmissionPolicySpec, Mutation, *MutationDie, *MutationDieMut]
 	FailurePolicy      diefields.Field[MutatingAdmissionPolicySpec, *FailurePolicyType]
 	MatchConditions    diefields.ListMapField[MutatingAdmissionPolicySpec, MatchCondition, *MatchConditionDie, *MatchConditionDieMut, string]
 	ReinvocationPolicy diefields.Field[MutatingAdmissionPolicySpec, ReinvocationPolicyType]
@@ -1676,8 +1676,8 @@ var mutatingAdmissionPolicySpecFields = &diefields.Table[mutatingAdmissionPolicy
 	_ = annotated
 	f.ParamKind = diefields.NewStruct[MutatingAdmissionPolicySpec, ParamKind, *ParamKindDie, *ParamKindDieMut]("paramKind")
 	f.MatchConstraints = diefields.NewStruct[MutatingAdmissionPolicySpec, MatchResources, *MatchResourcesDie, *MatchResourcesDieMut]("matchConstraints")
-	f.Variables = diefields.NewItems[MutatingAdmissionPolicySpec, []Variable, Variable, *VariableDie, *VariableDieMut]("variables")
-	f.Mutations = diefields.NewItems[MutatingAdmissionPolicySpec, []Mutation, Mutation, *MutationDie, *MutationDieMut]("mutations")
+	f.Variables = diefields.NewList[MutatingAdmissionPolicySpec, Variable, *VariableDie, *VariableDieMut]("variables")
+	f.Mutations = diefields.NewList[MutatingAdmissionPolicySpec, Mutation, *MutationDie, *MutationDieMut]("mutations")
 	f.FailurePolicy = diefields.NewField[MutatingAdmissionPolicySpec, *FailurePolicyType]("failurePolicy")
 	f.MatchConditions = diefields.NewListMap[MutatingAdmissionPolicySpec, MatchCondition, *MatchConditionDie, *MatchConditionDieMut]("matchConditions", func(k string) []any { return []any{k} }, func(e MatchCondition) string { return e.Name })
 	f.ReinvocationPolicy = diefields.NewField[MutatingAdmissionPolicySpec, ReinvocationPolicyType]("reinvocationPolicy")
@@ -1710,8 +1710,8 @@ func (d *MutatingAdmissionPolicySpecDie) MatchConstraints() *MatchResourcesDie {
 //
 // The expression of a variable can refer to other variables defined earlier in the list but not those after.
 // Thus, variables must be sorted by the order of first appearance and acyclic.
-func (d *MutatingAdmissionPolicySpecDie) Variables() diefields.Value[[]Variable] {
-	return diefields.ValueOf(d, mutatingAdmissionPolicySpecFields.Get().Variables)
+func (d *MutatingAdmissionPolicySpecDie) Variables() *diefields.List[Variable, *VariableDie] {
+	return diefields.ListOf(d, mutatingAdmissionPolicySpecFields.Get().Variables)
 }
 
 // mutations contain operations to perform on matching objects.
@@ -1720,8 +1720,8 @@ func (d *MutatingAdmissionPolicySpecDie) Variables() diefields.Value[[]Variable]
 // the reinvocationPolicy.
 // The mutations of a policy are invoked for each binding of this policy
 // and reinvocation of mutations occurs on a per binding basis.
-func (d *MutatingAdmissionPolicySpecDie) Mutations() diefields.Value[[]Mutation] {
-	return diefields.ValueOf(d, mutatingAdmissionPolicySpecFields.Get().Mutations)
+func (d *MutatingAdmissionPolicySpecDie) Mutations() *diefields.List[Mutation, *MutationDie] {
+	return diefields.ListOf(d, mutatingAdmissionPolicySpecFields.Get().Mutations)
 }
 
 // failurePolicy defines how to handle failures for the admission policy. Failures can
@@ -1796,8 +1796,8 @@ func (d *MutatingAdmissionPolicySpecDieMut) MatchConstraints() *MatchResourcesDi
 //
 // The expression of a variable can refer to other variables defined earlier in the list but not those after.
 // Thus, variables must be sorted by the order of first appearance and acyclic.
-func (d *MutatingAdmissionPolicySpecDieMut) Variables() diefields.ValueMut[[]Variable] {
-	return diefields.ValueMutOf(d, mutatingAdmissionPolicySpecFields.Get().Variables)
+func (d *MutatingAdmissionPolicySpecDieMut) Variables() *diefields.ListMut[Variable, *VariableDie, *VariableDieMut] {
+	return diefields.ListMutOf(d, mutatingAdmissionPolicySpecFields.Get().Variables)
 }
 
 // mutations contain operations to perform on matching objects.
@@ -1806,8 +1806,8 @@ func (d *MutatingAdmissionPolicySpecDieMut) Variables() diefields.ValueMut[[]Var
 // the reinvocationPolicy.
 // The mutations of a policy are invoked for each binding of this policy
 // and reinvocation of mutations occurs on a per binding basis.
-func (d *MutatingAdmissionPolicySpecDieMut) Mutations() diefields.ValueMut[[]Mutation] {
-	return diefields.ValueMutOf(d, mutatingAdmissionPolicySpecFields.Get().Mutations)
+func (d *MutatingAdmissionPolicySpecDieMut) Mutations() *diefields.ListMut[Mutation, *MutationDie, *MutationDieMut] {
+	return diefields.ListMutOf(d, mutatingAdmissionPolicySpecFields.Get().Mutations)
 }
 
 // failurePolicy defines how to handle failures for the admission policy. Failures can
@@ -1930,14 +1930,14 @@ func (d *MutatingWebhookDieMut) DieStampApplyConfiguration(fn func(ac *MutatingW
 type mutatingWebhookFieldsTable struct {
 	Name                    diefields.Field[MutatingWebhook, string]
 	ClientConfig            diefields.Struct[MutatingWebhook, WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut]
-	Rules                   diefields.Field[MutatingWebhook, []RuleWithOperations]
+	Rules                   diefields.ListField[MutatingWebhook, RuleWithOperations, *RuleWithOperationsDie, *RuleWithOperationsDieMut]
 	FailurePolicy           diefields.Field[MutatingWebhook, *FailurePolicyType]
 	MatchPolicy             diefields.Field[MutatingWebhook, *MatchPolicyType]
 	NamespaceSelector       diefields.Struct[MutatingWebhook, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
 	ObjectSelector          diefields.Struct[MutatingWebhook, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
 	SideEffects             diefields.Field[MutatingWebhook, *SideEffectClass]
 	TimeoutSeconds          diefields.Field[MutatingWebhook, *int32]
-	AdmissionReviewVersions diefields.Field[MutatingWebhook, []string]
+	AdmissionReviewVersions diefields.ListField[MutatingWebhook, string, diefields.Value[string], diefields.ValueMut[string]]
 	ReinvocationPolicy      diefields.Field[MutatingWebhook, *ReinvocationPolicyType]
 	MatchConditions         diefields.ListMapField[MutatingWebhook, MatchCondition, *MatchConditionDie, *MatchConditionDieMut, string]
 }
@@ -1946,14 +1946,14 @@ var mutatingWebhookFields = &diefields.Table[mutatingWebhookFieldsTable]{Build: 
 	_ = annotated
 	f.Name = diefields.NewField[MutatingWebhook, string]("name")
 	f.ClientConfig = diefields.NewStruct[MutatingWebhook, WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut]("clientConfig")
-	f.Rules = diefields.NewItems[MutatingWebhook, []RuleWithOperations, RuleWithOperations, *RuleWithOperationsDie, *RuleWithOperationsDieMut]("rules")
+	f.Rules = diefields.NewList[MutatingWebhook, RuleWithOperations, *RuleWithOperationsDie, *RuleWithOperationsDieMut]("rules")
 	f.FailurePolicy = diefields.NewField[MutatingWebhook, *FailurePolicyType]("failurePolicy")
 	f.MatchPolicy = diefields.NewField[MutatingWebhook, *MatchPolicyType]("matchPolicy")
 	f.NamespaceSelector = diefields.NewStruct[MutatingWebhook, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("namespaceSelector")
 	f.ObjectSelector = diefields.NewStruct[MutatingWebhook, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("objectSelector")
 	f.SideEffects = diefields.NewField[MutatingWebhook, *SideEffectClass]("sideEffects")
 	f.TimeoutSeconds = diefields.NewField[MutatingWebhook, *int32]("timeoutSeconds")
-	f.AdmissionReviewVersions = diefields.NewField[MutatingWebhook, []string]("admissionReviewVersions")
+	f.AdmissionReviewVersions = diefields.NewValueList[MutatingWebhook, string]("admissionReviewVersions")
 	f.ReinvocationPolicy = diefields.NewField[MutatingWebhook, *ReinvocationPolicyType]("reinvocationPolicy")
 	f.MatchConditions = diefields.NewListMap[MutatingWebhook, MatchCondition, *MatchConditionDie, *MatchConditionDieMut]("matchConditions", func(k string) []any { return []any{k} }, func(e MatchCondition) string { return e.Name })
 	return
@@ -1980,8 +1980,8 @@ func (d *MutatingWebhookDie) ClientConfig() *WebhookClientConfigDie {
 // from putting the cluster in a state which cannot be recovered from without completely
 // disabling the plugin, ValidatingAdmissionWebhooks and MutatingAdmissionWebhooks are never called
 // on admission requests for ValidatingWebhookConfiguration and MutatingWebhookConfiguration objects.
-func (d *MutatingWebhookDie) Rules() diefields.Value[[]RuleWithOperations] {
-	return diefields.ValueOf(d, mutatingWebhookFields.Get().Rules)
+func (d *MutatingWebhookDie) Rules() *diefields.List[RuleWithOperations, *RuleWithOperationsDie] {
+	return diefields.ListOf(d, mutatingWebhookFields.Get().Rules)
 }
 
 // failurePolicy defines how unrecognized errors from the admission endpoint are handled -
@@ -2098,8 +2098,8 @@ func (d *MutatingWebhookDie) TimeoutSeconds() diefields.Optional[int32] {
 // If a persisted webhook configuration specifies allowed versions and does not
 // include any versions known to the API Server, calls to the webhook will fail
 // and be subject to the failure policy.
-func (d *MutatingWebhookDie) AdmissionReviewVersions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, mutatingWebhookFields.Get().AdmissionReviewVersions)
+func (d *MutatingWebhookDie) AdmissionReviewVersions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, mutatingWebhookFields.Get().AdmissionReviewVersions)
 }
 
 // reinvocationPolicy indicates whether this webhook should be called multiple times as part of a single admission evaluation.
@@ -2157,8 +2157,8 @@ func (d *MutatingWebhookDieMut) ClientConfig() *WebhookClientConfigDieMut {
 // from putting the cluster in a state which cannot be recovered from without completely
 // disabling the plugin, ValidatingAdmissionWebhooks and MutatingAdmissionWebhooks are never called
 // on admission requests for ValidatingWebhookConfiguration and MutatingWebhookConfiguration objects.
-func (d *MutatingWebhookDieMut) Rules() diefields.ValueMut[[]RuleWithOperations] {
-	return diefields.ValueMutOf(d, mutatingWebhookFields.Get().Rules)
+func (d *MutatingWebhookDieMut) Rules() *diefields.ListMut[RuleWithOperations, *RuleWithOperationsDie, *RuleWithOperationsDieMut] {
+	return diefields.ListMutOf(d, mutatingWebhookFields.Get().Rules)
 }
 
 // failurePolicy defines how unrecognized errors from the admission endpoint are handled -
@@ -2275,8 +2275,8 @@ func (d *MutatingWebhookDieMut) TimeoutSeconds() diefields.OptionalMut[int32] {
 // If a persisted webhook configuration specifies allowed versions and does not
 // include any versions known to the API Server, calls to the webhook will fail
 // and be subject to the failure policy.
-func (d *MutatingWebhookDieMut) AdmissionReviewVersions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, mutatingWebhookFields.Get().AdmissionReviewVersions)
+func (d *MutatingWebhookDieMut) AdmissionReviewVersions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, mutatingWebhookFields.Get().AdmissionReviewVersions)
 }
 
 // reinvocationPolicy indicates whether this webhook should be called multiple times as part of a single admission evaluation.
@@ -2673,50 +2673,50 @@ func (d *NamedRuleWithOperationsDieMut) DieStampApplyConfiguration(fn func(ac *N
 // +k8s:deepcopy-gen=false
 
 type namedRuleWithOperationsFieldsTable struct {
-	ResourceNames diefields.Field[NamedRuleWithOperations, []string]
-	Operations    diefields.Field[NamedRuleWithOperations, []OperationType]
-	APIGroups     diefields.Field[NamedRuleWithOperations, []string]
-	APIVersions   diefields.Field[NamedRuleWithOperations, []string]
-	Resources     diefields.Field[NamedRuleWithOperations, []string]
+	ResourceNames diefields.ListField[NamedRuleWithOperations, string, diefields.Value[string], diefields.ValueMut[string]]
+	Operations    diefields.ListField[NamedRuleWithOperations, OperationType, diefields.Value[OperationType], diefields.ValueMut[OperationType]]
+	APIGroups     diefields.ListField[NamedRuleWithOperations, string, diefields.Value[string], diefields.ValueMut[string]]
+	APIVersions   diefields.ListField[NamedRuleWithOperations, string, diefields.Value[string], diefields.ValueMut[string]]
+	Resources     diefields.ListField[NamedRuleWithOperations, string, diefields.Value[string], diefields.ValueMut[string]]
 	Scope         diefields.Field[NamedRuleWithOperations, *ScopeType]
 }
 
 var namedRuleWithOperationsFields = &diefields.Table[namedRuleWithOperationsFieldsTable]{Build: func() (f namedRuleWithOperationsFieldsTable) {
 	_ = annotated
-	f.ResourceNames = diefields.NewField[NamedRuleWithOperations, []string]("resourceNames")
-	f.Operations = diefields.NewField[NamedRuleWithOperations, []OperationType]("operations")
-	f.APIGroups = diefields.NewField[NamedRuleWithOperations, []string]("apiGroups")
-	f.APIVersions = diefields.NewField[NamedRuleWithOperations, []string]("apiVersions")
-	f.Resources = diefields.NewField[NamedRuleWithOperations, []string]("resources")
+	f.ResourceNames = diefields.NewValueList[NamedRuleWithOperations, string]("resourceNames")
+	f.Operations = diefields.NewValueList[NamedRuleWithOperations, OperationType]("operations")
+	f.APIGroups = diefields.NewValueList[NamedRuleWithOperations, string]("apiGroups")
+	f.APIVersions = diefields.NewValueList[NamedRuleWithOperations, string]("apiVersions")
+	f.Resources = diefields.NewValueList[NamedRuleWithOperations, string]("resources")
 	f.Scope = diefields.NewField[NamedRuleWithOperations, *ScopeType]("scope")
 	return
 }}
 
 // resourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.
-func (d *NamedRuleWithOperationsDie) ResourceNames() diefields.Value[[]string] {
-	return diefields.ValueOf(d, namedRuleWithOperationsFields.Get().ResourceNames)
+func (d *NamedRuleWithOperationsDie) ResourceNames() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, namedRuleWithOperationsFields.Get().ResourceNames)
 }
 
 // operations is the operations the admission hook cares about - CREATE, UPDATE, DELETE, CONNECT or *
 // for all of those operations and any future admission operations that are added.
 // If '*' is present, the length of the slice must be one.
 // Required.
-func (d *NamedRuleWithOperationsDie) Operations() diefields.Value[[]OperationType] {
-	return diefields.ValueOf(d, namedRuleWithOperationsFields.Get().Operations)
+func (d *NamedRuleWithOperationsDie) Operations() *diefields.List[OperationType, diefields.Value[OperationType]] {
+	return diefields.ListOf(d, namedRuleWithOperationsFields.Get().Operations)
 }
 
 // apiGroups is the API groups the resources belong to. '*' is all groups.
 // If '*' is present, the length of the slice must be one.
 // Required.
-func (d *NamedRuleWithOperationsDie) APIGroups() diefields.Value[[]string] {
-	return diefields.ValueOf(d, namedRuleWithOperationsFields.Get().APIGroups)
+func (d *NamedRuleWithOperationsDie) APIGroups() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, namedRuleWithOperationsFields.Get().APIGroups)
 }
 
 // apiVersions is the API versions the resources belong to. '*' is all versions.
 // If '*' is present, the length of the slice must be one.
 // Required.
-func (d *NamedRuleWithOperationsDie) APIVersions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, namedRuleWithOperationsFields.Get().APIVersions)
+func (d *NamedRuleWithOperationsDie) APIVersions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, namedRuleWithOperationsFields.Get().APIVersions)
 }
 
 // resources is a list of resources this rule applies to.
@@ -2734,8 +2734,8 @@ func (d *NamedRuleWithOperationsDie) APIVersions() diefields.Value[[]string] {
 //
 // Depending on the enclosing object, subresources might not be allowed.
 // Required.
-func (d *NamedRuleWithOperationsDie) Resources() diefields.Value[[]string] {
-	return diefields.ValueOf(d, namedRuleWithOperationsFields.Get().Resources)
+func (d *NamedRuleWithOperationsDie) Resources() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, namedRuleWithOperationsFields.Get().Resources)
 }
 
 // scope specifies the scope of this rule.
@@ -2751,30 +2751,30 @@ func (d *NamedRuleWithOperationsDie) Scope() diefields.Optional[ScopeType] {
 }
 
 // resourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.
-func (d *NamedRuleWithOperationsDieMut) ResourceNames() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, namedRuleWithOperationsFields.Get().ResourceNames)
+func (d *NamedRuleWithOperationsDieMut) ResourceNames() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, namedRuleWithOperationsFields.Get().ResourceNames)
 }
 
 // operations is the operations the admission hook cares about - CREATE, UPDATE, DELETE, CONNECT or *
 // for all of those operations and any future admission operations that are added.
 // If '*' is present, the length of the slice must be one.
 // Required.
-func (d *NamedRuleWithOperationsDieMut) Operations() diefields.ValueMut[[]OperationType] {
-	return diefields.ValueMutOf(d, namedRuleWithOperationsFields.Get().Operations)
+func (d *NamedRuleWithOperationsDieMut) Operations() *diefields.ListMut[OperationType, diefields.Value[OperationType], diefields.ValueMut[OperationType]] {
+	return diefields.ListMutOf(d, namedRuleWithOperationsFields.Get().Operations)
 }
 
 // apiGroups is the API groups the resources belong to. '*' is all groups.
 // If '*' is present, the length of the slice must be one.
 // Required.
-func (d *NamedRuleWithOperationsDieMut) APIGroups() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, namedRuleWithOperationsFields.Get().APIGroups)
+func (d *NamedRuleWithOperationsDieMut) APIGroups() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, namedRuleWithOperationsFields.Get().APIGroups)
 }
 
 // apiVersions is the API versions the resources belong to. '*' is all versions.
 // If '*' is present, the length of the slice must be one.
 // Required.
-func (d *NamedRuleWithOperationsDieMut) APIVersions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, namedRuleWithOperationsFields.Get().APIVersions)
+func (d *NamedRuleWithOperationsDieMut) APIVersions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, namedRuleWithOperationsFields.Get().APIVersions)
 }
 
 // resources is a list of resources this rule applies to.
@@ -2792,8 +2792,8 @@ func (d *NamedRuleWithOperationsDieMut) APIVersions() diefields.ValueMut[[]strin
 //
 // Depending on the enclosing object, subresources might not be allowed.
 // Required.
-func (d *NamedRuleWithOperationsDieMut) Resources() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, namedRuleWithOperationsFields.Get().Resources)
+func (d *NamedRuleWithOperationsDieMut) Resources() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, namedRuleWithOperationsFields.Get().Resources)
 }
 
 // scope specifies the scope of this rule.
@@ -3188,17 +3188,17 @@ func (d *RuleDieMut) DieStampApplyConfiguration(fn func(ac *RuleApplyConfigurati
 // +k8s:deepcopy-gen=false
 
 type ruleFieldsTable struct {
-	APIGroups   diefields.Field[Rule, []string]
-	APIVersions diefields.Field[Rule, []string]
-	Resources   diefields.Field[Rule, []string]
+	APIGroups   diefields.ListField[Rule, string, diefields.Value[string], diefields.ValueMut[string]]
+	APIVersions diefields.ListField[Rule, string, diefields.Value[string], diefields.ValueMut[string]]
+	Resources   diefields.ListField[Rule, string, diefields.Value[string], diefields.ValueMut[string]]
 	Scope       diefields.Field[Rule, *ScopeType]
 }
 
 var ruleFields = &diefields.Table[ruleFieldsTable]{Build: func() (f ruleFieldsTable) {
 	_ = annotated
-	f.APIGroups = diefields.NewField[Rule, []string]("apiGroups")
-	f.APIVersions = diefields.NewField[Rule, []string]("apiVersions")
-	f.Resources = diefields.NewField[Rule, []string]("resources")
+	f.APIGroups = diefields.NewValueList[Rule, string]("apiGroups")
+	f.APIVersions = diefields.NewValueList[Rule, string]("apiVersions")
+	f.Resources = diefields.NewValueList[Rule, string]("resources")
 	f.Scope = diefields.NewField[Rule, *ScopeType]("scope")
 	return
 }}
@@ -3206,15 +3206,15 @@ var ruleFields = &diefields.Table[ruleFieldsTable]{Build: func() (f ruleFieldsTa
 // apiGroups is the API groups the resources belong to. '*' is all groups.
 // If '*' is present, the length of the slice must be one.
 // Required.
-func (d *RuleDie) APIGroups() diefields.Value[[]string] {
-	return diefields.ValueOf(d, ruleFields.Get().APIGroups)
+func (d *RuleDie) APIGroups() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, ruleFields.Get().APIGroups)
 }
 
 // apiVersions is the API versions the resources belong to. '*' is all versions.
 // If '*' is present, the length of the slice must be one.
 // Required.
-func (d *RuleDie) APIVersions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, ruleFields.Get().APIVersions)
+func (d *RuleDie) APIVersions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, ruleFields.Get().APIVersions)
 }
 
 // resources is a list of resources this rule applies to.
@@ -3232,8 +3232,8 @@ func (d *RuleDie) APIVersions() diefields.Value[[]string] {
 //
 // Depending on the enclosing object, subresources might not be allowed.
 // Required.
-func (d *RuleDie) Resources() diefields.Value[[]string] {
-	return diefields.ValueOf(d, ruleFields.Get().Resources)
+func (d *RuleDie) Resources() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, ruleFields.Get().Resources)
 }
 
 // scope specifies the scope of this rule.
@@ -3251,15 +3251,15 @@ func (d *RuleDie) Scope() diefields.Optional[ScopeType] {
 // apiGroups is the API groups the resources belong to. '*' is all groups.
 // If '*' is present, the length of the slice must be one.
 // Required.
-func (d *RuleDieMut) APIGroups() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, ruleFields.Get().APIGroups)
+func (d *RuleDieMut) APIGroups() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, ruleFields.Get().APIGroups)
 }
 
 // apiVersions is the API versions the resources belong to. '*' is all versions.
 // If '*' is present, the length of the slice must be one.
 // Required.
-func (d *RuleDieMut) APIVersions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, ruleFields.Get().APIVersions)
+func (d *RuleDieMut) APIVersions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, ruleFields.Get().APIVersions)
 }
 
 // resources is a list of resources this rule applies to.
@@ -3277,8 +3277,8 @@ func (d *RuleDieMut) APIVersions() diefields.ValueMut[[]string] {
 //
 // Depending on the enclosing object, subresources might not be allowed.
 // Required.
-func (d *RuleDieMut) Resources() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, ruleFields.Get().Resources)
+func (d *RuleDieMut) Resources() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, ruleFields.Get().Resources)
 }
 
 // scope specifies the scope of this rule.
@@ -3366,19 +3366,19 @@ func (d *RuleWithOperationsDieMut) DieStampApplyConfiguration(fn func(ac *RuleWi
 // +k8s:deepcopy-gen=false
 
 type ruleWithOperationsFieldsTable struct {
-	Operations  diefields.Field[RuleWithOperations, []OperationType]
-	APIGroups   diefields.Field[RuleWithOperations, []string]
-	APIVersions diefields.Field[RuleWithOperations, []string]
-	Resources   diefields.Field[RuleWithOperations, []string]
+	Operations  diefields.ListField[RuleWithOperations, OperationType, diefields.Value[OperationType], diefields.ValueMut[OperationType]]
+	APIGroups   diefields.ListField[RuleWithOperations, string, diefields.Value[string], diefields.ValueMut[string]]
+	APIVersions diefields.ListField[RuleWithOperations, string, diefields.Value[string], diefields.ValueMut[string]]
+	Resources   diefields.ListField[RuleWithOperations, string, diefields.Value[string], diefields.ValueMut[string]]
 	Scope       diefields.Field[RuleWithOperations, *ScopeType]
 }
 
 var ruleWithOperationsFields = &diefields.Table[ruleWithOperationsFieldsTable]{Build: func() (f ruleWithOperationsFieldsTable) {
 	_ = annotated
-	f.Operations = diefields.NewField[RuleWithOperations, []OperationType]("operations")
-	f.APIGroups = diefields.NewField[RuleWithOperations, []string]("apiGroups")
-	f.APIVersions = diefields.NewField[RuleWithOperations, []string]("apiVersions")
-	f.Resources = diefields.NewField[RuleWithOperations, []string]("resources")
+	f.Operations = diefields.NewValueList[RuleWithOperations, OperationType]("operations")
+	f.APIGroups = diefields.NewValueList[RuleWithOperations, string]("apiGroups")
+	f.APIVersions = diefields.NewValueList[RuleWithOperations, string]("apiVersions")
+	f.Resources = diefields.NewValueList[RuleWithOperations, string]("resources")
 	f.Scope = diefields.NewField[RuleWithOperations, *ScopeType]("scope")
 	return
 }}
@@ -3387,22 +3387,22 @@ var ruleWithOperationsFields = &diefields.Table[ruleWithOperationsFieldsTable]{B
 // for all of those operations and any future admission operations that are added.
 // If '*' is present, the length of the slice must be one.
 // Required.
-func (d *RuleWithOperationsDie) Operations() diefields.Value[[]OperationType] {
-	return diefields.ValueOf(d, ruleWithOperationsFields.Get().Operations)
+func (d *RuleWithOperationsDie) Operations() *diefields.List[OperationType, diefields.Value[OperationType]] {
+	return diefields.ListOf(d, ruleWithOperationsFields.Get().Operations)
 }
 
 // apiGroups is the API groups the resources belong to. '*' is all groups.
 // If '*' is present, the length of the slice must be one.
 // Required.
-func (d *RuleWithOperationsDie) APIGroups() diefields.Value[[]string] {
-	return diefields.ValueOf(d, ruleWithOperationsFields.Get().APIGroups)
+func (d *RuleWithOperationsDie) APIGroups() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, ruleWithOperationsFields.Get().APIGroups)
 }
 
 // apiVersions is the API versions the resources belong to. '*' is all versions.
 // If '*' is present, the length of the slice must be one.
 // Required.
-func (d *RuleWithOperationsDie) APIVersions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, ruleWithOperationsFields.Get().APIVersions)
+func (d *RuleWithOperationsDie) APIVersions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, ruleWithOperationsFields.Get().APIVersions)
 }
 
 // resources is a list of resources this rule applies to.
@@ -3420,8 +3420,8 @@ func (d *RuleWithOperationsDie) APIVersions() diefields.Value[[]string] {
 //
 // Depending on the enclosing object, subresources might not be allowed.
 // Required.
-func (d *RuleWithOperationsDie) Resources() diefields.Value[[]string] {
-	return diefields.ValueOf(d, ruleWithOperationsFields.Get().Resources)
+func (d *RuleWithOperationsDie) Resources() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, ruleWithOperationsFields.Get().Resources)
 }
 
 // scope specifies the scope of this rule.
@@ -3440,22 +3440,22 @@ func (d *RuleWithOperationsDie) Scope() diefields.Optional[ScopeType] {
 // for all of those operations and any future admission operations that are added.
 // If '*' is present, the length of the slice must be one.
 // Required.
-func (d *RuleWithOperationsDieMut) Operations() diefields.ValueMut[[]OperationType] {
-	return diefields.ValueMutOf(d, ruleWithOperationsFields.Get().Operations)
+func (d *RuleWithOperationsDieMut) Operations() *diefields.ListMut[OperationType, diefields.Value[OperationType], diefields.ValueMut[OperationType]] {
+	return diefields.ListMutOf(d, ruleWithOperationsFields.Get().Operations)
 }
 
 // apiGroups is the API groups the resources belong to. '*' is all groups.
 // If '*' is present, the length of the slice must be one.
 // Required.
-func (d *RuleWithOperationsDieMut) APIGroups() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, ruleWithOperationsFields.Get().APIGroups)
+func (d *RuleWithOperationsDieMut) APIGroups() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, ruleWithOperationsFields.Get().APIGroups)
 }
 
 // apiVersions is the API versions the resources belong to. '*' is all versions.
 // If '*' is present, the length of the slice must be one.
 // Required.
-func (d *RuleWithOperationsDieMut) APIVersions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, ruleWithOperationsFields.Get().APIVersions)
+func (d *RuleWithOperationsDieMut) APIVersions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, ruleWithOperationsFields.Get().APIVersions)
 }
 
 // resources is a list of resources this rule applies to.
@@ -3473,8 +3473,8 @@ func (d *RuleWithOperationsDieMut) APIVersions() diefields.ValueMut[[]string] {
 //
 // Depending on the enclosing object, subresources might not be allowed.
 // Required.
-func (d *RuleWithOperationsDieMut) Resources() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, ruleWithOperationsFields.Get().Resources)
+func (d *RuleWithOperationsDieMut) Resources() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, ruleWithOperationsFields.Get().Resources)
 }
 
 // scope specifies the scope of this rule.
@@ -3699,23 +3699,23 @@ func (d *TypeCheckingDieMut) DieStampApplyConfiguration(fn func(ac *TypeChecking
 // +k8s:deepcopy-gen=false
 
 type typeCheckingFieldsTable struct {
-	ExpressionWarnings diefields.Field[TypeChecking, []ExpressionWarning]
+	ExpressionWarnings diefields.ListField[TypeChecking, ExpressionWarning, *ExpressionWarningDie, *ExpressionWarningDieMut]
 }
 
 var typeCheckingFields = &diefields.Table[typeCheckingFieldsTable]{Build: func() (f typeCheckingFieldsTable) {
 	_ = annotated
-	f.ExpressionWarnings = diefields.NewItems[TypeChecking, []ExpressionWarning, ExpressionWarning, *ExpressionWarningDie, *ExpressionWarningDieMut]("expressionWarnings")
+	f.ExpressionWarnings = diefields.NewList[TypeChecking, ExpressionWarning, *ExpressionWarningDie, *ExpressionWarningDieMut]("expressionWarnings")
 	return
 }}
 
 // expressionWarnings contains the type checking warnings for each expression.
-func (d *TypeCheckingDie) ExpressionWarnings() diefields.Value[[]ExpressionWarning] {
-	return diefields.ValueOf(d, typeCheckingFields.Get().ExpressionWarnings)
+func (d *TypeCheckingDie) ExpressionWarnings() *diefields.List[ExpressionWarning, *ExpressionWarningDie] {
+	return diefields.ListOf(d, typeCheckingFields.Get().ExpressionWarnings)
 }
 
 // expressionWarnings contains the type checking warnings for each expression.
-func (d *TypeCheckingDieMut) ExpressionWarnings() diefields.ValueMut[[]ExpressionWarning] {
-	return diefields.ValueMutOf(d, typeCheckingFields.Get().ExpressionWarnings)
+func (d *TypeCheckingDieMut) ExpressionWarnings() *diefields.ListMut[ExpressionWarning, *ExpressionWarningDie, *ExpressionWarningDieMut] {
+	return diefields.ListMutOf(d, typeCheckingFields.Get().ExpressionWarnings)
 }
 
 // +kubebuilder:object:generate=false
@@ -4125,7 +4125,7 @@ type validatingAdmissionPolicyBindingSpecFieldsTable struct {
 	PolicyName        diefields.Field[ValidatingAdmissionPolicyBindingSpec, string]
 	ParamRef          diefields.Struct[ValidatingAdmissionPolicyBindingSpec, ParamRef, *ParamRefDie, *ParamRefDieMut]
 	MatchResources    diefields.Struct[ValidatingAdmissionPolicyBindingSpec, MatchResources, *MatchResourcesDie, *MatchResourcesDieMut]
-	ValidationActions diefields.Field[ValidatingAdmissionPolicyBindingSpec, []ValidationAction]
+	ValidationActions diefields.ListField[ValidatingAdmissionPolicyBindingSpec, ValidationAction, diefields.Value[ValidationAction], diefields.ValueMut[ValidationAction]]
 }
 
 var validatingAdmissionPolicyBindingSpecFields = &diefields.Table[validatingAdmissionPolicyBindingSpecFieldsTable]{Build: func() (f validatingAdmissionPolicyBindingSpecFieldsTable) {
@@ -4133,7 +4133,7 @@ var validatingAdmissionPolicyBindingSpecFields = &diefields.Table[validatingAdmi
 	f.PolicyName = diefields.NewField[ValidatingAdmissionPolicyBindingSpec, string]("policyName")
 	f.ParamRef = diefields.NewStruct[ValidatingAdmissionPolicyBindingSpec, ParamRef, *ParamRefDie, *ParamRefDieMut]("paramRef")
 	f.MatchResources = diefields.NewStruct[ValidatingAdmissionPolicyBindingSpec, MatchResources, *MatchResourcesDie, *MatchResourcesDieMut]("matchResources")
-	f.ValidationActions = diefields.NewField[ValidatingAdmissionPolicyBindingSpec, []ValidationAction]("validationActions")
+	f.ValidationActions = diefields.NewValueList[ValidatingAdmissionPolicyBindingSpec, ValidationAction]("validationActions")
 	return
 }}
 
@@ -4200,8 +4200,8 @@ func (d *ValidatingAdmissionPolicyBindingSpecDie) MatchResources() *MatchResourc
 // API response body and the HTTP warning headers.
 //
 // Required.
-func (d *ValidatingAdmissionPolicyBindingSpecDie) ValidationActions() diefields.Value[[]ValidationAction] {
-	return diefields.ValueOf(d, validatingAdmissionPolicyBindingSpecFields.Get().ValidationActions)
+func (d *ValidatingAdmissionPolicyBindingSpecDie) ValidationActions() *diefields.List[ValidationAction, diefields.Value[ValidationAction]] {
+	return diefields.ListOf(d, validatingAdmissionPolicyBindingSpecFields.Get().ValidationActions)
 }
 
 // policyName references a ValidatingAdmissionPolicy name which the ValidatingAdmissionPolicyBinding binds to.
@@ -4267,8 +4267,8 @@ func (d *ValidatingAdmissionPolicyBindingSpecDieMut) MatchResources() *MatchReso
 // API response body and the HTTP warning headers.
 //
 // Required.
-func (d *ValidatingAdmissionPolicyBindingSpecDieMut) ValidationActions() diefields.ValueMut[[]ValidationAction] {
-	return diefields.ValueMutOf(d, validatingAdmissionPolicyBindingSpecFields.Get().ValidationActions)
+func (d *ValidatingAdmissionPolicyBindingSpecDieMut) ValidationActions() *diefields.ListMut[ValidationAction, diefields.Value[ValidationAction], diefields.ValueMut[ValidationAction]] {
+	return diefields.ListMutOf(d, validatingAdmissionPolicyBindingSpecFields.Get().ValidationActions)
 }
 
 // +kubebuilder:object:generate=false
@@ -4365,9 +4365,9 @@ func (d *ValidatingAdmissionPolicySpecDieMut) DieStampApplyConfiguration(fn func
 type validatingAdmissionPolicySpecFieldsTable struct {
 	ParamKind        diefields.Struct[ValidatingAdmissionPolicySpec, ParamKind, *ParamKindDie, *ParamKindDieMut]
 	MatchConstraints diefields.Struct[ValidatingAdmissionPolicySpec, MatchResources, *MatchResourcesDie, *MatchResourcesDieMut]
-	Validations      diefields.Field[ValidatingAdmissionPolicySpec, []Validation]
+	Validations      diefields.ListField[ValidatingAdmissionPolicySpec, Validation, *ValidationDie, *ValidationDieMut]
 	FailurePolicy    diefields.Field[ValidatingAdmissionPolicySpec, *FailurePolicyType]
-	AuditAnnotations diefields.Field[ValidatingAdmissionPolicySpec, []AuditAnnotation]
+	AuditAnnotations diefields.ListField[ValidatingAdmissionPolicySpec, AuditAnnotation, *AuditAnnotationDie, *AuditAnnotationDieMut]
 	MatchConditions  diefields.ListMapField[ValidatingAdmissionPolicySpec, MatchCondition, *MatchConditionDie, *MatchConditionDieMut, string]
 	Variables        diefields.ListMapField[ValidatingAdmissionPolicySpec, Variable, *VariableDie, *VariableDieMut, string]
 }
@@ -4376,9 +4376,9 @@ var validatingAdmissionPolicySpecFields = &diefields.Table[validatingAdmissionPo
 	_ = annotated
 	f.ParamKind = diefields.NewStruct[ValidatingAdmissionPolicySpec, ParamKind, *ParamKindDie, *ParamKindDieMut]("paramKind")
 	f.MatchConstraints = diefields.NewStruct[ValidatingAdmissionPolicySpec, MatchResources, *MatchResourcesDie, *MatchResourcesDieMut]("matchConstraints")
-	f.Validations = diefields.NewItems[ValidatingAdmissionPolicySpec, []Validation, Validation, *ValidationDie, *ValidationDieMut]("validations")
+	f.Validations = diefields.NewList[ValidatingAdmissionPolicySpec, Validation, *ValidationDie, *ValidationDieMut]("validations")
 	f.FailurePolicy = diefields.NewField[ValidatingAdmissionPolicySpec, *FailurePolicyType]("failurePolicy")
-	f.AuditAnnotations = diefields.NewItems[ValidatingAdmissionPolicySpec, []AuditAnnotation, AuditAnnotation, *AuditAnnotationDie, *AuditAnnotationDieMut]("auditAnnotations")
+	f.AuditAnnotations = diefields.NewList[ValidatingAdmissionPolicySpec, AuditAnnotation, *AuditAnnotationDie, *AuditAnnotationDieMut]("auditAnnotations")
 	f.MatchConditions = diefields.NewListMap[ValidatingAdmissionPolicySpec, MatchCondition, *MatchConditionDie, *MatchConditionDieMut]("matchConditions", func(k string) []any { return []any{k} }, func(e MatchCondition) string { return e.Name })
 	f.Variables = diefields.NewListMap[ValidatingAdmissionPolicySpec, Variable, *VariableDie, *VariableDieMut]("variables", func(k string) []any { return []any{k} }, func(e Variable) string { return e.Name })
 	return
@@ -4404,8 +4404,8 @@ func (d *ValidatingAdmissionPolicySpecDie) MatchConstraints() *MatchResourcesDie
 // validations contain CEL expressions which is used to apply the validation.
 // Validations and AuditAnnotations may not both be empty; a minimum of one Validations or AuditAnnotations is
 // required.
-func (d *ValidatingAdmissionPolicySpecDie) Validations() diefields.Value[[]Validation] {
-	return diefields.ValueOf(d, validatingAdmissionPolicySpecFields.Get().Validations)
+func (d *ValidatingAdmissionPolicySpecDie) Validations() *diefields.List[Validation, *ValidationDie] {
+	return diefields.ListOf(d, validatingAdmissionPolicySpecFields.Get().Validations)
 }
 
 // failurePolicy defines how to handle failures for the admission policy. Failures can
@@ -4429,8 +4429,8 @@ func (d *ValidatingAdmissionPolicySpecDie) FailurePolicy() diefields.Optional[Fa
 // annotations for the audit event of the API request.
 // validations and auditAnnotations may not both be empty; a least one of validations or auditAnnotations is
 // required.
-func (d *ValidatingAdmissionPolicySpecDie) AuditAnnotations() diefields.Value[[]AuditAnnotation] {
-	return diefields.ValueOf(d, validatingAdmissionPolicySpecFields.Get().AuditAnnotations)
+func (d *ValidatingAdmissionPolicySpecDie) AuditAnnotations() *diefields.List[AuditAnnotation, *AuditAnnotationDie] {
+	return diefields.ListOf(d, validatingAdmissionPolicySpecFields.Get().AuditAnnotations)
 }
 
 // matchConditions is a list of conditions that must be met for a request to be validated.
@@ -4482,8 +4482,8 @@ func (d *ValidatingAdmissionPolicySpecDieMut) MatchConstraints() *MatchResources
 // validations contain CEL expressions which is used to apply the validation.
 // Validations and AuditAnnotations may not both be empty; a minimum of one Validations or AuditAnnotations is
 // required.
-func (d *ValidatingAdmissionPolicySpecDieMut) Validations() diefields.ValueMut[[]Validation] {
-	return diefields.ValueMutOf(d, validatingAdmissionPolicySpecFields.Get().Validations)
+func (d *ValidatingAdmissionPolicySpecDieMut) Validations() *diefields.ListMut[Validation, *ValidationDie, *ValidationDieMut] {
+	return diefields.ListMutOf(d, validatingAdmissionPolicySpecFields.Get().Validations)
 }
 
 // failurePolicy defines how to handle failures for the admission policy. Failures can
@@ -4507,8 +4507,8 @@ func (d *ValidatingAdmissionPolicySpecDieMut) FailurePolicy() diefields.Optional
 // annotations for the audit event of the API request.
 // validations and auditAnnotations may not both be empty; a least one of validations or auditAnnotations is
 // required.
-func (d *ValidatingAdmissionPolicySpecDieMut) AuditAnnotations() diefields.ValueMut[[]AuditAnnotation] {
-	return diefields.ValueMutOf(d, validatingAdmissionPolicySpecFields.Get().AuditAnnotations)
+func (d *ValidatingAdmissionPolicySpecDieMut) AuditAnnotations() *diefields.ListMut[AuditAnnotation, *AuditAnnotationDie, *AuditAnnotationDieMut] {
+	return diefields.ListMutOf(d, validatingAdmissionPolicySpecFields.Get().AuditAnnotations)
 }
 
 // matchConditions is a list of conditions that must be met for a request to be validated.
@@ -4731,14 +4731,14 @@ func (d *ValidatingWebhookDieMut) DieStampApplyConfiguration(fn func(ac *Validat
 type validatingWebhookFieldsTable struct {
 	Name                    diefields.Field[ValidatingWebhook, string]
 	ClientConfig            diefields.Struct[ValidatingWebhook, WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut]
-	Rules                   diefields.Field[ValidatingWebhook, []RuleWithOperations]
+	Rules                   diefields.ListField[ValidatingWebhook, RuleWithOperations, *RuleWithOperationsDie, *RuleWithOperationsDieMut]
 	FailurePolicy           diefields.Field[ValidatingWebhook, *FailurePolicyType]
 	MatchPolicy             diefields.Field[ValidatingWebhook, *MatchPolicyType]
 	NamespaceSelector       diefields.Struct[ValidatingWebhook, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
 	ObjectSelector          diefields.Struct[ValidatingWebhook, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
 	SideEffects             diefields.Field[ValidatingWebhook, *SideEffectClass]
 	TimeoutSeconds          diefields.Field[ValidatingWebhook, *int32]
-	AdmissionReviewVersions diefields.Field[ValidatingWebhook, []string]
+	AdmissionReviewVersions diefields.ListField[ValidatingWebhook, string, diefields.Value[string], diefields.ValueMut[string]]
 	MatchConditions         diefields.ListMapField[ValidatingWebhook, MatchCondition, *MatchConditionDie, *MatchConditionDieMut, string]
 }
 
@@ -4746,14 +4746,14 @@ var validatingWebhookFields = &diefields.Table[validatingWebhookFieldsTable]{Bui
 	_ = annotated
 	f.Name = diefields.NewField[ValidatingWebhook, string]("name")
 	f.ClientConfig = diefields.NewStruct[ValidatingWebhook, WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut]("clientConfig")
-	f.Rules = diefields.NewItems[ValidatingWebhook, []RuleWithOperations, RuleWithOperations, *RuleWithOperationsDie, *RuleWithOperationsDieMut]("rules")
+	f.Rules = diefields.NewList[ValidatingWebhook, RuleWithOperations, *RuleWithOperationsDie, *RuleWithOperationsDieMut]("rules")
 	f.FailurePolicy = diefields.NewField[ValidatingWebhook, *FailurePolicyType]("failurePolicy")
 	f.MatchPolicy = diefields.NewField[ValidatingWebhook, *MatchPolicyType]("matchPolicy")
 	f.NamespaceSelector = diefields.NewStruct[ValidatingWebhook, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("namespaceSelector")
 	f.ObjectSelector = diefields.NewStruct[ValidatingWebhook, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("objectSelector")
 	f.SideEffects = diefields.NewField[ValidatingWebhook, *SideEffectClass]("sideEffects")
 	f.TimeoutSeconds = diefields.NewField[ValidatingWebhook, *int32]("timeoutSeconds")
-	f.AdmissionReviewVersions = diefields.NewField[ValidatingWebhook, []string]("admissionReviewVersions")
+	f.AdmissionReviewVersions = diefields.NewValueList[ValidatingWebhook, string]("admissionReviewVersions")
 	f.MatchConditions = diefields.NewListMap[ValidatingWebhook, MatchCondition, *MatchConditionDie, *MatchConditionDieMut]("matchConditions", func(k string) []any { return []any{k} }, func(e MatchCondition) string { return e.Name })
 	return
 }}
@@ -4779,8 +4779,8 @@ func (d *ValidatingWebhookDie) ClientConfig() *WebhookClientConfigDie {
 // from putting the cluster in a state which cannot be recovered from without completely
 // disabling the plugin, ValidatingAdmissionWebhooks and MutatingAdmissionWebhooks are never called
 // on admission requests for ValidatingWebhookConfiguration and MutatingWebhookConfiguration objects.
-func (d *ValidatingWebhookDie) Rules() diefields.Value[[]RuleWithOperations] {
-	return diefields.ValueOf(d, validatingWebhookFields.Get().Rules)
+func (d *ValidatingWebhookDie) Rules() *diefields.List[RuleWithOperations, *RuleWithOperationsDie] {
+	return diefields.ListOf(d, validatingWebhookFields.Get().Rules)
 }
 
 // failurePolicy defines how unrecognized errors from the admission endpoint are handled -
@@ -4897,8 +4897,8 @@ func (d *ValidatingWebhookDie) TimeoutSeconds() diefields.Optional[int32] {
 // If a persisted webhook configuration specifies allowed versions and does not
 // include any versions known to the API Server, calls to the webhook will fail
 // and be subject to the failure policy.
-func (d *ValidatingWebhookDie) AdmissionReviewVersions() diefields.Value[[]string] {
-	return diefields.ValueOf(d, validatingWebhookFields.Get().AdmissionReviewVersions)
+func (d *ValidatingWebhookDie) AdmissionReviewVersions() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, validatingWebhookFields.Get().AdmissionReviewVersions)
 }
 
 // matchConditions is a list of conditions that must be met for a request to be sent to this
@@ -4937,8 +4937,8 @@ func (d *ValidatingWebhookDieMut) ClientConfig() *WebhookClientConfigDieMut {
 // from putting the cluster in a state which cannot be recovered from without completely
 // disabling the plugin, ValidatingAdmissionWebhooks and MutatingAdmissionWebhooks are never called
 // on admission requests for ValidatingWebhookConfiguration and MutatingWebhookConfiguration objects.
-func (d *ValidatingWebhookDieMut) Rules() diefields.ValueMut[[]RuleWithOperations] {
-	return diefields.ValueMutOf(d, validatingWebhookFields.Get().Rules)
+func (d *ValidatingWebhookDieMut) Rules() *diefields.ListMut[RuleWithOperations, *RuleWithOperationsDie, *RuleWithOperationsDieMut] {
+	return diefields.ListMutOf(d, validatingWebhookFields.Get().Rules)
 }
 
 // failurePolicy defines how unrecognized errors from the admission endpoint are handled -
@@ -5055,8 +5055,8 @@ func (d *ValidatingWebhookDieMut) TimeoutSeconds() diefields.OptionalMut[int32] 
 // If a persisted webhook configuration specifies allowed versions and does not
 // include any versions known to the API Server, calls to the webhook will fail
 // and be subject to the failure policy.
-func (d *ValidatingWebhookDieMut) AdmissionReviewVersions() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, validatingWebhookFields.Get().AdmissionReviewVersions)
+func (d *ValidatingWebhookDieMut) AdmissionReviewVersions() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, validatingWebhookFields.Get().AdmissionReviewVersions)
 }
 
 // matchConditions is a list of conditions that must be met for a request to be sent to this

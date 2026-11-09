@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 // Package fields has the handles a die's accessors return, [Value],
-// [Optional], [ListMap] and [Map], and the field tables generated dies
+// [Optional], [List], [ListMap] and [Map], and the field tables generated dies
 // declare to make them.
 package fields
 
@@ -35,19 +35,6 @@ type Field[T, V any] struct{ fd *core.FieldDesc }
 
 func NewField[T, V any](wire string) Field[T, V] {
 	return Field[T, V]{fd: lookup[T](wire, reflect.TypeFor[V]())}
-}
-
-// NewItems declares a leaf field of T with value type V that is an atomic
-// list of C items with dies of their own, CD and CDM. It is read and written
-// whole, as a leaf is; its items' dies are for code that walks dies by
-// their fields, such as validation.
-func NewItems[T, V, C any, CD base.DieOf[C, CD, CDM], CDM base.DieMutOf[C, CD, CDM]](wire string) Field[T, V] {
-	f := NewField[T, V](wire)
-	if f.fd.Typ.Kind() != reflect.Slice || f.fd.Typ.Elem() != reflect.TypeFor[C]() {
-		panic(core.Errorf("die: field %q of %s is %s, not a list of %s", wire, reflect.TypeFor[T](), f.fd.Typ, reflect.TypeFor[C]()))
-	}
-	f.fd.Dies = childDies[C, CD, CDM]
-	return f
 }
 
 // Struct is a struct field of T, held by value or pointer, whose dies are CD

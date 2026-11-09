@@ -374,6 +374,8 @@ const (
 	fChild
 	fListMap
 	fMap
+	// fList is a list other than a list map, such as an atomic list
+	fList
 )
 
 func (pg *pkgGen) kind(f wfield) fkind {
@@ -389,20 +391,34 @@ func (pg *pkgGen) kind(f wfield) fkind {
 	if pg.hasDie(t) {
 		return fChild
 	}
+	if sl, ok := t.Underlying().(*types.Slice); ok && isList(t) {
+		if !f.spec.atomic() && f.spec.listMap() && pg.hasDie(sl.Elem()) {
+			return fListMap
+		}
+		// written whole, as the API server replaces it, but reached by index
+		return fList
+	}
 	if f.spec.atomic() {
 		return fValue
 	}
 	switch u := t.Underlying().(type) {
-	case *types.Slice:
-		if f.spec.listMap() && pg.hasDie(u.Elem()) {
-			return fListMap
-		}
 	case *types.Map:
 		if b, ok := u.Key().Underlying().(*types.Basic); ok && b.Kind() == types.String && !pg.hasDie(u.Elem()) {
 			return fMap
 		}
 	}
 	return fValue
+}
+
+// isList reports whether a slice type is a list on the wire: not bytes,
+// which are a base64 string, nor a type with JSON of its own.
+func isList(t types.Type) bool {
+	if n, ok := t.(*types.Named); ok && customJSON(n) {
+		return false
+	}
+	sl := t.Underlying().(*types.Slice)
+	b, ok := sl.Elem().Underlying().(*types.Basic)
+	return !ok || b.Kind() != types.Byte
 }
 
 // dieTag expresses a field's structural markers as a die tag for the
@@ -942,17 +958,34 @@ func (pg *pkgGen) fieldRef(tg *target, wf wfield) (string, string) {
 		k, v := pg.typeExpr(m.Key()), pg.typeExpr(m.Elem())
 		return fmt.Sprintf("die.MapField[%s, %s, %s]", t, k, v),
 			fmt.Sprintf("die.NewMap[%s, %s, %s](%q)", t, k, v, wf.wire)
+	case fList:
+		e, ed, edm := pg.listElem(ft)
+		elem := ft.Underlying().(*types.Slice).Elem()
+		if pg.hasDie(elem) {
+			// fields.NewList, as lists.NewList is die.NewList
+			return fmt.Sprintf("die.ListField[%s, %s, %s, %s]", t, e, ed, edm),
+				fmt.Sprintf("%s.NewList[%s, %s, %s, %s](%q)", pg.f.use(fieldsPackage), t, e, ed, edm, wf.wire)
+		}
+		return fmt.Sprintf("die.ListField[%s, %s, %s, %s]", t, e, ed, edm),
+			fmt.Sprintf("die.NewValueList[%s, %s](%q)", t, e, wf.wire)
 	}
 	v := pg.typeExpr(ft)
-	// an atomic list of items with dies records their dies, for code that
-	// walks dies by their fields
-	if sl, ok := ft.Underlying().(*types.Slice); ok && pg.hasDie(sl.Elem()) {
-		c, cd, cdm := pg.typeExpr(sl.Elem()), pg.dieExpr(sl.Elem()), pg.dieMutExpr(sl.Elem())
-		return fmt.Sprintf("die.Field[%s, %s]", t, v),
-			fmt.Sprintf("die.NewItems[%s, %s, %s, %s, %s](%q)", t, v, c, cd, cdm, wf.wire)
-	}
 	return fmt.Sprintf("die.Field[%s, %s]", t, v),
 		fmt.Sprintf("die.NewField[%s, %s](%q)", t, v, wf.wire)
+}
+
+// fieldsPackage is the die API's package of handles.
+const fieldsPackage = "reconciler.io/dies/v2/die/fields"
+
+// listElem returns a list's element type and the types of its elements'
+// handles: their dies, or Value and ValueMut.
+func (pg *pkgGen) listElem(ft types.Type) (e, ed, edm string) {
+	elem := ft.Underlying().(*types.Slice).Elem()
+	e = pg.typeExpr(elem)
+	if pg.hasDie(elem) {
+		return e, pg.dieExpr(elem), pg.dieMutExpr(elem)
+	}
+	return e, "die.Value[" + e + "]", "die.ValueMut[" + e + "]"
 }
 
 // listMapKey returns the key type of a list map with its key functions. A
@@ -1007,6 +1040,10 @@ func (pg *pkgGen) accessor(dname, table string, wf wfield) {
 	case fMap:
 		m := ft.Underlying().(*types.Map)
 		f.p("func (d *%s) %s() *die.Map[%s, %s] { return die.MapOf(d, %s.Get().%s) }", dname, wf.accessor, pg.typeExpr(m.Key()), pg.typeExpr(m.Elem()), table, wf.accessor)
+	case fList:
+		e, ed, _ := pg.listElem(ft)
+		// fields.List, as lists.List is die.List
+		f.p("func (d *%s) %s() *%s.List[%s, %s] { return die.ListOf(d, %s.Get().%s) }", dname, wf.accessor, f.use(fieldsPackage), e, ed, table, wf.accessor)
 	case fOptional:
 		f.p("func (d *%s) %s() die.Optional[%s] { return die.OptionalOf(d, %s.Get().%s) }", dname, wf.accessor, pg.typeExpr(deref(ft)), table, wf.accessor)
 	default:
@@ -1034,6 +1071,9 @@ func (pg *pkgGen) accessorMut(mname, table string, wf wfield) {
 	case fMap:
 		m := ft.Underlying().(*types.Map)
 		f.p("func (d *%s) %s() *die.MapMut[%s, %s] { return die.MapMutOf(d, %s.Get().%s) }", mname, wf.accessor, pg.typeExpr(m.Key()), pg.typeExpr(m.Elem()), table, wf.accessor)
+	case fList:
+		e, ed, edm := pg.listElem(ft)
+		f.p("func (d *%s) %s() *die.ListMut[%s, %s, %s] { return die.ListMutOf(d, %s.Get().%s) }", mname, wf.accessor, e, ed, edm, table, wf.accessor)
 	case fOptional:
 		f.p("func (d *%s) %s() die.OptionalMut[%s] { return die.OptionalMutOf(d, %s.Get().%s) }", mname, wf.accessor, pg.typeExpr(deref(ft)), table, wf.accessor)
 	default:

@@ -342,13 +342,13 @@ var TokenReviewSpecBlank = diebase.Blank[TokenReviewSpec, *TokenReviewSpecDie, *
 
 type tokenReviewSpecFieldsTable struct {
 	Token     diefields.Field[TokenReviewSpec, string]
-	Audiences diefields.Field[TokenReviewSpec, []string]
+	Audiences diefields.ListField[TokenReviewSpec, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var tokenReviewSpecFields = &diefields.Table[tokenReviewSpecFieldsTable]{Build: func() (f tokenReviewSpecFieldsTable) {
 	_ = annotated
 	f.Token = diefields.NewField[TokenReviewSpec, string]("token")
-	f.Audiences = diefields.NewField[TokenReviewSpec, []string]("audiences")
+	f.Audiences = diefields.NewValueList[TokenReviewSpec, string]("audiences")
 	return
 }}
 
@@ -362,8 +362,8 @@ func (d *TokenReviewSpecDie) Token() diefields.Value[string] {
 // verify that the token was intended for at least one of the audiences in
 // this list. If no audiences are provided, the audience will default to the
 // audience of the Kubernetes apiserver.
-func (d *TokenReviewSpecDie) Audiences() diefields.Value[[]string] {
-	return diefields.ValueOf(d, tokenReviewSpecFields.Get().Audiences)
+func (d *TokenReviewSpecDie) Audiences() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, tokenReviewSpecFields.Get().Audiences)
 }
 
 // token is the opaque bearer token.
@@ -376,8 +376,8 @@ func (d *TokenReviewSpecDieMut) Token() diefields.ValueMut[string] {
 // verify that the token was intended for at least one of the audiences in
 // this list. If no audiences are provided, the audience will default to the
 // audience of the Kubernetes apiserver.
-func (d *TokenReviewSpecDieMut) Audiences() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, tokenReviewSpecFields.Get().Audiences)
+func (d *TokenReviewSpecDieMut) Audiences() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, tokenReviewSpecFields.Get().Audiences)
 }
 
 // +kubebuilder:object:generate=false
@@ -415,7 +415,7 @@ var TokenReviewStatusBlank = diebase.Blank[TokenReviewStatus, *TokenReviewStatus
 type tokenReviewStatusFieldsTable struct {
 	Authenticated diefields.Field[TokenReviewStatus, bool]
 	User          diefields.Struct[TokenReviewStatus, UserInfo, *UserInfoDie, *UserInfoDieMut]
-	Audiences     diefields.Field[TokenReviewStatus, []string]
+	Audiences     diefields.ListField[TokenReviewStatus, string, diefields.Value[string], diefields.ValueMut[string]]
 	Error         diefields.Field[TokenReviewStatus, string]
 }
 
@@ -423,7 +423,7 @@ var tokenReviewStatusFields = &diefields.Table[tokenReviewStatusFieldsTable]{Bui
 	_ = annotated
 	f.Authenticated = diefields.NewField[TokenReviewStatus, bool]("authenticated")
 	f.User = diefields.NewStruct[TokenReviewStatus, UserInfo, *UserInfoDie, *UserInfoDieMut]("user")
-	f.Audiences = diefields.NewField[TokenReviewStatus, []string]("audiences")
+	f.Audiences = diefields.NewValueList[TokenReviewStatus, string]("audiences")
 	f.Error = diefields.NewField[TokenReviewStatus, string]("error")
 	return
 }}
@@ -447,8 +447,8 @@ func (d *TokenReviewStatusDie) User() *UserInfoDie {
 // server is audience aware. If a TokenReview returns an empty
 // status.audience field where status.authenticated is "true", the token is
 // valid against the audience of the Kubernetes API server.
-func (d *TokenReviewStatusDie) Audiences() diefields.Value[[]string] {
-	return diefields.ValueOf(d, tokenReviewStatusFields.Get().Audiences)
+func (d *TokenReviewStatusDie) Audiences() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, tokenReviewStatusFields.Get().Audiences)
 }
 
 // error indicates that the token couldn't be checked
@@ -475,8 +475,8 @@ func (d *TokenReviewStatusDieMut) User() *UserInfoDieMut {
 // server is audience aware. If a TokenReview returns an empty
 // status.audience field where status.authenticated is "true", the token is
 // valid against the audience of the Kubernetes API server.
-func (d *TokenReviewStatusDieMut) Audiences() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, tokenReviewStatusFields.Get().Audiences)
+func (d *TokenReviewStatusDieMut) Audiences() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, tokenReviewStatusFields.Get().Audiences)
 }
 
 // error indicates that the token couldn't be checked
@@ -520,7 +520,7 @@ var UserInfoBlank = diebase.Blank[UserInfo, *UserInfoDie, *UserInfoDieMut]()
 type userInfoFieldsTable struct {
 	Username diefields.Field[UserInfo, string]
 	UID      diefields.Field[UserInfo, string]
-	Groups   diefields.Field[UserInfo, []string]
+	Groups   diefields.ListField[UserInfo, string, diefields.Value[string], diefields.ValueMut[string]]
 	Extra    diefields.MapField[UserInfo, string, ExtraValue]
 }
 
@@ -528,7 +528,7 @@ var userInfoFields = &diefields.Table[userInfoFieldsTable]{Build: func() (f user
 	_ = annotated
 	f.Username = diefields.NewField[UserInfo, string]("username")
 	f.UID = diefields.NewField[UserInfo, string]("uid")
-	f.Groups = diefields.NewField[UserInfo, []string]("groups")
+	f.Groups = diefields.NewValueList[UserInfo, string]("groups")
 	f.Extra = diefields.NewMap[UserInfo, string, ExtraValue]("extra")
 	return
 }}
@@ -546,8 +546,8 @@ func (d *UserInfoDie) UID() diefields.Value[string] {
 }
 
 // groups is the names of groups this user is a part of.
-func (d *UserInfoDie) Groups() diefields.Value[[]string] {
-	return diefields.ValueOf(d, userInfoFields.Get().Groups)
+func (d *UserInfoDie) Groups() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, userInfoFields.Get().Groups)
 }
 
 // extra is any additional information provided by the authenticator.
@@ -568,8 +568,8 @@ func (d *UserInfoDieMut) UID() diefields.ValueMut[string] {
 }
 
 // groups is the names of groups this user is a part of.
-func (d *UserInfoDieMut) Groups() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, userInfoFields.Get().Groups)
+func (d *UserInfoDieMut) Groups() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, userInfoFields.Get().Groups)
 }
 
 // extra is any additional information provided by the authenticator.

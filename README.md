@@ -101,6 +101,7 @@ Each field has one accessor method, named after the field. What it returns depen
 | -------------------------------------- | -------------------------------------------------- | ------------------------------------------- |
 | A struct with a die                    | The child die                                      | `d.Spec().Template()`                       |
 | A list map, such as containers by name | A `die.ListMap`, whose elements are dies           | `podSpec.Containers().At("app")`            |
+| Any other list, such as an atomic list | A `fields.List`, whose elements are reached by index | `c.Args().SetValue("--verbose")`, `role.Rules().At(0)` |
 | A map with string keys                 | A `die.Map`                                        | `d.Metadata().Labels().Set("tier", "web")`  |
 | Anything else, held by value           | A `die.Value`                                      | `c.Image().Get()`, `c.Image().Set("app:2")` |
 | Anything else, held by pointer         | A `die.Optional`, which reads and writes the value | `d.Spec().Replicas().Set(2)`, `.Ptr()`      |
@@ -114,9 +115,26 @@ Every leaf handle has `Get` and `Has`; a mutable die's also have `Set` and `Clea
 - `Clear` records that the field is absent.
 - `Empty` records a list or map that is present and empty.
 
-A list map's elements are found by their keys. `At` returns the element's die, and its first write creates the element with its keys set. List maps also have `Has`, `Keys`, `Len` and `All`, and a mutable die's have `Remove`. A list map with more than one key, such as container ports keyed by port and protocol, takes a generated key type, such as `ContainerPortKey`. A key with a default, such as a port's protocol, which defaults to `TCP`, matches whether it's set or not.
+A list map's elements are found by their keys. `At` returns the element's die, and its first write creates the element with its keys set. List maps also have `Has`, `Keys`, `Len` and `All`, and a mutable die's have `Remove` and `Set`. `Set` takes a whole element, `containers.Set(corev1.Container{Name: "app", Image: "app:2"})`, and appends it if the list has no element with its key, or replaces the element if it does. A replacement is recorded as the diff, as `Replace` records one, so fields the element doesn't have are cleared. A list map with more than one key, such as container ports keyed by port and protocol, takes a generated key type, such as `ContainerPortKey`. A key with a default, such as a port's protocol, which defaults to `TCP`, matches whether it's set or not.
 
-Lists that aren't list maps, such as a container's `args`, are values, which are read and written whole.
+Lists that aren't list maps, such as a container's `args` or a role's `rules`, are `fields.List`s. The API server replaces such a list whole, and every write through one writes the whole list, so patches are as they would be for a value. But you needn't build it whole:
+
+- `At(i)` returns the element at index `i`: its die, such as a `*PolicyRuleDie`, where the element type has one, or a `die.Value` where it doesn't, such as a string. Write through it as through any die or handle. Its path is its index, as in `rules[1].verbs[0]` in a validation error. Reading an index the list doesn't have returns zero values, and writing one panics, as indexing a slice does.
+- `Set(items...)` sets the list to copies of dies or handles of the element type, from any root, immutable and mutable mixed. `SetValue(items...)` sets it to copies of values. Setting no items sets the list present and empty.
+- `Append(items...)` and `AppendValue(items...)` append, creating the list if it's absent.
+- `Remove(i)` removes an element, moving those after it down one, and `Replace`, `Clear` and `Empty` are as other handles have them.
+- `Get`, `Has`, `Len` and `All` read.
+
+```go
+err := errors.Join(
+	role.Rules().Set(readRule, writeRule.DieMutable()),
+	role.Rules().AppendValue(rbacv1.PolicyRule{Verbs: []string{"watch"}}),
+	role.Rules().At(0).Verbs().AppendValue("list"),
+	c.Args().SetValue("--verbose", "--port=8080"),
+)
+```
+
+Bytes, which are a base64 string on the wire, and types with JSON of their own stay `die.Value`s.
 
 ### Immutable and mutable dies
 
@@ -661,7 +679,7 @@ The markers' checks ratchet, as the API server's do: a field unchanged from the 
 
 ### Field errors
 
-`reconciler.io/dies/v2/die/validation` makes apimachinery's field errors at a location, a die or a handle, rather than at a path you spell out: `Required`, `Forbidden`, `Invalid`, `NotSupported`, `Duplicate`, `NotFound`, `TooLong`, `TooMany`, `TooFew` and `InternalError`. Those that report a value read it at the location, so `validation.Invalid(d.Port(), "…")` reports the port's number.
+`reconciler.io/dies/v2/die/validation` makes apimachinery's field errors at a location, a die or a handle, rather than at a path you spell out: `Required`, `Forbidden`, `Invalid`, `NotSupported`, `Duplicate`, `NotFound`, `TooLong`, `TooMany`, `TooFew` and `InternalError`. Those that report a value read it at the location, so `validation.Invalid(d.Port(), "…")` reports the port's number. A map's `Entry(key)` is the handle of one value, so an error about a label's value is at the label, `metadata.labels[app]`, with its value: `validation.Invalid(d.Metadata().Labels().Entry("app"), "…")`. Mutable, the entry's handle also sets, clears and replaces the key's value.
 
 For apimachinery's other validation helpers, `validation.Path(location)` converts a location to a `*field.Path`. A list-map element is its index in the list; one the list doesn't have, or one of a bare `die.Path`, is its keys, such as `containers[name=app]`.
 

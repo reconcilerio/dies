@@ -264,23 +264,23 @@ func (d *HTTPIngressRuleValueDieMut) DieStampApplyConfiguration(fn func(ac *HTTP
 // +k8s:deepcopy-gen=false
 
 type hTTPIngressRuleValueFieldsTable struct {
-	Paths diefields.Field[HTTPIngressRuleValue, []HTTPIngressPath]
+	Paths diefields.ListField[HTTPIngressRuleValue, HTTPIngressPath, *HTTPIngressPathDie, *HTTPIngressPathDieMut]
 }
 
 var hTTPIngressRuleValueFields = &diefields.Table[hTTPIngressRuleValueFieldsTable]{Build: func() (f hTTPIngressRuleValueFieldsTable) {
 	_ = annotated
-	f.Paths = diefields.NewItems[HTTPIngressRuleValue, []HTTPIngressPath, HTTPIngressPath, *HTTPIngressPathDie, *HTTPIngressPathDieMut]("paths")
+	f.Paths = diefields.NewList[HTTPIngressRuleValue, HTTPIngressPath, *HTTPIngressPathDie, *HTTPIngressPathDieMut]("paths")
 	return
 }}
 
 // paths is a collection of paths that map requests to backends.
-func (d *HTTPIngressRuleValueDie) Paths() diefields.Value[[]HTTPIngressPath] {
-	return diefields.ValueOf(d, hTTPIngressRuleValueFields.Get().Paths)
+func (d *HTTPIngressRuleValueDie) Paths() *diefields.List[HTTPIngressPath, *HTTPIngressPathDie] {
+	return diefields.ListOf(d, hTTPIngressRuleValueFields.Get().Paths)
 }
 
 // paths is a collection of paths that map requests to backends.
-func (d *HTTPIngressRuleValueDieMut) Paths() diefields.ValueMut[[]HTTPIngressPath] {
-	return diefields.ValueMutOf(d, hTTPIngressRuleValueFields.Get().Paths)
+func (d *HTTPIngressRuleValueDieMut) Paths() *diefields.ListMut[HTTPIngressPath, *HTTPIngressPathDie, *HTTPIngressPathDieMut] {
+	return diefields.ListMutOf(d, hTTPIngressRuleValueFields.Get().Paths)
 }
 
 // +kubebuilder:object:generate=false
@@ -1352,14 +1352,14 @@ func (d *IngressLoadBalancerIngressDieMut) DieStampApplyConfiguration(fn func(ac
 type ingressLoadBalancerIngressFieldsTable struct {
 	IP       diefields.Field[IngressLoadBalancerIngress, string]
 	Hostname diefields.Field[IngressLoadBalancerIngress, string]
-	Ports    diefields.Field[IngressLoadBalancerIngress, []IngressPortStatus]
+	Ports    diefields.ListField[IngressLoadBalancerIngress, IngressPortStatus, *IngressPortStatusDie, *IngressPortStatusDieMut]
 }
 
 var ingressLoadBalancerIngressFields = &diefields.Table[ingressLoadBalancerIngressFieldsTable]{Build: func() (f ingressLoadBalancerIngressFieldsTable) {
 	_ = annotated
 	f.IP = diefields.NewField[IngressLoadBalancerIngress, string]("ip")
 	f.Hostname = diefields.NewField[IngressLoadBalancerIngress, string]("hostname")
-	f.Ports = diefields.NewItems[IngressLoadBalancerIngress, []IngressPortStatus, IngressPortStatus, *IngressPortStatusDie, *IngressPortStatusDieMut]("ports")
+	f.Ports = diefields.NewList[IngressLoadBalancerIngress, IngressPortStatus, *IngressPortStatusDie, *IngressPortStatusDieMut]("ports")
 	return
 }}
 
@@ -1374,8 +1374,8 @@ func (d *IngressLoadBalancerIngressDie) Hostname() diefields.Value[string] {
 }
 
 // ports provides information about the ports exposed by this LoadBalancer.
-func (d *IngressLoadBalancerIngressDie) Ports() diefields.Value[[]IngressPortStatus] {
-	return diefields.ValueOf(d, ingressLoadBalancerIngressFields.Get().Ports)
+func (d *IngressLoadBalancerIngressDie) Ports() *diefields.List[IngressPortStatus, *IngressPortStatusDie] {
+	return diefields.ListOf(d, ingressLoadBalancerIngressFields.Get().Ports)
 }
 
 // ip is set for load-balancer ingress points that are IP based.
@@ -1389,8 +1389,8 @@ func (d *IngressLoadBalancerIngressDieMut) Hostname() diefields.ValueMut[string]
 }
 
 // ports provides information about the ports exposed by this LoadBalancer.
-func (d *IngressLoadBalancerIngressDieMut) Ports() diefields.ValueMut[[]IngressPortStatus] {
-	return diefields.ValueMutOf(d, ingressLoadBalancerIngressFields.Get().Ports)
+func (d *IngressLoadBalancerIngressDieMut) Ports() *diefields.ListMut[IngressPortStatus, *IngressPortStatusDie, *IngressPortStatusDieMut] {
+	return diefields.ListMutOf(d, ingressLoadBalancerIngressFields.Get().Ports)
 }
 
 // +kubebuilder:object:generate=false
@@ -1465,23 +1465,23 @@ func (d *IngressLoadBalancerStatusDieMut) DieStampApplyConfiguration(fn func(ac 
 // +k8s:deepcopy-gen=false
 
 type ingressLoadBalancerStatusFieldsTable struct {
-	Ingress diefields.Field[IngressLoadBalancerStatus, []IngressLoadBalancerIngress]
+	Ingress diefields.ListField[IngressLoadBalancerStatus, IngressLoadBalancerIngress, *IngressLoadBalancerIngressDie, *IngressLoadBalancerIngressDieMut]
 }
 
 var ingressLoadBalancerStatusFields = &diefields.Table[ingressLoadBalancerStatusFieldsTable]{Build: func() (f ingressLoadBalancerStatusFieldsTable) {
 	_ = annotated
-	f.Ingress = diefields.NewItems[IngressLoadBalancerStatus, []IngressLoadBalancerIngress, IngressLoadBalancerIngress, *IngressLoadBalancerIngressDie, *IngressLoadBalancerIngressDieMut]("ingress")
+	f.Ingress = diefields.NewList[IngressLoadBalancerStatus, IngressLoadBalancerIngress, *IngressLoadBalancerIngressDie, *IngressLoadBalancerIngressDieMut]("ingress")
 	return
 }}
 
 // ingress is a list containing ingress points for the load-balancer.
-func (d *IngressLoadBalancerStatusDie) Ingress() diefields.Value[[]IngressLoadBalancerIngress] {
-	return diefields.ValueOf(d, ingressLoadBalancerStatusFields.Get().Ingress)
+func (d *IngressLoadBalancerStatusDie) Ingress() *diefields.List[IngressLoadBalancerIngress, *IngressLoadBalancerIngressDie] {
+	return diefields.ListOf(d, ingressLoadBalancerStatusFields.Get().Ingress)
 }
 
 // ingress is a list containing ingress points for the load-balancer.
-func (d *IngressLoadBalancerStatusDieMut) Ingress() diefields.ValueMut[[]IngressLoadBalancerIngress] {
-	return diefields.ValueMutOf(d, ingressLoadBalancerStatusFields.Get().Ingress)
+func (d *IngressLoadBalancerStatusDieMut) Ingress() *diefields.ListMut[IngressLoadBalancerIngress, *IngressLoadBalancerIngressDie, *IngressLoadBalancerIngressDieMut] {
+	return diefields.ListMutOf(d, ingressLoadBalancerStatusFields.Get().Ingress)
 }
 
 // +kubebuilder:object:generate=false
@@ -1934,16 +1934,16 @@ func (d *IngressSpecDieMut) DieStampApplyConfiguration(fn func(ac *IngressSpecAp
 type ingressSpecFieldsTable struct {
 	IngressClassName diefields.Field[IngressSpec, *string]
 	Backend          diefields.Struct[IngressSpec, IngressBackend, *IngressBackendDie, *IngressBackendDieMut]
-	TLS              diefields.Field[IngressSpec, []IngressTLS]
-	Rules            diefields.Field[IngressSpec, []IngressRule]
+	TLS              diefields.ListField[IngressSpec, IngressTLS, *IngressTLSDie, *IngressTLSDieMut]
+	Rules            diefields.ListField[IngressSpec, IngressRule, *IngressRuleDie, *IngressRuleDieMut]
 }
 
 var ingressSpecFields = &diefields.Table[ingressSpecFieldsTable]{Build: func() (f ingressSpecFieldsTable) {
 	_ = annotated
 	f.IngressClassName = diefields.NewField[IngressSpec, *string]("ingressClassName")
 	f.Backend = diefields.NewStruct[IngressSpec, IngressBackend, *IngressBackendDie, *IngressBackendDieMut]("backend")
-	f.TLS = diefields.NewItems[IngressSpec, []IngressTLS, IngressTLS, *IngressTLSDie, *IngressTLSDieMut]("tls")
-	f.Rules = diefields.NewItems[IngressSpec, []IngressRule, IngressRule, *IngressRuleDie, *IngressRuleDieMut]("rules")
+	f.TLS = diefields.NewList[IngressSpec, IngressTLS, *IngressTLSDie, *IngressTLSDieMut]("tls")
+	f.Rules = diefields.NewList[IngressSpec, IngressRule, *IngressRuleDie, *IngressRuleDieMut]("rules")
 	return
 }}
 
@@ -1974,14 +1974,14 @@ func (d *IngressSpecDie) Backend() *IngressBackendDie {
 // they will be multiplexed on the same port according to the hostname specified
 // through the SNI TLS extension, if the ingress controller fulfilling the
 // ingress supports SNI.
-func (d *IngressSpecDie) TLS() diefields.Value[[]IngressTLS] {
-	return diefields.ValueOf(d, ingressSpecFields.Get().TLS)
+func (d *IngressSpecDie) TLS() *diefields.List[IngressTLS, *IngressTLSDie] {
+	return diefields.ListOf(d, ingressSpecFields.Get().TLS)
 }
 
 // rules is a list of host rules used to configure the Ingress. If unspecified, or
 // no rule matches, all traffic is sent to the default backend.
-func (d *IngressSpecDie) Rules() diefields.Value[[]IngressRule] {
-	return diefields.ValueOf(d, ingressSpecFields.Get().Rules)
+func (d *IngressSpecDie) Rules() *diefields.List[IngressRule, *IngressRuleDie] {
+	return diefields.ListOf(d, ingressSpecFields.Get().Rules)
 }
 
 // ingressClassName is the name of the IngressClass cluster resource. The
@@ -2011,14 +2011,14 @@ func (d *IngressSpecDieMut) Backend() *IngressBackendDieMut {
 // they will be multiplexed on the same port according to the hostname specified
 // through the SNI TLS extension, if the ingress controller fulfilling the
 // ingress supports SNI.
-func (d *IngressSpecDieMut) TLS() diefields.ValueMut[[]IngressTLS] {
-	return diefields.ValueMutOf(d, ingressSpecFields.Get().TLS)
+func (d *IngressSpecDieMut) TLS() *diefields.ListMut[IngressTLS, *IngressTLSDie, *IngressTLSDieMut] {
+	return diefields.ListMutOf(d, ingressSpecFields.Get().TLS)
 }
 
 // rules is a list of host rules used to configure the Ingress. If unspecified, or
 // no rule matches, all traffic is sent to the default backend.
-func (d *IngressSpecDieMut) Rules() diefields.ValueMut[[]IngressRule] {
-	return diefields.ValueMutOf(d, ingressSpecFields.Get().Rules)
+func (d *IngressSpecDieMut) Rules() *diefields.ListMut[IngressRule, *IngressRuleDie, *IngressRuleDieMut] {
+	return diefields.ListMutOf(d, ingressSpecFields.Get().Rules)
 }
 
 // +kubebuilder:object:generate=false
@@ -2184,13 +2184,13 @@ func (d *IngressTLSDieMut) DieStampApplyConfiguration(fn func(ac *IngressTLSAppl
 // +k8s:deepcopy-gen=false
 
 type ingressTLSFieldsTable struct {
-	Hosts      diefields.Field[IngressTLS, []string]
+	Hosts      diefields.ListField[IngressTLS, string, diefields.Value[string], diefields.ValueMut[string]]
 	SecretName diefields.Field[IngressTLS, string]
 }
 
 var ingressTLSFields = &diefields.Table[ingressTLSFieldsTable]{Build: func() (f ingressTLSFieldsTable) {
 	_ = annotated
-	f.Hosts = diefields.NewField[IngressTLS, []string]("hosts")
+	f.Hosts = diefields.NewValueList[IngressTLS, string]("hosts")
 	f.SecretName = diefields.NewField[IngressTLS, string]("secretName")
 	return
 }}
@@ -2199,8 +2199,8 @@ var ingressTLSFields = &diefields.Table[ingressTLSFieldsTable]{Build: func() (f 
 // this list must match the name/s used in the tlsSecret. Defaults to the
 // wildcard host setting for the loadbalancer controller fulfilling this
 // Ingress, if left unspecified.
-func (d *IngressTLSDie) Hosts() diefields.Value[[]string] {
-	return diefields.ValueOf(d, ingressTLSFields.Get().Hosts)
+func (d *IngressTLSDie) Hosts() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, ingressTLSFields.Get().Hosts)
 }
 
 // secretName is the name of the secret used to terminate TLS traffic on
@@ -2216,8 +2216,8 @@ func (d *IngressTLSDie) SecretName() diefields.Value[string] {
 // this list must match the name/s used in the tlsSecret. Defaults to the
 // wildcard host setting for the loadbalancer controller fulfilling this
 // Ingress, if left unspecified.
-func (d *IngressTLSDieMut) Hosts() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, ingressTLSFields.Get().Hosts)
+func (d *IngressTLSDieMut) Hosts() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, ingressTLSFields.Get().Hosts)
 }
 
 // secretName is the name of the secret used to terminate TLS traffic on
@@ -2606,27 +2606,27 @@ func (d *ServiceCIDRSpecDieMut) DieStampApplyConfiguration(fn func(ac *ServiceCI
 // +k8s:deepcopy-gen=false
 
 type serviceCIDRSpecFieldsTable struct {
-	CIDRs diefields.Field[ServiceCIDRSpec, []string]
+	CIDRs diefields.ListField[ServiceCIDRSpec, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var serviceCIDRSpecFields = &diefields.Table[serviceCIDRSpecFieldsTable]{Build: func() (f serviceCIDRSpecFieldsTable) {
 	_ = annotated
-	f.CIDRs = diefields.NewField[ServiceCIDRSpec, []string]("cidrs")
+	f.CIDRs = diefields.NewValueList[ServiceCIDRSpec, string]("cidrs")
 	return
 }}
 
 // cidrs defines the IP blocks in CIDR notation (e.g. "192.168.0.0/24" or "2001:db8::/64")
 // from which to assign service cluster IPs. Max of two CIDRs is allowed, one of each IP family.
 // This field is immutable.
-func (d *ServiceCIDRSpecDie) CIDRs() diefields.Value[[]string] {
-	return diefields.ValueOf(d, serviceCIDRSpecFields.Get().CIDRs)
+func (d *ServiceCIDRSpecDie) CIDRs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, serviceCIDRSpecFields.Get().CIDRs)
 }
 
 // cidrs defines the IP blocks in CIDR notation (e.g. "192.168.0.0/24" or "2001:db8::/64")
 // from which to assign service cluster IPs. Max of two CIDRs is allowed, one of each IP family.
 // This field is immutable.
-func (d *ServiceCIDRSpecDieMut) CIDRs() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, serviceCIDRSpecFields.Get().CIDRs)
+func (d *ServiceCIDRSpecDieMut) CIDRs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, serviceCIDRSpecFields.Get().CIDRs)
 }
 
 // +kubebuilder:object:generate=false

@@ -105,7 +105,7 @@ func (d *EndpointDieMut) DieStampApplyConfiguration(fn func(ac *EndpointApplyCon
 // +k8s:deepcopy-gen=false
 
 type endpointFieldsTable struct {
-	Addresses  diefields.Field[Endpoint, []string]
+	Addresses  diefields.ListField[Endpoint, string, diefields.Value[string], diefields.ValueMut[string]]
 	Conditions diefields.Struct[Endpoint, EndpointConditions, *EndpointConditionsDie, *EndpointConditionsDieMut]
 	Hostname   diefields.Field[Endpoint, *string]
 	TargetRef  diefields.Struct[Endpoint, diecorev1.ObjectReference, *diecorev1.ObjectReferenceDie, *diecorev1.ObjectReferenceDieMut]
@@ -116,7 +116,7 @@ type endpointFieldsTable struct {
 
 var endpointFields = &diefields.Table[endpointFieldsTable]{Build: func() (f endpointFieldsTable) {
 	_ = annotated
-	f.Addresses = diefields.NewField[Endpoint, []string]("addresses")
+	f.Addresses = diefields.NewValueList[Endpoint, string]("addresses")
 	f.Conditions = diefields.NewStruct[Endpoint, EndpointConditions, *EndpointConditionsDie, *EndpointConditionsDieMut]("conditions")
 	f.Hostname = diefields.NewField[Endpoint, *string]("hostname")
 	f.TargetRef = diefields.NewStruct[Endpoint, diecorev1.ObjectReference, *diecorev1.ObjectReferenceDie, *diecorev1.ObjectReferenceDieMut]("targetRef")
@@ -132,8 +132,8 @@ var endpointFields = &diefields.Table[endpointFieldsTable]{Build: func() (f endp
 // capabilities. This must contain at least one address but no more than
 // 100. These are all assumed to be fungible and clients may choose to only
 // use the first element. Refer to: https://issue.k8s.io/106267
-func (d *EndpointDie) Addresses() diefields.Value[[]string] {
-	return diefields.ValueOf(d, endpointFields.Get().Addresses)
+func (d *EndpointDie) Addresses() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, endpointFields.Get().Addresses)
 }
 
 // conditions contains information about the current status of the endpoint.
@@ -192,8 +192,8 @@ func (d *EndpointDie) Hints() *EndpointHintsDie {
 // capabilities. This must contain at least one address but no more than
 // 100. These are all assumed to be fungible and clients may choose to only
 // use the first element. Refer to: https://issue.k8s.io/106267
-func (d *EndpointDieMut) Addresses() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, endpointFields.Get().Addresses)
+func (d *EndpointDieMut) Addresses() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, endpointFields.Get().Addresses)
 }
 
 // conditions contains information about the current status of the endpoint.
@@ -451,39 +451,39 @@ func (d *EndpointHintsDieMut) DieStampApplyConfiguration(fn func(ac *EndpointHin
 // +k8s:deepcopy-gen=false
 
 type endpointHintsFieldsTable struct {
-	ForZones diefields.Field[EndpointHints, []ForZone]
-	ForNodes diefields.Field[EndpointHints, []ForNode]
+	ForZones diefields.ListField[EndpointHints, ForZone, *ForZoneDie, *ForZoneDieMut]
+	ForNodes diefields.ListField[EndpointHints, ForNode, *ForNodeDie, *ForNodeDieMut]
 }
 
 var endpointHintsFields = &diefields.Table[endpointHintsFieldsTable]{Build: func() (f endpointHintsFieldsTable) {
 	_ = annotated
-	f.ForZones = diefields.NewItems[EndpointHints, []ForZone, ForZone, *ForZoneDie, *ForZoneDieMut]("forZones")
-	f.ForNodes = diefields.NewItems[EndpointHints, []ForNode, ForNode, *ForNodeDie, *ForNodeDieMut]("forNodes")
+	f.ForZones = diefields.NewList[EndpointHints, ForZone, *ForZoneDie, *ForZoneDieMut]("forZones")
+	f.ForNodes = diefields.NewList[EndpointHints, ForNode, *ForNodeDie, *ForNodeDieMut]("forNodes")
 	return
 }}
 
 // forZones indicates the zone(s) this endpoint should be consumed by to
 // enable topology aware routing. May contain a maximum of 8 entries.
-func (d *EndpointHintsDie) ForZones() diefields.Value[[]ForZone] {
-	return diefields.ValueOf(d, endpointHintsFields.Get().ForZones)
+func (d *EndpointHintsDie) ForZones() *diefields.List[ForZone, *ForZoneDie] {
+	return diefields.ListOf(d, endpointHintsFields.Get().ForZones)
 }
 
 // forNodes indicates the node(s) this endpoint should be consumed by when
 // using topology aware routing. May contain a maximum of 8 entries.
-func (d *EndpointHintsDie) ForNodes() diefields.Value[[]ForNode] {
-	return diefields.ValueOf(d, endpointHintsFields.Get().ForNodes)
+func (d *EndpointHintsDie) ForNodes() *diefields.List[ForNode, *ForNodeDie] {
+	return diefields.ListOf(d, endpointHintsFields.Get().ForNodes)
 }
 
 // forZones indicates the zone(s) this endpoint should be consumed by to
 // enable topology aware routing. May contain a maximum of 8 entries.
-func (d *EndpointHintsDieMut) ForZones() diefields.ValueMut[[]ForZone] {
-	return diefields.ValueMutOf(d, endpointHintsFields.Get().ForZones)
+func (d *EndpointHintsDieMut) ForZones() *diefields.ListMut[ForZone, *ForZoneDie, *ForZoneDieMut] {
+	return diefields.ListMutOf(d, endpointHintsFields.Get().ForZones)
 }
 
 // forNodes indicates the node(s) this endpoint should be consumed by when
 // using topology aware routing. May contain a maximum of 8 entries.
-func (d *EndpointHintsDieMut) ForNodes() diefields.ValueMut[[]ForNode] {
-	return diefields.ValueMutOf(d, endpointHintsFields.Get().ForNodes)
+func (d *EndpointHintsDieMut) ForNodes() *diefields.ListMut[ForNode, *ForNodeDie, *ForNodeDieMut] {
+	return diefields.ListMutOf(d, endpointHintsFields.Get().ForNodes)
 }
 
 // +kubebuilder:object:generate=false
@@ -721,8 +721,8 @@ type endpointSliceFieldsTable struct {
 	APIVersion  diefields.Field[EndpointSlice, string]
 	Metadata    diefields.Struct[EndpointSlice, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
 	AddressType diefields.Field[EndpointSlice, AddressType]
-	Endpoints   diefields.Field[EndpointSlice, []Endpoint]
-	Ports       diefields.Field[EndpointSlice, []EndpointPort]
+	Endpoints   diefields.ListField[EndpointSlice, Endpoint, *EndpointDie, *EndpointDieMut]
+	Ports       diefields.ListField[EndpointSlice, EndpointPort, *EndpointPortDie, *EndpointPortDieMut]
 }
 
 var endpointSliceFields = &diefields.Table[endpointSliceFieldsTable]{Build: func() (f endpointSliceFieldsTable) {
@@ -731,8 +731,8 @@ var endpointSliceFields = &diefields.Table[endpointSliceFieldsTable]{Build: func
 	f.APIVersion = diefields.NewField[EndpointSlice, string]("apiVersion")
 	f.Metadata = diefields.NewStruct[EndpointSlice, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
 	f.AddressType = diefields.NewField[EndpointSlice, AddressType]("addressType")
-	f.Endpoints = diefields.NewItems[EndpointSlice, []Endpoint, Endpoint, *EndpointDie, *EndpointDieMut]("endpoints")
-	f.Ports = diefields.NewItems[EndpointSlice, []EndpointPort, EndpointPort, *EndpointPortDie, *EndpointPortDieMut]("ports")
+	f.Endpoints = diefields.NewList[EndpointSlice, Endpoint, *EndpointDie, *EndpointDieMut]("endpoints")
+	f.Ports = diefields.NewList[EndpointSlice, EndpointPort, *EndpointPortDie, *EndpointPortDieMut]("ports")
 	return
 }}
 
@@ -771,8 +771,8 @@ func (d *EndpointSliceDie) AddressType() diefields.Value[AddressType] {
 
 // endpoints is a list of unique endpoints in this slice. Each slice may
 // include a maximum of 1000 endpoints.
-func (d *EndpointSliceDie) Endpoints() diefields.Value[[]Endpoint] {
-	return diefields.ValueOf(d, endpointSliceFields.Get().Endpoints)
+func (d *EndpointSliceDie) Endpoints() *diefields.List[Endpoint, *EndpointDie] {
+	return diefields.ListOf(d, endpointSliceFields.Get().Endpoints)
 }
 
 // ports specifies the list of network ports exposed by each endpoint in
@@ -780,8 +780,8 @@ func (d *EndpointSliceDie) Endpoints() diefields.Value[[]Endpoint] {
 // indicates that there are no defined ports. When a port is defined with a
 // nil port value, it indicates "all ports". Each slice may include a
 // maximum of 100 ports.
-func (d *EndpointSliceDie) Ports() diefields.Value[[]EndpointPort] {
-	return diefields.ValueOf(d, endpointSliceFields.Get().Ports)
+func (d *EndpointSliceDie) Ports() *diefields.List[EndpointPort, *EndpointPortDie] {
+	return diefields.ListOf(d, endpointSliceFields.Get().Ports)
 }
 
 // Kind is a string value representing the REST resource this object represents.
@@ -819,8 +819,8 @@ func (d *EndpointSliceDieMut) AddressType() diefields.ValueMut[AddressType] {
 
 // endpoints is a list of unique endpoints in this slice. Each slice may
 // include a maximum of 1000 endpoints.
-func (d *EndpointSliceDieMut) Endpoints() diefields.ValueMut[[]Endpoint] {
-	return diefields.ValueMutOf(d, endpointSliceFields.Get().Endpoints)
+func (d *EndpointSliceDieMut) Endpoints() *diefields.ListMut[Endpoint, *EndpointDie, *EndpointDieMut] {
+	return diefields.ListMutOf(d, endpointSliceFields.Get().Endpoints)
 }
 
 // ports specifies the list of network ports exposed by each endpoint in
@@ -828,8 +828,8 @@ func (d *EndpointSliceDieMut) Endpoints() diefields.ValueMut[[]Endpoint] {
 // indicates that there are no defined ports. When a port is defined with a
 // nil port value, it indicates "all ports". Each slice may include a
 // maximum of 100 ports.
-func (d *EndpointSliceDieMut) Ports() diefields.ValueMut[[]EndpointPort] {
-	return diefields.ValueMutOf(d, endpointSliceFields.Get().Ports)
+func (d *EndpointSliceDieMut) Ports() *diefields.ListMut[EndpointPort, *EndpointPortDie, *EndpointPortDieMut] {
+	return diefields.ListMutOf(d, endpointSliceFields.Get().Ports)
 }
 
 // +kubebuilder:object:generate=false

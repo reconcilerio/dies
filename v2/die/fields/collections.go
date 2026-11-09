@@ -96,6 +96,23 @@ func (l *ListMapMut[C, CD, CDM, K]) Remove(k K) error {
 	return l.write(base.Path{l.step(k)}, core.OpClear, false)
 }
 
+// Set sets the element with c's key to c: it is appended if the list
+// doesn't have one, and replaced if it does, as intent, as [ListMapMut.Replace]
+// replaces a list: what differs is written, field by field, so fields c
+// doesn't have are cleared, and nothing is written if they're the same. The
+// element is a copy of c, so later changes to c aren't seen here.
+//
+//	d.Spec().Containers().Set(corev1.Container{Name: "app", Image: "app:2"})
+func (l *ListMapMut[C, CD, CDM, K]) Set(c C) error {
+	v := core.DeepCopy(reflect.ValueOf(&c).Elem())
+	if err := core.CheckKeys(v); err != nil {
+		return err
+	}
+	// keyed as the list keys its elements, with its key fields' defaults
+	k := l.keyOf(core.WithKeyDefaults(v, l.keys).Interface().(C))
+	return core.ReplaceValueAt(l.h, l.at, base.Path{l.step(k)}, true, v)
+}
+
 // Clear removes the list: null in patches.
 func (l *ListMapMut[C, CD, CDM, K]) Clear() error {
 	return l.write(nil, core.OpClear, false)
@@ -265,6 +282,31 @@ func (m *Map[K, V]) entry(k K) base.Path { return core.ChildPath(m.at, core.MapK
 func (m *Map[K, V]) At(k K) V {
 	v := core.Must(m.h.ValueAt(m.entry(k)))
 	return v.Interface().(V)
+}
+
+// Entry returns the handle of the value for key k, whether or not the map
+// has it: a location of a V, as a field's handle is, for what takes one, such
+// as a validation error about the value rather than the map, a scope, a jig's
+// binding or [ValueMut.Replace]. Its path is the map's with the key.
+//
+//	for k, v := range d.Metadata().Labels().All() {
+//		if !valid(v) {
+//			errs = append(errs, validation.Invalid(d.Metadata().Labels().Entry(k), "must be a valid label value"))
+//		}
+//	}
+func (m *Map[K, V]) Entry(k K) Value[V] {
+	return Value[V]{m.entryLeaf(k)}
+}
+
+// Entry returns the mutable handle of the value for key k, whether or not
+// the map has it, as [Map.Entry] does: its Set sets the key, and its Clear
+// removes it.
+func (m *MapMut[K, V]) Entry(k K) ValueMut[V] {
+	return ValueMut[V]{Value[V]{m.entryLeaf(k)}}
+}
+
+func (m *Map[K, V]) entryLeaf(k K) leaf {
+	return leaf{h: m.h, at: m.at, rel: base.Path{core.MapKeyStep(string(k))}}
 }
 
 // Has reports whether the map has key k.

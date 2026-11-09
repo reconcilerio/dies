@@ -162,20 +162,20 @@ var VersionSelectionSemverPrereleasesBlank = diebase.Blank[VersionSelectionSemve
 // +k8s:deepcopy-gen=false
 
 type versionSelectionSemverPrereleasesFieldsTable struct {
-	Identifiers diefields.Field[VersionSelectionSemverPrereleases, []string]
+	Identifiers diefields.ListField[VersionSelectionSemverPrereleases, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var versionSelectionSemverPrereleasesFields = &diefields.Table[versionSelectionSemverPrereleasesFieldsTable]{Build: func() (f versionSelectionSemverPrereleasesFieldsTable) {
-	f.Identifiers = diefields.NewField[VersionSelectionSemverPrereleases, []string]("identifiers")
+	f.Identifiers = diefields.NewValueList[VersionSelectionSemverPrereleases, string]("identifiers")
 	return
 }}
 
-func (d *VersionSelectionSemverPrereleasesDie) Identifiers() diefields.Value[[]string] {
-	return diefields.ValueOf(d, versionSelectionSemverPrereleasesFields.Get().Identifiers)
+func (d *VersionSelectionSemverPrereleasesDie) Identifiers() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, versionSelectionSemverPrereleasesFields.Get().Identifiers)
 }
 
-func (d *VersionSelectionSemverPrereleasesDieMut) Identifiers() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, versionSelectionSemverPrereleasesFields.Get().Identifiers)
+func (d *VersionSelectionSemverPrereleasesDieMut) Identifiers() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, versionSelectionSemverPrereleasesFields.Get().Identifiers)
 }
 
 // SchemeBuilder registers this package's objects and lists, of which it

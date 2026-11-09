@@ -2403,7 +2403,7 @@ type statefulSetSpecFieldsTable struct {
 	Replicas                             diefields.Field[StatefulSetSpec, *int32]
 	Selector                             diefields.Struct[StatefulSetSpec, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
 	Template                             diefields.Struct[StatefulSetSpec, diecorev1.PodTemplateSpec, *diecorev1.PodTemplateSpecDie, *diecorev1.PodTemplateSpecDieMut]
-	VolumeClaimTemplates                 diefields.Field[StatefulSetSpec, []diecorev1.PersistentVolumeClaim]
+	VolumeClaimTemplates                 diefields.ListField[StatefulSetSpec, diecorev1.PersistentVolumeClaim, *diecorev1.PersistentVolumeClaimDie, *diecorev1.PersistentVolumeClaimDieMut]
 	ServiceName                          diefields.Field[StatefulSetSpec, string]
 	PodManagementPolicy                  diefields.Field[StatefulSetSpec, PodManagementPolicyType]
 	UpdateStrategy                       diefields.Struct[StatefulSetSpec, StatefulSetUpdateStrategy, *StatefulSetUpdateStrategyDie, *StatefulSetUpdateStrategyDieMut]
@@ -2418,7 +2418,7 @@ var statefulSetSpecFields = &diefields.Table[statefulSetSpecFieldsTable]{Build: 
 	f.Replicas = diefields.NewField[StatefulSetSpec, *int32]("replicas")
 	f.Selector = diefields.NewStruct[StatefulSetSpec, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("selector")
 	f.Template = diefields.NewStruct[StatefulSetSpec, diecorev1.PodTemplateSpec, *diecorev1.PodTemplateSpecDie, *diecorev1.PodTemplateSpecDieMut]("template")
-	f.VolumeClaimTemplates = diefields.NewItems[StatefulSetSpec, []diecorev1.PersistentVolumeClaim, diecorev1.PersistentVolumeClaim, *diecorev1.PersistentVolumeClaimDie, *diecorev1.PersistentVolumeClaimDieMut]("volumeClaimTemplates")
+	f.VolumeClaimTemplates = diefields.NewList[StatefulSetSpec, diecorev1.PersistentVolumeClaim, *diecorev1.PersistentVolumeClaimDie, *diecorev1.PersistentVolumeClaimDieMut]("volumeClaimTemplates")
 	f.ServiceName = diefields.NewField[StatefulSetSpec, string]("serviceName")
 	f.PodManagementPolicy = diefields.NewField[StatefulSetSpec, PodManagementPolicyType]("podManagementPolicy")
 	f.UpdateStrategy = diefields.NewStruct[StatefulSetSpec, StatefulSetUpdateStrategy, *StatefulSetUpdateStrategyDie, *StatefulSetUpdateStrategyDieMut]("updateStrategy")
@@ -2462,8 +2462,8 @@ func (d *StatefulSetSpecDie) Template() *diecorev1.PodTemplateSpecDie {
 // container in the template. A claim in this list takes precedence over
 // any volumes in the template, with the same name.
 // TODO: Define the behavior if a claim already exists with the same name.
-func (d *StatefulSetSpecDie) VolumeClaimTemplates() diefields.Value[[]diecorev1.PersistentVolumeClaim] {
-	return diefields.ValueOf(d, statefulSetSpecFields.Get().VolumeClaimTemplates)
+func (d *StatefulSetSpecDie) VolumeClaimTemplates() *diefields.List[diecorev1.PersistentVolumeClaim, *diecorev1.PersistentVolumeClaimDie] {
+	return diefields.ListOf(d, statefulSetSpecFields.Get().VolumeClaimTemplates)
 }
 
 // serviceName is the name of the service that governs this StatefulSet.
@@ -2559,8 +2559,8 @@ func (d *StatefulSetSpecDieMut) Template() *diecorev1.PodTemplateSpecDieMut {
 // container in the template. A claim in this list takes precedence over
 // any volumes in the template, with the same name.
 // TODO: Define the behavior if a claim already exists with the same name.
-func (d *StatefulSetSpecDieMut) VolumeClaimTemplates() diefields.ValueMut[[]diecorev1.PersistentVolumeClaim] {
-	return diefields.ValueMutOf(d, statefulSetSpecFields.Get().VolumeClaimTemplates)
+func (d *StatefulSetSpecDieMut) VolumeClaimTemplates() *diefields.ListMut[diecorev1.PersistentVolumeClaim, *diecorev1.PersistentVolumeClaimDie, *diecorev1.PersistentVolumeClaimDieMut] {
+	return diefields.ListMutOf(d, statefulSetSpecFields.Get().VolumeClaimTemplates)
 }
 
 // serviceName is the name of the service that governs this StatefulSet.

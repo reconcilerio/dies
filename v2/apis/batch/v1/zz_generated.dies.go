@@ -491,22 +491,22 @@ func (d *CronJobStatusDieMut) DieStampApplyConfiguration(fn func(ac *CronJobStat
 // +k8s:deepcopy-gen=false
 
 type cronJobStatusFieldsTable struct {
-	Active             diefields.Field[CronJobStatus, []diecorev1.ObjectReference]
+	Active             diefields.ListField[CronJobStatus, diecorev1.ObjectReference, *diecorev1.ObjectReferenceDie, *diecorev1.ObjectReferenceDieMut]
 	LastScheduleTime   diefields.Field[CronJobStatus, *diemetav1.Time]
 	LastSuccessfulTime diefields.Field[CronJobStatus, *diemetav1.Time]
 }
 
 var cronJobStatusFields = &diefields.Table[cronJobStatusFieldsTable]{Build: func() (f cronJobStatusFieldsTable) {
 	_ = annotated
-	f.Active = diefields.NewItems[CronJobStatus, []diecorev1.ObjectReference, diecorev1.ObjectReference, *diecorev1.ObjectReferenceDie, *diecorev1.ObjectReferenceDieMut]("active")
+	f.Active = diefields.NewList[CronJobStatus, diecorev1.ObjectReference, *diecorev1.ObjectReferenceDie, *diecorev1.ObjectReferenceDieMut]("active")
 	f.LastScheduleTime = diefields.NewField[CronJobStatus, *diemetav1.Time]("lastScheduleTime")
 	f.LastSuccessfulTime = diefields.NewField[CronJobStatus, *diemetav1.Time]("lastSuccessfulTime")
 	return
 }}
 
 // A list of pointers to currently running jobs.
-func (d *CronJobStatusDie) Active() diefields.Value[[]diecorev1.ObjectReference] {
-	return diefields.ValueOf(d, cronJobStatusFields.Get().Active)
+func (d *CronJobStatusDie) Active() *diefields.List[diecorev1.ObjectReference, *diecorev1.ObjectReferenceDie] {
+	return diefields.ListOf(d, cronJobStatusFields.Get().Active)
 }
 
 // Information when was the last time the job was successfully scheduled.
@@ -520,8 +520,8 @@ func (d *CronJobStatusDie) LastSuccessfulTime() diefields.Optional[diemetav1.Tim
 }
 
 // A list of pointers to currently running jobs.
-func (d *CronJobStatusDieMut) Active() diefields.ValueMut[[]diecorev1.ObjectReference] {
-	return diefields.ValueMutOf(d, cronJobStatusFields.Get().Active)
+func (d *CronJobStatusDieMut) Active() *diefields.ListMut[diecorev1.ObjectReference, *diecorev1.ObjectReferenceDie, *diecorev1.ObjectReferenceDieMut] {
+	return diefields.ListMutOf(d, cronJobStatusFields.Get().Active)
 }
 
 // Information when was the last time the job was successfully scheduled.
@@ -1579,7 +1579,7 @@ func (d *JobStatusDieMut) DieStampApplyConfiguration(fn func(ac *JobStatusApplyC
 // +k8s:deepcopy-gen=false
 
 type jobStatusFieldsTable struct {
-	Conditions              diefields.Field[JobStatus, []JobCondition]
+	Conditions              diefields.ListField[JobStatus, JobCondition, *JobConditionDie, *JobConditionDieMut]
 	StartTime               diefields.Field[JobStatus, *diemetav1.Time]
 	CompletionTime          diefields.Field[JobStatus, *diemetav1.Time]
 	Active                  diefields.Field[JobStatus, int32]
@@ -1594,7 +1594,7 @@ type jobStatusFieldsTable struct {
 
 var jobStatusFields = &diefields.Table[jobStatusFieldsTable]{Build: func() (f jobStatusFieldsTable) {
 	_ = annotated
-	f.Conditions = diefields.NewItems[JobStatus, []JobCondition, JobCondition, *JobConditionDie, *JobConditionDieMut]("conditions")
+	f.Conditions = diefields.NewList[JobStatus, JobCondition, *JobConditionDie, *JobConditionDieMut]("conditions")
 	f.StartTime = diefields.NewField[JobStatus, *diemetav1.Time]("startTime")
 	f.CompletionTime = diefields.NewField[JobStatus, *diemetav1.Time]("completionTime")
 	f.Active = diefields.NewField[JobStatus, int32]("active")
@@ -1621,8 +1621,8 @@ var jobStatusFields = &diefields.Table[jobStatusFieldsTable]{Build: func() (f jo
 // The "Complete", "Failed" and "FailureTarget" conditions cannot be disabled.
 //
 // More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
-func (d *JobStatusDie) Conditions() diefields.Value[[]JobCondition] {
-	return diefields.ValueOf(d, jobStatusFields.Get().Conditions)
+func (d *JobStatusDie) Conditions() *diefields.List[JobCondition, *JobConditionDie] {
+	return diefields.ListOf(d, jobStatusFields.Get().Conditions)
 }
 
 // Represents time when the job controller started processing a job. When a
@@ -1734,8 +1734,8 @@ func (d *JobStatusDie) Ready() diefields.Optional[int32] {
 // The "Complete", "Failed" and "FailureTarget" conditions cannot be disabled.
 //
 // More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
-func (d *JobStatusDieMut) Conditions() diefields.ValueMut[[]JobCondition] {
-	return diefields.ValueMutOf(d, jobStatusFields.Get().Conditions)
+func (d *JobStatusDieMut) Conditions() *diefields.ListMut[JobCondition, *JobConditionDie, *JobConditionDieMut] {
+	return diefields.ListMutOf(d, jobStatusFields.Get().Conditions)
 }
 
 // Represents time when the job controller started processing a job. When a
@@ -2013,12 +2013,12 @@ func (d *PodFailurePolicyDieMut) DieStampApplyConfiguration(fn func(ac *PodFailu
 // +k8s:deepcopy-gen=false
 
 type podFailurePolicyFieldsTable struct {
-	Rules diefields.Field[PodFailurePolicy, []PodFailurePolicyRule]
+	Rules diefields.ListField[PodFailurePolicy, PodFailurePolicyRule, *PodFailurePolicyRuleDie, *PodFailurePolicyRuleDieMut]
 }
 
 var podFailurePolicyFields = &diefields.Table[podFailurePolicyFieldsTable]{Build: func() (f podFailurePolicyFieldsTable) {
 	_ = annotated
-	f.Rules = diefields.NewItems[PodFailurePolicy, []PodFailurePolicyRule, PodFailurePolicyRule, *PodFailurePolicyRuleDie, *PodFailurePolicyRuleDieMut]("rules")
+	f.Rules = diefields.NewList[PodFailurePolicy, PodFailurePolicyRule, *PodFailurePolicyRuleDie, *PodFailurePolicyRuleDieMut]("rules")
 	return
 }}
 
@@ -2027,8 +2027,8 @@ var podFailurePolicyFields = &diefields.Table[podFailurePolicyFieldsTable]{Build
 // When no rule matches the Pod failure, the default handling applies - the
 // counter of pod failures is incremented and it is checked against
 // the backoffLimit. At most 20 elements are allowed.
-func (d *PodFailurePolicyDie) Rules() diefields.Value[[]PodFailurePolicyRule] {
-	return diefields.ValueOf(d, podFailurePolicyFields.Get().Rules)
+func (d *PodFailurePolicyDie) Rules() *diefields.List[PodFailurePolicyRule, *PodFailurePolicyRuleDie] {
+	return diefields.ListOf(d, podFailurePolicyFields.Get().Rules)
 }
 
 // A list of pod failure policy rules. The rules are evaluated in order.
@@ -2036,8 +2036,8 @@ func (d *PodFailurePolicyDie) Rules() diefields.Value[[]PodFailurePolicyRule] {
 // When no rule matches the Pod failure, the default handling applies - the
 // counter of pod failures is incremented and it is checked against
 // the backoffLimit. At most 20 elements are allowed.
-func (d *PodFailurePolicyDieMut) Rules() diefields.ValueMut[[]PodFailurePolicyRule] {
-	return diefields.ValueMutOf(d, podFailurePolicyFields.Get().Rules)
+func (d *PodFailurePolicyDieMut) Rules() *diefields.ListMut[PodFailurePolicyRule, *PodFailurePolicyRuleDie, *PodFailurePolicyRuleDieMut] {
+	return diefields.ListMutOf(d, podFailurePolicyFields.Get().Rules)
 }
 
 // +kubebuilder:object:generate=false
@@ -2119,14 +2119,14 @@ func (d *PodFailurePolicyOnExitCodesRequirementDieMut) DieStampApplyConfiguratio
 type podFailurePolicyOnExitCodesRequirementFieldsTable struct {
 	ContainerName diefields.Field[PodFailurePolicyOnExitCodesRequirement, *string]
 	Operator      diefields.Field[PodFailurePolicyOnExitCodesRequirement, PodFailurePolicyOnExitCodesOperator]
-	Values        diefields.Field[PodFailurePolicyOnExitCodesRequirement, []int32]
+	Values        diefields.ListField[PodFailurePolicyOnExitCodesRequirement, int32, diefields.Value[int32], diefields.ValueMut[int32]]
 }
 
 var podFailurePolicyOnExitCodesRequirementFields = &diefields.Table[podFailurePolicyOnExitCodesRequirementFieldsTable]{Build: func() (f podFailurePolicyOnExitCodesRequirementFieldsTable) {
 	_ = annotated
 	f.ContainerName = diefields.NewField[PodFailurePolicyOnExitCodesRequirement, *string]("containerName")
 	f.Operator = diefields.NewField[PodFailurePolicyOnExitCodesRequirement, PodFailurePolicyOnExitCodesOperator]("operator")
-	f.Values = diefields.NewField[PodFailurePolicyOnExitCodesRequirement, []int32]("values")
+	f.Values = diefields.NewValueList[PodFailurePolicyOnExitCodesRequirement, int32]("values")
 	return
 }}
 
@@ -2160,8 +2160,8 @@ func (d *PodFailurePolicyOnExitCodesRequirementDie) Operator() diefields.Value[P
 // values with respect to the operator. The list of values must be ordered
 // and must not contain duplicates. Value '0' cannot be used for the In operator.
 // At least one element is required. At most 255 elements are allowed.
-func (d *PodFailurePolicyOnExitCodesRequirementDie) Values() diefields.Value[[]int32] {
-	return diefields.ValueOf(d, podFailurePolicyOnExitCodesRequirementFields.Get().Values)
+func (d *PodFailurePolicyOnExitCodesRequirementDie) Values() *diefields.List[int32, diefields.Value[int32]] {
+	return diefields.ListOf(d, podFailurePolicyOnExitCodesRequirementFields.Get().Values)
 }
 
 // Restricts the check for exit codes to the container with the
@@ -2194,8 +2194,8 @@ func (d *PodFailurePolicyOnExitCodesRequirementDieMut) Operator() diefields.Valu
 // values with respect to the operator. The list of values must be ordered
 // and must not contain duplicates. Value '0' cannot be used for the In operator.
 // At least one element is required. At most 255 elements are allowed.
-func (d *PodFailurePolicyOnExitCodesRequirementDieMut) Values() diefields.ValueMut[[]int32] {
-	return diefields.ValueMutOf(d, podFailurePolicyOnExitCodesRequirementFields.Get().Values)
+func (d *PodFailurePolicyOnExitCodesRequirementDieMut) Values() *diefields.ListMut[int32, diefields.Value[int32], diefields.ValueMut[int32]] {
+	return diefields.ListMutOf(d, podFailurePolicyOnExitCodesRequirementFields.Get().Values)
 }
 
 // +kubebuilder:object:generate=false
@@ -2383,14 +2383,14 @@ func (d *PodFailurePolicyRuleDieMut) DieStampApplyConfiguration(fn func(ac *PodF
 type podFailurePolicyRuleFieldsTable struct {
 	Action          diefields.Field[PodFailurePolicyRule, PodFailurePolicyAction]
 	OnExitCodes     diefields.Struct[PodFailurePolicyRule, PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie, *PodFailurePolicyOnExitCodesRequirementDieMut]
-	OnPodConditions diefields.Field[PodFailurePolicyRule, []PodFailurePolicyOnPodConditionsPattern]
+	OnPodConditions diefields.ListField[PodFailurePolicyRule, PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie, *PodFailurePolicyOnPodConditionsPatternDieMut]
 }
 
 var podFailurePolicyRuleFields = &diefields.Table[podFailurePolicyRuleFieldsTable]{Build: func() (f podFailurePolicyRuleFieldsTable) {
 	_ = annotated
 	f.Action = diefields.NewField[PodFailurePolicyRule, PodFailurePolicyAction]("action")
 	f.OnExitCodes = diefields.NewStruct[PodFailurePolicyRule, PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie, *PodFailurePolicyOnExitCodesRequirementDieMut]("onExitCodes")
-	f.OnPodConditions = diefields.NewItems[PodFailurePolicyRule, []PodFailurePolicyOnPodConditionsPattern, PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie, *PodFailurePolicyOnPodConditionsPatternDieMut]("onPodConditions")
+	f.OnPodConditions = diefields.NewList[PodFailurePolicyRule, PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie, *PodFailurePolicyOnPodConditionsPatternDieMut]("onPodConditions")
 	return
 }}
 
@@ -2420,8 +2420,8 @@ func (d *PodFailurePolicyRuleDie) OnExitCodes() *PodFailurePolicyOnExitCodesRequ
 // Represents the requirement on the pod conditions. The requirement is represented
 // as a list of pod condition patterns. The requirement is satisfied if at
 // least one pattern matches an actual pod condition. At most 20 elements are allowed.
-func (d *PodFailurePolicyRuleDie) OnPodConditions() diefields.Value[[]PodFailurePolicyOnPodConditionsPattern] {
-	return diefields.ValueOf(d, podFailurePolicyRuleFields.Get().OnPodConditions)
+func (d *PodFailurePolicyRuleDie) OnPodConditions() *diefields.List[PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie] {
+	return diefields.ListOf(d, podFailurePolicyRuleFields.Get().OnPodConditions)
 }
 
 // Specifies the action taken on a pod failure when the requirements are satisfied.
@@ -2450,8 +2450,8 @@ func (d *PodFailurePolicyRuleDieMut) OnExitCodes() *PodFailurePolicyOnExitCodesR
 // Represents the requirement on the pod conditions. The requirement is represented
 // as a list of pod condition patterns. The requirement is satisfied if at
 // least one pattern matches an actual pod condition. At most 20 elements are allowed.
-func (d *PodFailurePolicyRuleDieMut) OnPodConditions() diefields.ValueMut[[]PodFailurePolicyOnPodConditionsPattern] {
-	return diefields.ValueMutOf(d, podFailurePolicyRuleFields.Get().OnPodConditions)
+func (d *PodFailurePolicyRuleDieMut) OnPodConditions() *diefields.ListMut[PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie, *PodFailurePolicyOnPodConditionsPatternDieMut] {
+	return diefields.ListMutOf(d, podFailurePolicyRuleFields.Get().OnPodConditions)
 }
 
 // +kubebuilder:object:generate=false
@@ -2526,12 +2526,12 @@ func (d *SuccessPolicyDieMut) DieStampApplyConfiguration(fn func(ac *SuccessPoli
 // +k8s:deepcopy-gen=false
 
 type successPolicyFieldsTable struct {
-	Rules diefields.Field[SuccessPolicy, []SuccessPolicyRule]
+	Rules diefields.ListField[SuccessPolicy, SuccessPolicyRule, *SuccessPolicyRuleDie, *SuccessPolicyRuleDieMut]
 }
 
 var successPolicyFields = &diefields.Table[successPolicyFieldsTable]{Build: func() (f successPolicyFieldsTable) {
 	_ = annotated
-	f.Rules = diefields.NewItems[SuccessPolicy, []SuccessPolicyRule, SuccessPolicyRule, *SuccessPolicyRuleDie, *SuccessPolicyRuleDieMut]("rules")
+	f.Rules = diefields.NewList[SuccessPolicy, SuccessPolicyRule, *SuccessPolicyRuleDie, *SuccessPolicyRuleDieMut]("rules")
 	return
 }}
 
@@ -2541,8 +2541,8 @@ var successPolicyFields = &diefields.Table[successPolicyFieldsTable]{Build: func
 // The terminal state for such a Job has the "Complete" condition.
 // Additionally, these rules are evaluated in order; Once the Job meets one of the rules,
 // other rules are ignored. At most 20 elements are allowed.
-func (d *SuccessPolicyDie) Rules() diefields.Value[[]SuccessPolicyRule] {
-	return diefields.ValueOf(d, successPolicyFields.Get().Rules)
+func (d *SuccessPolicyDie) Rules() *diefields.List[SuccessPolicyRule, *SuccessPolicyRuleDie] {
+	return diefields.ListOf(d, successPolicyFields.Get().Rules)
 }
 
 // rules represents the list of alternative rules for the declaring the Jobs
@@ -2551,8 +2551,8 @@ func (d *SuccessPolicyDie) Rules() diefields.Value[[]SuccessPolicyRule] {
 // The terminal state for such a Job has the "Complete" condition.
 // Additionally, these rules are evaluated in order; Once the Job meets one of the rules,
 // other rules are ignored. At most 20 elements are allowed.
-func (d *SuccessPolicyDieMut) Rules() diefields.ValueMut[[]SuccessPolicyRule] {
-	return diefields.ValueMutOf(d, successPolicyFields.Get().Rules)
+func (d *SuccessPolicyDieMut) Rules() *diefields.ListMut[SuccessPolicyRule, *SuccessPolicyRuleDie, *SuccessPolicyRuleDieMut] {
+	return diefields.ListMutOf(d, successPolicyFields.Get().Rules)
 }
 
 // +kubebuilder:object:generate=false
@@ -2770,35 +2770,35 @@ func (d *UncountedTerminatedPodsDieMut) DieStampApplyConfiguration(fn func(ac *U
 // +k8s:deepcopy-gen=false
 
 type uncountedTerminatedPodsFieldsTable struct {
-	Succeeded diefields.Field[UncountedTerminatedPods, []types.UID]
-	Failed    diefields.Field[UncountedTerminatedPods, []types.UID]
+	Succeeded diefields.ListField[UncountedTerminatedPods, types.UID, diefields.Value[types.UID], diefields.ValueMut[types.UID]]
+	Failed    diefields.ListField[UncountedTerminatedPods, types.UID, diefields.Value[types.UID], diefields.ValueMut[types.UID]]
 }
 
 var uncountedTerminatedPodsFields = &diefields.Table[uncountedTerminatedPodsFieldsTable]{Build: func() (f uncountedTerminatedPodsFieldsTable) {
 	_ = annotated
-	f.Succeeded = diefields.NewField[UncountedTerminatedPods, []types.UID]("succeeded")
-	f.Failed = diefields.NewField[UncountedTerminatedPods, []types.UID]("failed")
+	f.Succeeded = diefields.NewValueList[UncountedTerminatedPods, types.UID]("succeeded")
+	f.Failed = diefields.NewValueList[UncountedTerminatedPods, types.UID]("failed")
 	return
 }}
 
 // succeeded holds UIDs of succeeded Pods.
-func (d *UncountedTerminatedPodsDie) Succeeded() diefields.Value[[]types.UID] {
-	return diefields.ValueOf(d, uncountedTerminatedPodsFields.Get().Succeeded)
+func (d *UncountedTerminatedPodsDie) Succeeded() *diefields.List[types.UID, diefields.Value[types.UID]] {
+	return diefields.ListOf(d, uncountedTerminatedPodsFields.Get().Succeeded)
 }
 
 // failed holds UIDs of failed Pods.
-func (d *UncountedTerminatedPodsDie) Failed() diefields.Value[[]types.UID] {
-	return diefields.ValueOf(d, uncountedTerminatedPodsFields.Get().Failed)
+func (d *UncountedTerminatedPodsDie) Failed() *diefields.List[types.UID, diefields.Value[types.UID]] {
+	return diefields.ListOf(d, uncountedTerminatedPodsFields.Get().Failed)
 }
 
 // succeeded holds UIDs of succeeded Pods.
-func (d *UncountedTerminatedPodsDieMut) Succeeded() diefields.ValueMut[[]types.UID] {
-	return diefields.ValueMutOf(d, uncountedTerminatedPodsFields.Get().Succeeded)
+func (d *UncountedTerminatedPodsDieMut) Succeeded() *diefields.ListMut[types.UID, diefields.Value[types.UID], diefields.ValueMut[types.UID]] {
+	return diefields.ListMutOf(d, uncountedTerminatedPodsFields.Get().Succeeded)
 }
 
 // failed holds UIDs of failed Pods.
-func (d *UncountedTerminatedPodsDieMut) Failed() diefields.ValueMut[[]types.UID] {
-	return diefields.ValueMutOf(d, uncountedTerminatedPodsFields.Get().Failed)
+func (d *UncountedTerminatedPodsDieMut) Failed() *diefields.ListMut[types.UID, diefields.Value[types.UID], diefields.ValueMut[types.UID]] {
+	return diefields.ListMutOf(d, uncountedTerminatedPodsFields.Get().Failed)
 }
 
 // SchemeGroupVersion is the group version of this package's object dies.

@@ -206,9 +206,9 @@ type aPIResourceDiscoveryFieldsTable struct {
 	ResponseKind     diefields.Struct[APIResourceDiscovery, diemetav1.GroupVersionKind, *diemetav1.GroupVersionKindDie, *diemetav1.GroupVersionKindDieMut]
 	Scope            diefields.Field[APIResourceDiscovery, ResourceScope]
 	SingularResource diefields.Field[APIResourceDiscovery, string]
-	Verbs            diefields.Field[APIResourceDiscovery, []string]
-	ShortNames       diefields.Field[APIResourceDiscovery, []string]
-	Categories       diefields.Field[APIResourceDiscovery, []string]
+	Verbs            diefields.ListField[APIResourceDiscovery, string, diefields.Value[string], diefields.ValueMut[string]]
+	ShortNames       diefields.ListField[APIResourceDiscovery, string, diefields.Value[string], diefields.ValueMut[string]]
+	Categories       diefields.ListField[APIResourceDiscovery, string, diefields.Value[string], diefields.ValueMut[string]]
 	Subresources     diefields.ListMapField[APIResourceDiscovery, APISubresourceDiscovery, *APISubresourceDiscoveryDie, *APISubresourceDiscoveryDieMut, string]
 }
 
@@ -218,9 +218,9 @@ var aPIResourceDiscoveryFields = &diefields.Table[aPIResourceDiscoveryFieldsTabl
 	f.ResponseKind = diefields.NewStruct[APIResourceDiscovery, diemetav1.GroupVersionKind, *diemetav1.GroupVersionKindDie, *diemetav1.GroupVersionKindDieMut]("responseKind")
 	f.Scope = diefields.NewField[APIResourceDiscovery, ResourceScope]("scope")
 	f.SingularResource = diefields.NewField[APIResourceDiscovery, string]("singularResource")
-	f.Verbs = diefields.NewField[APIResourceDiscovery, []string]("verbs")
-	f.ShortNames = diefields.NewField[APIResourceDiscovery, []string]("shortNames")
-	f.Categories = diefields.NewField[APIResourceDiscovery, []string]("categories")
+	f.Verbs = diefields.NewValueList[APIResourceDiscovery, string]("verbs")
+	f.ShortNames = diefields.NewValueList[APIResourceDiscovery, string]("shortNames")
+	f.Categories = diefields.NewValueList[APIResourceDiscovery, string]("categories")
 	f.Subresources = diefields.NewListMap[APIResourceDiscovery, APISubresourceDiscovery, *APISubresourceDiscoveryDie, *APISubresourceDiscoveryDieMut]("subresources", func(k string) []any { return []any{k} }, func(e APISubresourceDiscovery) string { return e.Subresource })
 	return
 }}
@@ -256,19 +256,19 @@ func (d *APIResourceDiscoveryDie) SingularResource() diefields.Value[string] {
 // verbs is a list of supported API operation types (this includes
 // but is not limited to get, list, watch, create, update, patch,
 // delete, deletecollection, and proxy).
-func (d *APIResourceDiscoveryDie) Verbs() diefields.Value[[]string] {
-	return diefields.ValueOf(d, aPIResourceDiscoveryFields.Get().Verbs)
+func (d *APIResourceDiscoveryDie) Verbs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, aPIResourceDiscoveryFields.Get().Verbs)
 }
 
 // shortNames is a list of suggested short names of the resource.
-func (d *APIResourceDiscoveryDie) ShortNames() diefields.Value[[]string] {
-	return diefields.ValueOf(d, aPIResourceDiscoveryFields.Get().ShortNames)
+func (d *APIResourceDiscoveryDie) ShortNames() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, aPIResourceDiscoveryFields.Get().ShortNames)
 }
 
 // categories is a list of the grouped resources this resource belongs to (e.g. 'all').
 // Clients may use this to simplify acting on multiple resource types at once.
-func (d *APIResourceDiscoveryDie) Categories() diefields.Value[[]string] {
-	return diefields.ValueOf(d, aPIResourceDiscoveryFields.Get().Categories)
+func (d *APIResourceDiscoveryDie) Categories() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, aPIResourceDiscoveryFields.Get().Categories)
 }
 
 // subresources is a list of subresources provided by this resource. Subresources are located at /apis/<APIGroupDiscovery.objectMeta.name>/<APIVersionDiscovery.version>/<APIResourceDiscovery.Resource>/name-of-instance/<APIResourceDiscovery.subresources[i].subresource>
@@ -307,19 +307,19 @@ func (d *APIResourceDiscoveryDieMut) SingularResource() diefields.ValueMut[strin
 // verbs is a list of supported API operation types (this includes
 // but is not limited to get, list, watch, create, update, patch,
 // delete, deletecollection, and proxy).
-func (d *APIResourceDiscoveryDieMut) Verbs() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, aPIResourceDiscoveryFields.Get().Verbs)
+func (d *APIResourceDiscoveryDieMut) Verbs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, aPIResourceDiscoveryFields.Get().Verbs)
 }
 
 // shortNames is a list of suggested short names of the resource.
-func (d *APIResourceDiscoveryDieMut) ShortNames() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, aPIResourceDiscoveryFields.Get().ShortNames)
+func (d *APIResourceDiscoveryDieMut) ShortNames() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, aPIResourceDiscoveryFields.Get().ShortNames)
 }
 
 // categories is a list of the grouped resources this resource belongs to (e.g. 'all').
 // Clients may use this to simplify acting on multiple resource types at once.
-func (d *APIResourceDiscoveryDieMut) Categories() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, aPIResourceDiscoveryFields.Get().Categories)
+func (d *APIResourceDiscoveryDieMut) Categories() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, aPIResourceDiscoveryFields.Get().Categories)
 }
 
 // subresources is a list of subresources provided by this resource. Subresources are located at /apis/<APIGroupDiscovery.objectMeta.name>/<APIVersionDiscovery.version>/<APIResourceDiscovery.Resource>/name-of-instance/<APIResourceDiscovery.subresources[i].subresource>
@@ -363,7 +363,7 @@ type aPISubresourceDiscoveryFieldsTable struct {
 	Subresource   diefields.Field[APISubresourceDiscovery, string]
 	ResponseKind  diefields.Struct[APISubresourceDiscovery, diemetav1.GroupVersionKind, *diemetav1.GroupVersionKindDie, *diemetav1.GroupVersionKindDieMut]
 	AcceptedTypes diefields.ListMapField[APISubresourceDiscovery, diemetav1.GroupVersionKind, *diemetav1.GroupVersionKindDie, *diemetav1.GroupVersionKindDieMut, GroupVersionKindKey]
-	Verbs         diefields.Field[APISubresourceDiscovery, []string]
+	Verbs         diefields.ListField[APISubresourceDiscovery, string, diefields.Value[string], diefields.ValueMut[string]]
 }
 
 var aPISubresourceDiscoveryFields = &diefields.Table[aPISubresourceDiscoveryFieldsTable]{Build: func() (f aPISubresourceDiscoveryFieldsTable) {
@@ -373,7 +373,7 @@ var aPISubresourceDiscoveryFields = &diefields.Table[aPISubresourceDiscoveryFiel
 	f.AcceptedTypes = diefields.NewListMap[APISubresourceDiscovery, diemetav1.GroupVersionKind, *diemetav1.GroupVersionKindDie, *diemetav1.GroupVersionKindDieMut]("acceptedTypes", func(k GroupVersionKindKey) []any { return []any{k.Group, k.Version, k.Kind} }, func(e diemetav1.GroupVersionKind) GroupVersionKindKey {
 		return GroupVersionKindKey{Group: e.Group, Version: e.Version, Kind: e.Kind}
 	})
-	f.Verbs = diefields.NewField[APISubresourceDiscovery, []string]("verbs")
+	f.Verbs = diefields.NewValueList[APISubresourceDiscovery, string]("verbs")
 	return
 }}
 
@@ -403,8 +403,8 @@ func (d *APISubresourceDiscoveryDie) AcceptedTypes() *diefields.ListMap[diemetav
 // custom verbs outside the standard Kubernetes verb set. Clients
 // should expect the behavior of standard verbs to align with
 // Kubernetes interaction conventions.
-func (d *APISubresourceDiscoveryDie) Verbs() diefields.Value[[]string] {
-	return diefields.ValueOf(d, aPISubresourceDiscoveryFields.Get().Verbs)
+func (d *APISubresourceDiscoveryDie) Verbs() *diefields.List[string, diefields.Value[string]] {
+	return diefields.ListOf(d, aPISubresourceDiscoveryFields.Get().Verbs)
 }
 
 // subresource is the name of the subresource.  This is used in the URL path and is the unique identifier
@@ -433,8 +433,8 @@ func (d *APISubresourceDiscoveryDieMut) AcceptedTypes() *diefields.ListMapMut[di
 // custom verbs outside the standard Kubernetes verb set. Clients
 // should expect the behavior of standard verbs to align with
 // Kubernetes interaction conventions.
-func (d *APISubresourceDiscoveryDieMut) Verbs() diefields.ValueMut[[]string] {
-	return diefields.ValueMutOf(d, aPISubresourceDiscoveryFields.Get().Verbs)
+func (d *APISubresourceDiscoveryDieMut) Verbs() *diefields.ListMut[string, diefields.Value[string], diefields.ValueMut[string]] {
+	return diefields.ListMutOf(d, aPISubresourceDiscoveryFields.Get().Verbs)
 }
 
 // +kubebuilder:object:generate=false
