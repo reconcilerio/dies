@@ -1,3 +1,0 @@
-ignore:
-  - "**/zz_generated.*.go"
-github_checks: false

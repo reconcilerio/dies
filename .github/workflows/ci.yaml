@@ -3,26 +3,77 @@ name: CI
 on:
   push:
     branches:
-    - '**'
-    - '!dependabot/**'
+      - "**"
+      - "!dependabot/**"
     tags:
-    - '**'
+      - "**"
   pull_request: {}
 
 jobs:
-
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-go@v5
-      with:
-        go-version-file: go.mod
-    - name: Ensure generated code is committed
-      run: ./hack/update-codegen.sh && git diff --exit-code
-    - name: Test
-      run: go test ./... -coverprofile cover.out
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: v2/go.mod
+      - name: Ensure generated code is committed
+        run: ./hack/update-codegen.sh && git diff --exit-code
+      - name: Test
+        run: go test ./... -coverpkg=./... -coverprofile cover.out
+        working-directory: v2
+      - name: Test examples with their own modules
+        run: |
+          for m in examples/clients examples/kapp/sources; do
+            (cd "$m" && go test ./...)
+          done
+        working-directory: v2
+      - name: Conformance against a real API server
+        # the control plane runs in Docker, which the runner has
+        run: go test ./apiserver/... -coverpkg=reconciler.io/dies/v2/apis/...,reconciler.io/dies/v2/die/...,reconciler.io/dies/v2/examples/... -coverprofile cover.out
+        working-directory: v2/conformance
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: v2/cover.out,v2/conformance/cover.out
+
+  conformance-cluster:
+    # dies with a real cluster: kind, with an aggregated API behind an
+    # APIService
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: v2/go.mod
+      - name: Conformance against a kind cluster
+        run: ./hack/conformance-cluster.sh
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: v2/conformance/cover.out
+
+  # a single check for branch protection to require
+  ci:
+    if: always()
+    needs:
+      - test
+      - conformance-cluster
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check jobs succeeded
+        env:
+          RESULTS: ${{ toJSON(needs.*.result) }}
+          CLI: ${{ needs.settings.outputs.cli }}
+          CLI_RESULT: ${{ needs.cli.result }}
+        run: |
+          echo "results: ${RESULTS}"
+          if [ -z "${CLI}" ] && [ "${CLI_RESULT}" = "skipped" ] ; then
+            RESULTS=$( jq -c 'map(select(. != "skipped"))' <<< "${RESULTS}" )
+          fi
+          if jq -e 'any(. != "success")' <<< "${RESULTS}" > /dev/null ; then
+            echo "::error::a required job did not succeed"
+            exit 1
+          fi

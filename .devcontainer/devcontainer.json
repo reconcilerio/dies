@@ -1,0 +1,31 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/go .
+{
+	"name": "reconcilerio-dies",
+	"image": "mcr.microsoft.com/devcontainers/go",
+	"runArgs": [
+		"--name=reconcilerio-dies"
+	],
+	"workspaceMount": "source=${localWorkspaceFolder}/..,target=/workspaces,type=bind,readonly",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"mounts": [
+		"source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind",
+		"source=go-modules,target=/go/pkg/mod,type=volume",
+		"source=go-build-cache,target=/home/vscode/.cache/go-build,type=volume"
+	],
+	"containerEnv": {
+		"GOMODCACHE": "/go/pkg/mod",
+		"GOCACHE": "/home/vscode/.cache/go-build"
+	},
+	// Ensure the non-root user owns the mounted volume directories
+	"updateContentCommand": "sudo chown -R vscode:golang /go && sudo chown -R vscode:vscode /home/vscode/.cache",
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+		"ghcr.io/devcontainers/features/common-utils:1": {},
+		// docker is used for conformance tests
+		"ghcr.io/devcontainers/features/docker-in-docker:4": {
+			"moby": false
+		},
+		"ghcr.io/devcontainers/features/github-cli:1": {}
+	}
+}

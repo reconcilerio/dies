@@ -1,0 +1,13 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: web
+spec:
+  paused: false
+  futureField: from a newer API
+  template:
+    spec:
+      containers:
+      - name: app
+        image: app:1

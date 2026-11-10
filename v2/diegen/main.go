@@ -1,0 +1,194 @@
+/*
+Copyright 2026 the original author or authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+// Command diegen is a spike of the v2 die generator. It generates dies for
+// the packages matching its arguments (./apis/... by default), in two phases.
+//
+// Types: a die package's markers, the comments above its package clause, say
+// where the types its dies are for come from, and how they're brought in,
+// aliased (the default) or cloned:
+//
+//	// +die:types:package=k8s.io/api/core/v1
+//	// +die:types:package=carvel.dev/vendir/pkg/vendir/versions/v1alpha1@v0.46.2,mode=clone
+//
+// Package markers may be in the package doc, or, to keep them out of the
+// godoc, in a comment of their own separated from it by a blank line:
+//
+//	// +die:types:package=k8s.io/api/core/v1
+//
+//	// Package v1 has dies for k8s.io/api/core/v1.
+//	package v1
+//
+// Either way it gets a zz_generated.dies.types.go. Aliased, it aliases the
+// upstream package's types and constants, and re-exports its functions, by
+// functions of the same signature that call them, and its variables, as
+// copies made when it is initialized, so that one import provides both types
+// and dies. The scheme registration isn't re-exported, as the die package
+// registers its dies, nor what names what it can't, such as an unexported
+// type. Cloned, it copies the types and constants, so that it doesn't depend
+// on the upstream package at all. Each type
+// that needs a die is marked +die, or +die:object:apiVersion=…,kind=… for a
+// top-level object. Like a package's, a type's markers may be in its doc, or
+// in a comment of their own before it, separated by a blank line:
+//
+//	// +kubebuilder:object:root=true
+//	// +die:object:apiVersion=ducks.reconciler.io/v1,kind=Duck
+//
+//	// Duck is the Schema for the ducks API.
+//	type Duck struct {
+//
+// As for controller-gen, no other comment is read. A +die marker in one, such
+// as a second comment of markers above the first, is an error.
+//
+// Dies: every type marked +die in a die package, whether an alias or a type
+// declared locally, gets a die in zz_generated.dies.go. Markers are read from
+// the type's own source, upstream for an alias.
+//
+// A field whose type is in another package uses that type's die, found
+// through, in order:
+//
+//   - an import in the die package's markers, saying where another package's
+//     dies are:
+//     +die:import:package=k8s.io/apimachinery/pkg/apis/meta/v1,as=reconciler.io/dies/v2/apis/meta/v1
+//   - the default mappings, from k8s.io/api/<group>/<version>, apimachinery's
+//     meta/v1, apiextensions/v1 and apiregistration/v1 to the dies in
+//     reconciler.io/dies/v2/apis
+//   - a type marked +die in its own package
+//
+// A field type with no die is used as a value.
+//
+// A method written by hand on a die, marked +die:shared in its doc comment,
+// is shared with its counterpart, so it is written once. A method of the
+// immutable die, which reads, is shared with the mutable die: the mutable
+// die gets a method of the same signature that calls it through
+// DieReadOnly. A method of the mutable die, which writes and returns the
+// die, is shared with the immutable die: the immutable die gets a method of
+// the same parameters that calls it on a copy in DieStamp, returning the
+// immutable die of the copy in place of the mutable die.
+//
+// A die package names the list maps of the element types its list-map fields
+// list, <Elem>ListMap and <Elem>ListMapMut, which its accessors return, and
+// those of a type marked with the keys it is listed by elsewhere,
+// +die:listMap:keys=type, as metav1.Condition is. An accessor of another
+// package's elements, keyed by one field, returns that package's.
+//
+// Markers that validate and default a field, rather than shape its die, are
+// read for die.ValidateCreate, die.ValidateUpdate and die.Default: declarative validation's, such as
+// +k8s:format, +k8s:minimum and +k8s:required, kubebuilder's, such as
+// +kubebuilder:validation:Pattern and +kubebuilder:default, +required,
+// +default, +enum on a type, and the unions of +oneOf and +zeroOrOneOf. A
+// marker on a field's type, or on a list's item type, holds for the field. A
+// package with kubebuilder's markers of custom resources, such as
+// +kubebuilder:object:root or +kubebuilder:subresource, has kubebuilder's
+// conventions: a field without omitempty or omitzero is required unless it
+// is +optional, or the package is +kubebuilder:validation:Optional.
+//
+// Every generated file starts with the line
+//
+//	// Code generated by diegen. DO NOT EDIT.
+//
+// which Go tools recognize. Above it goes the contents of the file named by
+// -header, such as a license, which must hold only Go comments:
+//
+//	diegen -header hack/boilerplate.go.txt ./apis/...
+package main
+
+import (
+	"flag"
+	"fmt"
+	"go/scanner"
+	"go/token"
+	"os"
+	"strings"
+)
+
+func main() {
+	headerFile := flag.String("header", "", "a file of Go comments, such as a license, to start each generated file")
+	flag.Parse()
+	if *headerFile != "" {
+		h, err := readHeader(*headerFile)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		header = h
+	}
+	patterns := flag.Args()
+	if len(patterns) == 0 {
+		patterns = []string{"./apis/..."}
+	}
+	if err := run(patterns); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	progress.done()
+}
+
+// readHeader reads a header file, which must hold only comments, so that it
+// can't change the code it starts.
+func readHeader(name string) (string, error) {
+	src, err := os.ReadFile(name)
+	if err != nil {
+		return "", err
+	}
+	var s scanner.Scanner
+	fset := token.NewFileSet()
+	var bad error
+	s.Init(fset.AddFile(name, -1, len(src)), src, func(pos token.Position, msg string) { bad = fmt.Errorf("%s: %s", pos, msg) }, scanner.ScanComments)
+	for {
+		pos, tok, _ := s.Scan()
+		if bad != nil {
+			return "", bad
+		}
+		if tok == token.EOF {
+			break
+		}
+		if tok != token.COMMENT && (tok != token.SEMICOLON || src[fset.Position(pos).Offset] != '\n') {
+			return "", fmt.Errorf("%s: a header must hold only comments, found %s", fset.Position(pos), tok)
+		}
+	}
+	h := strings.TrimSpace(string(src))
+	if h == "" {
+		return "", nil
+	}
+	return h + "\n\n", nil
+}
+
+func run(patterns []string) error {
+	g := newGenerator()
+	if err := g.aliases(patterns); err != nil {
+		return err
+	}
+	return g.dies(patterns)
+}
+
+// defaultMapping is where the dies for an upstream package are, unless a die
+// package maps it elsewhere.
+func defaultMapping(upstream string) (string, bool) {
+	const dies = "reconciler.io/dies/v2/apis/"
+	if rest, ok := cutPrefix(upstream, "k8s.io/api/"); ok {
+		return dies + rest, true
+	}
+	switch upstream {
+	case "k8s.io/apimachinery/pkg/apis/meta/v1":
+		return dies + "meta/v1", true
+	case "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1":
+		return dies + "apiextensions/v1", true
+	case "k8s.io/kube-aggregator/pkg/apis/apiregistration/v1":
+		return dies + "apiregistration/v1", true
+	}
+	return "", false
+}

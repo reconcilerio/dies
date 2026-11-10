@@ -5,14 +5,15 @@ updates:
   schedule:
     interval: daily
 - package-ecosystem: gomod
-  directory: "/"
+  directories:
+  - "/v2"
+  - "/v2/examples/clients"
+  - "/v2/examples/kapp/sources"
+  - "/v2/examples/knative/sources"
+  - "/v2/conformance"
   schedule:
     interval: daily
   ignore:
   - dependency-name: k8s.io/*
     update-types:
     - version-update:semver-patch
-- package-ecosystem: gomod
-  directory: "/cmd/diegen"
-  schedule:
-    interval: daily
