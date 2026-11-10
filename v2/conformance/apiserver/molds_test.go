@@ -66,7 +66,7 @@ func TestUnstructuredAppliesAsTyped(t *testing.T) {
 			dietesting.NoError(t, d.Spec().Selector().MatchLabels().Set("app", "web"))
 			d.Spec().Template().Spec().Containers().At("app").DieStamp(func(c *diecorev1.ContainerDieMut) {
 				dietesting.NoError(t, c.Image().Set("app:1"))
-				dietesting.NoError(t, c.Args().Set([]string{"--verbose"}))
+				dietesting.NoError(t, c.Args().SetValue("--verbose"))
 				dietesting.NoError(t, c.Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080, Protocol: diecorev1.ProtocolTCP}).Name().Set("http"))
 			})
 			dietesting.NoError(t, d.Spec().Template().Spec().Tolerations().Empty())

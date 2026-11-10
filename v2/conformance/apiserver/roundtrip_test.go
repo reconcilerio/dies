@@ -84,7 +84,7 @@ func roundTrips(t testing.TB, ns string) []roundTrip {
 		{"Role", dierbacv1.RoleBlank.DieStamp(func(d *dierbacv1.RoleDieMut) {
 			dietesting.NoError(t, d.Metadata().Namespace().Set(ns))
 			dietesting.NoError(t, d.Metadata().Name().Set("web"))
-			dietesting.NoError(t, d.Rules().Set([]dierbacv1.PolicyRule{{APIGroups: []string{""}, Resources: []string{"configmaps"}, Verbs: []string{"get"}}}))
+			dietesting.NoError(t, d.Rules().SetValue(dierbacv1.PolicyRule{APIGroups: []string{""}, Resources: []string{"configmaps"}, Verbs: []string{"get"}}))
 		}).DieMutable(), dierbacv1.RoleBlank.DieMutable()},
 		{"Widget", widgetv1.WidgetBlank.DieStamp(func(d *widgetv1.WidgetDieMut) {
 			dietesting.NoError(t, d.Metadata().Namespace().Set(ns))

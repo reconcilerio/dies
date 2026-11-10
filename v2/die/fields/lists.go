@@ -61,9 +61,11 @@ func NewList[T, E any, ED base.DieOf[E, ED, EDM], EDM base.DieMutOf[E, ED, EDM]]
 // as strings, whose handles are [Value] and [ValueMut].
 func NewValueList[T, E any](wire string) ListField[T, E, Value[E], ValueMut[E]] {
 	return ListField[T, E, Value[E], ValueMut[E]]{
-		fd:      listField[T, E](wire),
-		wrap:    func(h *core.Holder, list base.Path, i int) Value[E] { return Value[E]{elementLeaf(h, list, i)} },
-		wrapMut: func(h *core.Holder, list base.Path, i int) ValueMut[E] { return ValueMut[E]{Value[E]{elementLeaf(h, list, i)}} },
+		fd:   listField[T, E](wire),
+		wrap: func(h *core.Holder, list base.Path, i int) Value[E] { return Value[E]{elementLeaf(h, list, i)} },
+		wrapMut: func(h *core.Holder, list base.Path, i int) ValueMut[E] {
+			return ValueMut[E]{Value[E]{elementLeaf(h, list, i)}}
+		},
 	}
 }
 

@@ -22,8 +22,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation/field"
 
 	dieappsv1 "reconciler.io/dies/v2/apis/apps/v1"
-	"reconciler.io/dies/v2/die/validation"
 	dietesting "reconciler.io/dies/v2/die/testing"
+	"reconciler.io/dies/v2/die/validation"
 )
 
 // A map entry's handle is the location of its value, so an error about the

@@ -107,7 +107,7 @@ properties:
 			names.ListKind().Set("WidgetList"),
 			names.Plural().Set("widgets"),
 			names.Singular().Set("widget"),
-			d.Spec().Versions().Set([]apiextensionsv1.CustomResourceDefinitionVersion{*version.DieRelease()}),
+			d.Spec().Versions().Set(version),
 		)
 	})
 	if err != nil {
@@ -178,11 +178,11 @@ properties:
 			names.ListKind().Set("SprocketList"),
 			names.Plural().Set("sprockets"),
 			names.Singular().Set("sprocket"),
-			d.Spec().Versions().Set([]apiextensionsv1.CustomResourceDefinitionVersion{*v1.DieRelease(), *v2.DieRelease()}),
+			d.Spec().Versions().Set(v1, v2),
 			d.Spec().Conversion().Strategy().Set(dieapiextensionsv1.WebhookConverter),
 			webhook.ClientConfig().URL().Set(url),
 			webhook.ClientConfig().CABundle().Set(caBundle),
-			webhook.ConversionReviewVersions().Set([]string{"v1"}),
+			webhook.ConversionReviewVersions().SetValue("v1"),
 		)
 	})
 	if err != nil {
